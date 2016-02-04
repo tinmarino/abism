@@ -2,6 +2,7 @@ import numpy as np
 
 
 import Stat 
+import WorkVariables as W # to know the stats
 
 
 
@@ -19,18 +20,24 @@ def MinMaxCut(grid,dic={}): # From a true value renge give min_cut and max_cut
 
   elif dic["scale_cut_type"]=="percent":
     percent = dic["percent"]
-    sort =   grid.flatten()      # Sorted Flatten Image 
-    sort.sort() 
+    if dic.has_key("whole_image"):
+      sort = W.sort 
+    else : 
+      sort =   grid.flatten()      # Sorted Flatten Image 
+      sort.sort() 
     percent =(100. - percent)/100.   #get a little percentage 
     min_cut=sort[  int(percent/2*len(sort))   ]
     max_cut=sort[  int( (1-percent/2)*len(sort))  ]
 
 
   elif dic["scale_cut_type"]=="sigma_clip":
-    if not dic.has_key("median") :  # The stats isn't done yet  
-      dic.update( Stat.Stat( grid ,dic=dic )  ) 
-    if not dic.has_key("sigma_min"):
-      dic["sigma_min"],dic["sigma_max"] = dic["sigma"]
+    if not  dic.has_key("sigma_min"):
+       dic["sigma_min"],dic["sigma_max"] = dic["sigma"], dic["sigma"]
+    if not dic.has_key("median") :   # The stats isn't done yet  
+      if dic.has_key("whole_image") : 
+         dic.update( vars(W.imstat) ) 
+      else : 
+         dic.update( Stat.Stat( grid ,dic=dic )  ) 
 
     mean,rms = dic["mean"],dic["rms"]
     s_min,s_max = dic["sigma_min"],dic["sigma_max"]

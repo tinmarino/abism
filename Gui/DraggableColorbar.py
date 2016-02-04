@@ -12,19 +12,19 @@ import MyGui as MG # to draw
 
 #import GuyVariables as G
 try : import GuyVariables as G 
-except : print "WARNING draggable colorbar.py could not load Gui>Variables" 
+except : print "WARNING draggable colorbar.py could not load Gui>Variables" #verbose : this is ok, never will be printed at paranal 
 
 class DraggableColorbar(object):
     def __init__(self, cbar, mappable):
         self.cbar = cbar  # the colorbar 
         self.mappable = mappable # the imshow 
         self.press = None
-	try : self.cycle = G.all_cmaps 
-	except : 
-           self.cycle = sorted([i for i in dir(plt.cm) if hasattr(getattr(plt.cm,i),'N')])
+        self.cycle = sorted([i for i in dir(plt.cm) \
+	      if (    (hasattr(getattr(plt.cm,i),'N')) \
+	              and (not "_r" in i)  
+		 )             ])
 	# added by martin 
 	self.old = {}
-	self.stretch = "linear"
 
 
 
@@ -45,27 +45,48 @@ class DraggableColorbar(object):
         self.press = event.x, event.y
 
     def key_press(self, event):
+	""
         #if event.inaxes != self.cbar.ax: return
 	
-	self.old["cmap"] = (self.cbar.get_cmap().name) 
+
+	# INDEX 
+        inverted_bool = False # are we inverted scale (with "_r")
+	try : 
+	   tmpmap = G.scale_dic[0]["cmap"]
+	except : # if no G  
+	   self.old["cmap"] = self.cbar.get_cmap().name
+	if "_r" in tmpmap : inverted_bool = True
+	self.old["cmap"] = tmpmap.replace("_r","")  
         index = self.cycle.index(self.old["cmap"]) # index and cycle are made cmap = cycle[index]
+
+
+        # EVENT KEY 
+	_r_bool = False # need to dreate it because will know the cmap latter 
         if event.key=='down':
             index += 1
         elif event.key=='up':
             index -= 1
+        elif event.key=='left' or event.key == "right" :
+	    _r_bool = True 
+            
+	else : return # return if not used key 
+       
+        # manage cycle, invert  and draw  
         if index<0:
             index = len(self.cycle)
         elif index>=len(self.cycle):
             index = 0
         cmap = self.cycle[index]
-
+	if _r_bool : 
+	   if inverted_bool  : cmap = cmap.replace("_r","") 
+	   else  : cmap = cmap + "_r"
 	MG.Draw(cmap=cmap)
         #self.mappable.get_axes().set_title(cmap)
+
 	# for Abism, try to change color button, but just try because importation is not possible out of ABism   
 	try : 
 	  G.cu_color.set(cmap) 
 	except : pass
-	  #print "DraggableColorBar.py I changed color but not G.cu_color variable nevermind"
 
 
     def on_motion(self, event):
@@ -77,7 +98,6 @@ class DraggableColorbar(object):
         dx = event.x - xprev
         dy = event.y - yprev
         self.press = event.x,event.y
-        #print 'x0=%f, xpress=%f, event.xdata=%f, dx=%f, x0+dx=%f'%(x0, xpress, event.xdata, dx, x0+dx)
         scale = self.cbar.norm.vmax - self.cbar.norm.vmin
         perc = 0.1  # initially 0.03
         if event.button==1:

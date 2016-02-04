@@ -47,3 +47,2242 @@ print vars(W.head)
 ***************************
 W.verbose=5
 ***************************
+print W.hdulist[0].header
+***************************
+G.menu.menu.entryconfig(3,label=u'\u25be '+'Less Option' )
+
+***************************
+print W.pick_type
+***************************
+print W.pick_type
+***************************
+W.verbose =5
+***************************
+print "bite"
+***************************
+print "bite"
+***************************
+print "bite"
+***************************
+print "bite"
+***************************
+print "bite"
+***************************
+print W.image_name
+***************************
+print W.image_name
+***************************
+print askopenfilename(title="Open a FITS image",filetypes=[("fitsfiles","*.fits"),("allfiles","*")])
+
+***************************
+String= askopenfilename(title="Open a FITS image",filetypes=[("fitsfiles","*.fits"),("allfiles","*")])
+
+***************************
+String= askopenfilename(title="Open a FITS image",filetypes=[("fitsfiles","*.fits"),("allfiles","*")])
+print type(String) 
+***************************
+print W.Im0.shape
+#print W.hdulist[0].shape, W.hdulist[0]
+***************************
+print W.Im0.shape
+print W.hdulist[0].data.shape, W.hdulist[0]
+***************************
+import Image
+im = Image.open(W.image_name) 
+W.Im0 = np.asarray(im)
+
+plt.imshow(W.Im0) ; plt.show() 
+***************************
+plt.imshow(W.Im0) ; plt.show() 
+***************************
+print G.current_image.shape
+***************************
+print G.current_image.shape
+print W.Im0.shape
+***************************
+print G.current_image.shape
+print W.Im0.shape
+***************************
+print G.scale_dic[0]["contour"]
+***************************
+print G.scale_dic[0]["contour"]
+***************************
+print G.scale_dic[0]["contour"]
+***************************
+print G.scale_dic[0]["contour"]
+***************************
+print G.scale_dic[0]["contour"]
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print G.scale_dic[0]["contour"]
+G.scale_dic[0]["contour"]=True
+***************************
+print  G.scale_dic[0]["contour"] 
+***************************
+G.fit_frame_arrow.place(relx=1.,rely=1.,anchor="se")
+
+***************************
+G.fit_frame_arrow.place(relx=1.,rely=1.,anchor="se")
+
+***************************
+G.fit_frame_arrow.place(relx=.9,rely=.9,anchor="se")
+
+***************************
+G.fit_frame_arrow.place(relx=.9,rely=.9,anchor="se")
+
+***************************
+G.fit_frame_arrow.pack() 
+
+***************************
+G.fit_frame_arrow.pack() 
+
+***************************
+G.fit_frame_arrow.pack() 
+
+***************************
+G.fit_frame_arrow.pack() 
+
+***************************
+G.fit_frame_arrow.pack() 
+
+***************************
+G.fit_frame_arrow.place(relx=1.,rely=1.,anchor="se")
+
+***************************
+G.fit_frame_arrow.place(relx=.9,rely=.9)
+***************************
+G.fit_frame_arrow.place(relx=.9,rely=.9)
+***************************
+G.fit_frame_arrow.place(relx=.9,rely=.9)
+***************************
+G.fit_frame_arrow.place(relx=.9,rely=.9)
+***************************
+G.fit_frame_arrow.pack()
+***************************
+print W.path 
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.pack(side=BOTTOM,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=1.,rely=1.,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=1.,rely=1.,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.1,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.1,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.1,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.1,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.2,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.2,anchor="se")
+
+***************************
+G.AnswerFrame["bg"]="blue"
+
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.2,anchor="se")
+
+***************************
+G.AnswerFrame["bg"]="blue"
+
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=0.1,rely=0.2,anchor="se")
+
+***************************
+G.AnswerFrame["bg"]="blue"
+
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.AnswerFrame,image=photo,command=IG.ToolbarFit)
+G.fit_frame_arrow.place(relx=1.,rely=1.,anchor="se")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+G.fit_frame_arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+G.fit_frame_arrow["text"]= "bite"
+G.fit_frame_arrow["image"]= photo
+G.fit_frame_arrow.place(x=30,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+G.fit_frame_arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+G.fit_frame_arrow["text"]= "bite"
+G.fit_frame_arrow["image"]= photo
+G.fit_frame_arrow.place(x=30,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+G.fit_frame_arrow["text"]= "bite"
+G.fit_frame_arrow["image"]= photo
+G.fit_frame_arrow.place(x=40,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif",master=G.parent)
+G.fit_frame_arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+G.fit_frame_arrow["text"]= "bite"
+G.fit_frame_arrow["image"]= photo
+G.fit_frame_arrow.place(x=40,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+arrow["text"]= "bite"
+arrow["image"]= photo
+arrow.place(x=40,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+arrow["text"]= "bite"
+arrow["image"]= photo
+arrow.place(x=50,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+#arrow["text"]= "bite"
+arrow["image"]= photo
+arrow.place(x=50,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+#arrow["text"]= "bite"
+arrow["image"]= photo
+arrow.place(x=50,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+#arrow["text"]= "bite"
+arrow["image"]= photo
+arrow.place(x=50,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+#arrow["text"]= "bite"
+arrow["image"]= photo
+arrow.place(x=50,y=20,anchor="nw")
+
+***************************
+photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif",master=G.parent)
+arrow2 = Button(G.FitFrame,command=ToolbarFit) #,text="bite")
+#arrow2["text"]= "bite"
+arrow2["image"]= photo
+arrow2.place(x=60,y=20,anchor="nw")
+
+***************************
+G.toolbar["width"]=20
+***************************
+G.toolbar["width"]=40
+***************************
+G.toolbar["width"]=40
+***************************
+G.toolbar["width"]=40
+***************************
+G.toolbar["width"]=40
+***************************
+G.dpfit.close_event()
+***************************
+G.dpfit.close_event()
+G.toolbar_fit.pack_forget() 
+***************************
+G.ToolbarFrame["width"]=20
+***************************
+G.ToolbarFrame["width"]=30
+***************************
+G.ToolbarFrame["width"]=30
+***************************
+G.ToolbarFrame["width"]=30
+***************************
+G.ToolbarFrame["width"]=30
+***************************
+G.ToolbarFrame["width"]=30
+***************************
+G.ToolbarFrame["height"]=30
+***************************
+G.ToolbarFrame["height"]=30
+***************************
+G.ToolbarFrame["height"]=100
+***************************
+G.ToolbarFrame["height"]=100
+***************************
+G.ToolbarFrame["height"]= 20
+***************************
+G.ToolbarFrame["height"]= 20
+***************************
+G.ToolbarFrame["height"]= 20
+***************************
+G.ToolbarFrame["height"]= 20
+***************************
+G.ToolbarFrame["height"]= 30
+***************************
+G.TextPaned["width"]= 30
+***************************
+G.TextPaned["width"]= 30
+***************************
+G.TextPaned["width"]= 30
+***************************
+G.TextPaned["width"]= 30
+***************************
+G.TextPaned["bg"]= "red"
+***************************
+G.ax31.format_coord=lambda (x,y): "%.1f"%W.Im0[10,x]
+
+
+***************************
+G.ax31.format_coord=lambda (x): "%.1f"%W.Im0[10,x]
+
+
+***************************
+G.ax31.format_coord=lambda x: "%.1f"%W.Im0[10,x]
+
+
+***************************
+print W.r
+***************************
+print W.r
+***************************
+print W.type["pick"]
+***************************
+print W.type["pick"]
+***************************
+G.ImageCanvas.get_tk_widget()["cursor"]=""
+
+***************************
+G.ImageCanvas.get_tk_widget()["cursor"]=""
+print W.type
+***************************
+print W.Im0.shape
+***************************
+print W.hdulist[0].data.shape
+***************************
+print G.scale_dic
+***************************
+print W.Im0
+***************************
+G.ax1.imshow(W.Im0)
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+G.ax1.imshow(W.Im0,cmap="bone")
+G.fig.canvas.show() 
+***************************
+print W.image_name
+***************************
+G.toolbar.focus()
+***************************
+G.toolbar.focus()
+***************************
+G.toolbar.focus()
+***************************
+G.toolbar.focus()
+***************************
+G.toolbar.focus()
+***************************
+G.toolbar.focus()
+***************************
+print G.toolbar.focus()
+***************************
+print G.toolbar.focus()
+***************************
+print G.toolbar.focus()
+***************************
+print G.toolbar.focus()
+***************************
+print G.toolbar.focus_get()
+***************************
+print G.toolbar.focus_get()
+***************************
+print G.toolbar._active
+***************************
+print G.toolbar._active
+***************************
+print G.toolbar._active
+***************************
+print G.toolbar._active
+***************************
+print G.toolbar._active == "PAN"
+***************************
+print G.toolbar._active == "PAN"
+***************************
+print G.toolbar._active == "ZOOM"
+***************************
+print W.cube_num
+***************************
+print W.hdulist[0].data.shape
+***************************
+print W.type["pick"]
+***************************
+print W.type["pick"]
+print W.verbose 
+***************************
+print W.type["pick"]
+print W.verbose 
+W.verbose = 5 
+***************************
+print W.type["pick"]
+print W.verbose 
+W.verbose = 5 
+***************************
+print W.psf_fit[0]
+***************************
+print W.psf_fit[0], W.psf_fit[1]
+***************************
+print W.psf_fit[0]
+print  W.psf_fit[1]
+***************************
+print W.psf_fit[0]
+print "\n\n"
+
+print  W.psf_fit[1]
+***************************
+print W.psf_fit[0]
+print "\n\n"
+
+print  W.psf_fit[1]
+
+print "\n\n"
+
+print  W.psf_fit[0]["fit_dic"]
+***************************
+print W.psf_fit[0]
+print "\n\n"
+
+print  W.psf_fit[1]
+
+print "\n\n"
+
+print  W.psf_fit[0]["fit_dic"]
+***************************
+print W.psf_fit[1]
+***************************
+print W.strehl
+***************************
+print W.strehl["number_count"]
+***************************
+print W.type["fit"]
+***************************
+print W.psf_fit
+***************************
+print W.psf_fit
+***************************
+print W.psf_fit
+***************************
+print W.strehl
+
+***************************
+PD(W.strehl)
+***************************
+print W.type["phot"]
+***************************
+print W.type["phot"]
+
+***************************
+print W.type["phot"]
+
+***************************
+print W.type["phot"]
+
+***************************
+print W.type["phot"]
+
+***************************
+print W.type
+***************************
+print W.type
+***************************
+PD(W.strehl) 
+
+***************************
+PD(W.strehl) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":W.strehl["r99u"],"rv":W.strehl["r99v"],"theta":W.strehl["theta"]} )
+***************************
+PD(W.strehl) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":W.strehl["r99u"],"rv":W.strehl["r99v"],"theta":W.strehl["theta"]} )
+***************************
+PD(W.strehl) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":W.strehl["r99u"],"rv":W.strehl["r99v"],"theta":W.strehl["theta"]} ,full_answer=True)
+***************************
+PD(W.strehl) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":W.strehl["r99u"],"rv":W.strehl["r99v"],"theta":W.strehl["theta"]} ,full_answer=True)
+***************************
+PD(W.strehl) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+***************************
+PD(W.strehl) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+***************************
+PD(W.strehl["fit_dic"]) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+***************************
+PD(W.strehl["fit_dic"]) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+
+***************************
+PD(W.strehl["fit_dic"]) 
+print IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+
+***************************
+PD(W.strehl) 
+
+tmp =   IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":W.strehl["r99u"],"rv":W.strehl["r99v"],"theta":W.strehl["theta"]} ,full_answer=True)
+print tmp 
+print "phot", tmp["sum"] - 34 * tmp ["number_count"]
+***************************
+PD(W.strehl) 
+
+tmp =   IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+print tmp 
+print "phot", tmp["sum"] - 34 * tmp ["number_count"]
+***************************
+PD(W.strehl) 
+
+tmp =   IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":30,"rv":30,"theta":W.strehl["theta"]} ,full_answer=True)
+print tmp 
+print "phot", tmp["sum"] - 34 * tmp ["number_count"]
+***************************
+PD(W.strehl) 
+
+tmp =   IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":10,"rv":10,"theta":W.strehl["theta"]} ,full_answer=True)
+print tmp 
+print "phot", tmp["sum"] - 34 * tmp ["number_count"]
+***************************
+PD(W.strehl) 
+
+tmp =   IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":10,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+print tmp 
+print "phot", tmp["sum"] - 34 * tmp ["number_count"]
+***************************
+PD(W.strehl) 
+
+tmp =   IF.EllipticalAperture(W.Im0,dic={"center_x":W.strehl["center_x"],"center_y":W.strehl["center_y"],"ru":20,"rv":20,"theta":W.strehl["theta"]} ,full_answer=True)
+print tmp 
+print "phot", tmp["sum"] - 34 * tmp ["number_count"]
+***************************
+print W.strehl["strehl"]
+***************************
+print W.strehl["strehl"]
+***************************
+print W.strehl["strehl"]
+***************************
+print W.strehl["strehl"]
+***************************
+print W.strehl
+***************************
+PD(W.strehl)
+***************************
+PD(W.strehl)
+***************************
+PD(W.strehl)
+***************************
+PD(W.strehl)
+***************************
+PD(W.strehl)
+***************************
+print type ( W.head ) 
+***************************
+print vars(G.tkvar)
+***************************
+print vars(G.tkvar)
+G.tkvar.zpt = 3
+***************************
+print vars(G.tkvar)
+G.tkvar.zpt = 3
+***************************
+G.tkvar.zpt.set(30) 
+
+***************************
+G.tkvar.zpt.set(90) 
+
+***************************
+print W.type
+***************************
+print G.background
+***************************
+Stat.Stat(W.Im0) 
+***************************
+PD( Stat.Stat(W.Im0)  )
+***************************
+PD( Stat.Stat(W.Im0)  )
+***************************
+PD( Stat.Stat(W.Im0)  )
+***************************
+PD( Stat.Stat(W.Im0)  )
+***************************
+print W.verbose
+***************************
+PD(W.strehl)
+***************************
+a=W.strehl
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 28
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 28
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 28
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 28
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 28
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 30
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+a=W.strehl
+PD(a) 
+x0,y0 = a["center_x"]  , a["center_y"]
+rx,ry  = a["r99x"] , a["r99y"]
+print rx , x0 
+
+phot = np.sum ( W.Im0 [ x0-rx : x0 + rx , y0 -ry : y0 + ry ]  )
+print "phot", phot
+
+phot2 = phot -  4 * rx * ry * 31
+ 
+
+print "phot2", phot2
+***************************
+print G.bite
+***************************
+G.bite=1.5
+***************************
+G.bite = 1.7
+***************************
+G.bite = 2
+***************************
+print W.path 
+***************************
+G.bite = 2
+***************************
+G.bite = 0.3
+***************************
+G.bite = 2
+***************************
+G.bite = 0.2
+***************************
+G.bite = 0.3
+***************************
+PD(W.strehl) 
+***************************
+print W.suposed_param
+***************************
+PD(W.strehl) 
+***************************
+print G.ManualFrame
+***************************
+print G.ManualFrame
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+G.bite=1.3
+***************************
+print W.type["phot"]
+***************************
+print W.head.pywcs
+***************************
+print W.head.saturation_level
+***************************
+print W.head.read_mode 
+***************************
+print W.head.read_mode 
+print W.head.ncor
+***************************
+print W.head.read_mode 
+print W.head.ncor
+***************************
+print W.head.saturation_level
+***************************
+print W.head.saturation_level
+***************************
+print W.head.saturation_level
+***************************
+print W.head.saturation_level
+***************************
+print W.head.saturation_level
+***************************
+print W.type["noise"]
+***************************
+print G.cbar.cycle
+***************************
+print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.cmap
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.cmap.name
+print G.cbar.cbar.cmap
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.cmap.name
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.cmap.name
+print G.cbar.cbar.get_cmap().name
+***************************
+#print G.cbar.cycle
+print G.cbar.cbar.cmap.name
+print G.cbar.cbar.get_cmap().name
+***************************
+print G.cbar.cycle
+***************************
+print G.scale_dic[0]
+***************************
+print G.scale_dic[0]
+***************************
+PD(W.strehl) 
+***************************
+print W.type
+***************************
+print W.strehl
+***************************
+print W.type
+***************************
+print W.type
+***************************
+print G.lb_arg
+***************************
+print G.fg[0]
+***************************
+print G.bg[0]
+***************************
+print G.fg[0]
+***************************
+print G.fg[0]
+***************************
+print G.fg[0]
+***************************
+print G.lb_arg
+print G.bg[0]
+print G.fg[0]
+***************************
+print G.lb_arg
+print G.bg[0]
+print G.fg[0]
+***************************
+print G.lb_arg
+print G.bu_arg
+print G.bg[0]
+print G.fg[0]
+***************************
+print W.head
+***************************
+print vars(W.head)
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD( W.strehl) 
+***************************
+print W.strehl
+***************************
+PD (W.strehl)
+***************************
+PD (W.strehl)
+print W.head.pywcs
+***************************
+print W.head.header
+***************************
+G.text.see(100.10)
+***************************
+G.text.see(100.10)
+***************************
+G.text.see(10.10)
+***************************
+G.text.see(10.10)
+***************************
+G.text.see(100.10)
+***************************
+G.text.tag_remove('on','1.0',END)
+***************************
+G.text.tag_remove('on','1.0',END)
+***************************
+G.text.tag_remove('on','1.0',END)
+***************************
+G.text.tag_remove('on','1.0',END)
+***************************
+PD(W.strehl)
+***************************
+PD(W.strehl)
+PD(W.type) 
+***************************
+PD(W.strehl) 
+***************************
+for i in G.all_frame : 
+   if "Paned" in i : vars(G)[i[2:]]["bg"] = "green"
+***************************
+for i in G.all_frame : 
+    if "Paned" in i : pass
+         #vars(G)[i[2:]].config() = "green"
+ 
+***************************
+for i in G.all_frame : 
+    if "Paned" in i : 
+         print i[2:]
+        # vars(G)[i[2:]].config("bg"="green") 
+ 
+***************************
+for i in G.all_frame : 
+    if "Paned" in i : 
+ #        for  i in 
+         vars(G)[i[2:]]["bg"]="green" 
+ 
+***************************
+IG.PanedConfig(   {   "sashwidth"   :   4    }    ) 
+***************************
+IG.PanedConfig(   {   "borderwidth"   :   0    }    ) 
+***************************
+IG.PanedConfig(   {   "borderwidth"   :   3   }    ) 
+***************************
+IG.PanedConfig(   {   "borderwidth"   :   0   }    ) 
+***************************
+IG.PanedConfig(   {   "borderwidth"   :   1  }    ) 
+***************************
+IG.PanedConfig(   {   "opaqueresize"   :   1  }    ) 
+***************************
+IG.PanedConfig(   {   "opaqueresize"   :   1  }    ) 
+***************************
+IG.PanedConfig(   {   "opaqueresize"   :   1  }    ) 
+***************************
+IG.PanedConfig(   {   "opaqueresize"   :   100  }    ) 
+***************************
+IG.PanedConfig(   {   "opaqueresize"   :   100  }    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :   FLAT  }    ) 
+***************************
+IG.PanedConfig(   {   "bg"   :   "grey"  }    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :   SUNKEN  }    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :   SUNKEN  }    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :  GROOVE   }    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :  RIDGE   }    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :  RIDGE   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RIDGE   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  GROOVE  }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  SUNKEN  }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RAISED  }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  GROOVE  }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  GROOVE  }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RIDGE  }    ) 
+***************************
+IG.PanedConfig(   {   "showhandle"   :  True }    ) 
+***************************
+IG.PanedConfig(   {   "showhandle"   :  False }    ) 
+***************************
+IG.PanedConfig(   {   "showhandle"   :  True }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  2 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  90 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  300 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  -8 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  -8 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  -8 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  -8 }    ) 
+***************************
+IG.PanedConfig(   {   "handlepad"   :  8 }    ) 
+***************************
+IG.PanedConfig(   {   "handlesize"   :  8 }    ) 
+***************************
+IG.PanedConfig(   {   "handlesize"   :  10 }    ) 
+***************************
+IG.PanedConfig(   {   "handlesize"   :  0 }    ) 
+***************************
+IG.PanedConfig(   {   "handlesize"   :  10 }    ) 
+***************************
+IG.PanedConfig(   {   "sashwidth"   :  10 }    ) 
+***************************
+IG.PanedConfig(   {   "sashwidth"   :  100 }    ) 
+***************************
+IG.PanedConfig(   {   "sashwidth"   :  1}    ) 
+***************************
+IG.PanedConfig(   {   "showhandle"   :  0}    ) 
+***************************
+IG.PanedConfig(   {   "relief"   :  RAISED}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RAISED}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RAISED}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RAISED}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RAISED}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RIDGE}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  RIDGE}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  GROOVE}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  GROOVE}    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   :  GROOVE}    ) 
+***************************
+IG.PanedConfig(   {   "relief"   : FLAT   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   : FLAT   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   : RAISED   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   : RAISED   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   : GROOVE   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   : GROOVE   }    ) 
+***************************
+IG.PanedConfig(   {   "sashrelief"   : GROOVE   }    ) 
+***************************
+IG.PanedConfig(   {   "handlesize"   : 0   }    ) 
+***************************
+IG.PanedConfig(   {   "sashwidth"   : 2   }    ) 
+***************************
+IG.PanedConfig(   {   "sashwidth"   : 4   }    ) 
+***************************
+IG.PanedConfig(   {   "sashwidth"   : 6   }    ) 
+***************************
+PD(W.type) 
+***************************
+PD(W.type) 
+***************************
+PD(W.type) 
+***************************
+PD(W.type) 
+***************************
+W.type.has_key( "fit")
+***************************
+print W.type.has_key( "fit")
+***************************
+print W.type.has_key( "fit")
+***************************
+print W.type.has_key( "fit")
+***************************
+print W.type.has_key( "fit")
+***************************
+print W.type
+***************************
+print W.head.pixel_scale
+***************************
+print len (W.pick_many_det_lst ) 
+print W.type["pick"]
+***************************
+W.strehl
+***************************
+print W.type
+***************************
+PD (W.type) 
+***************************
+PD (W.type) 
+***************************
+PD (W.type) 
+***************************
+G.cu_cut.set("99.9%")
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.strehl) 
+***************************
+PD(W.type)
+***************************
+G.TextPaned["bg"]="blue"
+***************************
+G.TextPaned["bg"]="blue"
+***************************
+G.TextPaned["bg"]="blue"
+***************************
+G.TextPaned["bg"]="blue"
+***************************
+G.TextPaned["bg"]="blue"
+***************************
+G.LabelFrame["bg"]="blue"
+***************************
+G.LabelFrame["bg"]="blue"
+***************************
+G.LabelFrame["bg"]="blue"
+***************************
+G.LabelFrame["bg"]="blue"
+G.LabelFrame["height"]=200
+***************************
+G.LabelFrame["bg"]="blue"
+G.LabelFrame["height"]=200
+***************************
+G.LabelFrame["bg"]="blue"
+G.LabelFrame["height"]=200
+***************************
+IG.LabelDisplay(bite=False)
+***************************
+G.LabelFrame0["bg"]="blue"
+***************************
+G.LabelFrame["bg"]="blue"
+***************************
+print G.LabelFrame0["width"]
+***************************
+print G.LabelFrame0["height"]
+***************************
+print G.LabelFrame["height"]
+***************************
+print G.LabelFrame["height"]
+***************************
+print G.TextPaned.sash_coord(0)
+***************************
+G.last_label 
+***************************
+G.last_label 
+***************************
+G.last_label.winfo_x 
+***************************
+print G.last_label.winfo_x 
+***************************
+print G.last_label.winfo_x() 
+***************************
+print G.last_label.winfo_y() 
+***************************
+print G.last_label.winfo_y()
+print G.last_label["height"]
+***************************
+print G.last_label.winfo_y()
+print G.last_label.cget("height")
+***************************
+print G.last_label.winfo_y()
+print G.last_label.cget("height")
+***************************
+print G.last_label.winfo_y()
+print G.last_label.cget("height")
+***************************
+print G.last_label.winfo_y()
+print G.last_label.cget("height")
+***************************
+print G.last_label.winfo_y()
+print G.last_label.winfo_width()
+***************************
+print G.last_label.winfo_y()
+print G.last_label.winfo_width()
+***************************
+print G.last_label.winfo_y()
+print G.last_label.winfo_height()
+***************************
+IG.Resize()
+***************************
+IG.Resize()
+***************************
+G.label_bool=0
+IG.Resize()
+***************************
+G.label_bool=0
+IG.Resize()
+***************************
+G.label_bool = 0# because it is the supposed current state, that will change
+IG.Resize() 
+***************************
+G.LabelFrame.winfo_height
+***************************
+print G.LabelFrame.winfo_height()
+***************************
+print G.LabelFrame.winfo_height()
+***************************
+print G.LabelFrame.winfo_height()
+***************************
+print G.LabelFrame.winfo_height()
+***************************
+print G.LabelFrame.winfo_height()
+***************************
+print G.LabelFrame.winfo_height()
+***************************
+print G.LabelFrame.winfo_children()
+***************************
+print G.LabelFrame.winfo_children()[-1]
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+for i in  G.LabelFrame.winfo_children():
+   print i.winfo_x()
+
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+print max ( [i.winfo_x() for i in  G.LabelFrame.winfo_children() ] ) 
+***************************
+print [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ]
+
+***************************
+print sum( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+
+***************************
+print sum( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+
+***************************
+print sum( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+G.TextPaned.sash_place(1,0,1134)
+***************************
+a = sum( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+b = G.parent.winfo_height() 
+c = b-a 
+print a,b 
+G.TextPaned.sash_place(1,0,c)
+***************************
+a = max( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+b = G.parent.winfo_height() 
+c = b-a 
+print a,b 
+G.TextPaned.sash_place(1,0,c)
+***************************
+a = max( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+b = G.parent.winfo_height() 
+c = b-a 
+print a,b 
+G.TextPaned.sash_place(1,0,c)
+***************************
+a = max( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+b = G.parent.winfo_height() 
+c = b-a 
+print a,b 
+G.TextPaned.sash_place(1,0,c)
+***************************
+a = max( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+b = G.parent.winfo_height() 
+c = b-a 
+print a,b 
+G.TextPaned.sash_place(1,0,22)
+***************************
+a = max( [ i.winfo_x() for i in G.AnswerFrame.winfo_children() ] ) 
+b = G.parent.winfo_height() 
+c = b-a 
+print a,b 
+G.TextPaned.sash_place(1,0,30)
+***************************
+for i in G.LeftTopFrame.winfo_children():
+    print "i",i
+    print "size", i.winfo_height() 
+    print "size", i.winfo_y()
+***************************
+for i in G.LeftTopFrame.winfo_children():
+  for j in i.winfo_children() :
+    print "i",i
+    print "size", i.winfo_height() 
+    print "size", i.winfo_y()
+***************************
+a= G.TextPaned.winfo_height()
+***************************
+a= G.TextPaned.winfo_height()
+print a
+***************************
+a= G.TextPaned.winfo_height()
+print a
+***************************
+a= G.TextPaned.winfo_height()
+print a
+***************************
+a= G.TextPaned.winfo_height()
+print a
+***************************
+a= G.TextPaned.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_height()
+print a
+***************************
+a= G.LeftTopFrame.winfo_rootx() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_rootx() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_rootx() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_rootx() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_vrootx() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_vrootx() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_geometry() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_geometry() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_geometry() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_geometry() 
+print a
+***************************
+a= G.LeftTopFrame.winfo_geometry() 
+print a
+***************************
+print G.LeftTopFrame.winfo_geometry() 
+print G.LeftTopFrame.winfo_rooty() 
+***************************
+print G.LeftTopFrame.winfo_geometry() 
+print G.LeftTopFrame.winfo_rooty() 
+***************************
+print G.LeftTopFrame.winfo_geometry() 
+print G.LeftTopFrame.winfo_rooty() 
+***************************
+print G.LeftTopFrame.winfo_geometry() 
+print G.LeftTopFrame.winfo_rooty() 
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+G.TextPaned.sash_place(1,0,1000) 
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+G.TextPaned.sash_place(1,0,1000) 
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+G.TextPaned.sash_place(1,0,2000) 
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+
+***************************
+import time 
+start = time.time() 
+for i in range(10000) : 
+   a= G.LeftTopFrame.winfo_geometry() 
+print "a", time.time() -start
+
+start = time.time() 
+for i in range(10000) : 
+   b= G.LeftTopFrame.winfo_rooty() 
+print time.time() -start
+
+
+widget= G.LeftTopFrame
+G.TextPaned.sash_place(1,0,2000) 
+c = max ([ i.winfo_rooty()+ i.winfo_height() for i in widget.winfo_children() ])
+print a,b,c
+
+***************************
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,200) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,200) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,200) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,200) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,100) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,200) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,200) # to expand the widget, and estimate their size 
+
+***************************
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+
+print "new"
+print  max ([ i.winfo_rooty()+ i.winfo_height() for i in G.LeftTopFrame.winfo_children() ])
+
+
+
+G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size 
+corner2 = max ([ i.winfo_rooty() for i in G.LeftTopFrame.winfo_children() ])
+
+print corner2
+G.TextPaned.sash_place(1,0,corner2) 
+***************************
+print G.param_title
+***************************
+print G.param_title
+***************************
+print G.param_title
+***************************
+print G.param_title
+***************************
+print W.type
+***************************
+print W.hdulist[0].data.shape[0]
+***************************
+IG.ResultResize( bolmax=False,bolfull=True ) 
+***************************
+IG.ResultResize( bolmax=False,bolfull=True ) 
+***************************
+IG.ResultResize(how="full") 
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+IG.ResultResize(how = "full")
+***************************
+print G.TextPaned.sash_coord(1)
+***************************
+print G.TextPaned.sash_coord(1)
+***************************
+print G.TextPaned.sash_coord(1)
+***************************
+print G.TextPaned.sash_coord(1)
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.AnswerFrame.winfo_height()
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.AnswerFrame.winfo_height()
+
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.AnswerFrame.winfo_height()
+
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.AnswerFrame.winfo_height()
+
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.AnswerFrame.winfo_height()
+
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.AnswerFrame.winfo_height()
+
+***************************
+print G.TextPaned.sash_coord(1)
+print G.parent.winfo_height() 
+print G.TextPaned.winfo_rooty() 
+print G.LeftBottomFrame.winfo_height()
+
+***************************
+print W.strehl
+***************************
+PD(W.strehl)
+***************************
+PD(W.strehl)
+***************************
+print W.strehl
+***************************
+PD( W.strehl)
+***************************
+PD( W.type)
+***************************
+print W.head
+***************************
+W.head == RH.NacoHeader
+***************************
+W.head == RH.NacoHeader
+***************************
+print W.head == RH.NacoHeader
+***************************
+print W.head == RH.NacoHeader
+***************************
+print W.head == RH.NacoHeader
+***************************
+print type (W.head) == RH.NacoHeader
+***************************
+print type (W.head) == RH.NacoHeader
+***************************
+print type (W.head) == RH.NacoHeader
+***************************
+print type(W.head) == RH.NacoHeader
+print type(W.head)
+***************************
+print type(W.head) == RH.NacoHeader
+print type(W.head)
+***************************
+print type(W.head) == RH.NacoHeader
+isinstance( W.head, RH.NacoHeader ) 
+***************************
+print type(W.head) == RH.NacoHeader
+isinstance( W.head, RH.NacoHeader ) 
+***************************
+print type(W.head) == RH.NacoHeader
+isinstance( W.head, RH.NacoHeader ) 
+***************************
+print type(W.head) == RH.NacoHeader
+isinstance( W.head, RH.NacoHeader ) 
+***************************
+print type(W.head) == RH.NacoHeader
+print isinstance( W.head, RH.NacoHeader ) 
+
+***************************
+print type(W.head) == RH.NacoHeader
+print isinstance( W.head, RH.NacoHeader ) 
+
+***************************
+print type(W.head) == RH.NacoHeader
+print isinstance( W.head, RH.NacoHeader ) 
+
+***************************
+print type(W.head) == RH.NacoHeader
+print isinstance( W.head, RH.NacoHeader ) 
+
+***************************
+PD( W.strehl ) 
+***************************
+PD( W.type ) 
+***************************
+PD (W.type) 
+***************************
+print W.head.sinf_pixel_scale
+***************************
+PD (W.strehl) 
+***************************
+print W.strehl
+***************************
+a=10
+print a
+***************************
+G.AnswerFrame["bg"] = "blue"
+***************************

@@ -1,11 +1,12 @@
 import numpy as np 
 import multiprocessing
 from threading import Thread
-import Tkinter
 
-from timeout import timeout 
+#from timeout import timeout 
 import ImageFunction as IF 
 import AnswerReturn as AR 
+import StrehlImage as SI 
+import scipy.ndimage
 
 import GuyVariables as G
 import WorkVariables as W
@@ -13,16 +14,71 @@ import WorkVariables as W
 
 
 
+def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]
+  """ and wavelgnth , pixel_scale, obstruciton, diameter """
+  bessel_integer = W.head.wavelength *10**(-6.) / np.pi /(W.head.pixel_scale/206265)/ W.head.diameter
+  bessel_integer = bessel_integer**2 *4*np.pi / (1-(W.head.obstruction/100)**2) 
+  Ith = W.strehl["my_photometry"] /bessel_integer # for I theory 
+  strehl = W.strehl["intensity"] / Ith *100
+
+  # SAve 
+  W.strehl["strehl"]=strehl
+  W.strehl["Ith"]   =Ith  # used for error 
+  W.strehl["bessel_integer"]   =bessel_integer   # used for error 
+  
+  
+
+
+def StrehlError():# after strehl , number count , background, center_x, and center_y  
+   dics = W.strehl
+   Ith,Sr,bessel_integer= dics["Ith"],  dics['strehl'],dics['bessel_integer']
+
+   # BACKGROUND       
+   dBack = W.strehl["rms"]
+
+   # PHOTOMETRY
+   dPhot = dBack * np.sqrt( W.strehl["number_count"] ) 
+   
+   if W.type["pick"] != "ellipse" : 
+      W.type["aperture"] = "fit" 
+      if W.verbose >3 : print "\n\n WARNING: StrehlError changed the aperture type to fit because not ellipse pick it shouldn't matter " 
+   # INTENSITY 
+   if W.type["aperture"] and W.type["fit"]  != "None" : 
+      dI = W.psf_fit[1]["intensity"]
+   else : 
+      x0,y0 = int(W.strehl["center_x"]) , int(W.strehl["center_y"] ) 
+      mean = np.mean(W.Im0[x0-1:x0+2, y0-1:y0+2] ) 
+      dI = (W.strehl["intensity"] - mean ) 
+      dI/=2
+   
+   dIpsf = np.sqrt(  dI**2  +  dBack**2  ) # error from peak 
+   dIth = dPhot/bessel_integer           # error from phot 
+   dSr = np.sqrt(    dIpsf**2 + (Sr/100 * abs(dIth) )**2 )  
+   dSr/=     Ith
+   dSr*=100 
+  
+   W.strehl["err_strehl"]= dSr *3 # because I calculated the best error
+   #"for  i in locals() : 
+   return 
+
+
+
 
 
 def StrehlMeter(): # receive W.r, means a cut of the image   
-
+  """ Note : this should just be a caller 
+     this is the first written, strehlMeter for pick one, 
+      I putted more for ellipse and binary 
+  """
+  W.strehl = {"theta":99}
   ##########################
   ## FIND   THE   CENTER  AND FWHM
   W.r = IF.Order4(W.r) 
   #IF.FindBadPixel(W.Im0,(rx1,rx2,ry1,ry2))
   star_center=IF.DecreasingGravityCenter(W.Im0,r=W.r)  #GravityCenter
-  star_max,star_center = IF.LocalMax(W.Im0,star_center,size=3) 
+  star_center=IF.FindMaxWithBin(W.Im0,W.r)  #GravityCenter
+  tmp = IF.LocalMax(W.Im0,center=star_center,size=3) 
+  star_max,star_center = tmp[2], (tmp[0],tmp[1])  
   W.FWHM = IF.FWHM(W.Im0,star_center)
   W.background= 0
 
@@ -31,79 +87,57 @@ def StrehlMeter(): # receive W.r, means a cut of the image
   ######################
   #  FIT   the PSF            (the most important of the software)
   import time  ; start_time = time.time()
-  dictionary= {'NoiseType':W.noise_type,'PhotType':W.phot_type,'FitType':W.fit_type,"bpm":W.Im_bpm}
+  dictionary= {'NoiseType':W.type["noise"],'PhotType':W.type["phot"],'FitType':W.type["fit"],"bpm":W.Im_bpm}
 
-  @timeout(1)
+  #@timeout(15)
   def FIT(): 
-    W.psf_fit= IF.SeeingFit(W.Im0,W.r,W.fit_type,center=star_center,max=star_max,dictionary=dictionary )  
+    W.psf_fit= SI.PsfFit(W.Im0, center=star_center,max=star_max,dictionary=dictionary )  
   FIT() 
-
+  if W.verbose > 0 : print  "Fit efectuated in %f seconds" % (time.time() - start_time)
+  
   W.strehl.update(W.psf_fit[0])
 
-  AR.PC()  # print in console 
-  print  "Fit efectuated in %f seconds (from StrehlMeter)" % (time.time() - start_time)
 
 
   ### phot and noise 
-  W.strehl.update(IF.Background(W.Im0,W.r,W.noise_type,dic=W.strehl) )
-  W.strehl.update(IF.Photometry(W.Im0,W.r,W.phot_type,dic=W.strehl) )
+  W.strehl.update(SI.Background(W.Im0)) 
+  W.strehl.update(SI.Photometry(W.Im0))
 
 
-  ###############
-  ### Measure the strehl
-  if W.strehl_type =='FTO':
-       if not W.fit_type=='None': 
-           star_center = W.answer['center_x'],W.answer['center_y']    
-       W.fft = np.fft.fftshift(  np.abs( np.fft.fft2(IF.ImageCut(W.Im0,star_center,radius)) )**2 )
-       W.photometry= IF.AperturePhot(W.fft,(0,0),radius)
-       W.intensity='nan'
-       W.FWHM='nan'
-       W.strehl='nan' 
-       #W.psf =np.fft.fftshift(np.abs(np.fft.fft2(W.P1))**2)
-       #f = plt.figure(figsize=(12,5))
-       #ax=plt.subplot(111)
-       #ax.pcolormesh(W.fft)
-
-  if W.strehl_type =='max':    # Now, the only one working
-       W.bessel_integer = W.head.wavelength *10**(-6.) / np.pi /(W.head.pixel_scale/206265)/ W.head.diameter
-       W.bessel_integer = W.bessel_integer**2 *4*np.pi / (1-(W.head.obstruction/100)**2) 
-       Ith = W.strehl["my_photometry"] /W.bessel_integer
-       if W.verbose>3 : print '---->MyGui.py,strehl -> diff-max :', Ith
-       strehl = W.strehl["intensity"] / Ith *100
-  
-  W.strehl["strehl"]=strehl
-
-
-  #################
-  ##### ERROR estimation
-  dictionary = {'Ith':Ith,'Sr':strehl,'bessel_integer':W.bessel_integer,"type":"S/N"}
-  W.strehl["err_strehl"]  = IF.Error(W.Im0,dictionary=dictionary)  # SAVE ANSWER IN W 
+  StrehlRatio() 
+  StrehlError() 
      
-      
-
-  AR.PlotAnswer()		
-  if W.fit_type != "None"  : # bite 
-      AR.PlotStar(star_center)	    # we transport star center, because if it is bad, it is good to know, this star center was det by iterative grav center  the fit image is a W.psf_fit[0][3]	     
- 
-  #AR.CallContrastMap()
-
   return 
+
+
+
 	  
 def BinaryStrehl() :  
-    dictionary={'star1':G.star1,'star2':G.star2,"fit_type":W.fit_type}
-    if W.same_psf: dictionary["same_psf"]=1
-    else :dictionary["same_psf"]=0
-   
-    @timeout(1)
-    def FIT(): 
-      W.psf_fit = IF.BinaryPSF2(W.Im0,dictionary)
-    FIT() 
-
+    W.psf_fit = SI.BinaryPsf(W.Im0)
     W.strehl = W.psf_fit[0]
-    G.fig.canvas.mpl_disconnect(G.pt2) 
-    if W.verbose>3 : print "Binary res :" ,W.psf_fit
 
-    AR.PlotAnswer()
-    AR.PlotStar2()
-    AR.PlotStar("bidon")
+
+
+def TightBinaryStrehl() :  
+    W.psf_fit = SI.TightBinaryPsf(W.Im0)
+    W.strehl = W.psf_fit[0]
+
+
+
+def EllipseEventStrehl() : 
+  W.strehl = {}
+  if W.type["aperture"] == "fit" : 
+    return 
+
+
+  else : # including aperture = ellipse you've drawn
+    SI.EllipseEventBack()  # Update  
+    SI.EllipseEventPhot() # Update  with ellipse, number count needed  
+    SI.EllipseEventMax()  # Update  
+    StrehlRatio()     
+    StrehlError() 
+    return 
+    
+  
+
 

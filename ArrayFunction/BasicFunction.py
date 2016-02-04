@@ -3,39 +3,6 @@ from matplotlib import pyplot as plt
 from scipy.special import jn
 
 
-#def Gaussian(r,I,a): 
-  #return ( I*np.exp(-a*r**2) )
-
-
-def MyFit(points,params,fit_type):  # Used for plot star
-  if fit_type=='Gaussian':
-    return Gaussian(points,params)
-  elif fit_type=='Gaussian2D':
-    return Gaussian2D(points,params)
-  elif "Gaussian_hole" in fit_type :
-    return Gaussian_hole(points,params)
-  elif fit_type=='Moffat':
-    return Moffat(points,params)
-  elif fit_type=='Moffat2D':
-    return Moffat2D(points,params)
-  elif fit_type=='Bessel1':
-    return Bessel1(points,params)
-  elif fit_type=='Bessel12D':
-    return Bessel12D(points,params)    
-  elif fit_type=='None':
-    return Identity(points,params)  
-  elif fit_type=='Gaussian2pt':
-    return Gaussian2pt(points,params)  
-  elif fit_type=='Moffat2pt':
-    return Moffat2pt(points,params)  
-    
-  else: print 'ERROR in BasicFunction.py : no fit_type "'+str(fit_type)+'"'
-
-
-def Identity(points,params):
-  return points
-
-
           ##########################
           ##   BINARY   STARS      #
           ##########################
@@ -45,8 +12,7 @@ def Gaussian2pt(points, params,dic={"aniso":1,"same_psf":1}):
   x0,y0= params['x0'], params['y0'] 
   x1,y1=params['x1'],params['y1']
   I0,I1 = params['intensity0'],params['intensity1']
-  try: bck = params['background']
-  except : bck =0 
+  bck = params['background']
 
   if dic["aniso"]==0:
      a0,a1 = params['spread_x0'],params['spread_x1']
@@ -119,6 +85,7 @@ def Moffat2pt(points, params,dic={"aniso":1,"same_psf":1}):
 ##########
 # GAUSSIAN
 def Gaussian(points,params):    #param contains   center, spread, amplitude, background
+  ""
 # max = I(+cst) ; integral = pi I alpha**2  (sure) 
 # R99 = 2.14 * alpha
   x,y=points    
@@ -178,11 +145,16 @@ def Moffat(points,params):
   res = I *(   1 + ( (x-x0)**2+(y-y0)**2 )/a**2   )**(-b)    +  cst
   return res
 
-def Moffat2D(xy,params):
+def Moffat2D(xy,params): 
+    """ center_x y theta , spread x , y , 
+        exponent intensity, background 
+    """
+    x0, y0 = params['center_x'] ,params['center_y']
     xt = xy[0]
     yt = xy[1]
-    xp = (xt-params['center_x'])*np.cos(params['theta'])-(yt-params['center_y'])*np.sin(params['theta'])
-    yp = (xt-params['center_x'])*np.sin(params['theta'])+(yt-params['center_y'])*np.cos(params['theta'])
+    theta = params['theta']
+    xp = (xt-x0)*np.cos(theta)-(yt-y0)*np.sin(theta)
+    yp = (xt-x0)*np.sin(theta)+(yt-y0)*np.cos(theta)
     res = params['background']
     res+=params['intensity']*(  1 + xp**2/params['spread_x']**2 + yp**2/params['spread_y']**2  )**(-params['exponent'])
     return res       
@@ -232,7 +204,6 @@ def DiffractionPatern(points,params):
      res =  np.nan_to_num(  ( 2*jn(1,u)/u  )**2  ) 
   res*= I/(1-e**2)**2  
   return res 
-
 
 
 

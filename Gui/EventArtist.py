@@ -3,11 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib 
 
+import Pick 
 import ImageFunction as IF # to give him the output 
-import WorkVariables as W  # for verbose 
 
-class Event: # This is actually the Annulus even, but it could be a "ellipse" event or whatever can fit in the canvas class (rectangle, polygone...) , actually I deleted the ellispe event, see in Abism 0.5, 0.6 
-  def __init__(self,figure,ax,array=None,type="annulus"):  # array is the array called by imshow
+
+import WorkVariables as W  # for verbose 
+import GuyVariables as  G  # to know if on zoom 
+
+class Annulus: # This is actually the Annulus even, but it could be a "ellipse" event or whatever can fit in the canvas class (rectangle, polygone...) , actually I deleted the ellispe event, which can be usefull because not every body want the annulus for the background, but maybe make a super fast photometry, like knowing the instrument, you know the PSF FWHM and can auto create the aperture, you play with that and then, if its works well, you can auto detect stars and make a completely automatic ABism (ie, without opening image)  , see in Abism 0.5, 0.6 
+  def __init__(self,figure,ax,array=None):  # array is the array called by imshow
     self.fig = figure 
     self.ax = ax 
     self.type = type # ellipse or annulus
@@ -19,11 +23,10 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
     if array != None : self.array = array 
 
 
-    if self.type == "annulus": 
-       self.ParamDefiner() #initial parameters, at the end of this file   
-       self.InitAnnulus(None)
-       self.Connect()
-       plt.show()  # otherwise, nothing  
+    self.ParamDefiner() #initial parameters, at the end of this file   
+    self.Init(None)
+    self.Connect()
+    plt.show()  # otherwise, nothing  
 
         # CONNECTION
 
@@ -34,48 +37,44 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
       self.fig.canvas.mpl_disconnect(self.cid_zoom)
 
 
-  def Connect(self) :
-    self.ConnectAnnulus() 
-
-  def ConnectAnnulus(self): 
+  def Connect(self): 
     """matplotlib connections, the connections are "self" because we need to disconnect it (replace connect by disconnect) """  
     # MOTION 
     self.cid_motion = self.fig.canvas.mpl_connect(
-            'motion_notify_event', self.Annulus_on_motion)
+            'motion_notify_event', self.on_motion)
     # KEY  
     self.cid_key_press= self.fig.canvas.mpl_connect(
-            'key_press_event', self.Annulus_on_press)
+            'key_press_event', self.on_press)
     # CLICK
     self.cid_button_press= self.fig.canvas.mpl_connect(
-            'button_press_event', self.Annulus_on_click)
+            'button_press_event', self.on_click)
     # ZOOM 
     self.cid_zoom = self.fig.canvas.mpl_connect(
-            'draw_event', self.InitAnnulus )
+            'draw_event', self.Init )
 
                ###################
-	       ####  ANNULUS event 
+	       #### EVENTS  
 	       ##################
 
 
 
 
-  def Annulus_on_motion(self,event):
+  def on_motion(self,event):
      if W.verbose > 9 : print "annulus detect motion" 
      if not event.inaxes : return 
      self.y0,self.x0 = event.xdata,event.ydata  
-     self.DrawAnnulus() 
+     self.Draw() 
      return 
 
 
-  def Annulus_on_click(self,event): # mouse click 
+  def on_click(self,event): # mouse click 
      if not event.inaxes : return 
      self.y0,self.x0 = event.xdata, event.ydata 
-     self.CalculateAnnulus() 
+     self.Return() 
 
 
-  def Annulus_on_press(self,event):
+  def on_press(self,event):
      if not event.inaxes : return 
-     #print "key", event.key, type(event.key) , self.num_key , type(self.num_key) 
      try : 
        try :   self.num_key = int(   self.num_key + event.key ) 
        except : self.num_key = int( str(self.num_key) + event.key ) 
@@ -83,7 +82,7 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
        if self.num_key == "" : self.num_key=1
        for i in range(self.num_key) : self.Modify(event.key ) 
        self.num_key=""
-     self.DrawAnnulus() 
+     self.Draw() 
      return 
 
 
@@ -136,10 +135,9 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
 
      # KNOW
      elif string ==  "p" :  # Print  
-       def PD(dic): # print dictionary for RunCommand  
+       def PD(dic): # Write dictionary for RunCommand  
          for k in dic.keys() : 
-            print '%.20s    %.20s' %  (k,dic[k]) 
-       if W.verbose > 0 : print "All variables of ellipse canvas :\n",PD(vars(self))  
+            print '%.20s    %.20s' %  (k,dic[k]) #verbose  
 
 
      return 
@@ -166,10 +164,9 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
      self.fig.canvas.blit(self.ax.bbox) # blit both 
 
 
-  def InitAnnulus(self,event):
+  def Init(self,event):
     self.RemoveArtist(draw=False)  # Important not to draw   
     #self.fig.canvas.draw()
-    #print "bbox", self.ax.bbox
     self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
     for i in [ ["None","black","dashed",1]    ,    ["None","black","dashed",1]   ,    ["black","black","solid",0.3]   ]: # facecolor, edgecolor,linestyle,alpha    for out, in , phot
@@ -180,9 +177,7 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
       self.artist_list.append(ell)
 
 
-
-
-  def DrawAnnulus(self):  # All the ellipses 
+  def Draw(self):  # All the ellipses 
      """ Draw inner outer and photometry ellipse """
      #self.RemoveArtist(draw=False) 
 
@@ -213,9 +208,7 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
      return 
 
 
-
-
-  def CalculateAnnulus(self): # flux 
+  def Return(self): # flux 
      IF.AnnulusEventPhot(self)
  
             ########
@@ -241,9 +234,185 @@ class Event: # This is actually the Annulus even, but it could be a "ellipse" ev
 
 
 
+
+
+
+              #############
+	      # ELLIPSE 
+	      #############
+
+
+
+class Ellipse: 
+  def __init__(self,figure,ax,array=None):  # array is the array called by imshow
+    self.fig = figure   # G.fig 
+    self.ax = ax        # G.ax1
+    self.array = array  # W.Im0 
+    self.artist=""
+    self.num_key=""    # number of key operation to make like if you press   5r, the r operation is done 5 times we put 0 to concatenate 
+    self.zoom_bool=False 
+
+    self.ParamDefiner() #initial parameters, at the end of this file  
+    self.DrawArtist() 
+    self.Connect()
+    plt.show() 
+    #self.fig.canvas.show()  # otherwise, nothing  
+    #self.fig.canvas.show()  # otherwise, nothing  
+
+
+
+
+  def Disconnect(self): 
+      self.fig.canvas.mpl_disconnect(self.cid_motion)
+      self.fig.canvas.mpl_disconnect(self.cid_key_press)
+      self.fig.canvas.mpl_disconnect(self.cid_button_press)
+
+
+  def Connect(self): 
+    """m atplotlib connections, the connections are "self" because we need to disconnect it (replace connect by disconnect) """  
+
+
+    # MOTION 
+    self.cid_motion = self.fig.canvas.mpl_connect(
+            'motion_notify_event', self.on_motion)
+    # KEY  
+    self.cid_key_press= self.fig.canvas.mpl_connect(
+            'key_press_event', self.on_press)
+    # CLICK
+    self.cid_button_press= self.fig.canvas.mpl_connect(
+            'button_press_event', self.on_click)
+    # ZOOM 
+    self.cid_zoom = self.fig.canvas.mpl_connect(
+            'draw_event', self.on_zoom )
+
+
+  def on_motion(self,event):
+     if not event.inaxes : return 
+     self.y0,self.x0 = event.xdata,event.ydata  
+     self.Draw() 
+     return 
+
+
+  def on_click(self,event): # mouse click 
+     if not event.inaxes : return 
+     self.y0,self.x0 = event.xdata, event.ydata 
+     self.Return() 
+
+
+  def on_press(self,event): # key 
+     self.zoom_bool= True 
+     
+     if event.key =="R": 
+       self.ru +=1 ; self.rv+=1
+       self.Draw() 
+     elif event.key =="r": 
+       self.ru -=1 ; self.rv-=1 
+       self.Draw() 
+
+     elif event.key =="U": 
+       self.ru +=1
+       self.Draw() 
+     elif event.key =="u": 
+       self.ru -=1
+       self.Draw() 
+
+     elif event.key =="V": 
+       self.rv +=1
+       self.Draw() 
+     elif event.key =="v": 
+       self.rv -=1
+       self.Draw() 
+
+
+     # THETA ANGLE 
+     elif event.key == ("t" or "a"):  
+       self.theta +=0.174  # 10 degree in rad  
+       self.Draw() 
+     elif event.key == ("T" or "A") :
+       self.theta -=0.174
+       self.Draw() 
+
+     # POSITION
+     elif event.key == "up":  
+       self.x0-=1
+       self.Draw() 
+     elif event.key == "down":  
+       self.x0+=1
+       self.Draw() 
+     elif event.key == "left":  
+       self.y0-=1
+       self.Draw() 
+     elif event.key == "right":  
+       self.y0+=1
+       self.Draw() 
+
+     # KNOW
+     elif event.key ==  "p" :  
+       print vars(self) # verbose OK 
+       self.Draw() 
+
+     self.zoom_bool= False
+     return 
+
+
+  def on_zoom(self,event):
+    if self.zoom_bool: return 
+    self.RemoveArtist(draw=False)  # Important not to draw if zoom    
+    self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
+
+
+  def RemoveArtist(self,draw=True):
+     try : self.artist.remove() 
+     except :
+       if W.verbose >3 : print "I cannot remove artist Ellispe"  
+     if draw: self.fig.canvas.draw() 
+  def DrawArtist(self) :
+     self.fig.canvas.restore_region(self.bg) # create backup
+     if self.zoom_bool :
+        self.RemoveArtist() 
+        self.ax.add_patch(self.artist) # needed !! 
+     self.ax.draw_artist(self.artist)  # create artist 
+     self.fig.canvas.blit(self.ax.bbox) #s blit both 
+
+
+
+
+  def Draw(self):
+     self.artist.center = (self.y0,self.x0) 
+     self.artist.width  = 2*self.rv   # array to image invert
+     self.artist.height = 2* self.ru
+     self.artist.angle  = 180 * self.theta /np.pi  # theta is the same, just, x and y direction where change by width and height 
+     self.DrawArtist() 
+     return 
+
+
+  def ParamDefiner(self): # called first, all params possible should be here., even if it is just None  
+
+     # ELLIPSE 
+     self.ru =20          # called r (radius)
+     self.rv = 20          # called by e (eccentricity) 
+     self.theta=0         # called t or a (theta, angle) 
+
+     i= ["green","blue","dashed",0.8]# facecolor, edgecolor,linestyle,alpha    for out, in , phot
+     self.artist = matplotlib.patches.Ellipse(xy=(200, 200), width=100, height=100, 
+             facecolor=i[0],edgecolor=i[1],linestyle=i[2],alpha=i[3])
+     self.RemoveArtist(draw=False)  # Important not to draw if zoom    
+     self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
+     self.ax.add_patch(self.artist) # it works like this so why to ask 
+
+  def Return(self): 
+     Pick.MultiprocessCaller() 
+     
+   
+
+
+
+
+
               ##############
 	      ## PROFILE
 	      #############
+
 
 
 
@@ -284,6 +453,10 @@ class Profile:
 
 
   def on_press(self,event):
+        if not event.inaxes  : return 
+        elif G.toolbar._active == "PAN" or G.toolbar._active =="ZOOM": 
+          if W.verbose >3 : print "WARNING: Zoom or Pan actif, please unselect its before picking your object"  
+          return 
         self.RemoveArtist(draw=True)  # Important not to draw   
         self.point1 = [event.ydata,event.xdata] 
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
@@ -327,7 +500,6 @@ class Profile:
      if draw: self.fig.canvas.draw() 
 
   def DrawArtist(self) :
-     #print self.l
      self.fig.canvas.restore_region(self.bg) # create backup
      self.ax.add_line(self.l) 
      self.ax.draw_artist(self.l)  # create artist 

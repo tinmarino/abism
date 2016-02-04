@@ -1,7 +1,6 @@
 import matplotlib 
 import numpy as np # for a readind lst like an array 
 
-import MyGui as MG 
 import EventArtist  # draw an ellipse 
 import AnswerReturn as AR 
 
@@ -13,34 +12,42 @@ import WorkVariables as W
 
 
 def RefreshPick(label): # This is the only callled routine 
-  if label != "" : G.connect_menu["text"] = u'\u25be ' +   label # remove the little arrow 
+  #if label != "" : G.connect_menu["text"] = u'\u25be ' +   label # remove the little arrow 
    
   """in function of the name of G.connect_var, we call the good one. Disconnect old pick event and connect the new one """
   lst = np.array ([
-   ["PickOne","one","PickOne"]  , ["PickMany","many","PickMany"] ,
-    ["Binary Fit", "binary","Binary" ] ,  ["Profile", "profile","Profile"  ]  ,
+    ["PickOne","one","PickOne"]  , 
+    ["PickMany","many","PickMany"] ,
+    ["Binary Fit", "binary","Binary" ] ,  
+    ["Tight Binary", "tightbinary","TightBinary" ] ,  
+    ["Profile", "profile","Profile"  ]  ,
     ["Stat","stat","StatPick"], 
-    ["Ellipse", "ellipse" ,"PickEllipse" ]  , ["No Pick", "nopick", "NoPick"]  ,  
-    ]) # Label@Menu , W.pick_type, fct to call 
-  try : W.pick_type_old = W.pick_type 
+    ["Annulus","annulus","PickAnnulus"],
+    ["Ellipse", "ellipse" ,"PickEllipse" ]  , 
+    ["No Pick", "nopick", "NoPick"]  ,  
+    ]) # Label@Menu , W.type["pick"], fct to call 
+
+  try : W.type["pick_old"] = W.type["pick"] 
   except : pass 
-  index =  list(lst[:,0]).index(G.connect_menu["text"][2:])   # or G.connect_var.get() 
-  W.pick_type = lst[index,1]
+  index =  list(lst[:,1]).index(label)   # or G.connect_var.get() 
+  W.type["pick"] = label
+  if label != "stat" or label != "profile" : # because they are in tools, and it disable the connection, I don't know why   
+     G.cu_pick.set( label ) 
 
 
 
    # THE dicconnect  
-  if "pick_type_old" in vars(W) : 
-     if type(W.pick_type_old)  is list : # for pick many  
-        index_old = list(lst[:,1]).index(W.pick_type_old[0])   # or G.connect_var.get() 
+  if   W.type.has_key("pick_old"):  
+     if type(W.type["pick_old"])  is list : # for pick many  
+        index_old = list(lst[:,1]).index(W.type["pick_old"][0])   # or G.connect_var.get() 
      else : 
-        index_old = list(lst[:,1]).index(W.pick_type_old)   # or G.connect_var.get() 
+        index_old = list(lst[:,1]).index(W.type["pick_old"])   # or G.connect_var.get() 
      globals()[lst[index_old,2]](disconnect=True) # This staff with disconnect is to avoid twice a call, in case pick_old = pick  it is not necessary but more pretty  
    
    # THE CALLL 
   globals()[lst[index,2]]() 
   try : 
-     if W.verbose > 3 : print "Refresh called |tipe : ",  lst[index,2], "|old : ", W.pick_type_old  
+     if W.verbose > 3 : print "Refresh called |tipe : ",  lst[index,2], "|old : ", W.type["pick_old"]  
   except : pass 
   
 
@@ -51,7 +58,7 @@ def NoPick(disconnect=False) : # to check if all pick types are disconnect
 
 def PickEllipse(disconnect=False): 
       # DISCONNECT 
-      if disconnect and  ( "pick_type_old" in vars(W) ) and (W.pick_type_old == "ellipse") :
+      if disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "ellipse") :
         try : 
 	  G.ellipse.Disconnect() 
 	  G.ellipse.RemoveArtist() 
@@ -59,20 +66,36 @@ def PickEllipse(disconnect=False):
         except : pass
 	return 
       # CONNECT 
-      if W.pick_type == "ellipse" :
-         G.ellipse = EventArtist.Event(G.fig,G.ax1,array=W.Im0)  
+      if W.type["pick"] == "ellipse" :
+         G.ellipse = EventArtist.Ellipse(G.fig,G.ax1,array=W.Im0)  
             
+
+def PickAnnulus(disconnect=False): 
+      # DISCONNECT 
+      if disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "annulus") :
+        try : 
+	  G.annulus.Disconnect() 
+	  G.annulus.RemoveArtist() 
+	  del G.annulus 
+        except : pass
+	return 
+      # CONNECT 
+      if W.type["pick"] == "annulus" :
+         G.annulus = EventArtist.Annulus(G.fig,G.ax1,array=W.Im0)  
 	
+
+
 def Profile(disconnect=False):
-      if G.tutorial:
+      """if G.tutorial:
                text="Draw a line on the image. Some basic statistics on the pixels cutted by your line will be displayed in the 'star frame'. And a Curve will be displayed on the 'fit frame'. A pixel is included if the distance of its center is 0.5 pixel away from the line. This is made to prevent to many pixels stacking at the same place of the line\n\n."
                text+="Programmers, an 'improvement' can be made including pixels more distant and making a mean of the stacked pixels for each position on the line." 
                MG.TutorialReturn({"title":"Linear Profile, cutted shape of a source",
                "text":text,
                })
-               return     
+               return 
+      """
       # DISCONNECT 
-      if disconnect and   ( "pick_type_old" in vars(W) ) and (W.pick_type_old == "profile") :
+      if disconnect and   ( W.type.has_key("pick_old") ) and (W.type["pick_old"] == "profile") :
 	try : 
           G.my_profile.Disconnect()
 	except : 
@@ -83,9 +106,9 @@ def Profile(disconnect=False):
         except : 
 	  if W.verbose > 3 : print "Pick.Profile , cannot remove artist profile " 
 	return 
-	#if W.pick_type == "profile" : return # in order not to cal twice at the begining 
+	#if W.type["pick"] == "profile" : return # in order not to cal twice at the begining 
       # CONNECT 
-      if W.pick_type == "profile" :
+      if W.type["pick"] == "profile" :
         G.my_profile =  EventArtist.Profile(G.fig,G.ax1) 
 
 
@@ -102,21 +125,33 @@ def PickOne(disconnect=False):
                return    
 
       # DISCONNECT 
-      if  disconnect and  ( "pick_type_old" in vars(W) ) and (W.pick_type_old == "one") :
-        try : G.rs_one.set_active(False)
-        except : pass
+      if  disconnect and  ( W.type.has_key("pick_old")) and (W.type["pick_old"] == "one") :
+        if "rs_one" in vars(G) : 
+	   G.rs_one.set_active(False)
+	if "cid_left" in vars(G) : 
+           G.fig.canvas.mpl_disconnect(G.cid_left)
 	return 
 
       # CONNECT 
-      if W.pick_type == "one" :
-        print "\n\n\n________________________________\n|Pick One| : draw a rectangle around your star-------------------"
-        W.pick_type='one'
+      if W.type["pick"] == "one" :
+        if W.verbose > 0 : print " \n\n\n________________________________\n|Pick One| : \n    1/Draw a rectangle around your star with left button\n    2/Click on star 'center' with right button"
         G.rs_one=matplotlib.widgets.RectangleSelector(
            G.ax1, RectangleClick, drawtype='box',
-           rectprops = dict(facecolor='green', edgecolor = 'black', alpha=0.5, fill=True))
-
+           rectprops = dict(facecolor='green', edgecolor = 'black', alpha=0.5, fill=True),
+	   button=[1], #1/left, 2/center , 3/right
+	   )
+	G.cid_left = G.fig.canvas.mpl_connect( 'button_press_event',PickEvent )
+	  
+def PickEvent(event): 
+  if event.button != 3 or not event.inaxes  : return 
+  elif G.toolbar._active == "PAN" or G.toolbar._active =="ZOOM": 
+    if W.verbose >3 : print "WARNING: Zoom or Pan actif, please unselect its before picking your object"  
+    return 
+  W.r = [event.ydata-15, event.ydata+15, event.xdata-15, event.xdata+15]
+  MultiprocessCaller() 
 
          
+
 
 def Binary(disconnect=False):
   if G.tutorial:
@@ -126,23 +161,25 @@ def Binary(disconnect=False):
                })
                return     
   # DISCONNECT 
-  if   disconnect and  ( "pick_type_old" in vars(W) ) and (W.pick_type_old == "binary") :
+  if  disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "binary") :
     try :  G.fig.canvas.mpl_disconnect(G.pt1)
     except : pass
     try :G.fig.canvas.mpl_disconnect(G.pt2)
     except : pass 
+    G.ImageCanvas.get_tk_widget()["cursor"]=""
     return 
 
   # CONNECT 
-  if W.pick_type == "binary" :
-    print "\n\n\n______________________________________\n|Binary| : Make 2 clicks, one per star-------------------"
+  if W.type["pick"] == "binary" :
+    if W.verbose > 0 : print "\n\n\n______________________________________\n|Binary| : Make 2 clicks, one per star-------------------"
     G.pt1 = G.fig.canvas.mpl_connect('button_press_event', Binary2)
-    W.pick_type="binary"                  # for PlotAnswer()
+    G.ImageCanvas.get_tk_widget()["cursor"]="target"
     return
   return       
 
 def Binary2(event):
-  print "1st point : ", event.xdata, event.ydata 
+  if not event.inaxes : return 
+  if W.verbose > 0 : print "1st point : ", event.xdata, event.ydata 
   G.star1=[event.ydata,event.xdata]
     # we need to inverse, always the same issue ..
   G.fig.canvas.mpl_disconnect(G.pt1)
@@ -150,11 +187,56 @@ def Binary2(event):
   return
 
 def Binary3(event):  # Here we call the math  
-  print "2nd point : ",event.xdata, event.ydata
+  if not event.inaxes : return 
+  if W.verbose > 0 : print "2nd point : ",event.xdata, event.ydata
   G.star2=[event.ydata,event.xdata]
+  G.fig.canvas.mpl_disconnect(G.pt2) 
 
+  G.ImageCanvas.get_tk_widget()["cursor"]=""
   MultiprocessCaller()
   Binary() 
+
+
+def TightBinary(disconnect=False):
+  # DISCONNECT 
+  if  disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "tightbinary") :
+    try :  G.fig.canvas.mpl_disconnect(G.pt1)
+    except : pass
+    try :G.fig.canvas.mpl_disconnect(G.pt2)
+    except : pass 
+    G.ImageCanvas.get_tk_widget()["cursor"]=""
+    return 
+
+  # CONNECT 
+  if W.type["pick"] == "tightbinary" :
+    if W.verbose > 0 : print "\n\n\n______________________________________\n|TightBinary| : Make 2 clicks, one per star, be precise, the parameters will be more constrained-------------------"
+    G.pt1 = G.fig.canvas.mpl_connect('button_press_event', TightBinary2)
+    G.ImageCanvas.get_tk_widget()["cursor"]="target"
+    #  CLick on same psf and no aniso 
+    W.aniso_var.set(False)  
+    W.same_psf_var.set(True) 
+    MG.FitType(W.type["fit"])
+  return       
+
+def TightBinary2(event):
+  if not event.inaxes : return 
+  if W.verbose > 0 : print "1st point : ", event.xdata, event.ydata 
+  G.star1=[event.ydata,event.xdata]
+    # we need to inverse, always the same issue ..
+  G.fig.canvas.mpl_disconnect(G.pt1)
+  G.pt2 = G.fig.canvas.mpl_connect('button_press_event', Binary3) 
+  return
+
+def TightBinary3(event):  # Here we call the math  
+  if not event.inaxes : return 
+  if W.verbose > 0 : print "2nd point : ",event.xdata, event.ydata
+  G.star2=[event.ydata,event.xdata]
+  G.fig.canvas.mpl_disconnect(G.pt2) 
+
+  G.ImageCanvas.get_tk_widget()["cursor"]=""
+  MultiprocessCaller()
+  TightBinary() 
+
 
 
       
@@ -166,17 +248,17 @@ def PickMany(disconnect=False):
                })
                return     
   # DISCONNECT 
-  if disconnect and  ( "pick_type_old" in vars(W) ) and (W.pick_type_old[0] == "many") :
+  if disconnect and  ( W.type.has_key("pick_old") ) and (W.type["pick_old"][0] == "many") :
      try : G.rs_many.set_active(False) 
      except : pass #in case rs_many is not called yet
      return 
 
   # CONNECT 
-  if W.pick_type == "many" :
+  if W.type["pick"] == "many" :
      G.arrows, G.answer_saved=[],{}
-     print '\n\n\n______________________________\n|Pick Many| : draw rectangles around your stars-----------------------'	
-     W.pick_type=['many',1]     #G.pick count the index of the picked star
-     if W.verbose>9 : print 'pick,G.pick',W.pick_type
+     if W.verbose > 0 : print '\n\n\n______________________________\n|Pick Many| : draw rectangles around your stars-----------------------'	
+     W.type["pick"]=['many',1]     #G.pick count the index of the picked star
+     if W.verbose>9 : print 'pick,G.pick',W.type["pick"]
      G.rs_many=matplotlib.widgets.RectangleSelector(
         G.ax1, RectangleClick, drawtype='box',
         rectprops = dict(facecolor='blue', edgecolor = 'black', alpha=0.5, fill=True))
@@ -191,15 +273,15 @@ def StatPick(disconnect=False) :
                return    
 
       # DISCONNECT 
-      if  disconnect and  ( "pick_type_old" in vars(W) ) and (W.pick_type_old == "stat") :
+      if  disconnect and  ( W.type.has_key("pick_old")  ) and (W.type["pick_old"] == "stat") :
         try : G.rs_stat.set_active(False) # rs rectangle selector
         except : pass
 	return 
 
       # CONNECT 
-      if W.pick_type == "stat" :
-        print "\n\n\n________________________________\n|Pick Stat| : draw a rectangle around a region and ABISM will give you some statistical informationcomputed in the region-------------------"
-        W.pick_type='stat'
+      if W.type["pick"] == "stat" :
+        if W.verbose > 0 : print "\n\n\n________________________________\n|Pick Stat| : draw a rectangle around a region and ABISM will give you some statistical informationcomputed in the region-------------------"
+        W.type["pick"]='stat'
         G.rs_stat=matplotlib.widgets.RectangleSelector(
            G.ax1, RectangleClick, drawtype='box',
            rectprops = dict(facecolor='red', edgecolor = 'black', alpha=0.5, fill=True))
@@ -210,12 +292,18 @@ def RectangleClick(eclick,erelease):
   if W.verbose>3 :print 'rectangle click_________________'
   G.image_click =eclick.xdata, eclick.ydata
   G.image_release =erelease.xdata,erelease.ydata
+  if G.image_click == G.image_release : 
+      if W.verbose > 0 : print "Rectangle phot aborded: you clicked and released ont the same point"
+      return 
   if W.verbose>3 :print G.image_click,G.image_release
-  center_click=(G.image_click[1]+G.image_release[1])/2,(G.image_click[0]+G.image_release[0])/2  #center  Of the Event 
   W.r=(G.image_click[1],G.image_release[1],G.image_click[0],G.image_release[0])  # we inverse to get x,y like row,column 
 
   MultiprocessCaller() 
   return
+
+
+
+
 
 
 ###USELESS 
@@ -230,7 +318,7 @@ def ManualNoiseRectangle():
      G.bu_noise_manual['background']="blue"
      G.rs_star.set_active(False)              
      G.remember_r=[]
-     print 'Do rectangles in the background and click on manual' 
+     if W.verbose > 0 : print 'Do rectangles in the background and click on manual' 
 
      G.rs_noise=matplotlib.widgets.RectangleSelector(
          G.ax1,ManualRectangle, drawtype='box',
@@ -238,7 +326,7 @@ def ManualNoiseRectangle():
   elif G.bu_noise_manual['background']=='grey':
      RefreshPickColor()	
      G.bu_noise_manual['background']='green'
-     print 'Select your star without background and click on Manual button'
+     if W.verbose > 0 : print 'Select your star without background and click on Manual button'
      G.rs_star=matplotlib.widgets.RectangleSelector(
          G.ax1,ManualRectangle, drawtype='box',
          rectprops = dict(facecolor='pink', edgecolor = 'black', alpha=0.5, fill=True)) 
@@ -246,12 +334,12 @@ def ManualNoiseRectangle():
      G.bu_noise_manual['background']='grey'
      for r in G.remember_r :
         if W.verbose>9  : print '----->MyGui.py,ManualNoiseRectangle,surface : rx1,rx2,ry1,ry2 =',r
-     W.noise_type = ('Manual',G.remember_r) 
+     W.type["noise"] = ('Manual',G.remember_r) 
      StrehlMeter(G.r)
      G.rs_noise.set_active(False)
      PickOne()
      G.bu_noise_8_rects['background']='green'
-     W.noise_type='8Rects'
+     W.type["noise"]='8Rects'
   return 
 def ManualRectangle(eclick,erelease) :
            image_click =eclick.xdata, eclick.ydata
@@ -259,15 +347,13 @@ def ManualRectangle(eclick,erelease) :
            r=image_click[1],image_release[1],image_click[0],image_release[0]    # we inverse to get x,y like row,column
            r = IF.Order4(r)
            if G.rect_phot_bool :
-               print  IF.RectanglePhot(W.Im0,r)  # when you want a phot from command
+               if W.verbose > 0 : print  IF.RectanglePhot(W.Im0,r)  # when you want a phot from command
      
            if W.verbose>9 : print '----> MyGui.py, ManualRectangle',r
            if G.bu_noise_manual['background'] =='green':G.r = r
            elif G.bu_noise_manual['background'] =='blue':G.remember_r.append(r) 
            G.rect_phot_bool =0
            return
-
-
        #############################
        ## MULTIPROCESSING TOOLS    #
        #############################
@@ -281,95 +367,35 @@ def MultiprocessCaller() :
 
 
 #from timeout import timeout 
-#@timeout(1) 
+#@timeout(15) 
 def PickWorker() : 
-  def NBinary(): 
-    dictionary={'star1':G.star1,'star2':G.star2,"fit_type":W.fit_type}
-    if W.same_psf: dictionary["same_psf"]=1
-    else :dictionary["same_psf"]=0
+  import time 
+  start = time.time() 
+  if W.type["pick"] == "binary" : 
+     if W.verbose >3 : print "I call binary math" 
+     Strehl.BinaryStrehl()
+     AR.PlotAnswer()
+     AR.PlotStar2()
+     AR.PlotStar()
+     AR.PC() 
+  if W.type["pick"] == "tightbinary" : 
+     if W.verbose >3 : print "I call binary math" 
+     Strehl.TightBinaryStrehl()
+     AR.PlotAnswer()
+     AR.PlotStar2()
+     AR.PlotStar()
+     AR.PC() 
+  elif W.type["pick"] == "stat" : AR.PlotStat()  
+  elif W.type["pick"] == "ellipse" : 
+     Strehl.EllipseEventStrehl() 
+     AR.PlotAnswer()		
 
-    import ImageFunction as IF # bite  
-    W.psf_fit = IF.BinaryPSF2(W.Im0,dictionary)
-    W.strehl = W.psf_fit[0]
-    G.fig.canvas.mpl_disconnect(G.pt2) 
-    if W.verbose>3 : print "Binary res :" ,W.psf_fit
-
-    AR.PlotAnswer()
-    AR.PlotStar2()
-    AR.PlotStar("bidon")
-
-  if W.pick_type == "binary" : NBinary()  
-  if W.pick_type == "stat" : AR.PlotStat()  
-  else : Strehl.StrehlMeter()  
+  elif W.type["pick"] == "one" or W.type["pick"] == "many"  : # including "one" or "many"
+     Strehl.StrehlMeter()  
+     AR.PC()  # write in console 
+     AR.PlotAnswer()		
+     AR.PlotStar()	    # we transport star center, because if it is bad, it is good to know, this star center was det by iterative grav center  the fit image is a W.psf_fit[0][3]	     
   return
 
 
 
-
-
-def MultiprocessCallerOLD() :  # not working because of ...
-  """xcb] Unknown sequence number while processing queue
-  [xcb] Most likely this is a multi-threaded client and XInitThreads has not been called
-  [xcb] Aborting, sorry about that."""
-  from multiprocessing import Process
-  # WORKER 
-  W.w=Process(name='pick_worker', target=PickWorker)
-  W.w.daemon = True
-  W.w.start()
-  # TIMER  
-  W.t=Process(name='pick_worker', target=PickTimer)
-  W.t.daemon = True
-  W.t.start()
-  return 
-def PickTimer() : 
-  from time import sleep 
-  time_to_wait = 2
-  sleep(time_to_wait) 
-  if W.verbose >0 : print "I killed gratefully your process after "+ str(time_to_wait) + "seconds, its convergence was too slow : TRY AGAIN"
-  W.w.terminate() 
-  return 
-def Comments() :
-  ######
-  ## TIME  limit 
-  #import threading
-  #class InterruptableThread(threading.Thread):
-  #    def __init__(self):
-  #        threading.Thread.__init__(self)
-  #        self.result = "default"
-  #    def run(self):
-  #      try:
-  #        StrehlMeter(W.r) 
-  #      except Exception as e:
-  #        print "Too long"
-  #    def suicide(self):
-  #      print "\n\n"
-  #      #raise SystemExit
-  #      raise RuntimeError('Stop has been called, process too slow. ')
-
-  #import time 
-  #start_time = time.time()
-  #it = InterruptableThread()
-  #it.start()
-  #it.join(timeout_duration)
-  #if it.isAlive():
-  #  print "aliva"
-  #  it.suicide()
-  #else:
-  #  p    #import threading
-    #class InterruptableThread(threading.Thread):
-    #    def __init__(self):
-    #        threading.Thread.__init__(self)
-    #        self.result="too slow"
-    #    def run(self):
-    #        self.result = PickWorker()
-    #it = InterruptableThread()
-    #it.start()
-    #it.join(timeout_duration)
-
-
-    #if it.isAlive():
-    #    return it.result
-    #else:
-    #    if W.verbose >0 : print "I killed gratefully your process after "+ str(timeout_duration) + "seconds, its convergence was too slow : TRY AGAIN"
-    #    return rint "dead"
-  return 

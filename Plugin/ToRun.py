@@ -29,7 +29,6 @@ import WorkVariables as W
 #Plugin
 import ReadHeader as RH    
 
-print " ToRun loaded " 
 
 G.ax1.annotate("",
           xy=(0.2,0.3) , xycoords='axes fraction',

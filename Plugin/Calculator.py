@@ -1,16 +1,16 @@
 from numpy import * 
-from Tkinter import *
+try : from Tkinter import *
+except  : from tkinter import *
 
 import WorkVariables as W # for verbose 
-import GuyVariables as G  #for the color of the label  
+import GuyVariables as G  #for the agruments of buttons type   
 
 class MyCalculator:
   def __init__(self,frame):
     self.frame = frame
 
-    Label(self.frame,text="Calculator",**G.frame_title_arg).pack(side=TOP,anchor="w")
 
-    self.top_frame= Frame(self.frame,bg=self.frame["bg"])  # for the buttons not the answer
+    self.top_frame= Frame(self.frame,**G.fr_arg)  # for the buttons not the answer
     for i in range(5) : 
        self.top_frame.columnconfigure(i,weight=1) # to expand the buttons 
 
@@ -37,7 +37,8 @@ class MyCalculator:
       except : self.entry.insert(END, "--> Error!")
       try : self.label.pack_forget()
       except : pass
-      self.label = Label(self.frame,text=self.result)
+      self.label = Label(self.frame,text=self.result,**G.lb_arg)
+      self.label["fg"] = "red"
       self.label.pack(side=BOTTOM,expand=1,fill=X)
     else:
       self.entry.insert(END, key)
@@ -64,8 +65,8 @@ class MyCalculator:
         r += 1
 
     self.entry = Entry(self.top_frame, width=30, bg="yellow")
-    self.entry.grid(row=0, column=0, columnspan=5)
-    self.entry.bind('<Return>',lambda : self.Click("=") )
+    self.entry.grid(row=0, column=0, columnspan=5,sticky="nswe")
+    self.entry.bind('<Return>',lambda event : self.Click("=") )
     return 
 
 

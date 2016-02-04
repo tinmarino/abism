@@ -23,3 +23,14 @@ def timeout(seconds=10, error_message="Fit did not converge, try again"):
         return wraps(func)(wrapper)
 
     return decorator
+
+@timeout(1) 
+def maintest() : 
+  import time 
+  time.sleep(0.5) 
+
+
+if __name__== "__main__":
+   maintest() 
+
+

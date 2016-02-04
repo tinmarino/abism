@@ -9,13 +9,18 @@ def Stat(grid,dic={},get=None): #hist for the histogram
   res={}
   if get != None : pass   # keep the get from input  
   elif dic.has_key("get"): get=dic["get"] 
-  else : get = ["rms","median","mean","min","max","sum","number_count"]
+  else : get = ["mean","median","rms","min","max","number_count","sum"]
 
   for i in get : 
     if len(grid) ==0 : res[i]=0
     elif i=="rms" : res[i]=np.std(grid)
     elif i=="number_count": 
        res["number_count"]= len( grid.flatten() ) 
+    elif i=="sum": # to go faster  
+       if res.has_key("mean") and res.has_key("number_count"): 
+          res["sum"] = res["mean"] * res["number_count"] 
+       else : 
+          res["sum"] = np.sum(grid) 
     else :  # do np.i[grid] 
       method = getattr(np,i)
       res[i]=method(grid) 
@@ -57,13 +62,33 @@ def Sky(grid,dic={}): # dic contains mean,rms, sigma(clipping), median, it is th
         return Sky(grid,dic)
 
 
+
+def BadPixelCleaner(lst,dic={}): # notfinished
+  """ lst can be LIST  or ARRAY , return object of the same type
+  """
+  # DIC default 
+  default_dic={'median_filter':(3,5),"exact":0} 
+  default_dic.update(dic) ; dic =default_dic 
+  if get == [] : get = dic["get"]
+
+
+  #MEDIAN 
+  med_size=dic["median_filter"]
+  if med_size[0] != 0 :
+       median = scipy.ndimage.median_filter(cutted, size=(med_size[0],med_size[0]) )
+       cutted[np.abs(cutted-median)>(med_size[1]-1)*median] = median[np.abs(cutted-median)>(med_size[1]-1)*median]
+
+
+
 def RectanglePhot(grid,r,dic={},get=[]):
-          # 2D array,(rx1,rx2,ry1,ry2), it should be ordered 
+  """2D array,(rx1,rx2,ry1,ry2), it should be ordered 
      # exact is for the taking the percentage of the cutted pixel or not 
      # median is a median filter of 3 pixel square and 2 sigma clipping
      # in_border is examining if r is in the grid, otherwise, cannot calculate. 
+     """
+
   # DIC default 
-  default_dic={'median_filter':(3,2),"exact":0,"get":["sum"]} 
+  default_dic={'median_filter':(3,4),"exact":0,"get":["sum"]} 
   default_dic.update(dic) ; dic =default_dic 
   if get == [] : get = dic["get"]
 
@@ -125,7 +150,6 @@ def ObjectDetection(grid,dic={}):
 
 #    from matplotlib import pyplot as plt 
 #    tmp= Stat.ObjectDetection(W.Im0)
-#    print  tmp[3]                            
 #    fig = plt.figure()
 #    ax=fig.add_subplot(221)
 #    plt.imshow(tmp[1],origin="lower")

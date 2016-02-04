@@ -25,19 +25,19 @@ while read line ; do
 ((cols=j-1));((rows=i-1))
 
 ##############
-# 2/ print array 
+# 2/ write  array 
 for ((row=0; row<=rows; row++)); do
     for ((col=0; col<=cols; col++)); do
         #echo $row $col ${array2[$row,$col]}
         #echo -n  ${array2[$row,$col]}$'\t'
 	stg="${array2[$row,$col]}"
 	if [[ $col == 0 ]] ; then 
-	   printf "%15s  " $stg 
+	   printf "%15s  " $stg   # verbose 
 	elif [[ $row == 0 ]]; then 
 	   stg=${stg: ((size-1))} 
-	   printf "%.${size}s  " .$stg
+	   printf "%.${size}s  " .$stg   # verbose 
 	else  # including the numbers 
-	   printf "%.${size}s  " $stg
+	   printf "%.${size}s  " $stg     # verbose 
         fi 
     done
     echo 
