@@ -17,7 +17,7 @@ import MyGui as MG
 
 import GuyVariables as G
 import WorkVariables as W
-
+import matplotlib
 
 
 
