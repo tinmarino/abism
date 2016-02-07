@@ -277,7 +277,8 @@ def LeftResult() :
 ###
 ## TEXT ARROWS
 ####
-def LabelDisplay(expand=False): # called later What do I know from header,
+def LabelDisplay(expand=False):  # called later, display what I retrived from header
+
     """ warning: exapnd not working well
       ESO /  not ESO
       NAco/vlt
@@ -285,63 +286,85 @@ def LabelDisplay(expand=False): # called later What do I know from header,
       Nx x Ny x Nz
       WCS detected or not
     """
-    lst=[]
-    # ESO
-    if W.head.company == "ESO" : comp = "ESO"
-    else                  : comp = "NOT ESO"
-    #VLT/NACO
-    if W.head.instrument == "NAOS+CONICA" : ins= "NaCo"
-    else                             : ins= W.head.instrument
-    tel= re.sub("-U.","",W.head.telescope.replace("ESO-","") ) # to delete ESO-  and -U4
-    lbl = comp +" / " +tel + " / "+ ins
+
+    lst = []
+
+    # ESO, COMPANY
+    if W.head.company == "ESO":
+        comp = "ESO"
+    else:
+        comp = "NOT ESO"
+
+
+    # VLT/NACO INSTRUMENT
+    if W.head.instrument == "NAOS+CONICA":
+        ins = "NaCo"
+    else:
+        ins = W.head.instrument
+    tel = re.sub("-U.",
+                 "",
+                 W.head.telescope.replace("ESO-", "")
+    )  # to delete ESO-  and -U4
+    lbl = comp + " / " + tel + " / " + ins
     lst.append(lbl)
 
-    #REDUCED ? #Nx * Ny * Nz
-    if "reduced_type" in vars(W.head) :
-       lbl=W.head.reduced_type
-    shape = list(W.Im0.shape[::-1]) # reverse, inverse, list order
+
+    # REDUCED ?
+    if "reduced_type" in vars(W.head):
+        lbl = W.head.reduced_type
+
+    # SIZE : Nx * Ny * Nz
+    shape = list(W.Im0.shape[::-1])  # reverse, inverse, list order
     if "NAXIS3" in W.head.header.keys():
-       shape.append(W.head.header["NAXIS3"])
-       lbl+= "%i x %i x %i" % (shape[0],shape[1],shape[2])
+        shape.append(W.head.header["NAXIS3"])
+        lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])
     else:
-       lbl+= "%i x %i " % (shape[0],shape[1])
+        lbl += "%i x %i " % (shape[0], shape[1])
     lst.append(lbl)
+
 
     #WCS
-    if W.head.wcs_bool : lbl= "WCS detected"
-    else               : lbl ="WCS NOT detected"
+    if W.head.wcs_bool:
+        lbl = "WCS detected"
+    else:
+        lbl = "WCS NOT detected"
     lst.append(lbl)
 
 
     # Header reads Strehl variables ?
-    if (W.head.diameter==99. or  W.head.wavelength==99. or W.head.obstruction==99. or W.head.pixel_scale==99.):
+    bolt = (W.head.diameter == 99. or W.head.wavelength == 99.)
+    bolt = bolt or (W.head.obstruction == 99. or W.head.pixel_scale == 99.)
+    if bolt:
         lbl = "WARNING: some parameters not found"
-        lst.append(   (lbl,{"fg":"red"}) )
-    else :
+        lst.append((lbl, {"fg": "red"}))
+    else:
         lbl = "Parameters read from header"
-        lst.append(   (lbl,{"fg":"blue"}) )
+        lst.append((lbl, {"fg": "blue"}))
 
 
     # UNDERSAMPLED
-    bol = W.head.wavelength*1e-6/W.head.diameter/(W.head.pixel_scale/206265)<2
-    bol2 =    "sinf_pixel_scale" in vars(W.head) and ( ( W.head.sinf_pixel_scale == 0.025) or ( W.head.sinf_pixel_scale == 0.01) )
-    bol = bol or bol2
-    if bol :
+    bol1 = W.head.wavelength*1e-6/W.head.diameter/(W.head.pixel_scale/206265)<2
+    bol2 = "sinf_pixel_scale" in vars(W.head)
+    bol3 = W.head.sinf_pixel_scale == 0.025
+    bol3 = bol3 or (W.head.sinf_pixel_scale == 0.01)
+
+    bolt = bol1 or (bol2 and bol3)
+    if bolt:
         lbl = "!!! SPATIALLY UNDERSAMPLED !!!"
-        lst.append(   (lbl,{"fg":"red"}) )
+        lst.append((lbl, {"fg": "red"}))
 
     # GRID LABLES
     row = 0
-    G.LabelFrame.columnconfigure(0,weight=1)
-    if W.verbose >3 : print "Label lst" , lst
-    for i in lst :
-       arg = G.lb_arg.copy()
-       arg.update({"justify":CENTER})
-       if type(i) == list or type(i) == tuple  :
-           arg.update(i[1])
-       i= i[0]
-       Label(G.LabelFrame,text=i,**arg).grid(row=row,column=0,sticky="nsew")
-       row+=1
+    G.LabelFrame.columnconfigure(0, weight=1)
+    if W.verbose >3: print "Label lst" , lst
+    for i in lst:
+        arg = G.lb_arg.copy()
+        arg.update({"justify": CENTER})
+        if type(i) == list or type(i) == tuple:
+            arg.update(i[1])
+        i = i[0]
+        Label(G.LabelFrame, text=i, **arg).grid(row=row, column=0, sticky="nsew")
+        row += 1
 
 
 
@@ -349,31 +372,34 @@ def LabelDisplay(expand=False): # called later What do I know from header,
 
 
     # place arrow to resize
-    if G.label_bool :  # label is big
-      photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-    else :
-      photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-    G.label_frame_arrow = Button(G.LabelFrame,command=LabelResize,image=photo,**G.bu_arg)
-    G.label_frame_arrow.image= photo  # keep a reference
-    G.label_frame_arrow.place(relx=1.,rely=0.,anchor="ne")
+    if G.label_bool:   # label is big
+        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+    else:
+        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+    G.label_frame_arrow = Button(G.LabelFrame,
+                                 command=LabelResize, image=photo, **G.bu_arg)
+    G.label_frame_arrow.image = photo  # keep a reference
+    G.label_frame_arrow.place(relx=1., rely=0., anchor="ne")
 
 
     # place frame_title_label
-    Label(G.LabelFrame,text="Labels",**G.frame_title_arg).place(x=0,y=0)
+    Label(G.LabelFrame, text="Labels", **G.frame_title_arg).place(x=0, y=0)
 
 
     # Button to resize
     arg = G.bu_arg.copy()
-    arg.update({  "text":"OK",
-              "command": LabelResize,
-          "padx":3,"width":20   })
-    G.last_label = Button(G.LabelFrame,**arg)
-    G.last_label.grid(row=row,column=0,sticky="nswe")
-    row+=1
+    arg.update({"text": "OK",
+                "command": LabelResize,
+                "padx": 3,
+                "width": 20
+                })
+    G.last_label = Button(G.LabelFrame, **arg)
+    G.last_label.grid(row=row, column=0, sticky="nswe")
+    row += 1
 
-    if expand :
-       G.label_bool = 0
-       LabelResize()
+    if expand:
+        G.label_bool = 0
+        LabelResize()
 
 
 def LabelResize() : # called  later
