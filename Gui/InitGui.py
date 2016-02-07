@@ -142,114 +142,135 @@ def DrawFrameMaker():  # receive G.MainPaned, create DrawPaned
 
 
 
-def TextFrameMaker() :
-  ""
-  #FRAMES
-  G.TextFrame = Frame(G.MainPaned,**G.fr_arg)
-  G.all_frame.append("G.TextFrame")
-  if G.geo_dic.has_key("TextPaned"):
-    G.MainPaned.add(G.TextFrame,width=float(G.geo_dic["TextPaned"]))
-  else : # including don't set width
-    G.MainPaned.add(G.TextFrame)
+def TextFrameMaker():
+    """
+    """
+    # Main Frame create
+    G.TextFrame = Frame(G.MainPaned, **G.fr_arg)
+    G.all_frame.append("G.TextFrame")
 
+    # Main Frame Add to its parent so it get displayed
+    if "TextPaned" in G.geo_dic:
+        G.MainPaned.add(G.TextFrame, width=float(G.geo_dic["TextPaned"]))
+    else:  # including don't set width
+        G.MainPaned.add(G.TextFrame)
 
-  #BUTTONS
-  TextButton1(G.TextFrame).pack(side=TOP,expand=0,fill=X)
+    # BUTTONS
+    TextButton1(G.TextFrame).pack(side=TOP, expand=0, fill=X)
 
-  #PANED
-  G.TextPaned = PanedWindow(G.TextFrame,orient=VERTICAL,**G.paned_dic)
-  G.TextPaned.pack(side=TOP, expand=1, fill = BOTH ) # this is the main paned on the left so it should expand
-  G.all_frame.append("G.TextPaned")
+    # PANED TODO remove the main text frame
+    G.TextPaned = PanedWindow(G.TextFrame, orient=VERTICAL, **G.paned_dic)
+    G.TextPaned.pack(side=TOP, expand=1, fill=BOTH)  # this is the main paned on the left so it should expand
+    G.all_frame.append("G.TextPaned")
 
-  LeftLabel()
-  LeftTop()
-  LeftResult()
+    LeftLabel()
+    LeftTop()
+    LeftResult()
 
 
 def TextButton1(frame):
-  ""
-  # FRAMES
-  G.ButtonFrame=Frame(frame,bg=G.bg[0])
-  G.all_frame.append("G.Button1Frame")
+    ""
+    # FRAMES
+    G.ButtonFrame = Frame(frame, bg=G.bg[0])
+    G.all_frame.append("G.Button1Frame")
 
-  G.Button1Frame= Frame(G.ButtonFrame, **G.fr_arg)
-  G.Button1Frame.pack(side=TOP,fill=X,expand=0)
-
-
-  # DEFINE BUTTON
-  G.bu_quit=Button(G.Button1Frame,text='QUIT',background=G.bu_quit_color,
-                  command=MG.Quit,**G.bu_arg)  # QUIT
-  G.bu_restart=Button(G.Button1Frame,text='RESTART',background =G.bu_restart_color, command=MG.Restart, **G.bu_arg)                   # RESTART
-  G.bu_manual=Button(G.Button1Frame,text=u'\u25be '+'ImageParameters',
-                  background=G.bu_manual_color,command=ImageParameter,**G.bu_arg) #Manual M
-
-  # grid its
-  G.Button1Frame.columnconfigure(0,weight=1)
-  G.Button1Frame.columnconfigure(1,weight=1)
-
-  G.bu_quit.grid(row=0,column=0,sticky="nsew")
-  G.bu_restart.grid(row=0,column=1,sticky="nsew")
-  G.bu_manual.grid(row=1,column=0,columnspan=2,sticky="nsew")
-
-  return G.ButtonFrame
+    G.Button1Frame = Frame(G.ButtonFrame, **G.fr_arg)
+    G.Button1Frame.pack(side=TOP, fill=X, expand=0)
 
 
-def LeftLabel() : #LeftTipTopFrame
-  G.LabelFrame0 = Frame(G.TextPaned,**G.fr_arg) ###
-  G.all_frame.append("G.LabelFrame0")
-  arg= G.sub_paned_arg
-  if G.geo_dic.has_key("LabelFrame"):
-    arg.update({ "height":int(G.geo_dic["LabelFrame"])  })
-    if W.verbose > 3 : print "I chose ", int(G.geo_dic["LabelFrame"]), " for height of LABEL FRAME"
-  G.TextPaned.add(G.LabelFrame0,**arg)
-  G.LabelFrame = Frame(G.LabelFrame0,**G.fr_arg)
-  G.LabelFrame.pack(side=TOP,fill=BOTH,expand=0)
+    # DEFINE BUTTON
+    G.bu_quit = Button(G.Button1Frame, text='QUIT',
+                    background=G.bu_quit_color,
+                    command=MG.Quit, **G.bu_arg)  # QUIT
+
+    G.bu_restart = Button(G.Button1Frame, text='RESTART',
+                    background=G.bu_restart_color,
+                    command=MG.Restart, **G.bu_arg)  # RESTART
+
+    G.bu_manual = Button(G.Button1Frame, text=u'\u25be '+'ImageParameters',
+                    background=G.bu_manual_color,
+                    command=ImageParameter, **G.bu_arg)  # MANUAL M
+
+    # GRID ITS
+    G.Button1Frame.columnconfigure(0, weight=1)
+    G.Button1Frame.columnconfigure(1, weight=1)
+
+    G.bu_quit.grid(row=0, column=0, sticky="nsew")
+    G.bu_restart.grid(row=0, column=1, sticky="nsew")
+    G.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+    return G.ButtonFrame
 
 
-def LeftTop() : # call TxtButton1()
-  G.LeftTopFrame = Frame(G.TextPaned,bg=G.bg[0]) ###
-  G.all_frame.append("G.LeftTopFrame")
-  arg= G.sub_paned_arg
-  if G.geo_dic.has_key("LeftTopFrame"):
-     arg.update({ "height":int(G.geo_dic["LeftTopFrame"])  })
-     if W.verbose > 3 : print "I chose ", int(G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME"
-  G.TextPaned.add(G.LeftTopFrame,**arg)
-  LeftTopArrow()
+def LeftLabel():  # LeftTipTopFrame
+    G.LabelFrame0 = Frame(G.TextPaned, **G.fr_arg)
+    G.all_frame.append("G.LabelFrame0")
+
+    arg = G.sub_paned_arg
+    if 'LabelFrame' in G.geo_dic:
+        arg.update({"height": int(G.geo_dic["LabelFrame"])})
+        if W.verbose > 3:
+            print "I chose ",
+            int(G.geo_dic["LabelFrame"]),
+            " for height of LABEL FRAME"
+
+    G.TextPaned.add(G.LabelFrame0, **arg)
+    G.LabelFrame = Frame(G.LabelFrame0, **G.fr_arg)
+    G.LabelFrame.pack(side=TOP, fill=BOTH, expand=0)
+
+
+def LeftTop():  # call TxtButton1()
+    G.LeftTopFrame = Frame(G.TextPaned, bg=G.bg[0])
+    G.all_frame.append("G.LeftTopFrame")
+
+    arg = G.sub_paned_arg
+    if "LeftTopFrame" in G.geo_dic:
+        arg.update({"height": int(G.geo_dic["LeftTopFrame"])})
+        if W.verbose > 3 : print "I chose ", int(G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME"
+
+    G.TextPaned.add(G.LeftTopFrame, **arg)
+    LeftTopArrow()
 
 
 def LeftResult() :
-  ""
-  # APPEND TO PANED
-  G.LeftBottomFrame = Frame(G.TextPaned,bg=G.bg[0]) ###
-  G.all_frame.append("G.LeftBottomFrame")
-  arg= G.sub_paned_arg
-  if G.geo_dic.has_key("LeftBottomFrame"):
-     arg.update({ "height":int(G.geo_dic["LeftBottomFrame"])  })
-  G.TextPaned.add(G.LeftBottomFrame,**arg)
+    ""
+    # LeftBottomFrame
+    G.LeftBottomFrame = Frame(G.TextPaned, bg=G.bg[0])
+    G.all_frame.append("G.LeftBottomFrame")
 
-  G.ResultLabelFrame =Frame(G.LeftBottomFrame,bg=G.bg[0])
-  G.ResultLabelFrame.pack(side=TOP,fill=X)
-  G.all_frame.append("G.ResultLabelFrame")
+    arg = G.sub_paned_arg
+    if "LeftBottomFrame" in G.geo_dic:
+       arg.update({ "height":int(G.geo_dic["LeftBottomFrame"])  })
+    G.TextPaned.add(G.LeftBottomFrame, **arg)
 
-  # RESULT LABEL [written 'result' and fit type at the top
-  Label(G.ResultLabelFrame,text="Results",**G.frame_title_arg).pack(side=LEFT)
-  G.fit_type_label = Label(G.ResultLabelFrame,text=W.type["fit"],justify=CENTER,**G.lb_arg)
-  G.fit_type_label.pack(fill=X)
+    # result Label
+    G.ResultLabelFrame = Frame(G.LeftBottomFrame, bg=G.bg[0])
+    G.all_frame.append("G.ResultLabelFrame")
+    G.ResultLabelFrame.pack(side=TOP, fill=X)
 
-  # ANSWER FRAME
-  G.AnswerFrame=Frame(G.TextPaned,bg=G.bg[0])
-  G.all_frame.append("G.AnswerFrame")
-  G.AnswerFrame.pack(expand=0,fill=BOTH)
+    # RESULT LABEL [written 'result' and fit type at the top
+    Label(G.ResultLabelFrame, text="Results", **G.frame_title_arg).pack(side=LEFT)
+    G.fit_type_label = Label(G.ResultLabelFrame,
+                             text=W.type["fit"],
+                             justify=CENTER,
+                             **G.lb_arg)
+    G.fit_type_label.pack(fill=X)
 
-  # ARROW in RESULT LABEL
-  #if G.result_bool :  # label is big
-  if False :
-    photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-  else :
-    photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-  G.result_frame_arrow = Button(G.LeftBottomFrame,command=ResultResize,image=photo,**G.bu_arg)
-  G.result_frame_arrow.image= photo  # keep a reference
-  G.result_frame_arrow.place(relx=1.,rely=0.,anchor="ne")
+    # ANSWER FRAME
+    G.AnswerFrame = Frame(G.TextPaned, bg=G.bg[0])
+    G.all_frame.append("G.AnswerFrame")
+    G.AnswerFrame.pack(expand=0, fill=BOTH)
+
+    # ARROW in RESULT LABEL
+    # if G.result_bool :  # label is big
+    if False:
+        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+    else:
+        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+
+    G.result_frame_arrow = Button(G.LeftBottomFrame, command=ResultResize, image=photo, **G.bu_arg)
+    G.result_frame_arrow.image = photo  # keep a reference
+    G.result_frame_arrow.place(relx=1., rely=0., anchor="ne")
 
 
 
