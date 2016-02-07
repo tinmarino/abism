@@ -368,29 +368,20 @@ def LeftTopArrow() :  # jsut draw the arrow, see after
 
 
 def TopResize() : # called  later
-     if G.top_bool :
+    if G.top_bool :
         photo = PhotoImage(file=W.path+"/Icon/arrow_down.gif")
         base = G.TextPaned.sash_coord(0)[1] # jus height of the previous sash
-        G.TextPaned.sash_place(1,0,base+ 22+2* G.paned_dic["sashwidth"] )
-	if W.verbose > 3 : print "REsize top: ", 22
-     else :
+        G.TextPaned.sash_place(1,0,base+ 22+2* G.paned_dic["sashwidth"])
+        if W.verbose > 3: print("Resize top: ", 22)
+    else:
         photo = PhotoImage(file=W.path+"/Icon/arrow_up.gif")
         place = G.parent.winfo_height() - G.TextPaned.winfo_rooty()  - 200
         G.TextPaned.sash_place(1,0,place)
-        #def Pos(): # calculate position of the sash
-	#   #corner1 = G.TextPaned.winfo_rooty()
-	#   G.TextPaned.sash_place(1,0,2000) # to expand the widget, and estimate their size
-	#   corner2 = max ([ i.winfo_rooty() for j in G.LeftTopFrame.winfo_children() for  i in j .winfo_children()   ])
 
-	#   return corner2 + 40   # just y pos
-	#pos = Pos()
-        #G.TextPaned.sash_place( 1,0,pos )
-	#if W.verbose > 3 : print "REsize Top: ",pos
-
-     G.top_bool = not G.top_bool
-     G.top_frame_arrow['image'] = photo
-     G.top_frame_arrow.image= photo  # keep a reference
-     return
+    G.top_bool = not G.top_bool
+    G.top_frame_arrow['image'] = photo
+    G.top_frame_arrow.image= photo  # keep a reference
+    return
 
 
 def ResultResize(how = "max") : # called  later
@@ -561,23 +552,6 @@ def Cube():
       return
 
 
-
-def MoreClose():
-       ""
-       # change bool destroy
-       G.more_bool = not G.more_bool
-       G.MoreFrame.destroy()
-       if G.in_arrow_frame == "title_more" :
-          G.arrtitle.destroy()
-	  G.in_arrow_frame = None
-       G.all_frame = [ x for x in G.all_frame if x!="G.MoreFrame" ] # remove MoreFrame
-
-       # Change help menu label
-       for i in range(1,10) :
-         j = G.analysis_menu.menu.entrycget(i,"label")
-         if "Option" in j:
-           G.analysis_menu.menu.entryconfig(i,label=u'\u25be '+'More Option')
-	   break
 
 
 
