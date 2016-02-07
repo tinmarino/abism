@@ -2,6 +2,8 @@ from Tkinter import *
 
 import FileMenu
 import AbismMenu
+import AnalysisMenu
+
 import GuyVariables as G
 import WorkVariables as W
 
@@ -22,7 +24,7 @@ def MenuBarMaker():             # CALLER
     for i in [
         [AbismMenu.AbismMenu, {"text":u"\u25be "+"ABISM"}           ],
         [FileMenu.FileMenu, {"text":u"\u25be "+"File"}  ] ,
-        [AnalysisMenu,  {"text":u'\u25be '+'Analysis'} ] ,
+        [AnalysisMenu.AnalysisMenu,  {"text":u'\u25be '+'Analysis'} ] ,
         [ViewMenu,  {"text":u'\u25be '+'View'} ],
         [ToolMenu,  {"text":u'\u25be '+'Tools'} ],
     ] :
@@ -32,7 +34,6 @@ def MenuBarMaker():             # CALLER
         button.grid(row=0,column=col,sticky="nsew")
 
         col+=1
-
 
 
 def ToolMenu(args):
@@ -184,75 +185,6 @@ def ViewMenu(args):
     G.scale_menu['menu'] = G.scale_menu.menu
 
     return G.scale_menu
-
-
-def AnalysisMenu(args) :
-    G.analysis_menu= Menubutton(G.MenuBar,**args)
-    G.analysis_menu.menu=Menu(G.analysis_menu,**G.submenu_args)
-
-    def FitType() :
-      fit_menu = G.analysis_menu.menu
-      fit_menu.add_command(label="Fit Type",bg=None,state=DISABLED)
-
-      G.cu_fit=StringVar(); G.cu_fit.set( W.type["fit"].replace("2D","") )
-      lst1 = [
-           ["Gaussian"      ,  "Gaussian"        ,  lambda : MG.FitType("Gaussian"      )],
-           ["Moffat"        ,  "Moffat"          ,  lambda : MG.FitType("Moffat"        )],
-           ["Bessel1"       ,  "Bessel1"         ,  lambda : MG.FitType("Bessel1"       )],
-           #["Gaussian_hole" ,  "Gaussian_hole"   ,  lambda : MG.FitType("Gaussian_hole" )],
-           ["None"          ,  "None"            ,  lambda : MG.FitType("None"          )],
-           ]
-      for i in lst1 :
-         fit_menu.add_radiobutton(
-             label=i[0]   , command= i[2],
-             variable=G.cu_fit,value=i[1]) # we use same value as label
-
-      # more options
-      if not G.more_bool : G.analysis_menu.menu.add_command(label=u'\u25be '+'More Options',command=MoreWidget)
-      else :  G.analysis_menu.menu.add_command(label=u'\u25b4 '+'Less Options',command=MoreWidget)
-
-
-      G.analysis_menu.menu.add_command(columnbreak=1)
-      return
-
-
-    def PickType() :
-      pick_menu = G.analysis_menu.menu
-      pick_menu.add_command(label="Pick Object(s)",bg=None,state=DISABLED)
-
-      G.cu_pick=StringVar(); G.cu_pick.set( W.type["pick"] )
-      lst2 = [
-           ["PickOne"   , "one"     ,lambda : Pick.RefreshPick("one") ],
-           ["Binary Fit", "binary"  ,lambda : Pick.RefreshPick("binary") ] ,
-           #["Tight Binary", "tightbinary"  ,lambda : Pick.RefreshPick("tightbinary") ] ,
-           ["PickMany"  , "many"    ,lambda : Pick.RefreshPick("many") ],
-           ["No Pick"   , "nopick"  ,lambda : Pick.RefreshPick("nopick") ],
-            ]
-      lst3 = [
-           #["Ellipse"   , "ellipse" ,lambda : Pick.RefreshPick("ellipse") ] ,
-           #["Annulus"   , "annulus" ,lambda : Pick.RefreshPick("annulus") ],
-           ]
-
-      for i in lst2 :
-          pick_menu.add_radiobutton(
-               label=i[0], command=i[2],
-               variable=G.cu_pick, value=i[1]) # we use same value as label
-
-      # MORE
-      #more_menu = Menu(pick_menu,**G.submenu_args)
-      #for i in lst3 :
-      #  more_menu.add_radiobutton(label= i[0] , command = i[1],
-      #          variable=G.cu_pick, value= i[1] )
-
-      #pick_menu.add_cascade(menu=more_menu,label="More",underline=0)
-      #G.analysis_menu.menu.add_command(columnbreak=1)
-      #return
-
-
-    FitType() ; PickType()
-    G.analysis_menu['menu'] = G.analysis_menu.menu
-    return G.analysis_menu
-
 
 
 
@@ -428,6 +360,8 @@ def ManualCut():
     G.bu_close=Button(G.ManualCutGridFrame,text=u'\u25b4 '+'Close',background=G.bu_close_color,command=ManualCutClose,**G.bu_arg)
     G.bu_close.grid(row=r,column=0,columnspan=2)
     if W.verbose >3 : print "Manual Cut called"
+
+
 def ManualCutClose():
   G.manual_cut_bool = not G.manual_cut_bool
   G.ManualCutFrame.destroy()
