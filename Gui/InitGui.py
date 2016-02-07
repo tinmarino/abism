@@ -16,10 +16,9 @@ import WorkVariables as W
     #################
 
 def WindowInit():
-  Title()
-  MainFrameMaker()  # Create MenuBar and MainPaned, TextFrame and DrawFrame
-
-  Shortcuts() # take MG and parents
+  Title()               # Set title and icon
+  MainFrameMaker()      # Create MenuBar and MainPaned, TextFrame and DrawFrame
+  Shortcuts()           # take MG and parents
 
 
 

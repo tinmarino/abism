@@ -2,7 +2,7 @@ import tkFont
 try : from Tkinter import *
 except  : from tkinter import *
 import re
-
+import matplotlib
 
 import GuyVariables as G
 import WorkVariables as W
@@ -27,75 +27,73 @@ def GuiVar(): # define the shared variables for the GUI definition
   #G.version = "%.2f" % float( W.path.split("/")[-1].replace("Abism","") )
 
   # BUTTON WIDTH
-  G.button_width=12
-  G.bu_width=12
-  G.menu_button_width=8
+  G.button_width        =12                         # the width of the standard buttons
+  G.bu_width            =12                         # THE SAME
+  G.menu_button_width   =8                          # Size of menu buttons
 
   # GUI FORM
-  G.hidden_text_bool = 0 # we don't hide text frame by default
-  G.scale_menu_type = "column"    # can be "column" or "cascade"
-  G.all_frame = []
-  G.interaction_type = "tkinter"
-  #G.interaction_type = "tkinter" # Can be tkinter or shell , written interaction with the mainloop
-  G.last_top_size = 300
-
+  G.hidden_text_bool    = 0                         # we don't hide text frame by default, the text framme is the output frame on the left
+  G.scale_menu_type     = "column"                  # can be "column" or "cascade"
+  G.all_frame           = []                        # all frames will be here to change color
+  G.interaction_type    = "tkinter"                 # Can be tkinter or shell , written interaction with the mainloop
+  G.last_top_size       = 300
 
   # GEO DIC
-  G.geo_dic = {}
+  G.geo_dic             = {}                        # geometry dictionnay
   G.geo_dic['ResultFrame']=  300
 
 
 
   # COLORS
-  G.bg=["#d0d0d0"]  # light grey  # the backgroudn of abism
-  G.fg=["black"]
-  import matplotlib
+  G.bg                  = ["#d0d0d0"]               # light grey  # the backgroudn of abism
+  G.fg                  = ["black"]                 # foreground, the color of the font
   G.all_cmaps = sorted([i for i in dir(matplotlib.cm) if hasattr(getattr(matplotlib.cm,i),'N')]) # inclouding inverse
 
-  G.bu_manual_color="blue" #image parameters
-  G.menu_noise_color="grey"
+  # BUTTONS COLORS
+  G.bu_manual_color     ="blue"                     # Color of buttons
+  G.menu_noise_color    ="grey"
   G.bu_subtract_bg_color="grey"
-  G.menu_phot_color="grey"
-  G.bu_close_color="grey"
-  G.bu_quit_color="red"
-  G.bu_restart_color= 'cyan'
+  G.menu_phot_color     ="grey"
+  G.bu_close_color      ="grey"
+  G.bu_quit_color       ="red"
+  G.bu_restart_color    = 'cyan'
 
 
 
   # FONT
-  G.small_font= tkFont.Font(size=6)
-  G.answer_font= tkFont.Font(size=10)   # all answer in AnswerFrame
-  G.strehl_font= tkFont.Font(size=12)  # just strehl answer
-  G.warning_font= tkFont.Font(size=12)  # just strehl answer
-  G.font_param = tkFont.Font(size=11)  #Image parameters
-  G.big_font= tkFont.Font(size=16)
+  G.small_font          = tkFont.Font(size=6)
+  G.answer_font         = tkFont.Font(size=10)   # all answer in AnswerFrame
+  G.strehl_font         = tkFont.Font(size=12)  # just strehl answer
+  G.warning_font        = tkFont.Font(size=12)  # just strehl answer
+  G.font_param          = tkFont.Font(size=11)  #Image parameters
+  G.big_font            = tkFont.Font(size=16)
 
 
   # SCALE dic for the color and contrast
   G.scale_dic_list = [{}]
   G.scale_dic= G.scale_dic_list
-  G.scale_dic[0]["cmap"]="jet"
-  G.scale_dic[0]["contour"]=False
-  G.scale_dic[0]["answer"]="detector"
-  G.scale_dic[0]["percent"]=99.99
+  G.scale_dic[0]["cmap"]    = "jet"
+  G.scale_dic[0]["contour"] = False
+  G.scale_dic[0]["answer"]  = "detector"
+  G.scale_dic[0]["percent"] = 99.99
   G.scale_dic[0]["scale_cut_type"]="sigma_clip"
-  G.scale_dic[0]["sigma"]=3
-  G.scale_dic[0]["stretch"]="linear"
+  G.scale_dic[0]["sigma"]   = 3
+  G.scale_dic[0]["stretch"] = "linear"
 
   # BOOL
-  G.manual_cut_bool=0
-  G.more_bool = 0
-  G.more_info_bool=0
-  G.cal_bool = 0 # for calculator
-  G.tutorial =0
-  G.tut_type="console" # tutorial output
+  G.manual_cut_bool = 0
+  G.more_bool       = 0
+  G.more_info_bool  = 0
+  G.cal_bool        = 0                             # Is the calculator opened yet ?
+  G.tutorial        = 0                             # Is the tutorial opened yet ?
+  G.tut_type        = "console"                     # tutorial output
   G.toolbar_fit_bool = False
   G.toolbar_result_bool = False
   G.manual_back_bool = False
-  G.label_bool = True # the labels on the left, when open image, this is set to true
-  G.result_bool = True # show the full results frame
-  G.top_bool    = True
-  G.in_arrow_frame = None # no body in lefftoparrowframe
+  G.label_bool      = True                          # the labels on the left, when open image, this is set to true
+  G.result_bool     = True                          # show the full results frame
+  G.top_bool        = True
+  G.in_arrow_frame  = None                          # no body in lefftoparrowframe
 
   # CLASS
   G.tkvar = G.VoidClass() #(we save the tkvariables ) # it may be changed see image parameters
@@ -103,11 +101,13 @@ def GuiVar(): # define the shared variables for the GUI definition
 
 
   # DICTIONARIES
-  G.paned_dic = {"sashwidth":2,"sashpad":0,
-                 "showhandle":0,"bg":"blue",
-		 "borderwidth":0,"sashrelief":RAISED ,
-		 }
-		 # dictionnary to call PanedWindow in Tk
+  G.paned_dic = {   "sashwidth":2,                  # The sas is the little between windows "glissiere", to resize
+                    "sashpad":0,
+                    "showhandle":0,
+                    "bg":"blue",
+		            "borderwidth":0,
+                    "sashrelief":RAISED,
+		        }                                   # dictionnary to call PanedWindow in Tk
 
 
   G.frame_title_arg = {
