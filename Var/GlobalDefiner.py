@@ -8,6 +8,7 @@ import GuyVariables as G
 import WorkVariables as W
 
 
+# TODO entirely remove this file
 
 def Main():
   GuiVar()         # Initialt Gui vars

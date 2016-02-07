@@ -1,9 +1,10 @@
-import pyfits, sys
+# import pyfits
+import sys
 import numpy as np
 
 import WorkVariables as W
 
-try :
+try:
   import pywcs
   import_pywcs_bool = 1
 except ImportError as exc:
@@ -16,6 +17,7 @@ def CallHeaderClass(header):
   """ the objects is.. pyfits.open(image)[0] """
 
   #0/ DETERMINE the instrument
+  print ("header type is " + str(type(header)));
   #if header.has_key('INSTRUM'):
   #   instru=header['INSTRUM']
   #elif header.has_key('INSTRUME'):
@@ -24,21 +26,56 @@ def CallHeaderClass(header):
   #   instru=header['INSTRUMENT']
   #else :  instru=""
   #if W.verbose >3 : print "READHEADER my instru : ", instru
-  instru = ""
+  #instru = ""
 
-  #1/ Call header Class
-  if ("NAOS" in instru) and ("CONICA" in instru)  :
-      W.head = NacoHeader(header)
-  elif "SINFONI" in instru :
-      W.head = SinfoniHeader(header)
-  else:
-      W.head = Header(header)
+  ##1/ Call header Class
+  #if ("NAOS" in instru) and ("CONICA" in instru)  :
+  #    W.head = NacoHeader(header)
+  #elif "SINFONI" in instru :
+  #    W.head = SinfoniHeader(header)
+  #else:
+  W.head = Header(header)
 
 
 
 class Header:
+"""
+       These are the importants files I retrieve from the header.
+
+    diameter        (real in m)     The primary diameter
+    wavelenght      (real in um)    The wavelength of the detection
+    obstruction     (real in %)     The percentage in area of the central
+obstruction. This is 14%**2 for VLT i guess, TODO check that !!
+    pixel_scale     (real in arsec/pixel) The number anguler size of one p
+pixel in arcsec
+    exptime         (real in sec)   The time of one exposure.  This will not
+infer the strehl ratio but the potometry  as well as the zero point.
+    zpt             (real in log)   The luminosity of 1 intensity Arbitrary
+Unit during one second. The higher the Zero point, the fainter stars (or noise)
+you may detect. It depends on the filter AND the airmass.
+    pywcs           (pywcs object)  This set of matrices can be used to get the
+position on sky of your object.
+    telescope       (string)        Name of your telescope
+    date            (string)        Date, maybe of last modification
+    date_obs        (string)        Data of observation.
+    instrument      (string)        Name of the instrument.
+    company         (string)        Name of the company owning the telescope:
+ESO, CFHT, Carnergie...
+
+    instrument      (string)        Name of the camera. Can be used to
+automatially retrieve informations.
+    reduced_type    (string)        RAW or REDUCED
+
+    saturation_level  (real ADU)    The ADU of saturation of the CCD, proper to
+the science camera.
+    non_lineratiry_level (real ADU) The ADU where non linearity starts, I wont
+use this value I guess. Or just as a quiet warning.
+"""
+  def __init__(self):
+    pass
+
   def __init__(self,header):
-     self.header= header
+     self.header = header
      self.InitKey()
      self.ObservationKey()
      self.StrehlKey()
@@ -259,7 +296,6 @@ class Header:
 	##" NACO
 
 class NacoHeader(Header):
-
   def StrehlKey(self):
     if W.verbose > 3 :print  "READ HEAR NACO \n"
     self.wavelength=self.header['HIERARCH ESO INS CWLEN']
