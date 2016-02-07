@@ -39,7 +39,7 @@ def CallHeaderClass(header):
 
 
 class Header:
-"""
+  """
        These are the importants files I retrieve from the header.
 
     diameter        (real in m)     The primary diameter
@@ -70,7 +70,7 @@ automatially retrieve informations.
 the science camera.
     non_lineratiry_level (real ADU) The ADU where non linearity starts, I wont
 use this value I guess. Or just as a quiet warning.
-"""
+  """
   def __init__(self):
     pass
 
