@@ -14,27 +14,27 @@ except ImportError as exc:
 
 
 def CallHeaderClass(header):
-  """ the objects is.. pyfits.open(image)[0] """
+    """ the objects is.. pyfits.open(image)[0]
+    <class 'pyfits.header.Header'>"""
 
-  #0/ DETERMINE the instrument
-  print ("header type is " + str(type(header)));
-  #if header.has_key('INSTRUM'):
-  #   instru=header['INSTRUM']
-  #elif header.has_key('INSTRUME'):
-  #   instru=header['INSTRUME']
-  #elif header.has_key('INSTRUMENT'):
-  #   instru=header['INSTRUMENT']
-  #else :  instru=""
-  #if W.verbose >3 : print "READHEADER my instru : ", instru
-  #instru = ""
+    #0/ DETERMINE the instrument
+    print ("header type is " + str(type(header)));
+    if 'INSTRUM'      in header:
+        instru=header['INSTRUM']
+    elif 'INSTRUM'    in header:
+        instru=header['INSTRUME']
+    elif 'INSTRUMENT' in header:
+        instru=header['INSTRUMENT']
+    else :
+        instru=""
 
-  ##1/ Call header Class
-  #if ("NAOS" in instru) and ("CONICA" in instru)  :
-  #    W.head = NacoHeader(header)
-  #elif "SINFONI" in instru :
-  #    W.head = SinfoniHeader(header)
-  #else:
-  W.head = Header(header)
+    #1/ Call header Class According to the instrument
+    if ("NAOS" in instru) and ("CONICA" in instru)  :
+        W.head = NacoHeader(header)
+    elif "SINFONI" in instru :
+        W.head = SinfoniHeader(header)
+    else:
+        W.head = Header(header)
 
 
 
@@ -110,28 +110,28 @@ use this value I guess. Or just as a quiet warning.
 	    self.company = "ESO"
 
 	  # TELESCOP
-	  #if self.header.has_key("TELESCOP") :
+	  #if "TELESCOP" in self.header :
 	  if "TELESCOP" in self.header:
 	     self.telescope  = self.header["TELESCOP"]
 
 	  # INSRTU
-	  if self.header.has_key('INSTRUM'):
+	  if 'INSTRUM' in self.header:
 	     self.instrument=self.header['INSTRUM']
-	  if self.header.has_key('INSTRUME'):
+	  if 'INSTRUME' in self.header:
 	     self.instrument=self.header['INSTRUME']
-	  if self.header.has_key('INSTRUMENT'):
+	  if 'INSTRUMENT' in self.header:
 	     self.instrument=self.header['INSTRUMENT']
 
 	  self.reduced_type = "RAW"
 	  # REDUCED
-	  if self.header.has_key('HIERARCH ESO PRO TYPE'):
+	  if 'HIERARCH ESO PRO TYPE' in self.header:
 	     self.reduced_type =  self.header['HIERARCH ESO PRO TYPE']
 
     def StrehlKey(self): # depend on class
 	  """diameter wavelenght obstruction pixel_scale"""
 	  ###############
 	  ###  WAVELENGHT
-	  if self.header.has_key('FILTER'):
+	  if 'FILTER' in self.header:
 	     filt = self.header['FILTER']
 	     if filt == 'H' : self.wavelength = 1.6
 	     if ("U" or "u")  in filt : self.wavelength = 0.365
@@ -145,9 +145,9 @@ use this value I guess. Or just as a quiet warning.
 	     if ("K" or "k")  in filt : self.wavelength = 2.190
 	     if ("L" or "l")  in filt : self.wavelength = 3.450
 	     if ("M" or "m")  in filt : self.wavelength = 4.750
-	  if self.header.has_key('LAMBDA'):
+	  if 'LAMBDA' in self.header:
 	    self.wavelength=self.header['LAMBDA']
-	  if self.header.has_key('HIERARCH ESO INS CWLEN'):
+	  if 'HIERARCH ESO INS CWLEN' in self.header:
 	    self.wavelength=self.header['HIERARCH ESO INS CWLEN']
 
 	  ###############""
@@ -160,9 +160,9 @@ use this value I guess. Or just as a quiet warning.
 	        self.obstruction = 15
 	  elif "Keck" in self.telescope :
 	     self.diameter = 10.
-	  if self.header.has_key('TELDIAM'):
+	  if 'TELDIAM' in self.header:
 	    self.diameter=self.header['TELDIAM']
-	  if self.header.has_key('TELSECD'):
+	  if 'TELSECD' in self.header:
 	    self.obstruction=   (self.header['TELSECD']/self.diameter)**2
 
 
@@ -170,17 +170,17 @@ use this value I guess. Or just as a quiet warning.
 	  #" SCALE
 
 	      #baade
-	  if self.header.has_key('SCALE'): self.pixel_scale=self.header['SCALE']
+	  if 'SCALE' in self.header: self.pixel_scale=self.header['SCALE']
 	  if (self.pixel_scale>1e-6) &(self.pixel_scale<1e-3) : # in deg
 	      self.pixel_scale*=3600
 
 	      # VLT
-	  if self.header.has_key('HIERARCH ESO INS PIXSCALE'):
+	  if 'HIERARCH ESO INS PIXSCALE' in self.header:
 	    self.pixel_scale=self.header['HIERARCH ESO INS PIXSCALE']
-	  if self.header.has_key('APPXSCL'):
+	  if 'APPXSCL' in self.header:
 	    self.pixel_scale=self.header['APPXSCL']/1000.
-	  if self.header.has_key('CD1_1'):
-	       if self.header.has_key('CD2_2'):
+	  if 'CD1_1' in self.header:
+	       if 'CD2_2' in self.header:
 	          self.pixel_scale=(  abs(float(self.header['CD1_1']))   +    abs(float(self.header['CD2_2']))     )/2.  *3600.
 	       else :
 	          self.pixel_scale=  abs(float(self.header['CD1_1']))  *3600.
@@ -256,33 +256,33 @@ use this value I guess. Or just as a quiet warning.
 	  # WCS
 	  self.CD1_1, self.CD2_2 = 1,1
 	  self.CD2_1, self.CD1_2 = 0,0
-	  if self.header.has_key('CD1_1'):
+	  if 'CD1_1' in self.header:
 	    self.CD1_1=float(self.header['CD1_1'] )
-	  if self.header.has_key('CD1_2'):
+	  if 'CD1_2' in self.header:
 	    self.CD1_2=float(self.header['CD1_2'] )
-	  if self.header.has_key('CD2_1'):
+	  if 'CD2_1' in self.header:
 	    self.CD2_1=float(self.header['CD2_1'] )
-	  if self.header.has_key('CD2_2'):
+	  if 'CD2_2' in self.header:
 	    self.CD2_2=float(self.header['CD2_2'] )
 
 	  ##############
 	  #  ZPT
 	  self.zpt = 0
-	  if self.header.has_key("ZPT"):
+	  if "ZPT" in self.header:
 	    self.zpt=float(self.header['ZPT'] )
 
 
     def MoreKey(self): # for all classes too
-	  if self.header.has_key('DATE'):
+	  if 'DATE' in self.header:
 	    self.date=self.header['DATE']
-	  if self.header.has_key('DATE-OBS'):
+	  if 'DATE-OBS' in self.header:
 	    self.date_obs=self.header['DATE-OBS']
-	  if self.header.has_key('BPM'):
+	  if 'BPM' in self.header:
 	    self.bpm_name=self.header['BPM']
 
-	  if self.header.has_key('EXPTIME'):
+	  if 'EXPTIME' in self.header:
 	    self.exptime=self.header['EXPTIME']
-	  if self.header.has_key('HIERARCH ESO DET DIT'):
+	  if 'HIERARCH ESO DET DIT' in self.header:
 	    self.exptime=self.header['HIERARCH ESO DET DIT']
 
 
@@ -312,13 +312,13 @@ class NacoHeader(Header):
 
 	def ObservationKey(self): # company, tel,instru, reduced ?
 	  self.company = "ESO"
-	  if self.header.has_key("TELESCOP") : # NACO will be changed soon
+	  if "TELESCOP" in self.header : # NACO will be changed soon
 	     self.telescope  = self.header["TELESCOP"]
 
 	  self.instrument="NaCo"
 
 	  self.reduced_type="RAW"
-	  if self.header.has_key('HIERARCH ESO PRO TYPE'):
+	  if 'HIERARCH ESO PRO TYPE' in self.header:
 	     self.reduced_type =  self.header['HIERARCH ESO PRO TYPE']
 
 	def CallAfter(self) :
@@ -326,9 +326,9 @@ class NacoHeader(Header):
 
 
 	def Saturation(self) :
-	  if self.header.has_key( 'HIERARCH ESO DET NCORRS NAME' ) :
+	  if  'HIERARCH ESO DET NCORRS NAME'  in self.header :
 	    self.ncor = self.header[ 'HIERARCH ESO DET NCORRS NAME' ]
-	    if self.header.has_key( 'HIERARCH ESO DET MODE NAME' ) :
+	    if  'HIERARCH ESO DET MODE NAME'  in self.header :
 	       self.read_mode  = self.header[ 'HIERARCH ESO DET MODE NAME' ]
 	       bias = -np.inf
 	fullwell = np.inf # in case
@@ -364,15 +364,15 @@ class SinfoniHeader(Header):
 
 	  def pixel_scale() :
 	    # PIXEL SCALE FROM CD matrix
-	    if self.header.has_key('CD1_1'):
-	         if self.header.has_key('CD2_2'):
+	    if 'CD1_1' in self.header:
+	         if 'CD2_2' in self.header:
 	            self.pixel_scale=(  abs(float(self.header['CD1_1']))   +    abs(float(self.header['CD2_2']))     )/2.  *3600.
 	         else :
 	            self.pixel_scale=  abs(float(self.header['CD1_1']))  *3600.
 
 	    # PIXEL SCALE FROM HEADER OPT1.NAME
 	    opt1=1.
-	    if self.header.has_key('HIERARCH ESO INS OPTI1 NAME'):
+	    if 'HIERARCH ESO INS OPTI1 NAME' in self.header:
 	       opt1=float(self.header['HIERARCH ESO INS OPTI1 NAME'])
 	       self.pixel_scale= np.sqrt( 2 ) /2  *opt1
 	    if self.pixel_scale==0 : self.pixel_scale=99.
@@ -385,7 +385,7 @@ class SinfoniHeader(Header):
 
 	def ObservationKey(self): # company, tel,instru, reduced ?
 	  self.company = "ESO"
-	  if self.header.has_key("TELESCOP") : # NACO will be changed soon
+	  if "TELESCOP" in self.header : # NACO will be changed soon
 	     self.telescope  = self.header["TELESCOP"]
 
 
@@ -395,7 +395,7 @@ class SinfoniHeader(Header):
 	  self.instrument="SINFONI"
 
 	  self.reduced_type="RAW"
-	  if self.header.has_key('HIERARCH ESO PRO TYPE'):
+	  if 'HIERARCH ESO PRO TYPE' in self.header:
 	     self.reduced_type =  self.header['HIERARCH ESO PRO TYPE']
 
 
