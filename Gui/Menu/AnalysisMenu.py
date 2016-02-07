@@ -21,7 +21,7 @@ import InitGui as IG  # TODO must be removed too
 """
 
 
-def AnalysisMenu(args):
+def AnalysisMenu(args):     # Create the Menu button and its children
     G.analysis_menu = Tk.Menubutton(G.MenuBar, **args)
     G.analysis_menu.menu = Tk.Menu(G.analysis_menu, **G.submenu_args)
 
@@ -32,10 +32,10 @@ def AnalysisMenu(args):
         G.cu_fit = Tk.StringVar()
         G.cu_fit.set(W.type["fit"].replace("2D", ""))
         lst1 = [
-             ["Gaussian"      ,  "Gaussian"        ,  lambda: MG.FitType("Gaussian"      )],
-             ["Moffat"        ,  "Moffat"          ,  lambda: MG.FitType("Moffat"        )],
-             ["Bessel1"       ,  "Bessel1"         ,  lambda: MG.FitType("Bessel1"       )],
-             ["None"          ,  "None"            ,  lambda: MG.FitType("None"          )],
+             ["Gaussian", "Gaussian",  lambda: MG.FitType("Gaussian")],
+             ["Moffat",   "Moffat",    lambda: MG.FitType("Moffat")],
+             ["Bessel1",  "Bessel1",   lambda: MG.FitType("Bessel1")],
+             ["None",     "None",      lambda: MG.FitType("None")],
         ]
         for i in lst1:
             fit_menu.add_radiobutton(
@@ -52,10 +52,8 @@ def AnalysisMenu(args):
                 label=u'\u25b4 '+'Less Options',
                 command=MenuBar.MoreWidget)
 
-
         G.analysis_menu.menu.add_command(columnbreak=1)
         return
-
 
     def PickType():
         pick_menu = G.analysis_menu.menu
@@ -76,9 +74,7 @@ def AnalysisMenu(args):
         for i in lst2:
             pick_menu.add_radiobutton(
                  label=i[0], command=i[2],
-                 variable=G.cu_pick, value=i[1]) # we use same value as label
-
-
+                 variable=G.cu_pick, value=i[1])  # we use same value as label
 
     FitType()
     PickType()
@@ -86,14 +82,13 @@ def AnalysisMenu(args):
     return G.analysis_menu
 
 
-
 def MoreWidget():       # More photometry options frame
     ""
 
     # Change  menu label more option -> less option
-    for i in range(1, 10) :
-         j = G.analysis_menu.menu.entrycget(i, "label")
-         if "Option" in j:
+    for i in range(1, 10):
+        j = G.analysis_menu.menu.entrycget(i, "label")
+        if "Option" in j:
             if G.more_bool:
                 G.analysis_menu.menu.entryconfig(i, label=u'\u25be '+'More Option')
                 break
@@ -102,18 +97,17 @@ def MoreWidget():       # More photometry options frame
                 break
 
     # CHANGE BOOL MAY CLOSE
-    if G.more_bool ==1 : # close more frame
-      MoreClose()
+    if G.more_bool == 1:  # close more frame
+        MoreClose()
 
-    else :  # CREATE
+    else:  # CREATE
         MoreCreate()
 
     return
 
 
-
 def MoreCreate():       # Create The Frame
-    G.more_bool = not G.more_bool # mean = 1
+    G.more_bool = not G.more_bool  # mean = 1
     G.top_bool = 0
     IG.TopResize()
 
@@ -134,7 +128,7 @@ def MoreCreate():       # Create The Frame
     G.MoreGridFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
     G.MoreGridFrame.columnconfigure(0, weight=1)
     G.MoreGridFrame.columnconfigure(1, weight=1)
-
+    ""
 
     def SubtractBackground(frame):
         ""
@@ -145,7 +139,6 @@ def MoreCreate():       # Create The Frame
                                      **G.bu_arg)
         return G.bu_subtract_bg
 
-
     def NoiseType(frame):
         ""
         G.menu_noise = Tk.Menubutton(frame,
@@ -155,7 +148,7 @@ def MoreCreate():       # Create The Frame
                                 **G.bu_arg)
         G.menu_noise.menu = Tk.Menu(G.menu_noise)
 
-        G.cu_noise=Tk.StringVar()
+        G.cu_noise = Tk.StringVar()
         G.cu_noise.set(W.type["noise"])
 
         lst = [
@@ -165,19 +158,18 @@ def MoreCreate():       # Create The Frame
                 ['Manual', "manual"],
                 ["None", "None"],
         ]
-        for i in lst :
-          if i[0] == "Manual" :
-            G.menu_noise.menu.add_radiobutton(label=i[0],
-              command=IG.ManualBackground,
-              variable=G.cu_noise, value=i[1]) # W.type[noise] as value
-          else :
-            G.menu_noise.menu.add_radiobutton(label=i[0],
-              command=lambda i=i : MG.VarSet('W.type["noise"]', i[1]),
-              variable=G.cu_noise, value=i[1])
+        for i in lst:
+            if i[0] == "Manual":
+                G.menu_noise.menu.add_radiobutton(label=i[0],
+                    command=IG.ManualBackground,
+                    variable=G.cu_noise, value=i[1]) # W.type[noise] as value
+            else:
+                G.menu_noise.menu.add_radiobutton(label=i[0],
+                    command=lambda i=i : MG.VarSet('W.type["noise"]', i[1]),
+                    variable=G.cu_noise, value=i[1])
 
         G.menu_noise['menu'] = G.menu_noise.menu
         return G.menu_noise
-
 
     def PhotType(frame):
         G.menu_phot = Tk.Menubutton(frame, text=u'\u25be '+'Photometry',
@@ -187,24 +179,24 @@ def MoreCreate():       # Create The Frame
         G.cu_phot = Tk.StringVar()
         G.cu_phot.set(W.type["phot"])
 
-        lst =  [
-            ["Elliptical Aperture", "elliptical_aperture"] ,
-            [ 'Fit', 'fit'],
+        lst = [
+            ["Elliptical Aperture", "elliptical_aperture"],
+            ['Fit', 'fit'],
             ['Rectangle Aperture', 'encircled_energy'],
             ['Manual', 'manual'],
         ]
 
-        for i in lst :
-          G.menu_phot.menu.add_radiobutton(label=i[0]   ,
-            command=lambda i=i : MG.VarSet('W.type["phot"]', i[1]) ,
-            variable=G.cu_phot, value=i[1]) # we use W.type[phot"]
+        for i in lst:
+            G.menu_phot.menu.add_radiobutton(label=i[0],
+                command=lambda i=i : MG.VarSet('W.type["phot"]', i[1]) ,
+                variable=G.cu_phot, value=i[1]) # we use W.type[phot"]
 
         G.menu_phot['menu'] = G.menu_phot.menu
         return G.menu_phot
 
-
-    def Check(frame) :
-        myargs = { "anchor":"w", "bg":G.bg[0], "fg":G.fg[0], "padx":0 ,  "pady":0 ,"highlightthickness":0 }
+    def Check(frame):
+        myargs = {"anchor": "w", "bg": G.bg[0], "fg": G.fg[0],
+                  "padx": 0, "pady": 0, "highlightthickness": 0}
         ################
         # isoplanetism
         G.iso_check = Tk.Checkbutton(frame,
@@ -225,7 +217,7 @@ def MoreCreate():       # Create The Frame
     SubtractBackground(G.MoreGridFrame).grid(row=0, column=0,
                                              columnspan = 2, sticky="nswe")
     NoiseType(G.MoreGridFrame).grid(row=1, column=0, sticky="nswe")
-    PhotType(G.MoreGridFrame).grid(row=1, column=1, sticky="nswe" )
+    PhotType(G.MoreGridFrame).grid(row=1, column=1, sticky="nswe")
 
     row = 2
     for i in Check(G.MoreGridFrame):
@@ -238,7 +230,6 @@ def MoreCreate():       # Create The Frame
     G.bu_close.grid(row=row, column=0, columnspan=2)
 
     return  # From MoreCreate
-
 
 
 def MoreClose():        # Close the Frame

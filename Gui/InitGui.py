@@ -2,6 +2,7 @@ try : from Tkinter import *
 except  : from tkinter import *
 import tkFont
 import re
+import os.path          # For the Icon
 
 import MyGui  as MG
 import Pick # pick et pick et kolegram bour et bour et ratatam
@@ -17,114 +18,128 @@ import WorkVariables as W
     #################
 
 def WindowInit():
-  Title()               # Set title and icon
-  MainFrameMaker()      # Create MenuBar and MainPaned, TextFrame and DrawFrame
-  Shortcuts()           # take MG and parents
+    Title()               # Set title and icon
+    MainFrameMaker()      # Create MenuBar and MainPaned, TextFrame and DrawFrame
+    Shortcuts()           # take MG and parents
 
 
-def Title(): # Icon, geometry
-  G.parent.title('ABISM ('+"/".join(str(W.image_name).split("/")[-3:])+')')     #   Adaptative Background Interactive Strehl Meter')
+def Title():  # Title, Icon, geometry
+    ""
+    # TITLE
+    G.parent.title('ABISM ('+"/".join(str(W.image_name).split("/")[-3:])+')')
+    ""  # Adaptative Background Interactive Strehl Meter')
 
-  # ICON
-  import os.path
-  if os.path.isfile(W.path+'/Icon/bato_chico.gif') :
-    bitmap = PhotoImage(file =W.path+'/Icon/bato_chico.gif')
-    G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
-  else :
-    if W.verbose > 3 : print " you have no beautiful icon because you didn't set the PATH in Abism.py "
+    # ICON
+    if os.path.isfile(W.path+'/Icon/bato_chico.gif'):
+        bitmap = PhotoImage(file=W.path+'/Icon/bato_chico.gif')
+        G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
+    else:
+        if W.verbose > 3: print "->you have no beautiful icon because you didn't set the PATH in Abism.py "
 
-  if G.geo_dic.has_key("parent") :
-     G.parent.geometry(G.geo_dic["parent"])
+    # GEOMETRY
+    if "parent" in G.geo_dic:
+        G.parent.geometry(G.geo_dic["parent"])
 
 
 def MainFrameMaker():
-  ""
-  # 1 TOP
-  MenuBar.MenuBarMaker()
+    ""
+    # 1 TOP
+    MenuBar.MenuBarMaker()
 
-  G.MainPaned=PanedWindow(G.parent,orient=HORIZONTAL,**G.paned_dic)
-  G.all_frame.append("G.MainPaned")
-  G.MainPaned.pack(side=TOP, fill=BOTH,expand=1)
+    # ALL What is not the menu is a paned windows :
+    # I can rezie it with the mouse from left to right,
+    # This (all but not the Menu) Frame is called MainPaned
+    G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **G.paned_dic)
+    G.all_frame.append("G.MainPaned")
+    G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
 
-  # 2 left
-  TextFrameMaker()
+    # 2 LEFT
+    TextFrameMaker()
 
-  # 3 if nothing goes right go left
-  DrawFrameMaker()
+    # 3 RIGHT
+    DrawFrameMaker()
 
-
-    ################
-    ## 1/  MENU
-    ###############"
-
-
-
-
-
-
-    #################
-    ## 2/  DrawPaned
-    ##################
-
-
-def DrawFrameMaker() :  # receive G.MainPaned
-  G.DrawPaned = PanedWindow(G.MainPaned,orient=VERTICAL,**G.paned_dic)#,width=650)
-  G.all_frame.append("G.DrawPaned")
-  if G.geo_dic.has_key("DrawPaned"):
-    G.MainPaned.add(G.DrawPaned,width=float(G.geo_dic["DrawPaned"]))
-  else : # including don't set width
-    G.MainPaned.add(G.DrawPaned)
-
-  Image()
-  RightBottom()
-  RightBottomSub()
-
-
-def Image():
-  G.ImageFrame = Frame(G.DrawPaned,bg=G.bg[0])  #,width=100, height=100)
-  G.all_frame.append("G.ImageFrame")
-  if G.geo_dic.has_key("ImageFrame"):
-    G.DrawPaned.add(G.ImageFrame,height=float(G.geo_dic["ImageFrame"]))
-  else : # including don't set width
-    G.DrawPaned.add(G.ImageFrame)
-  G.all_frame.append("G.ImageFrame")
-
-
-def RightBottom():
-  G.RightBottomPaned = PanedWindow(G.DrawPaned,orient=HORIZONTAL,**G.paned_dic)
-  if G.geo_dic.has_key("RightBottomPaned"): targ={"height":float(G.geo_dic["RightBottomPaned"]) }
-  else : targ= {}
-  G.DrawPaned.add(G.RightBottomPaned,**targ)
-  G.all_frame.append("G.RightBottomPaned")
-
-
-def RightBottomSub() : #In RightBottomPaned 2 : FitFrame, ResultFrame (should be star frame)
-    def Fit() :
-        G.FitFrame = Frame(G.RightBottomPaned,bg=G.bg[0])
-        if G.geo_dic.has_key("FitFrame"): targ={"width":float(G.geo_dic["FitFrame"]) }
-        else : targ= {}
-        G.RightBottomPaned.add(G.FitFrame,**targ)
-        G.all_frame.append("G.FitFrame")
-
-
-    def Result() :
-        G.ResultFrame = Frame(G.RightBottomPaned,bg=G.bg[0])
-        if G.geo_dic.has_key("ResultFrame"): targ={"width":float(G.geo_dic["ResultFrame"]) }
-        else : targ= {}
-        G.RightBottomPaned.add(G.ResultFrame,**targ)
-        G.all_frame.append("G.ResultFrame")
-
-
-    Fit()
-    Result()
     return
 
 
+def DrawFrameMaker():  # receive G.MainPaned, create DrawPaned
+    """
+    """
+    # CREATE
+    G.DrawPaned = PanedWindow(G.MainPaned, orient=VERTICAL, **G.paned_dic)
+    G.all_frame.append("G.DrawPaned")
+
+    # PACK, INCLUDE in MainPaned
+    if "DrawPaned" in G.geo_dic:
+        G.MainPaned.add(G.DrawPaned, width=float(G.geo_dic["DrawPaned"]))
+    else: # including don't set width
+        G.MainPaned.add(G.DrawPaned)
 
 
-    ###########
-    # 3/  TextPaned
-    ############
+    # TOP : IMAGE FRAME, displaying the full image
+    def Image():
+        G.ImageFrame = Frame(G.DrawPaned, bg=G.bg[0])
+        G.all_frame.append("G.ImageFrame")
+        if "ImageFrame" in G.geo_dic:
+            G.DrawPaned.add(G.ImageFrame,
+                            height=float(G.geo_dic["ImageFrame"]))
+        else:  # including don't set height
+            G.DrawPaned.add(G.ImageFrame)
+        G.all_frame.append("G.ImageFrame")
+
+        return  # from Image
+
+
+    # BOTTOM : 2 Frames
+    def RightBottom():
+        G.RightBottomPaned = PanedWindow(G.DrawPaned,
+                                         orient=HORIZONTAL,
+                                         **G.paned_dic)
+        if "RightBottomPaned" in G.geo_dic:
+            targ = {"height": float(G.geo_dic["RightBottomPaned"])}
+        else:
+            targ = {}
+
+        G.DrawPaned.add(G.RightBottomPaned, **targ)
+        G.all_frame.append("G.RightBottomPaned")
+
+        return  # from RightBottom
+
+
+    # BOTTOM DIVIDE and create the 2 FRAMES
+    def RightBottomSub():
+        # In RightBottomPaned 2 : FitFrame, ResultFrame (should be star frame)
+
+        # LEFT of the bottom, the fit frame, to see in 1d the fit
+        def Fit():
+            G.FitFrame = Frame(G.RightBottomPaned, bg=G.bg[0])
+            if "FitFrame" in G.geo_dic:
+                targ = {"width": float(G.geo_dic["FitFrame"])}
+            else:
+                targ = {}
+            G.RightBottomPaned.add(G.FitFrame, **targ)
+            G.all_frame.append("G.FitFrame")
+
+
+        # RIGHT of the bottom, the result, 2-2d images, to see fit in 2d
+        def Result():
+            G.ResultFrame = Frame(G.RightBottomPaned, bg=G.bg[0])
+            if "ResultFrame" in G.geo_dic:
+                targ = {"width": float(G.geo_dic["ResultFrame"])}
+            else:
+                targ = {}
+            G.RightBottomPaned.add(G.ResultFrame, **targ)
+            G.all_frame.append("G.ResultFrame")
+
+        Fit()
+        Result()
+        return  # from RightBottomSub
+
+    Image()
+    RightBottom()
+    RightBottomSub()
+    return  # from DrawFrameMaker
+
 
 
 def TextFrameMaker() :
@@ -621,7 +636,13 @@ def PanedConfig(arg): # change paned window canvas...
 
 
 def callback(event):
-    if W.verbose > 3 : print "clicked at", event.x, event.y , event.widget , event.key
+    if W.verbose > 3: print "clicked at",
+    event.x,
+    event.y,
+    event.widget,
+    event.key
+
+
 def TerminalWidget(Frame): # not used
   import os
   wid = Frame.winfo_id()
