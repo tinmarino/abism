@@ -343,12 +343,15 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
 
 
     # UNDERSAMPLED
-    bol1 = W.head.wavelength*1e-6/W.head.diameter/(W.head.pixel_scale/206265)<2
+    bol1 = W.head.wavelength*1e-6
+    bol1 /= W.head.diameter * (W.head.pixel_scale/206265)
+    bol1 = bol1 < 2
     bol2 = "sinf_pixel_scale" in vars(W.head)
-    bol3 = W.head.sinf_pixel_scale == 0.025
-    bol3 = bol3 or (W.head.sinf_pixel_scale == 0.01)
+    # if bol2 sinf_pixel_scane is not in W.head, we dont call the next line
+    bol3 = bol2 and W.head.sinf_pixel_scale == 0.025
+    bol3 = bol3 or (bol2 and (W.head.sinf_pixel_scale == 0.01))
 
-    bolt = bol1 or (bol2 and bol3)
+    bolt = bol1 or bol2
     if bolt:
         lbl = "!!! SPATIALLY UNDERSAMPLED !!!"
         lst.append((lbl, {"fg": "red"}))
