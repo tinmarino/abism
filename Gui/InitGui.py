@@ -278,7 +278,6 @@ def LeftResult() :
 ## TEXT ARROWS
 ####
 def LabelDisplay(expand=False):  # called later, display what I retrived from header
-
     """ warning: exapnd not working well
       ESO /  not ESO
       NAco/vlt
@@ -405,63 +404,88 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
         LabelResize()
 
 
-def LabelResize() : # called  later
-     if G.label_bool :
-        G.TextPaned.sash_place(0,0,22)
-        photo = PhotoImage(file=W.path+"/Icon/arrow_down.gif")
-	if W.verbose > 3 : print "REsize Label: ", 22
-     else :
-        G.TextPaned.sash_place(0,0, G.last_label.winfo_y()+G.last_label.winfo_height()  )
+def LabelResize():              # called  later, resize this area
+    if G.label_bool:        # Show the label frame
+        G.TextPaned.sash_place(0, 0, 22)
+        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+        if W.verbose > 3: print "Resize Label: ", 22
+
+    else:                   # collapse the label frame
+        G.TextPaned.sash_place(0, 0, G.last_label.winfo_y() + G.last_label.winfo_height())
         photo = PhotoImage(file=W.path+"/Icon/arrow_up.gif")
-	if W.verbose > 3 : print "REsize Label: ",  G.last_label.winfo_y()+G.last_label.winfo_height()
-     G.label_bool = not G.label_bool
-     G.label_frame_arrow['image'] = photo
-     G.label_frame_arrow.image= photo  # keep a reference
-     return
+        if W.verbose > 3: print "REsize Label: ",  G.last_label.winfo_y()+G.last_label.winfo_height()
+    G.label_bool = not G.label_bool
+    G.label_frame_arrow['image'] = photo
+    G.label_frame_arrow.image = photo  # keep a reference
+
+    return
 
 
-def LeftTopArrow() :  # jsut draw the arrow, see after
+def LeftTopArrow():  # jsut draw the arrow, see after
     """ this do not need to be on a function but if you want to place
         the arrow it will vanish when packing other frame. SO I packed the
         arrow, otherwhise you need to redraw it all the time
     """
-    G.LeftTopArrowFrame = Frame(G.LeftTopFrame,**G.fr_arg)
-    G.LeftTopArrowFrame.pack(side=TOP,expand=0, fill = X )
+    # PACK TEH FRAME
+    G.LeftTopArrowFrame = Frame(G.LeftTopFrame, **G.fr_arg)
+    G.LeftTopArrowFrame.pack(side=TOP, expand=0, fill=X)
 
-    if G.top_bool :  # label is big
-      photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-    else :
-      photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-    G.top_frame_arrow = Button(G.LeftTopArrowFrame,command=TopResize,image=photo,**G.bu_arg)
-    G.top_frame_arrow.image= photo  # keep a reference
-    G.top_frame_arrow.pack(side=RIGHT,anchor="ne",expand=0)
+    # Load ARROW IMAGE
+    if G.top_bool:  # label is big
+        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+    else:
+        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+
+    # Pach Arrow image as button
+    G.top_frame_arrow = Button(G.LeftTopArrowFrame, command=TopResize, image=photo, **G.bu_arg)
+    G.top_frame_arrow.image = photo  # keep a reference
+    G.top_frame_arrow.pack(side=RIGHT, anchor="ne", expand=0)
 
 
 
-def ResultResize(how = "max") : # called  later
-     #if not G.result_bool : # this is to expand
-     if how=="max" : # resize max
-        base = G.TextPaned.sash_coord(0)[1] # jus height of the previous sash
-        G.TextPaned.sash_place(1,0,base+ 22+2* G.paned_dic["sashwidth"] )
-        photo = PhotoImage(file=W.path+"/Icon/arrow_down.gif")
-	if W.verbose > 3 : print "REsize result: ", 22
+def TopResize():        # called  later when clicking on toparrow
+    if G.top_bool:
+        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+        base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
+        G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
+        if W.verbose > 3: print("Resize top: ", 22)
+    else:
+        photo = PhotoImage(file=W.path+"/Icon/arrow_up.gif")
+        place = G.parent.winfo_height() - G.TextPaned.winfo_rooty() - 200
+        G.TextPaned.sash_place(1, 0, place)
 
-     elif how =="full" : # see everything but not more
-        def Pos(): # calculate position of the sash
-	   G.TextPaned.sash_place(1,0,) # to expand the widget, and estimate their size
-	   corner2 = max ([ i.winfo_rooty() for j in G.LeftBottomFrame.winfo_children() for  i in j.winfo_children()   ])
-	   base   = G.LeftBottomFrame.winfo_rooty()
-           size = corner2 - base
-	   base_sash1 = G.LeftTopFrame.winfo_rooty()
-           pos = G.parent.winfo_height() - size -base_sash1
-           if W.verbose >3 : print "Resize",corner2,total,"base1", base_sash1, size, base, pos
+    G.top_bool = not G.top_bool
+    G.top_frame_arrow['image'] = photo
+    G.top_frame_arrow.image = photo  # keep a reference
 
-	   return max (pos ,22 )  # petite bite GUI
-	pos = Pos()
-        G.TextPaned.sash_place( 1,0,pos )
-	if W.verbose > 3 : print "REsize Top: ",pos
+    return
 
-     return
+
+
+def ResultResize(how="max"):  # called  later
+    # if not G.result_bool : # this is to expand
+    if how == "max":  # resize max
+        base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
+        G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
+        if W.verbose > 3: print "REsize result: ", 22
+
+    elif how == "full":  # see everything but not more
+        def Pos():  # calculate position of the sash
+            G.TextPaned.sash_place(1, 0, )  # to expand the widget, and estimate their size, no number is interpreted ad infinity
+            corner2 = max ([i.winfo_rooty() for j in G.LeftBottomFrame.winfo_children() for i in j.winfo_children()])  # the max size
+            base = G.LeftBottomFrame.winfo_rooty()  # top of the left bottom Frame
+            size = corner2 - base                   # size fo the left Botttom Frame
+            base_sash1 = G.LeftTopFrame.winfo_rooty()
+            pos = G.parent.winfo_height() - size - base_sash1
+            if W.verbose >3: print "Resize", corner2, total, "base1", base_sash1, size, base, pos
+
+            return max(pos, 22)  # minimum 22 pixels
+
+        pos = Pos()
+        G.TextPaned.sash_place(1, 0, pos)
+        if W.verbose > 3: print "REsize Top: ", pos
+
+    return
 
 
 
@@ -472,15 +496,6 @@ def ResultResize(how = "max") : # called  later
     ### 4/  MORE FRAMES if click on some buttons  #
     ######################
 
-
-def GetValueIP(event,destroy= True): # ImageParameter
-    for i in G.image_parameter_list:
-      vars(W.head)[i[1]] = float( vars(G.tkentry)[i[1]].get() )
-      # COLOR
-      if vars(W.head)[i[1]] == i[2] :
-        vars(G.tkentry)[i[1]]["bg"]="#ff9090"
-      else : vars(G.tkentry)[i[1]]["bg"]="#ffffff"
-      ResetLabel(expand=False)
 
 
 def TitleArrow(title,var):
@@ -786,24 +801,6 @@ def ManualCutClose():
   if W.verbose > 3 : print  G.scale_dic[0]["min_cut"]
   if W.verbose > 3 : print  G.scale_dic[0]["max_cut"]
   MG.Scale()
-
-
-
-def TopResize() : # called  later
-    if G.top_bool :
-        photo = PhotoImage(file=W.path+"/Icon/arrow_down.gif")
-        base = G.TextPaned.sash_coord(0)[1] # jus height of the previous sash
-        G.TextPaned.sash_place(1,0,base+ 22+2* G.paned_dic["sashwidth"])
-        if W.verbose > 3: print("Resize top: ", 22)
-    else:
-        photo = PhotoImage(file=W.path+"/Icon/arrow_up.gif")
-        place = G.parent.winfo_height() - G.TextPaned.winfo_rooty()  - 200
-        G.TextPaned.sash_place(1,0,place)
-
-    G.top_bool = not G.top_bool
-    G.top_frame_arrow['image'] = photo
-    G.top_frame_arrow.image= photo  # keep a reference
-    return
 
 
 

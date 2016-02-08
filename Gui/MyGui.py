@@ -483,130 +483,144 @@ def Histopopo():
 
 
 def Quit():
-  if W.verbose > 0 : print "Closing Abism, Goodbye. Come back soon.\n_________________________________________________________________________\n\n\n"
-  import sys
-  sys.exit(1)
-  # other ways to destroy : #G.parent.destroy() #raise SystemExit
+    if W.verbose > 0:
+        print "Closing Abism, Goodbye. Come back soon.\n_________________________________________________________________________\n\n\n"
+    import sys
+    G.parent.destroy()
+    sys.exit(1)
+
 
 def Restart():
-      if G.tutorial:
-               text="Pushing this button will close ABISM and restart it the same way it was launch before."
-               text+="\n\nProgrammers: this is made to reload the Software if a modification in the code were made."
-               TutorialReturn({"title":"Restart",
-               "text":text,
-               })
-               return
+    """
+        Pushing this button will close ABISM and restart it the same way it was launch before.
+        Programmers: this is made to reload the Software if a modification in the code were made.
+    """
+
+    #################
+    ## prepare arguments
+    arg = W.sys_argv
+
+    # IMAGE_NAME
+    matching = [s for s in arg if ".fits" in s]
+    if len(matching) > 0:
+        arg[arg.index(matching[0])] = W.image_name
+    else:
+        arg.insert(1,W.image_name)
+
+    # COLOR MAP
+    try:
+        cmap = G.cbar.cbar.get_cmap().name
+    except:
+        cmap = "jet"  # if no image loaded
+    if type(cmap) != str:
+        cmap = "jet"
+    for i in [
+        ["--verbose", W.verbose],
+        ["--bg", G.bg[0]],
+        ["--fg", G.fg[0]],
+
+    # SCALE DIC
+        ["--cmap", cmap],
+        ["--scale_dic_stretch", G.scale_dic[0]["stretch"]],
+        ["--scale_dic_scale_cut_type", G.scale_dic[0]["scale_cut_type"]],
+        ["--scale_dic_percent", G.scale_dic[0]["percent"]],
 
 
-      #################
-      ## prepare arguments
-      arg = W.sys_argv
+    # FRAME
+        ["--parent", G.parent.geometry()],
+        ["--TextPaned", G.TextPaned.winfo_width()],
+        ["--DrawPaned", G.DrawPaned.winfo_width()],
+        ["--LabelFrame", G.LabelFrame.winfo_width()],
+        ["--LeftBottomFrame", G.LeftBottomFrame.winfo_height()],
+        ["--LeftTopFrame", G.LeftTopFrame.winfo_height()],
+        ["--ImageFrame", G.ImageFrame.winfo_height()],
+        ["--RightBottomPaned", G.RightBottomPaned.winfo_height()],
+        ["--FitFrame", G.FitFrame.winfo_width()],
+        ["--ResultFrame", G.ResultFrame.winfo_width()],
+        ["--ImageName", W.image_name.encode("utf8")],
+    ]:
+        if not i[0] in arg:
+            arg.append(i[0])
+            arg.append( '"' + str(i[1]) + '"' )
+        else:
+            arg[arg.index(i[0])+1] = '"' + str(i[1]) + '"'
 
-      # IMAGE_NAME
-      matching = [s for s in arg if ".fits" in s]
-      if len(matching) >0 : arg[arg.index(matching[0])] = W.image_name
-      else : arg.insert(1,W.image_name)
+    ###########
+    # PREPARE STG command line args
+    stg = "python "
+    for i in arg:
+        stg += " " + i
+    stg += " &"  # To keep the control of the terminal
+    if W.verbose > 0:
+        print "\n\n\n______________________________________\nRestarting ABISM with command:\n"+stg + "\nplease wait"
 
-      try : cmap = G.cbar.cbar.get_cmap().name
-      except : cmap = "jet" # if no image loaded
-      if type(cmap) != str : cmap = "jet"
-      for i in [
-	  ["--verbose", W.verbose ],
-          ["--bg",G.bg[0]],
-          ["--fg",G.fg[0]],
-
-	  # SCALE DIC
-	  ["--cmap",  cmap   ],
-	  ["--scale_dic_stretch",G.scale_dic[0]["stretch"] ],
-	  ["--scale_dic_scale_cut_type",G.scale_dic[0]["scale_cut_type"] ],
-	  ["--scale_dic_percent",G.scale_dic[0]["percent"] ],
-
-
-	  # FRAME
-          ["--parent",G.parent.geometry()]  ,
-          ["--TextPaned",G.TextPaned.winfo_width()]   ,
-	  ["--DrawPaned",G.DrawPaned.winfo_width()] ,
-	  ["--LabelFrame",G.LabelFrame.winfo_width()] ,
-          ["--LeftBottomFrame",G.LeftBottomFrame.winfo_height()],
-          ["--LeftTopFrame",G.LeftTopFrame.winfo_height()],
-          ["--ImageFrame",G.ImageFrame.winfo_height()],
-          ["--RightBottomPaned",G.RightBottomPaned.winfo_height()],
-          ["--FitFrame",G.FitFrame.winfo_width()],
-          ["--ResultFrame",G.ResultFrame.winfo_width()],
-	  ["--ImageName",W.image_name.encode("utf8") ],
-	  ] :
-        if not i[0] in arg :
-           arg.append(i[0])
-           arg.append( '"'+str(i[1] ) +'"' )
-        else : arg[arg.index(i[0])+1] =  '"' +  str(i[1]) + '"'
-
-
-
-      ###########
-      # PREPARE STG
-      stg =   "python "
-      for i in arg :
-         stg +=" "+  i
-      stg+= " &"
-      if W.verbose > 0 : print "\n\n\n______________________________________\nRestarting ABISM with command:\n"+stg + "\nplease wait"
-
-      ##########
-      # DESTROY AND LAUNCH
-      import sys
-      from os import system
-      G.parent.destroy()
-      #stg+=" &"
-      system(stg)
-      sys.exit(1)
+    ##########
+    # DESTROY AND LAUNCH
+    import sys
+    from os import system
+    G.parent.destroy()  # I destroy Window,
+    system(stg)         # I call an other instance
+    sys.exit(1)         # I exit the current process.
+                        # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
 def Clear():
-  if G.tutorial:
-               text="This button will clear the image frames and reinitiate its. It was made in order to delete some arrows, for example with the pick many mode."
-               TutorialReturn({"title":"Clear",
-               "text":text,
-               })
-               return
-#try :
-  #G.MainPaned.forget(G.DrawPaned)
-  #IG.DrawingFrameMaker()
-  try :G.AnswerFrame.destroy() # in cas this doesn't exist
-  except : pass
-#except : pass
-  LaunchImageInit()
-  return
+    """
+        This button will clear the image frames and reinitiate its.
+        It was made in order to delete some arrows,
+        for example with the pick many mode.
+    """
+
+    try:
+        G.AnswerFrame.destroy()   # in cas this doesn't exist
+
+    except:
+        pass
+
+    LaunchImageInit()
+    return
 
 
 
 
-def Save(first=1): # first time you save, to prin header and staff
-  try :
-    from os import popen
-    date=popen("date").read().split()
-    pwd=popen("pwd").read()
-  except :
-    date=["day","month","day","time","pff","year"]
-    pwd="no_pwd"
-  archive = "Abm_" + W.image_name.split('/')[-1].split('.fits')[0]
-  try : archive+= "_"+date[-1]+"_"+date[1]+"_"+date[2]+"_"+date[3]+".txt"
-  except : pass
-  exit = open(archive,'a')
-  if W.verbose >0 : print "Writting files in " + archive
-  if W.verbose >0 : print "in directory : " + pwd
-  exit.write("#Abism -> data from :"+ W.image_name)
-  exit.write("#######\n----->1/ Header \n still missing in abism...")
-  exit.write( "#######\n----->2/ Strehl Output : \n")
-  try : aa=W.answer_saved
-  except : W.answer_saved=W.answer
-  try : # in case we just took PickOne and cannot sort
-   for key in sorted(W.answer_saved, key = lambda x: int(x.split(".")[-1])):
-     exit.write(key + " " + str(W.answer_saved[key])+ '\n')
-  except :
-   for key in W.answer_saved :
-     exit.write(key + " " + str(W.answer_saved[key])+ '\n')
-  exit.write("\n \n")
-  exit.close()
-  return
+
+def Save(first=1): # first time you save, to print header and staff
+    """
+    """
+    try:
+        from os import popen
+        date = popen("date").read().split()
+        pwd = popen("pwd").read()
+
+    except:
+        date = ["day", "month", "day", "time", "pff", "year"]
+        pwd = "no_pwd"
+
+    # Archive Name
+    archive = "Abm_" + W.image_name.split('/')[-1].split('.fits')[0]
+    try:
+        archive += "_" + date[-1] + "_" + date[1]
+        archive += "_" + date[2] + "_" + date[3] + ".txt"
+    except:
+        pass
+
+    appendBuffer = open(archive, 'a')
+    W.log(0, "Writting files in ", archive)
+    W.log(0, "in directory : " + pwd)
+    appendBuffer.write("#Abism -> data from :" + W.image_name)
+    appendBuffer.write("#######\n----->1/ Header \n still missing in abism...")
+    appendBuffer.write( "#######\n----->2/ Strehl Output : \n")
+    try : aa=W.answer_saved
+    except : W.answer_saved=W.answer
+    try : # in case we just took PickOne and cannot sort
+     for key in sorted(W.answer_saved, key = lambda x: int(x.split(".")[-1])):
+       appendBuffer.write(key + " " + str(W.answer_saved[key])+ '\n')
+    except :
+     for key in W.answer_saved :
+       appendBuffer.write(key + " " + str(W.answer_saved[key])+ '\n')
+    appendBuffer.write("\n \n")
+    exit.close()
+    return
 
 
 
