@@ -1,6 +1,7 @@
 import GuyVariables as G
 import MyGui as MG  # TODO remove that
 import Pick  # to connect PickOne per defautl
+import DebugConsole  # For pythonConsole
 
 import Tkinter as Tk
 import LaunchCalculator  # TODO put taht in pluggins
@@ -14,12 +15,12 @@ def ToolMenu(args):
        ["Profile"   ,  lambda: Pick.RefreshPick("profile") ],
        ["Stat"      ,  lambda: Pick.RefreshPick("stat") ],
        [ "Histogram", MG.Histopopo ],
-       [ "Python Console", MG.PythonConsole ],
+       [ "Python Console", DebugConsole.PythonConsole ],
        [ u'\u25be '+'Calculator', LaunchCalculator.Calculator],
     ]
     for i in lst:
-        G.tool_menu.menu.add_command(label= i[0], command = i[1] )
-
+        G.tool_menu.menu.add_command(label=i[0], command=i[1])
 
     G.tool_menu['menu'] = G.tool_menu.menu
+
     return G.tool_menu

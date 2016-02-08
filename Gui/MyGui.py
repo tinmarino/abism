@@ -604,74 +604,66 @@ def Save(first=1): # first time you save, to print header and staff
     except:
         pass
 
+    # Bufferise
     appendBuffer = open(archive, 'a')
     W.log(0, "Writting files in ", archive)
     W.log(0, "in directory : " + pwd)
+
+    # Write
     appendBuffer.write("#Abism -> data from :" + W.image_name)
     appendBuffer.write("#######\n----->1/ Header \n still missing in abism...")
-    appendBuffer.write( "#######\n----->2/ Strehl Output : \n")
-    try : aa=W.answer_saved
-    except : W.answer_saved=W.answer
-    try : # in case we just took PickOne and cannot sort
-     for key in sorted(W.answer_saved, key = lambda x: int(x.split(".")[-1])):
-       appendBuffer.write(key + " " + str(W.answer_saved[key])+ '\n')
-    except :
-     for key in W.answer_saved :
-       appendBuffer.write(key + " " + str(W.answer_saved[key])+ '\n')
+    appendBuffer.write("#######\n----->2/ Strehl Output : \n")
+
+    try:
+        aa = W.answer_saved   # check existence
+    except:
+        W.answer_saved = W.answer
+
+    try:  # in case we just took PickOne and cannot sort
+        for key in sorted(W.answer_saved, key=lambda x: int(x.split(".")[-1])):
+            appendBuffer.write(key + " " + str(W.answer_saved[key]) + '\n')
+    except:
+        for key in W.answer_saved:
+            appendBuffer.write(key + " " + str(W.answer_saved[key]) + '\n')
+
+    #  Terminate
     appendBuffer.write("\n \n")
-    exit.close()
+    appendBuffer.close()
+    return
+
+
+def CubeDisplay(String):    # Button CallBack
+    if String == '+':
+        W.cube_num += 1
+    elif String == '-':
+        W.cube_num -= 1
+    elif String == '0':
+        W.cube_num = float(G.cube_var.get())
+
+    G.cube_var.set(W.cube_num+1)
+    InitImage(new_fits=False)
+    return
+
+
+def Tutorial():                                     # In help menu
+    print "Not Impoemented well yet. Thing IMPORTANT TODO Martin"
+    G.help = True
+    G.tutorial = not G.tutorial
+    IG.ResetLabel()
+    Label(G.LabelFrame, foreground='blue',
+      text="Read the terminal \n or README file \n in Abism folder").pack(side=BOTTOM)
+    TutorialReturn({"title": "Tutorial", "text": "Click on the buttons to get the explanation of their function"})
+    return
+
+
+def TutorialReturn(dic):  # TODO remove all callers and himself
+    print "Not Working Man"
     return
 
 
 
-
-
-def CubeDisplay(String):
-      if String =='+': W.cube_num+=1
-      if String =='-': W.cube_num-=1
-      if String =='0': W.cube_num=float(G.cube_var.get())
-      G.cube_var.set(W.cube_num+1)
-      InitImage(new_fits=False)
-      return
-
-
-def Tutorial():                                     # In help menu
-      G.help=True
-      G.tutorial= not G.tutorial
-      IG.ResetLabel()
-      Label(G.LabelFrame,foreground='blue',
-        text="Read the terminal \n or README file \n in Abism folder").pack(side=BOTTOM)
-      TutorialReturn({"title":"Tutorial","text":"Click on the buttons to get the explanation of their function"})
-      return
-
-
-def TutorialReturn(dic): #dic contains title, text   , made for tutorail but can return los of staff with a nice terminal output
-  default_dic = {"title":"","text":""}
-  default_dic.update(dic) ; dic = default_dic
-
-  if G.tut_type == "console":
-    from subprocess import call
-    tut_sh = W.path+"/write_tutorial.sh"
-    call("bash " +tut_sh + " '"+  dic["title"] +"' '" + dic["text"]+ "' " ,shell=True )
-
-def my_raw_input(message):
-    sys.stdout.write(message)
-
-    select.select([sys.stdin], [], [])
-    return sys.stdin.readline()
-
-def Run(String):
-  #String = String.get("1.0",END)
-  if String == "help" :
-    stg = "quit() #to disable intercative shell "
-    stg+="\nimport sys ; sys.exit() # to kill Abism "
-  exec String in globals()# no in local to store all variables, locals()
-  out=open(W.path+"/Plugin/old_command.txt","a")
-  out.write(String+"***************************\n")
-  out.close()
-
-def Hide(hidden=0) :
-  if W.verbose > 3 : print "My hidden", hidden
+def Hide(hidden=0):
+  W.log(3, "My hidden", hidden)
   if G.hidden_text_bool :
     G.MainPaned.sash_place(0,G.hidden_frame_size,0)
     G.bu_hide["text"]=u'\u25c2' # rigth arrow
@@ -684,18 +676,16 @@ def Hide(hidden=0) :
     G.bu_hide["text"]=u'\u25b8' # left arrow
   G.hidden_text_bool  = not G.hidden_text_bool
 
-def daemon() :
+def daemon():  # TODO seems useless so remove
     if W.verbose >3 : print threading.currentThread().getName(), 'Starting'
-    #p = multiprocessing.current_process()
-    #sys.stdout.flush()
-    while 1 :
+    while 1:
       sleep(2)
       fct()
-    if W.verbose >3 : print 'Exiting :'
-    #sys.stdout.flush()
+    if W.verbose >3:
+        print 'Exiting :'
 
 
-def fct() :
+def fct():  # TODO put with daemon
         a= raw_input("Abism listen >")
 	#Run(a)
 	G.TextPaned["bg"]="green"
@@ -703,77 +693,9 @@ def fct() :
 	#G.parent.after(2000,fct)
 
 
-def PythonConsole():
-   if G.tutorial :
-                   TutorialReturn({"title":"Python Console",
-                   "text":"A text window is opened, write python command and click on run. These commands know the variables presents in MyGui.py and the module it imports (like WorkVariable, W or GuiVariable, G) , the secret is just a: \n exec string in globals() locals(); \n\nTip : To know if a variable is in W or G : \nfor i in vars(W) : \n  if 'pixel_scale' in i : print i, vars(i) \n          ",
-                   })
-                   return
-
-
-   if G.interaction_type == "shell" : # in console
-      import threading
-      import time
-
-      def worker():
-          while 1 :
-            time.sleep(1)
-	    try :
-                key_input= my_raw_input("-->")
-		if (key_input == "quit")  or (key_input == "break"): break
-                else :
-		   try :
-		      arith = eval(key_input)
-                   except :
-		      exec key_input in globals()
-            except Exception, err:
-                traceback.print_exc() #verbose not used
-                if W.verbose >0 : print "I tried, I didn't succed command :, try again " # verbose
-		if "key_input" in vars() :
-		  if W.verbose >0 :  print "You asked for : "  +'"'+key_input+'"'
 
 
 
-      def Bite() :
-         w = threading.Thread(name='console_tread', target=worker)
-         w.start()
-      Bite()
-
-   else : # including interaction = tkinter
-      window_run = Tk()
-      window_run.title('Python console')
-      #window_run.geometry("+0+0")
-      def MyText(frame,new=0): # if not new, Clear it
-        if not new : G.text_user.pack_forget()
-	text=""
-        G.text_user = Text(frame,bg=G.bg[0])
-        G.text_user.insert(INSERT,text)
-        G.text_user.pack(side=TOP,fill=BOTH,expand=True)
-        G.text_user.focus_force()
-        return G.text_user
-
-      # TEXT
-      frame=Frame(window_run)
-      frame.pack(side=TOP,fill=BOTH,expand=True)
-      MyText(frame,new=1)
-
-
-      # BUTTON
-      bu_frame = Frame(window_run,bg="purple")
-      bu_frame.pack(side=BOTTOM,expand=0,fill=X )
-      but_list = []
-      but_list.append(   Button(bu_frame,text="Run", background="DeepSkyBlue",
-                  command=lambda : Run(G.text_user.get("1.0",END) ) ,**G.bu_arg )    )
-      but_list.append(   Button(bu_frame,text="Clear", command=lambda: MyText(frame),**G.bu_arg)
-                     )
-      but_list.append(   Button(bu_frame,text='QUIT',background = 'red',
-                  command=window_run.destroy ,**G.bu_arg)
-		     )
-
-      for bu in but_list : bu.pack(side=LEFT,expand=1,fill=X)
-
-      window_run.mainloop()
-      return
 
 
 def SubstractBackground():
@@ -1001,9 +923,6 @@ def Draw(min=None,max=None,cmap=None,norm=False,cbar=True):
     #except : pass
 
 
-def PD(dic): # Print dictionary for RunCommand, (verbose)
-  for k in dic.keys() :
-    if W.verbose >0 : print '%.20s    %.20s' %  (k,dic[k])
 
 
 
