@@ -10,30 +10,32 @@ def FileMenu(args):                 # Open image, header...
         args is a dictionnary containing the arguments to make all menuENtry
         identical, logical, responsible, pratical
     """
-    G.menu=Menubutton(G.MenuBar,**args)
-    G.menu.menu=Menu(G.menu,**G.submenu_args)
+    G.menu = Menubutton(G.MenuBar, **args)
+    G.menu.menu = Menu(G.menu, **G.submenu_args)
 
-    G.menu.menu.add_command(label='Open',command=Open)
-    G.menu.menu.add_command(label='Display Header',command=DisplayHeader)
+    G.menu.menu.add_command(label='Open', command=Open)
+    G.menu.menu.add_command(label='Display Header', command=DisplayHeader)
 
     G.menu['menu'] = G.menu.menu
     return G.menu
 
+
 def Open():
-    if G.tutorial:
-                 text="A click on this button will open a window. You need to select a FITS image to load with Abism. This is an other way to load an image, the first one is to load it directly in the script by bash Abism.sh [-i] image.fits."
-                 TutorialReturn({"title":"Open an image file",
-                 "text":text,
-                 })
-                 return
-    initialdir = "/".join(  W.image_name.split("/")[:-1]   ) # the same dir as the image
-    String = askopenfilename(title="Open a FITS image",filetypes=[("fitsfiles","*.fits"),("allfiles","*")], initialdir=initialdir)
+    """Open an imae file
+    A click on this button will open a window.
+    You need to select a FITS image to load with Abism.
+    This is an other way to load an image, the first one is to load it
+    directly in the script by bash Abism.sh [-i] image.fits.
+    """
+
+    initialdir = "/".join(  W.image_name.split("/")[: -1]   ) # the same dir as the image
+    String = askopenfilename(title="Open a FITS image", filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")], initialdir=initialdir)
 
 def DisplayHeader():   # for user
     if G.tutorial:
                  text="A basic Window to display the header. There is no shortcut to find sa string right now"
-                 TutorialReturn({"title":"Display Header",
-                 "text":text,
+                 TutorialReturn({"title": "Display Header",
+                 "text": text,
                  })
                  return
     # parent
@@ -41,13 +43,13 @@ def DisplayHeader():   # for user
     root.title('header('+W.image_name+')')
     root.geometry("600x700+0+0")
     fram = Frame(root) # Left for txt + but
-    fram.pack(side=LEFT,fill=BOTH,expand=True)
+    fram.pack(side=LEFT, fill=BOTH, expand=True)
     fram2 = Frame(fram) # Left top
-    fram2.pack(side=TOP,fill=X)
+    fram2.pack(side=TOP, fill=X)
 
     # SCROLLBAR
     scroll=Scrollbar(root)
-    scroll.pack(side=RIGHT,fill=Y)
+    scroll.pack(side=RIGHT, fill=Y)
 
     # CONFIGURE FIND
     def find():
@@ -72,13 +74,13 @@ def DisplayHeader():   # for user
         edit.focus_set()
 
     find_num = [0]
-    def Scroll(side) :
+    def Scroll(side):
         find()
-        if len(find_list) == 0 :
-            if W.verbose > 0 :
+        if len(find_list) == 0:
+            if W.verbose > 0:
                 print "Pattern '"+ s +  "' not found in header"
             return
-        if find_num[0] != 0 :
+        if find_num[0] != 0:
             if side == "+" : find_num[0] +=1
             if side == "-" : find_num[0] -=1
         lastidx      = find_list[find_num[0]]
@@ -86,28 +88,28 @@ def DisplayHeader():   # for user
         text.see(lastidx)
         try : text.tag_remove('on', '1.0', END)
         except : pass
-        text.tag_add("on",lastidx, idx)
+        text.tag_add("on", lastidx, idx)
         text.tag_config("on", foreground = "red" )
         if find_num[0] == 0 : find_num[0] +=1
         return
 
 
     # search
-    for i in range(4) : fram2.columnconfigure(i,weight=1)
-    Label(fram2,text='Find expression:',bg="grey",fg="black").grid(row=0,column=0,sticky="nsew")
-    edit = Entry(fram2,bg="white", fg="black")
+    for i in range(4) : fram2.columnconfigure(i, weight=1)
+    Label(fram2, text='Find expression: ', bg="grey", fg="black").grid(row=0, column=0, sticky="nsew")
+    edit = Entry(fram2, bg="white", fg="black")
     edit.bind("<Return>", lambda event : Scroll("+")  )
-    edit.grid(row=0,column=1,sticky="nsew")
+    edit.grid(row=0, column=1, sticky="nsew")
     edit.focus_set()
-    butt = Button(fram2, text='<-',bg="grey",fg="black",command=lambda : Scroll("-") )
-    butt.grid(row=0,column=2,sticky="nsew")
-    butt = Button(fram2, text='->',bg="grey",fg="black",command=lambda : Scroll("+") )
-    butt.grid(row=0,column=3,sticky="nsew")
+    butt = Button(fram2, text='<-', bg="grey", fg="black", command=lambda : Scroll("-") )
+    butt.grid(row=0, column=2, sticky="nsew")
+    butt = Button(fram2, text='->', bg="grey", fg="black", command=lambda : Scroll("+") )
+    butt.grid(row=0, column=3, sticky="nsew")
 
     # Text
-    text=Text(fram,background='white',fg="black")   #,height=10,width=50
+    text=Text(fram, background='white', fg="black")   #, height=10, width=50
     text.insert(INSERT, W.head.flathead)
-    text.pack(side=LEFT,expand=True,fill=BOTH)
+    text.pack(side=LEFT, expand=True, fill=BOTH)
 
     text.configure(yscrollcommand=scroll.set)
     scroll.config(command=text.yview)
