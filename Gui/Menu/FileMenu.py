@@ -3,6 +3,7 @@ from tkFileDialog import askopenfilename
 import GuyVariables as G
 import WorkVariables as W
 
+import MyGui as MG
 
 
 def FileMenu(args):                 # Open image, header...
@@ -31,13 +32,26 @@ def Open():
     initialdir = "/".join(  W.image_name.split("/")[: -1]   ) # the same dir as the image
     String = askopenfilename(title="Open a FITS image", filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")], initialdir=initialdir)
 
+
+    if (type(String) is str or type(String) is unicode) and String != "" :
+      if W.verbose>0 : print "Opening file : " + String
+      W.image_name = String
+      MG.InitImage()
+
+
+    title=W.image_name.split('/')  # we cut the title
+    G.parent.title('Abism (' + title[-1]+')')
+
+
+    #drawing= G.ax1.imshow(W.Im0,vmin=G.min_cut,vmax=G.max_cut)
+    #G.cbar.set_clim(vmin=G.min_cut,vmax=G.max_cut)
+    #G.cbar.draw_all()
+    #G.fig.canvas.draw()
+    return
+
+
 def DisplayHeader():   # for user
-    if G.tutorial:
-                 text="A basic Window to display the header. There is no shortcut to find sa string right now"
-                 TutorialReturn({"title": "Display Header",
-                 "text": text,
-                 })
-                 return
+    """"A basic Window to display the header."""
     # parent
     root = Tk()
     root.title('header('+W.image_name+')')
