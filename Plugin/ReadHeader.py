@@ -76,15 +76,8 @@ class Header:
 
     def __init__(self, header):
         self.header = header
-        self.InitKey()
-        self.ObservationKey()
-        self.StrehlKey()
-        self.WCSKey()
-        self.MoreKey()
-        self.DefineGlobalVar()
-        self.CallAfter()
 
-    def InitKey(self):  # for all classes
+        # Strehl
         self.diameter = 99.  # m
         self.wavelength = 99.  # um
         self.obstruction = 99.  # % area
@@ -94,22 +87,22 @@ class Header:
         self.zpt = 0.
         self.pywcs = None
 
+        # Doc
         self.telescope = 'UNKNOWN telescope'
         self.date = 'UNKNOWN date '
         self.date_obs = 'UNKNOWN obsdate'
         self.instrument = 'UNKNOWN instrument'
         self.company = "UNKNOWN company"  # will be "eso"
 
+        # Info
         self.saturation_level = np.inf  # in ADU
         self.non_linearity_level = np.inf
 
-    def ObservationKey(self):  # depend on class ESO/ Telescope
         # COMPANY
         if any("ESO OBS" in s for s in self.header.keys()):  # because, the HIERARCH disappear when readden by python
             self.company = "ESO"
 
         # TELESCOP
-        # if "TELESCOP" in self.header :
         if "TELESCOP" in self.header:
             self.telescope = self.header["TELESCOP"]
 
@@ -126,8 +119,8 @@ class Header:
         if 'HIERARCH ESO PRO TYPE' in self.header:
             self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
 
-    def StrehlKey(self):  # depend on class
-        """diameter wavelenght obstruction pixel_scale"""
+        # Sthrel
+        # diameter wavelenght obstruction pixel_scale"""
         #
         # WAVELENGHT
         if 'FILTER' in self.header:
@@ -185,6 +178,11 @@ class Header:
         if (self.pixel_scale > 1e-6) & (self.pixel_scale < 1e-3):  # in deg
             self.pixel_scale *= 3600
 
+        # ZPT
+        self.zpt = 0
+        if "ZPT" in self.header:
+            self.zpt = float(self.header['ZPT'])
+
         # VLT
         if 'HIERARCH ESO INS PIXSCALE' in self.header:
             self.pixel_scale = self.header['HIERARCH ESO INS PIXSCALE']
@@ -201,6 +199,21 @@ class Header:
         if self.pixel_scale == 0:
             self.pixel_scale = 99.
 
+        # Useless keys
+        if 'DATE' in self.header:
+            self.date = self.header['DATE']
+            if 'DATE-OBS' in self.header:
+                self.date_obs = self.header['DATE-OBS']
+                if 'BPM' in self.header:
+                    self.bpm_name = self.header['BPM']
+
+        if 'EXPTIME' in self.header:
+            self.exptime = self.header['EXPTIME']
+            if 'HIERARCH ESO DET DIT' in self.header:
+                self.exptime = self.header['HIERARCH ESO DET DIT']
+
+        self.WCSKey()
+
     def WCSKey(self):  # and zpt for all classes
         ""
         #
@@ -211,8 +224,8 @@ class Header:
                 Attempt to turn an N-dimensional fits header into a 2-dimensional header
                 Turns all CRPIX[>2] etc. into new keywords with suffix 'A'
 
-            header must be a pyfits.Header instance
-            """
+                header must be a pyfits.Header instance
+                """
 
                 # astropy.io.fits != pyfits -> sadness
                 # if not hasattr(header,'copy')
@@ -255,11 +268,10 @@ class Header:
                 self.pywcs.all_pix2sky = lambda x, y: (99, 99)
 
         except:  # includding no pywcs module
-            import traceback
-            if W.verbose > 3:
-                traceback.print_exc()
             if W.verbose > 0:
-                print "WARNING (just a warning !) I did not manage to get WCS from pywcs\n\n"
+                import traceback
+                traceback.print_exc()
+                print "WARNING I dit not manage to get WCS from pywcs\n\n"
             self.wcs_bool = False
 
             class void:
@@ -283,54 +295,31 @@ class Header:
 
         #
         #  ZPT
-        self.zpt = 0
-        if "ZPT" in self.header:
-            self.zpt = float(self.header['ZPT'])
 
-    def MoreKey(self):  # for all classes too
-        if 'DATE' in self.header:
-            self.date = self.header['DATE']
-            if 'DATE-OBS' in self.header:
-                self.date_obs = self.header['DATE-OBS']
-                if 'BPM' in self.header:
-                    self.bpm_name = self.header['BPM']
 
-        if 'EXPTIME' in self.header:
-            self.exptime = self.header['EXPTIME']
-            if 'HIERARCH ESO DET DIT' in self.header:
-                self.exptime = self.header['HIERARCH ESO DET DIT']
-
-    def DefineGlobalVar(self):
-        return
-
-    def CallAfter(self):
-        return
 
 
 #
 # NACO
 class NacoHeader(Header):
 
-    def StrehlKey(self):
-        if W.verbose > 3:
-            print "READ HEAR NACO \n"
+    def __init__(self, header):
+        Header.__init__(self, header)
+        self.company = "ESO"
+        if "TELESCOP" in self.header:  # NACO will be changed soon
+            self.telescope = self.header["TELESCOP"]
+        self.instrument = "NaCo"
+
+        # StrehlKey
         self.wavelength = self.header['HIERARCH ESO INS CWLEN']
         self.diameter = 8.0
         self.obstruction = 14
         self.pixel_scale = self.header['HIERARCH ESO INS PIXSCALE']
 
-    def ObservationKey(self):  # company, tel,instru, reduced ?
-        self.company = "ESO"
-        if "TELESCOP" in self.header:  # NACO will be changed soon
-            self.telescope = self.header["TELESCOP"]
-
-        self.instrument = "NaCo"
-
         self.reduced_type = "RAW"
         if 'HIERARCH ESO PRO TYPE' in self.header:
             self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
 
-    def CallAfter(self):
         self.Saturation()
 
     def Saturation(self):
@@ -356,16 +345,23 @@ class NacoHeader(Header):
         self.saturation_level = fullwell + bias
         self.non_linearity_level = 0.6 * fullwell + bias
 
-        # bias + 0.6 (fw+bias)
-
 
 #
 # SinfONI
 class SinfoniHeader(Header):
 
-    def StrehlKey(self):
-        if W.verbose > 3:
-            print "READ HEAR SINFONI \n"
+    def __init__(self, header):
+        Header.__init__(self, header)
+
+        self.company = "ESO"
+        if "TELESCOP" in self.header:  # NACO will be changed soon
+            self.telescope = self.header["TELESCOP"]
+        self.instrument = "SINFONI"
+        self.reduced_type = "RAW"
+        if 'HIERARCH ESO PRO TYPE' in self.header:
+            self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
+
+        # StrehlKey
         self.wavelength = float(
             self.header['HIERARCH ESO INS GRAT1 WLEN']) / 1000
         self.diameter = 8.0
@@ -388,23 +384,10 @@ class SinfoniHeader(Header):
             self.pixel_scale = np.sqrt(2) / 2 * opt1
             if self.pixel_scale == 0:
                 self.pixel_scale = 99.
-            self.sinf_pixel_scale = opt1
+            self.pixel_scale = opt1
 
         pixel_scale()
 
-    def ObservationKey(self):  # company, tel,instru, reduced ?
-        self.company = "ESO"
-        if "TELESCOP" in self.header:  # NACO will be changed soon
-            self.telescope = self.header["TELESCOP"]
-
-        self.instrument = "SINFONI"
-
-        self.reduced_type = "RAW"
-        if 'HIERARCH ESO PRO TYPE' in self.header:
-            self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
-
-    def DefineGlobalVar(self):
         W.type["phot"] = 'fit'  # PHOTOMETRY type
         W.type["noise"] = 'fit'
         W.type["fit"] = "Gaussian2D"
-        return
