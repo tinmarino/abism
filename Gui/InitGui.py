@@ -305,12 +305,12 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
                  W.head.telescope.replace("ESO-", "")
     )  # to delete ESO-  and -U4
     lbl = comp + " / " + tel + " / " + ins
-    lst.append(lbl)
+    lst.append((lbl,{}))
 
 
     # REDUCED ?
     if "reduced_type" in vars(W.head):
-        lbl = W.head.reduced_type
+        lbl = W.head.reduced_type + ": "
 
     # SIZE : Nx * Ny * Nz
     shape = list(W.Im0.shape[::-1])  # reverse, inverse, list order
@@ -319,7 +319,7 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
         lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])
     else:
         lbl += "%i x %i " % (shape[0], shape[1])
-    lst.append(lbl)
+    lst.append((lbl,{}))
 
 
     #WCS
@@ -327,7 +327,7 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
         lbl = "WCS detected"
     else:
         lbl = "WCS NOT detected"
-    lst.append(lbl)
+    lst.append((lbl,{}))
 
 
     # Header reads Strehl variables ?
@@ -358,7 +358,7 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
     # GRID LABLES
     row = 0
     G.LabelFrame.columnconfigure(0, weight=1)
-    if W.verbose >3: print "Label lst" , lst
+    if W.verbose > 0: print "Label lst" , lst
     for i in lst:
         arg = G.lb_arg.copy()
         arg.update({"justify": CENTER})
