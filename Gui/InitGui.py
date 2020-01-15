@@ -34,7 +34,7 @@ def Title():  # Title, Icon, geometry
         bitmap = PhotoImage(file=W.path+'/Icon/bato_chico.gif')
         G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
     else:
-        if W.verbose > 3: print "->you have no beautiful icon because you didn't set the PATH in Abism.py "
+        if W.verbose > 3: print("->you have no beautiful icon because you didn't set the PATH in Abism.py ")
 
     # GEOMETRY
     if "parent" in G.geo_dic:
@@ -210,7 +210,7 @@ def LeftLabel():  # LeftTipTopFrame
     if 'LabelFrame' in G.geo_dic:
         arg.update({"height": int(G.geo_dic["LabelFrame"])})
         if W.verbose > 3:
-            print "I chose ",
+            print("I chose ",)
             int(G.geo_dic["LabelFrame"]),
             " for height of LABEL FRAME"
 
@@ -226,7 +226,7 @@ def LeftTop():  # call TxtButton1()
     arg = G.sub_paned_arg
     if "LeftTopFrame" in G.geo_dic:
         arg.update({"height": int(G.geo_dic["LeftTopFrame"])})
-        if W.verbose > 3 : print "I chose ", int(G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME"
+        if W.verbose > 3 : print("I chose ", int(G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME")
 
     G.TextPaned.add(G.LeftTopFrame, **arg)
     LeftTopArrow()
@@ -358,7 +358,7 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
     # GRID LABLES
     row = 0
     G.LabelFrame.columnconfigure(0, weight=1)
-    if W.verbose > 0: print "Label lst" , lst
+    if W.verbose > 0: print("Label lst" , lst)
     for i in lst:
         arg = G.lb_arg.copy()
         arg.update({"justify": CENTER})
@@ -408,12 +408,12 @@ def LabelResize():              # called  later, resize this area
     if G.label_bool:        # Show the label frame
         G.TextPaned.sash_place(0, 0, 22)
         photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        if W.verbose > 3: print "Resize Label: ", 22
+        if W.verbose > 3: print("Resize Label: ", 22)
 
     else:                   # collapse the label frame
         G.TextPaned.sash_place(0, 0, G.last_label.winfo_y() + G.last_label.winfo_height())
         photo = PhotoImage(file=W.path+"/Icon/arrow_up.gif")
-        if W.verbose > 3: print "REsize Label: ",  G.last_label.winfo_y()+G.last_label.winfo_height()
+        if W.verbose > 3: print("REsize Label: ",  G.last_label.winfo_y()+G.last_label.winfo_height())
     G.label_bool = not G.label_bool
     G.label_frame_arrow['image'] = photo
     G.label_frame_arrow.image = photo  # keep a reference
@@ -467,7 +467,7 @@ def ResultResize(how="max"):  # called  later
     if how == "max":  # resize max
         base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
         G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
-        if W.verbose > 3: print "REsize result: ", 22
+        if W.verbose > 3: print("REsize result: ", 22)
 
     elif how == "full":  # see everything but not more
         def Pos():  # calculate position of the sash
@@ -477,13 +477,13 @@ def ResultResize(how="max"):  # called  later
             size = corner2 - base                   # size fo the left Botttom Frame
             base_sash1 = G.LeftTopFrame.winfo_rooty()
             pos = G.parent.winfo_height() - size - base_sash1
-            if W.verbose >3: print "Resize", corner2, total, "base1", base_sash1, size, base, pos
+            if W.verbose >3: print("Resize", corner2, total, "base1", base_sash1, size, base, pos)
 
             return max(pos, 22)  # minimum 22 pixels
 
         pos = Pos()
         G.TextPaned.sash_place(1, 0, pos)
-        if W.verbose > 3: print "REsize Top: ", pos
+        if W.verbose > 3: print("REsize Top: ", pos)
 
     return
 
@@ -650,7 +650,7 @@ def ManualBackground():
 
     def GetValue(event):
       G.background = float( G.tkvar.background.get() )
-      if W.verbose >2 : print "InitGui.py/ManualBack, called , ",G.background
+      if W.verbose >2 : print("InitGui.py/ManualBack, called , ",G.background)
 
 
     # ENTRY
@@ -667,7 +667,7 @@ def ManualBackground():
     ##  CLOSE button
     G.bu_back_close=Button(G.ManualBackFrame,text=u'\u25b4 '+'Close',background=G.bu_close_color,command=ManualBackClose,**G.bu_arg)
     G.bu_back_close.grid(row=1,column=0,columnspan=2)
-    if W.verbose >3 : print "Manual Back called"
+    if W.verbose >3 : print("Manual Back called")
 
 
 def ManualBackClose():
@@ -703,7 +703,7 @@ def ResetLabel(expand=False):
 def PanedConfig(arg): # change paned window canvas...
   for i in G.all_frame :
     if "Paned" in i :
-       if W.verbose >3 : print "I change ",i
+       if W.verbose >3 : print("I change ",i)
        for j in arg :
           vars(G)[i[2:]][j] = arg[j]
   return
@@ -714,7 +714,7 @@ def PanedConfig(arg): # change paned window canvas...
 
 
 def callback(event):
-    if W.verbose > 3: print "clicked at",
+    if W.verbose > 3: print("clicked at",)
     event.x,
     event.y,
     event.widget,
@@ -774,7 +774,7 @@ def ManualCut():
     def GetValue(event):
       dic = {"min_cut":float(G.entries[1].get()),
              "max_cut":float(G.entries[0].get())}
-      if W.verbose >2 : print "InitGui.py/ManualCut, dic called , ", dic
+      if W.verbose >2 : print("InitGui.py/ManualCut, dic called , ", dic)
       MG.Scale(dic=dic) # Call MyGui
 
 
@@ -797,7 +797,7 @@ def ManualCut():
     ##  CLOSE button
     G.bu_close=Button(G.ManualCutGridFrame, text=u'\u25b4 '+'Close', background=G.bu_close_color, command=ManualCutClose, **G.bu_arg)
     G.bu_close.grid(row=r, column=0, columnspan=2)
-    if W.verbose >3 : print "Manual Cut called"
+    if W.verbose >3 : print("Manual Cut called")
 
 
 
@@ -811,8 +811,8 @@ def ManualCutClose():
 
   G.scale_dic[0]["max_cut"] =float(G.entries[0].get())
   G.scale_dic[0]["min_cut"] =float(G.entries[1].get())
-  if W.verbose > 3 : print  G.scale_dic[0]["min_cut"]
-  if W.verbose > 3 : print  G.scale_dic[0]["max_cut"]
+  if W.verbose > 3 : print( G.scale_dic[0]["min_cut"])
+  if W.verbose > 3 : print( G.scale_dic[0]["max_cut"])
   MG.Scale()
 
 

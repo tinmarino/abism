@@ -9,7 +9,7 @@ try :
   import WorkVariables as W
   imported = True
 except :
-  print "Not in ABSIM, cannot load modules" # verbose OK
+  print("Not in ABSIM, cannot load modules" # verbose OK)
   imported = False
 
 
@@ -113,7 +113,7 @@ def HtoI(color) : # hexa to int
 
 
 def Print(color="",HLS={}):
-  if W.verbose > 3 : print color, HLS
+  if W.verbose > 3 : print(color, HLS)
   if imported:
     G.bg[0]=color
     #func2 = lambda x: IG.PanedConfig( {"bg":x} )

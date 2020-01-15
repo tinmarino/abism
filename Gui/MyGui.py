@@ -215,7 +215,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
     del G.cbar
     G.fig.clf()
   except :
-    if W.verbose >2 : print "InitImage, cannot delete cbar"
+    if W.verbose >2 : print("InitImage, cannot delete cbar")
 
   # LOAD IMAGE AND HEADER
   if new_fits :
@@ -226,7 +226,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
 
      W.Im0=W.hdulist[0].data  #define the 2d image : W.Im0
      W.Im0[np.isnan(W.Im0)]=0 #delete the np.nan
-     print type( W.hdulist[0].header) ,  "is type"
+     print(type( W.hdulist[0].header) ,  "is type")
      RH.CallHeaderClass(W.hdulist[0].header)          # HEADER
 
 
@@ -237,7 +237,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
      from PIL import Image
      im = Image.open(W.image_name)
      W.Im0 = np.asarray(im)
-     if W.verbose >3 : print "Image_name",W.image_name,"\n\n"
+     if W.verbose >3 : print("Image_name",W.image_name,"\n\n")
      W.Im0 = W.Im0.transpose([2,0,1])
      hdu = pyfits.PrimaryHDU(W.Im0)
      W.hdulist = pyfits.HDUList([hdu])
@@ -261,7 +261,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
 
       else :
         W.cube_num = W.hdulist[0].data.shape[0]-1
-        if W.verbose >0  : print '\nERROR InitImage@MyGui.py :'+ W.image_name +' has no index ' +str(W.cube_num) + "Go back to the last cube index :" + str(W.cube_num) + "\n"
+        if W.verbose >0  : print('\nERROR InitImage@MyGui.py :'+ W.image_name +' has no index ' +str(W.cube_num) + "Go back to the last cube index :" + str(W.cube_num) + "\n")
       G.cube_var.set( int (W.cube_num+1) )
 
   else :  # including image not a cube, we try to destroy cube frame
@@ -284,7 +284,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
 
   if re.match(".*\.fits",W.image_name):
      G.current_image= W.Im0.astype(np.float16) # much faster also draw_artist can help ?
-     if W.verbose > 3 : print "dic init" , G.scale_dic[0]
+     if W.verbose > 3 : print("dic init" , G.scale_dic[0])
      Scale(dic=G.scale_dic[0], load=1) # not to draw the image.
   else : G.current_image = W.Im0
 
@@ -304,11 +304,11 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
   ############################
   try :RemoveCompass()
   except : pass
-  if W.verbose > 3 : print "I am still ok1 "
+  if W.verbose > 3 : print("I am still ok1 ")
 
   DrawCompass()
 
-  if W.verbose > 3 : print "I am still ok2 and I drew compass"
+  if W.verbose > 3 : print("I am still ok2 and I drew compass")
 
 
 
@@ -328,7 +328,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
   #G.ax1.format_coord = lambda x,y : "z={:5d}, zmax={:5d}, x={:4d}, y={:4d}".format(  z(x,y),z_max(x,y), x,y )
 
 
-  if W.verbose > 3 : print "I am still ok 3.5"
+  if W.verbose > 3 : print("I am still ok 3.5")
   ######################
   ##  DRAW FIG AND COLOR BAR
   ######################
@@ -340,7 +340,7 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
   #####################
   Pick.RefreshPick("one") # assuming that the default PIck is setted yet
 
-  if W.verbose > 3 : print "I am still ok4 "
+  if W.verbose > 3 : print("I am still ok4 ")
   if new_fits : # I don't know why I need to pu that at the end but it worls like that, does not work it put in Science Variables
       G.label_bool =0
       IG.LabelResize()
@@ -348,9 +348,9 @@ def InitImage(new_fits=True): # cube_change when this is jsu ta change in the fr
   return
 
 def DrawCompass():
-    if W.verbose >3 : print "MG, what do I know from header", vars(W.head)
+    if W.verbose >3 : print("MG, what do I know from header", vars(W.head))
     if not ( ("CD1_1" in vars(W.head)) and  ("CD2_2" in vars(W.head) ) ) :
-      if W.verbose > 0 : print "WARNING WCS Matrix not detected, I don't know where the north is."
+      if W.verbose > 0 : print("WARNING WCS Matrix not detected, I don't know where the north is.")
       W.head.CD1_1 = W.head.pixel_scale *3600
       W.head.CD2_2 = W.head.pixel_scale *3600
 
@@ -377,7 +377,7 @@ def DrawCompass():
        east_point  = [north_point[1] + east_direction/20*len(W.Im0)   , north_point[1] ]
     W.north_direction=north_direction
     W.east_direction=east_direction
-    if W.verbose > 3 : print "north",  north_point, east_point,arrow_center,  north_direction, east_direction
+    if W.verbose > 3 : print("north",  north_point, east_point,arrow_center,  north_direction, east_direction)
 
 
     #################
@@ -409,10 +409,10 @@ def RemoveCompass():
 def __automatic__():   # Not finished, not called
   center,pixel_max= IF.GoodPixelMax(W.Im0,'bidon')
   #FindStarCenter
-  if W.verbose > 3 : print 'center,pixel_max : ',center,pixel_max
+  if W.verbose > 3 : print('center,pixel_max : ',center,pixel_max)
   #FWHM
   FWHM= IF.FWHM(W.Im0,center)
-  if W.verbose > 3 : print FWHM
+  if W.verbose > 3 : print(FWHM)
   StrehlMeter(center,10*FWHM)    #the image is in G
 
 
@@ -484,7 +484,7 @@ def Histopopo():
 
 def Quit():
     if W.verbose > 0:
-        print "Closing Abism, Goodbye. Come back soon.\n_________________________________________________________________________\n\n\n"
+        print("Closing Abism, Goodbye. Come back soon.\n_________________________________________________________________________\n\n\n")
     import sys
     G.parent.destroy()
     sys.exit(1)
@@ -552,7 +552,7 @@ def Restart():
         stg += " " + i
     stg += " &"  # To keep the control of the terminal
     if W.verbose > 0:
-        print "\n\n\n______________________________________\nRestarting ABISM with command:\n"+stg + "\nplease wait"
+        print("\n\n\n______________________________________\nRestarting ABISM with command:\n"+stg + "\nplease wait")
 
     ##########
     # DESTROY AND LAUNCH
@@ -584,7 +584,7 @@ def Clear():
 
 
 
-def Save(first=1): # first time you save, to print header and staff
+def Save(first=1): # first time you save, to print(header and staff)
     """
     """
     try:
@@ -646,7 +646,7 @@ def CubeDisplay(String):    # Button CallBack
 
 
 def Tutorial():                                     # In help menu
-    print "Not Impoemented well yet. Thing IMPORTANT TODO Martin"
+    print("Not Impoemented well yet. Thing IMPORTANT TODO Martin")
     G.help = True
     G.tutorial = not G.tutorial
     IG.ResetLabel()
@@ -657,7 +657,7 @@ def Tutorial():                                     # In help menu
 
 
 def TutorialReturn(dic):  # TODO remove all callers and himself
-    print "Not Working Man"
+    print("Not Working Man")
     return
 
 
@@ -677,12 +677,12 @@ def Hide(hidden=0):
   G.hidden_text_bool  = not G.hidden_text_bool
 
 def daemon():  # TODO seems useless so remove
-    if W.verbose >3 : print threading.currentThread().getName(), 'Starting'
+    if W.verbose >3 : print(threading.currentThread().getName(), 'Starting')
     while 1:
       sleep(2)
       fct()
     if W.verbose >3:
-        print 'Exiting :'
+        print('Exiting :')
 
 
 def fct():  # TODO put with daemon
@@ -709,7 +709,7 @@ def SubstractBackground():
         W.image_bg_name = String     # image_background_name
         W.hdulist_bg = pyfits.open(String)
         W.Im0_bg = W.hdulist_bg[0].data
-        if (not W.Im0.shape == W.Im0_bg.shape) and (W.verbose>0 )  : print 'ERROR : Science image and Background image should have the same shape'
+        if (not W.Im0.shape == W.Im0_bg.shape) and (W.verbose>0 )  : print('ERROR : Science image and Background image should have the same shape')
         else :
           W.Im0 -=  W.Im0_bg
           InitImage(load=0)
@@ -748,21 +748,21 @@ def FitType(name):  # strange but works
            try:
              if W.same_center_var.get()==0 :
                W.type["fit"] =W.type["fit"].replace('same_center','')
-               if W.verbose >0 : print " same_center : We asssume that the saturation is centered at the center of th object"
+               if W.verbose >0 : print(" same_center : We asssume that the saturation is centered at the center of th object")
              elif not 'same_center' in W.type["fit"] :
                W.type["fit"]+="same_center"
-               if W.verbose >0 : print "not same_center : We asssume that the saturation isn't centered at the center of th object"
+               if W.verbose >0 : print("not same_center : We asssume that the saturation isn't centered at the center of th object")
            except :
               if not 'same_center' in W.type["fit"] :W.type["fit"]+="same_center"
-      if W.verbose >0 : print 'Fit Type = ' +W.type["fit"]
+      if W.verbose >0 : print('Fit Type = ' +W.type["fit"])
 
         # same psf
       if W.same_psf_var.get() ==0 :
         W.same_psf=0
-        if W.verbose >0 : print " same_psf : We will fit the binary with the same psf"
+        if W.verbose >0 : print(" same_psf : We will fit the binary with the same psf")
       elif W.same_psf_var.get() ==1 :
         W.same_psf=1
-        if W.verbose >2 : print " not same_psf : We will fit each star with independant psf"
+        if W.verbose >2 : print(" not same_psf : We will fit each star with independant psf")
 
       # change the labels
       #G.fit_type_label["text"] = W.type["fit"]
@@ -772,7 +772,7 @@ def FitType(name):  # strange but works
 
 def VarSet(var,value): # change the value of a WorkVariable
   string =   var + '=' + '"' +  value + '"'
-  if W.verbose >0 : print "-----> VarSet : Change the value from:", string
+  if W.verbose >0 : print("-----> VarSet : Change the value from:", string)
   exec ( string )
   return
 
@@ -780,7 +780,7 @@ def VarSet(var,value): # change the value of a WorkVariable
 
 def Scale(dic={},load=0,run=""): # Change contrast and color , load if it is loaded with InitImage
   """ remember that we need to update G.scael_dic in case we opne a new image, but this is not really true  """
-  if W.verbose >2 : print "Scale called ", dic
+  if W.verbose >2 : print("Scale called ", dic)
   if dic.has_key("tutorial"):
           if G.tutorial:
                if dic.has_key("cmap"):
@@ -815,7 +815,7 @@ def Scale(dic={},load=0,run=""): # Change contrast and color , load if it is loa
 
   # RUN THE Stff to change radio button for mac
   if run != "" :
-     if W.verbose > 3 : print "Scale, run=", run
+     if W.verbose > 3 : print("Scale, run=", run)
      exec run in globals()
 
 
@@ -832,7 +832,7 @@ def Scale(dic={},load=0,run=""): # Change contrast and color , load if it is loa
   ###########
   # CONTOURS
   if(dic.has_key("contour")) and type(dic["contour"] ) != bool :
-    if W.verbose >3 : print "contour ? ",  G.scale_dic[0]["contour"]
+    if W.verbose >3 : print("contour ? ",  G.scale_dic[0]["contour"])
     G.scale_dic[0]["contour"] = not G.scale_dic[0]["contour"]
     if G.scale_dic[0]["contour"] :
          if not G.scale_dic[0].has_key("median"):
@@ -843,7 +843,7 @@ def Scale(dic={},load=0,run=""): # Change contrast and color , load if it is loa
                       origin='lower',colors="k",
                       linewidths=3)
                       #extent=(-3,3,-2,2))
-         if W.verbose > 0 : print "---> Contour of 3 and 5 sigma, clik again on contour to delete its."
+         if W.verbose > 0 : print("---> Contour of 3 and 5 sigma, clik again on contour to delete its.")
 
 
     else : #include no contour  delete the contours
@@ -855,7 +855,7 @@ def Scale(dic={},load=0,run=""): # Change contrast and color , load if it is loa
 
   ############
   ## UPDATE UPDATE
-  if W.verbose >2 : print " MG.scale ,Scale_dic ",G.scale_dic[0]
+  if W.verbose >2 : print(" MG.scale ,Scale_dic ",G.scale_dic[0])
   dic["contour"]=G.scale_dic[0]["contour"]
   G.scale_dic[0].update(dic) # UPDATE DIC
 
@@ -919,7 +919,7 @@ def Draw(min=None,max=None,cmap=None,norm=False,cbar=True):
         i.set_cmap(cmap)
       G.figresult.canvas.draw()
     except :
-      if W.verbose >2 : print "MyGui, Draw cannot draw in figresult"
+      if W.verbose >2 : print("MyGui, Draw cannot draw in figresult")
     #except : pass
 
 
@@ -932,7 +932,7 @@ def FigurePlotOld(x,y,dic={}):
   dic : title:"string", logx:bol, logy:bol, xlabel:"" , ylabel:""
   """
   #from matplotlib import pyplot as plt
-  if W.verbose >3 : print "MG.FigurePlotCalled"
+  if W.verbose >3 : print("MG.FigurePlotCalled")
   from matplotlib import pyplot as plt  # necessary if we are in a sub process
   default_dic = {"warning":0,"title":"no-title"}
   default_dic.update(dic) ; dic = default_dic
@@ -964,14 +964,14 @@ def FigurePlotOld(x,y,dic={}):
 
 
   #MyProcess() :
-  if W.verbose >3 : print "___________________________________________\n",threading.currentThread().getName(), "Starting------------------\n"
+  if W.verbose >3 : print("___________________________________________\n",threading.currentThread().getName(), "Starting------------------\n")
 
   global ax
   G.contrast_fig.clf()
   #tfig.canvas.set_window_title(dic["title"])
 
   if not ( type(x[0]) is list ): # otherwise multiple axes
-    if W.verbose > 3 : print "MG.FigurePlot, we make a single plot"
+    if W.verbose > 3 : print("MG.FigurePlot, we make a single plot")
     ax = G.contrast_fig.add_subplot(111)
     #from mpl_toolkits.axes_grid1 import host_subplot
     #ax = host_subplot(111)
@@ -979,11 +979,11 @@ def FigurePlotOld(x,y,dic={}):
     #if dic.has_key("title") :
     #   plt.title(dic["title"])
     if not dic["warning"] : warnings.simplefilter("ignore")
-    if W.verbose >3 : print "I will show "
+    if W.verbose >3 : print("I will show ")
     G.contrast_fig.canvas.draw()
     if not dic["warning"] : warnings.simplefilter("default")
     #tfig.show()
-  if W.verbose >3 : print "___________________________________________\n",threading.currentThread().getName(), "Exiting------------------\n"
+  if W.verbose >3 : print("___________________________________________\n",threading.currentThread().getName(), "Exiting------------------\n")
 
   #w = threading.Thread(name='figure_tread', target=MyProcess)
   #w.start()
@@ -995,7 +995,7 @@ def FigurePlot(x,y,dic={}):
   dic : title:"string", logx:bol, logy:bol, xlabel:"" , ylabel:""
   """
   #from matplotlib import pyplot as plt
-  if W.verbose >3 : print "MG.FigurePlotCalled"
+  if W.verbose >3 : print("MG.FigurePlotCalled")
   from matplotlib import pyplot as plt  # necessary if we are in a sub process
   default_dic = {"warning":0,"title":"no-title"}
   default_dic.update(dic) ; dic = default_dic
@@ -1027,14 +1027,14 @@ def FigurePlot(x,y,dic={}):
 
 
   #MyProcess() :
-  if W.verbose >3 : print "___________________________________________\n",threading.currentThread().getName(), "Starting------------------\n"
+  if W.verbose >3 : print("___________________________________________\n",threading.currentThread().getName(), "Starting------------------\n")
 
   global ax
   G.contrast_fig.clf()
   #tfig.canvas.set_window_title(dic["title"])
 
   if not ( type(x[0]) is list ): # otherwise multiple axes
-    if W.verbose > 3 : print "MG.FigurePlot, we make a single plot"
+    if W.verbose > 3 : print("MG.FigurePlot, we make a single plot")
     ax = G.contrast_fig.add_subplot(111)
     #from mpl_toolkits.axes_grid1 import host_subplot
     #ax = host_subplot(111)
@@ -1042,11 +1042,11 @@ def FigurePlot(x,y,dic={}):
     #if dic.has_key("title") :
     #   plt.title(dic["title"])
     if not dic["warning"] : warnings.simplefilter("ignore")
-    if W.verbose >3 : print "I will show "
+    if W.verbose >3 : print("I will show ")
     G.contrast_fig.canvas.draw()
     if not dic["warning"] : warnings.simplefilter("default")
     #tfig.show()
-  if W.verbose >3 : print "___________________________________________\n",threading.currentThread().getName(), "Exiting------------------\n"
+  if W.verbose >3 : print("___________________________________________\n",threading.currentThread().getName(), "Exiting------------------\n")
 
   #w = threading.Thread(name='figure_tread', target=MyProcess)
   #w.start()
@@ -1088,4 +1088,4 @@ def See(pdf=""): # to read pdf doc
    if fct != None :
         subprocess.call(fct + " "  +my_pdf + " &",shell=True) # PARANAL
    elif W.verbose > 0  :
-       print "ERROR pdf viewer : need to be implemented "
+       print("ERROR pdf viewer : need to be implemented ")

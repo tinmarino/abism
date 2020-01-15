@@ -18,7 +18,7 @@ def CallHeaderClass(header):
     <class 'pyfits.header.Header'>"""
 
     # 0/ DETERMINE the instrument
-    print ("header type is " + str(type(header)))
+    print(("header type is " + str(type(header))))
     if 'INSTRUM' in header:
         instru = header['INSTRUM']
     elif 'INSTRUME' in header:
@@ -28,7 +28,7 @@ def CallHeaderClass(header):
     else:
         instru = ""
 
-    print instru, "this is instru"
+    print(instru, "this is instru")
     # 1/ Call header Class According to the instrument
     if ("NAOS" in instru) and ("CONICA" in instru):
         W.head = NacoHeader(header)
@@ -271,7 +271,7 @@ class Header:
             if W.verbose > 0:
                 import traceback
                 traceback.print_exc()
-                print "WARNING I dit not manage to get WCS from pywcs\n\n"
+                print("WARNING I dit not manage to get WCS from pywcs\n\n")
             self.wcs_bool = False
 
             class void:

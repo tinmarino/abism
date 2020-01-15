@@ -62,7 +62,7 @@ def testAbismImports():
 
     for i in importList:
         if (!module_exists(i)):
-            print "Warning : module " + i + " cannot be imported"
+            print("Warning : module " + i + " cannot be imported")
 
 
     # To nest matplotlib in Tkinter

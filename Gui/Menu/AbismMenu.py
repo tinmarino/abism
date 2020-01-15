@@ -158,7 +158,7 @@ def AbismMenu(args):                # Menu entry to configure ABSIM
 
 
     if (type(String) is str or type(String) is unicode) and String != "" :
-        if W.verbose>0 : print "Opening file : " + String
+        if W.verbose>0 : print("Opening file : " + String)
         W.image_name = String
         InitImage()
 

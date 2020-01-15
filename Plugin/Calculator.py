@@ -1,9 +1,9 @@
-from numpy import * 
+from numpy import *
 try : from Tkinter import *
 except  : from tkinter import *
 
-import WorkVariables as W # for verbose 
-import GuyVariables as G  #for the agruments of buttons type   
+import WorkVariables as W # for verbose
+import GuyVariables as G  #for the agruments of buttons type
 
 class MyCalculator:
   def __init__(self,frame):
@@ -11,15 +11,15 @@ class MyCalculator:
 
 
     self.top_frame= Frame(self.frame,**G.fr_arg)  # for the buttons not the answer
-    for i in range(5) : 
-       self.top_frame.columnconfigure(i,weight=1) # to expand the buttons 
+    for i in range(5) :
+       self.top_frame.columnconfigure(i,weight=1) # to expand the buttons
 
-    if W.verbose >2 :  print "cal color " , self.top_frame["bg"]
+    if W.verbose >2 :  print("cal color " , self.top_frame["bg"])
     self.top_frame.pack(side=TOP,expand=1,fill=X)
     self.memory =""
 
     self.CreateCal()
-    return 
+    return
 
 
   def Click(self,key):
@@ -42,7 +42,7 @@ class MyCalculator:
       self.label.pack(side=BOTTOM,expand=1,fill=X)
     else:
       self.entry.insert(END, key)
-    return 
+    return
 
   def CreateCal(self):
     btn_list = [
@@ -57,7 +57,7 @@ class MyCalculator:
       rel = 'raised'
       cmd = lambda x=b: self.Click(x)
       Button(self.top_frame,text=b,
-          padx=0,pady=0,justify=CENTER,   
+          padx=0,pady=0,justify=CENTER,
           relief=rel,command=cmd).grid(row=r,column=c,sticky="nwse")
       c += 1
       if c > 4:
@@ -67,7 +67,7 @@ class MyCalculator:
     self.entry = Entry(self.top_frame, width=30, bg="yellow")
     self.entry.grid(row=0, column=0, columnspan=5,sticky="nswe")
     self.entry.bind('<Return>',lambda event : self.Click("=") )
-    return 
+    return
 
 
 

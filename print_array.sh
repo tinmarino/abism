@@ -25,7 +25,7 @@ while read line ; do
 ((cols=j-1));((rows=i-1))
 
 ##############
-# 2/ print array 
+# 2/ print(array )
 for ((row=0; row<=rows; row++)); do
     for ((col=0; col<=cols; col++)); do
         #echo $row $col ${array2[$row,$col]}

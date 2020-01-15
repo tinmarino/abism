@@ -44,7 +44,7 @@ def radial2dgrid(radius,sample,center=[0,0]):
 
 
 
-    
+
 def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
             pfix=None, verbose=False):
     """
@@ -81,20 +81,20 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
             except:
                 res.append(df)
         res= np.array(res)
-        
+
     if verbose:
-        print time.asctime(), 
-        print 'CHI2:', (res**2).sum()/float(reduce(lambda x,y: x+y,
+        print(time.asctime(), )
+        print('CHI2:', (res**2).sum()/float(reduce(lambda x,y: x+y,)
                     [1 if np.isscalar(i) else len(i) for i in y])-len(pfit)+1)
     return res
-        
+
 def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                verbose=False, doNotFit=[], epsfcn=1e-7,
                ftol=1e-4, fullOuput=True,bounds={}):
     """
     - params is a Dict containing the first guess.
-    
-    - bounds = {"theta":[-0.1,3.24]} even if after it will be a list with same indexation as fitOnly 
+
+    - bounds = {"theta":[-0.1,3.24]} even if after it will be a list with same indexation as fitOnly
 
     - fits 'y +- err = func(x,params)'. errors are optionnal.
 
@@ -106,8 +106,8 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
       'a1': 'b1':, 'b2':}, doNotFit=['a'] will result in fitting only
     the 'b1' and 'b2'. WARNING: if you name parameter 'A' and another one 'AA',
     you cannot use doNotFit to exclude only 'A' since 'AA' will be excluded as
-    well... 
-    
+    well...
+
     returns bestparam, uncertainties, chi2_reduced, func(x, bestparam)
     """
     # fit all parameters by default
@@ -127,19 +127,19 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
             pfix[k]=params[k]
 
     if verbose:
-        print '[dpfit] FITTED parameters:', fitOnly
-    
-    # NO BOUNDS  
-    if bounds == {} : 
+        print('[dpfit] FITTED parameters:', fitOnly)
+
+    # NO BOUNDS
+    if bounds == {} :
       # actual fit
       plsq, cov, info, mesg, ier = \
               scipy.optimize.leastsq(fitFunc, pfit,
                     args=(fitOnly,x,y,err,func,pfix, verbose),
                     full_output=True, epsfcn=epsfcn, ftol=ftol)
 
-    # WITH BOUNDS 
+    # WITH BOUNDS
     else : #including bounds != {}
-       bounds_to_fit=[[None,None]]*len(fitOnly) # now it is a list 
+       bounds_to_fit=[[None,None]]*len(fitOnly) # now it is a list
        for key in bounds.keys() :
 	    if key in fitOnly : # becauser could be in notToFit
                bounds_to_fit[fitOnly.index(key)] = bounds[key]
@@ -148,8 +148,8 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                        leastsqbound(fitFunc, pfit, bounds=bounds_to_fit,
                        args=(fitOnly,x,y,err,func,pfix, verbose),
                        full_output=True, epsfcn=epsfcn, ftol=ftol)
-      
-    
+
+
     # best fit -> agregate to pfix
     for i,k in enumerate(fitOnly):
         pfix[k] = plsq[i]
@@ -173,57 +173,57 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                 uncer[k]= np.sqrt(np.abs(np.diag(cov)[i]*reducedChi2))
 
     if verbose:
-        print '-'*20
-        print 'REDUCED CHI2=', reducedChi2
+        print('-'*20)
+        print('REDUCED CHI2=', reducedChi2)
         tmp = pfix.keys(); tmp.sort()
         for k in tmp:
-            print k, '=', pfix[k],
+            print(k, '=', pfix[k],)
             if uncer[k]!=0:
-                print '+/-', uncer[k]
+                print('+/-', uncer[k])
             else:
-                print ''
+                print('')
     # result:
-    return pfix, uncer, chi2, model ,  {"reduced_chi2":reducedChi2,"cov":cov,"plsq":plsq,"pfit":pfit,"fitOnly":fitOnly,"bounds":bounds} 
+    return pfix, uncer, chi2, model ,  {"reduced_chi2":reducedChi2,"cov":cov,"plsq":plsq,"pfit":pfit,"fitOnly":fitOnly,"bounds":bounds}
 
 
 def sinusoid(x,params):
 
     res = params['C']+params['V']*np.sin(x+params['phi'])
-    
+
     return res
 
 def gaussian(x,params):
-    
+
     res = params['C']+params['A']*np.exp(-(x-params['x0'])**2/params['sigma']**2)
     return res
-    
+
 def bessel1(x,params) :
-    from scipy.special import jn    
+    from scipy.special import jn
     x-=params['x0']
     res = params['C']+params['A']* (2*jn(1,x/params['sigma'])*params['sigma']/x)**2
     return res
 
 
-def tanhip(x,params): 
+def tanhip(x,params):
   res= params['A']*np.tanh(params['B']*x)+params['C']
   return res
-  
+
 def gaussian2(xy,params):
     xt = xy[0]
     yt = xy[1]
     xp = (xt-params['x0'])*np.cos(params['theta'])-(yt-params['y0'])*np.sin(params['theta'])
     yp = (xt-params['x0'])*np.sin(params['theta'])+(yt-params['y0'])*np.cos(params['theta'])
     res = params['noise']+params['amplitude']*np.exp(-(xp**2/params['sigmax']**2+yp**2/params['sigmay']**2))
-    return res   
-    
+    return res
+
     #xt = x[0:x.shape[0]/2]
     #yt = x[x.shape[0]/2:]
-    ## le yt+params vient du fait que l'affichage y va du haut vers le bas    
+    ## le yt+params vient du fait que l'affichage y va du haut vers le bas
     #xp = (xt-params['x0'])*np.cos(params['theta'])-(yt+params['y0'])*np.sin(params['theta'])
     #yp = (xt-params['x0'])*np.sin(params['theta'])+(yt+params['y0'])*np.cos(params['theta'])
     #res = params['C']+params['A']*np.exp(-(xp**2/params['sigmax']**2+yp**2/params['sigmay']**2))
     #return res
-  
+
 
 def example():
     """
@@ -233,22 +233,22 @@ def example():
     Y = [-0.1, 1.1, 4.1, 8.9]
     E = [ 0.1, 0.1, 0.1, 0.1]
     #best, unc, chi2, model =\
-    #      leastsqFit(polyN, X, 
+    #      leastsqFit(polyN, X,
     #                 {'A0':0., 'A1':0.,'A2':0.1},
     #                 Y, err=E, fitOnly=['A2', 'A0'])
     best, unc, chi2, model =\
-          leastsqFit(polyN, X, 
+          leastsqFit(polyN, X,
                      {'A0':0., 'A1':0.,'A2':0.1},
                      Y, err=E, doNotFit=['A1'])
-    print 'CHI2=', chi2
+    print('CHI2=', chi2)
     for k in best.keys():
-        print k, '=', best[k],
+        print(k, '=', best[k],)
         if unc[k]>0:
-            print '+/-', unc[k]
+            print('+/-', unc[k])
         else:
-            print ''
-    print 'Y=', Y
-    print 'MODEL=', model
+            print('')
+    print('Y=', Y)
+    print('MODEL=', model)
     return
 
 def example2():
@@ -264,11 +264,11 @@ def example2():
     ax1.plot(x,y)
     ax1.plot(x,model)
     for k in best.keys():
-        print k, '=', best[k],
+        print(k, '=', best[k],)
         if unc[k]>0:
-            print '+/-', unc[k]
+            print('+/-', unc[k])
         else:
-            print ''
+            print('')
 
 def example3():
     """ gaussian + strehl"""
@@ -281,11 +281,11 @@ def example3():
     #best, unc, chi2, model =leastsqFit(gaussian,x,{'C':0.2,'A':10.4,'x0':0.3,'sigma':0.7},y, err=erry,verbose=True)
     best, unc, chi2, model =leastsqFit(bessel1,x,{'C':0,'A':0.6,'x0':0,'sigma':0.4},y, err=erry,verbose=True)
     plt.figure(1)
-    from scipy.special import jn    
-    Be = lambda x,B : (2*jn(1,x/B)*B/x)**2 /B**2 *best['sigma']**2 
+    from scipy.special import jn
+    Be = lambda x,B : (2*jn(1,x/B)*B/x)**2 /B**2 *best['sigma']**2
     ax1 = plt.subplot(121)
     ax1.bar(x,(y-best['C'])/Be(0.001,0.2),step,color='pink')
-    ax1.plot(x,(model-best['C'])/Be(0.001,0.2),color='black',linewidth=3)   
+    ax1.plot(x,(model-best['C'])/Be(0.001,0.2),color='black',linewidth=3)
     plt.ylim(-0.2,1)
     plt.xlim(-1.5,1.5)
     ax2= plt.subplot(122)
@@ -293,32 +293,32 @@ def example3():
     plt.xlim(-1.5,1.5)
     plt.ylim(-0.2,1)
     for k in best.keys():
-        print k, '=', best[k],
+        print(k, '=', best[k],)
         if unc[k]>0:
-            print '+/-', unc[k]
+            print('+/-', unc[k])
         else:
-            print ''
-    return model       
+            print('')
+    return model
 
 def example4():
-    sample = 100 
+    sample = 100
     noiseamp = 0.5
     params = {'C':0.5,'A':5.5,'theta':0.67*np.pi,'x0':0.0,'y0':-2.0,'sigmax':2.0,'sigmay':1.0}
     paramsguess = {'C':0.3,'A':3.5,'theta':0.43*np.pi,'x0':-1.0,'y0':0.0,'sigmax':1.0,'sigmay':3.0}
     x,y,grid = radial2dgrid(5.0,sample)
     xconc = np.concatenate((x,y))
-    print 'x',type(x),'y',type(y),'conc',type(xconc) 
+    print('x',type(x),'y',type(y),'conc',type(xconc) )
     ima = gaussian2(xconc,params)+np.random.random(sample*sample)*noiseamp*params['A']
     errima = np.ones(sample*sample)*0.05
     fig1 = plt.figure(1)
     ax1 = plt.subplot(121)
     ax1.imshow(ima.reshape(sample,sample))
-    # now the fitting 
-    best, unc, chi2, model =leastsqFit(gaussian2,xconc,paramsguess,ima,err=errima,verbose=True) 
-    print     best, unc, chi2, model
+    # now the fitting
+    best, unc, chi2, model =leastsqFit(gaussian2,xconc,paramsguess,ima,err=errima,verbose=True)
+    print(    best, unc, chi2, model)
     ax2 = plt.subplot(122)
     ax2.imshow(model.reshape(sample,sample))
-#example4()    
+#example4()
 
 def example5():
     """ A*tanh(Bx)+C """
@@ -332,16 +332,16 @@ def example5():
     ax1 = plt.subplot(111)
     ax1.plot(x,y)
     ax1.plot(x,model)
-    print best
+    print(best)
     for k in best.keys():
-        print k, '=', best[k],
+        print(k, '=', best[k],)
         if unc[k]>0:
-            print '+/-', unc[k]
+            print('+/-', unc[k])
         else:
-            print ''
-    
+            print('')
+
 def plot2dgaussian():
-    sample = 50 
+    sample = 50
     params = {'C':0.5,'A':5.5,'theta':0.13*np.pi,'x0':2.0,'y0':-2.0,'sigmax':2.0,'sigmay':1.0}
     x,y,grid = radial2dgrid(5.0,sample)
     xconc = np.concatenate((x,y))

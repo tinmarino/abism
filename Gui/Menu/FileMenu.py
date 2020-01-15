@@ -34,7 +34,7 @@ def Open():
 
 
     if (type(String) is str or type(String) is unicode) and String != "" :
-      if W.verbose>0 : print "Opening file : " + String
+      if W.verbose>0 : print("Opening file : " + String)
       W.image_name = String
       MG.InitImage()
 
@@ -92,7 +92,7 @@ def DisplayHeader():   # for user
         find()
         if len(find_list) == 0:
             if W.verbose > 0:
-                print "Pattern '"+ s +  "' not found in header"
+                print("Pattern '"+ s +  "' not found in header")
             return
         if find_num[0] != 0:
             if side == "+" : find_num[0] +=1

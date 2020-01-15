@@ -17,7 +17,7 @@ import GuyVariables as G
 
     Before 2016, I wrote that :
 
-    A text window is opened, write python command and click on run. These commands know the variables presents in MyGui.py and the module it imports (like WorkVariable, W or GuiVariable, G) , the secret is just a: \n exec string in globals() locals(); \n\nTip : To know if a variable is in W or G : \nfor i in vars(W) : \n  if 'pixel_scale' in i : print i, vars(i) \n          ",
+    A text window is opened, write python command and click on run. These commands know the variables presents in MyGui.py and the module it imports (like WorkVariable, W or GuiVariable, G) , the secret is just a: \n exec string in globals() locals(); \n\nTip : To know if a variable is in W or G : \nfor i in vars(W) : \n  if 'pixel_scale' in i : print(i, vars(i) \n          ",)
 """
 
 
@@ -115,6 +115,6 @@ def my_raw_input(message):  # Take input from Console if debbuger is in cosole m
     return sys.stdin.readline()
 
 
-def PD(dic):  # Print dictionary for RunCommand, (verbose)
+def PD(dic):  # print(dictionary for RunCommand, (verbose))
     for k in dic.keys():
-        print '%.20s    %.20s' % (k, dic[k])
+        print('%.20s    %.20s' % (k, dic[k]))

@@ -212,11 +212,11 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
 	   for bla in spt[1:] : stg+= "[" + bla  # index
 	   try :
 	     stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
-	     if W.verbose >3 : print "GlobalDef.Terminal geo_dic stg :" , stg
+	     if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
 	     exec stg2 in globals() , locals()
 	   except :
 	     stg2 =stg +  "= argv[argv.index( i[0] ) + 1 ] "
-	     if W.verbose >3 : print "GlobalDef.Terminal geo_dic stg :" , stg
+	     if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
 	     exec stg2 in globals() , locals()
 
        else : #including not in a dict to be float
@@ -291,7 +291,7 @@ def Preference(string="test1") :
   my_pref=[ i for i in my_pref if (not re.match("^\s*$",i))  ] # detroy null entry
 
   W.sys_argv = Append(my_pref,W.sys_argv)
-  if W.verbose >2 : print "Preferences string : ",W.sys_argv
+  if W.verbose >2 : print("Preferences string : ",W.sys_argv)
 
 def PreferenceDefined(): # the defined preferences
   global preference

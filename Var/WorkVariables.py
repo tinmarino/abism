@@ -13,8 +13,8 @@ def log(i, **args):
             very simple function, very large comment
     @param: i is the verbose,
     @param: **args are the strings to print,
-    @return: print in the stdout, means the calling terminal
+    @return: print(in the stdout, means the calling terminal)
     """
     if verbose >= i:
-        print (args)
+        print((args))
     return
