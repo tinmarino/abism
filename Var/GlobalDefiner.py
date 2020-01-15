@@ -1,28 +1,56 @@
-from tkinter import font as tkFont
-try : from Tkinter import *
-except  : from tkinter import *
+"""
+    Util functions
+"""
+
+# Standard
 import re
+import logging
+
+# Package
+from tkinter import *
+from tkinter import font as tkFont
 import matplotlib
 
+# Local
 import GuyVariables as G
 import WorkVariables as W
 
+# Logger
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger('abism')
+logger.setLevel(logging.DEBUG)
 
-def Main():
-  GuiVar()         # Initialt Gui vars
-  WorkVar()        # Initial WorkVar
-  Preference()      # Change W.sys_argv in function of a preference, default behaviour lets say, the command line are stored in PreferenceDefined
-  TerminalVar()     # Modify with sys input
-  AfterTerminal()
 
-  LinkedColor() # For G and called with BgCl()
+def Log(level, *stgs):
+    """Log str(stgs) if verbose = level
+    nickname py  me
+    CRITICAL 50  -3
+    ERROR    40  -2
+    WARNING  30  -1
+    INFO     20  1
+    DEBUG    10  2
+    NOTSET    0  3
+    """
+
+    for stg in stgs:
+        logger.info(stg)
+
+
+def MainVar():
+    """Init all <- Called by MyGui"""
+    GuiVar()         # Initialt Gui vars
+    WorkVar()        # Initial WorkVar
+    Preference()      # Change W.sys_argv in function of a preference, default behaviour lets say, the command line are stored in PreferenceDefined
+    TerminalVar()     # Modify with sys input
+    AfterTerminal()
+
+    LinkedColor() # For G and called with BgCl()
 
 
 
 def GuiVar(): # define the shared variables for the GUI definition
-
   # VERSION
-  #G.version = "%.2f" % float( W.path.split("/")[-1].replace("Abism","") )
+  G.version = '0.900'
 
   # BUTTON WIDTH
   G.button_width        =12                         # the width of the standard buttons
@@ -207,13 +235,16 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
        if "[" in i[2] : # means we are in list or dictionary
            spt = i[2].split("[")
            stg =i[1] + "."+  spt[0]   # variable
+
            for bla in spt[1:] : stg+= "[" + bla  # index
            try :
              stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
+
              if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
              exec(stg2, globals(), locals())
            except :
              stg2 =stg +  "= argv[argv.index( i[0] ) + 1 ] "
+
              if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
              exec(stg2, globals(), locals())
 
@@ -226,9 +257,11 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
 
   # IMAGE_NAME
   W.image_name="no_image_name"
+
   for i in W.sys_argv[::-1] :
      if i.find(".fits") != -1 :
         W.image_name = str(i)
+
         break
 
 
@@ -240,6 +273,7 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
        G.scale_dic[0]["scale_cut_type"] =  argv[ argv.index("-cut_type")+1 ]
        try :
           tmp = float( argv[ argv.index("-cut_type")+1 ] )
+
           if   G.scale_dic[0]["scale_cut_type"] == "percent":
              G.scale_dic[0]["percent"] = tmp
           elif   G.scale_dic[0]["scale_cut_type"] == "sigma_clip":
@@ -247,58 +281,52 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
        except : pass
 
 
-def AfterTerminal() :
+def AfterTerminal():
   return
 
 
 def LinkedColor() :
-  # BUTTON
-  G.bu_arg={"bd":3,"highlightcolor":G.bg[0],"padx":0,"pady":0,"highlightthickness":0,"fg":G.fg[0]}# for the borders
-  # LABEL
-  G.lb_arg={"bg":G.bg[0], "fg":G.fg[0] }
-  # MENU
-  G.me_arg={"bg":G.bg[0], "fg":G.fg[0] }
-  G.submenu_args={"background":G.bg[0],"foreground":G.fg[0]}
-  # ENTRY
-  G.en_arg={"bg":"white","fg":G.fg[0],"bd":0}
+    # BUTTON
+    G.bu_arg={"bd":3,"highlightcolor":G.bg[0],"padx":0,"pady":0,"highlightthickness":0,"fg":G.fg[0]}# for the borders
+    # LABEL
+    G.lb_arg={"bg":G.bg[0], "fg":G.fg[0] }
+    # MENU
+    G.me_arg={"bg":G.bg[0], "fg":G.fg[0] }
+    G.submenu_args={"background":G.bg[0],"foreground":G.fg[0]}
+    # ENTRY
+    G.en_arg={"bg":"white","fg":G.fg[0],"bd":0}
 
-  # FRAME
-  G.fr_arg={"bg":G.bg[0]}
-
-
-
+    # FRAME
+    G.fr_arg={"bg":G.bg[0]}
 
 
 def Preference(string="test1") :
-  def Append(list1,list2): # list2.append(list1) but with pass if exsit
-      for i in list1:
-         i = i.replace('"','')
-         if (i[0] == "-") :
-           if i in list2 :
-              pass
-           else :
-              list2.append(i)
-              list2.append( list1[list1.index(i) +1] )
-      return list2
+    def Append(list1,list2): # list2.append(list1) but with pass if exsit
+        for i in list1:
+           i = i.replace('"','')
+
+           if (i[0] == "-") :
+             if i in list2 :
+                pass
+             else :
+                list2.append(i)
+                list2.append( list1[list1.index(i) +1] )
+
+        return list2
 
 
-  PreferenceDefined()
-  my_pref= preference[string]
-  my_pref=my_pref.split(" ")
-  my_pref=[ i.replace('"','') for i in my_pref]   #destroy " because everything is string yet
-  my_pref=[ i for i in my_pref if (not re.match("^\s*$",i))  ] # detroy null entry
+    PreferenceDefined()
+    my_pref= preference[string]
+    my_pref=my_pref.split(" ")
+    my_pref=[ i.replace('"','') for i in my_pref]   #destroy " because everything is string yet
+    my_pref=[ i for i in my_pref if (not re.match("^\s*$",i))  ] # detroy null entry
 
-  W.sys_argv = Append(my_pref,W.sys_argv)
-  if W.verbose >2 : print("Preferences string : ",W.sys_argv)
-
-def PreferenceDefined(): # the defined preferences
-  global preference
-  preference={}
+    W.sys_argv = Append(my_pref,W.sys_argv)
+    Log(2, "Preferences string :", W.sys_argv)
 
 
-  preference["test1"]="""--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --LeftTopFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """
-
-
-
-
-
+def PreferenceDefined():
+    """Personal favorites ..."""
+    global preference
+    preference = {}
+    preference["test1"] = """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --LeftTopFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """

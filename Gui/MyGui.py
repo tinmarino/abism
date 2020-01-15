@@ -6,10 +6,13 @@
 # Standard
 import warnings
 import threading
-import select
 from time import sleep
-import traceback
 import re
+
+# Tkinter
+from tkinter import *
+from tkinter.filedialog import askopenfilename
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 
 # Fancy
 import matplotlib
@@ -17,47 +20,45 @@ import matplotlib.font_manager as fm
 import pyfits
 import numpy as np
 
-try: from Tkinter import *
-except BaseException: from tkinter import *
-from tkinter.filedialog import askopenfilename
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
-
-
 # Gui
 import InitGui as IG  # draw the GUI
 import Pick  # to connect PickOne per defautl
 import DraggableColorbar
 import NormalizeMy
-import AnswerReturn as AR
+
 # Plugin
 import ReadHeader as RH
-import StrehlImage as SI
 
 # ArrayFunction
 import Scale
 import Stat
 import ImageFunction as IF  # Function on images
-import BasicFunction as BF  # 2D psf functions
 
 
 # Variables
-import GlobalDefiner
+from GlobalDefiner import MainVar, Log
 import GuyVariables as G
 import WorkVariables as W
 
 
 def MyWindow():
     """Create main window loop"""
+    # Namespace
     G.parent = Tk()
 
-    GlobalDefiner.Main()
+    # Init main variables
+    MainVar()
+    # Init main tk window
     IG.WindowInit()
-    LaunchImageInit()  # set the G.fig = plt.figure() and its marge
+    # Init matplotlib figure
+    LaunchImageInit()
 
+    # Loop
     G.parent.mainloop()
 
 
-def LaunchImageInit():  # Create the image
+def LaunchImageInit():
+    """Create the image"""
     def Create():
         G.fig = matplotlib.figure.Figure()  # figsize=(6,6))
         G.figfit = matplotlib.figure.Figure(figsize=(5, 2.5))  # figsize=(4,1), dpi=100
@@ -127,13 +128,14 @@ def LaunchImageInit():  # Create the image
         ToolbarResult(init=True)
 
     def Call():
-        if W.image_name != "no_image_name":  # in case the user launch the program without giving an image as arg
+        # in case the user launch the program without giving an image as arg
+        if W.image_name != "no_image_name":
             InitImage()
     Create(); Size(); Color(); Canvas(); Call()
-    return
 
 
 def ToolbarFit(init=False):
+    """Create toolbar"""
     if init:
         if G.toolbar_fit_bool:
             photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
@@ -152,7 +154,8 @@ def ToolbarFit(init=False):
         G.fit_frame_arrow['image'] = photo
         G.fit_frame_arrow.image = photo  # keep a reference
         if not "toolbar_fit" in vars(G):
-            G.toolbar_fit = matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(G.dpfit, G.FitFrame )
+            G.toolbar_fit = matplotlib.backends.backend_tkagg.NavigationToolbar2Tk(
+                G.dpfit, G.FitFrame)
         G.toolbar_fit.grid(row=1, column=0, sticky="nsew")
 
         # COLOR
@@ -174,6 +177,7 @@ def ToolbarFit(init=False):
 
 
 def ToolbarResult(init=False):
+    """Create result frame"""
     if init:
         if G.toolbar_result_bool:
             photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
@@ -192,7 +196,8 @@ def ToolbarResult(init=False):
         G.result_frame_arrow['image'] = photo
         G.result_frame_arrow.image = photo  # keep a reference
         if not "toolbar_result" in vars(G):
-            G.toolbar_result = matplotlib.backends.backend_tkagg.NavigationToolbar2TkAgg(G.dpresult, G.ResultFrame )
+            G.toolbar_result = matplotlib.backends.backend_tkagg.NavigationToolbar2Tk(
+                G.dpresult, G.ResultFrame)
         G.toolbar_result.grid(row=1, column=0, sticky="nsew")
 
         # COLOR
@@ -211,9 +216,8 @@ def ToolbarResult(init=False):
         ToolbarResult(init=True)
 
 
-
-def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the frame of the cube
-    ""
+def InitImage(new_fits=True):
+    """Init image: cube_change when this is jsu ta change in the frame of the cube"""
     ######################
     # CLEAR OLD  CANVAS and Colorbar WITH CLF
     try:  # not done if one image was previously loaded , means if used "open" button
@@ -232,11 +236,10 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
 
         W.Im0 = W.hdulist[0].data  # define the 2d image : W.Im0
         W.Im0[np.isnan(W.Im0)] = 0  # delete the np.nan
-        print(type( W.hdulist[0].header), "is type")
         RH.CallHeaderClass(W.hdulist[0].header)          # HEADER
 
 
-     # NON FITS IMAGE
+    # NON FITS IMAGE
     if False:
         # image is 600*600*3 whereas a cube is 9*500*500
         G.png_bool = True
@@ -255,11 +258,10 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
      ####################
      ### CUBES         ##
      ####################
-
-    if (len(W.hdulist[0].data.shape) == 3):  # for CUBES
+    if len(W.hdulist[0].data.shape) == 3:
         # if not G.png_bool and (len(W.hdulist[0].data.shape)==3):# for CUBES
         if new_fits: W.cube_num = W.hdulist[0].data.shape[0] - 1  # we start with the last index
-        if (abs(W.cube_num) < len(W.hdulist[0].data[:, 0, 0])):  # should run if abs(G.cube_num)<len(G.hdulist)
+        if abs(W.cube_num) < len(W.hdulist[0].data[:, 0, 0]):  # should run if abs(G.cube_num)<len(G.hdulist)
             if W.cube_bool == 0:  # to load cube frame
                 W.cube_bool = 1
                 IG.Cube()
@@ -267,8 +269,10 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
 
         else:
             W.cube_num = W.hdulist[0].data.shape[0] - 1
-            if W.verbose > 0: print('\nERROR InitImage@MyGui.py :' + W.image_name + ' has no index ' + str(W.cube_num) + "Go back to the last cube index :" + str(W.cube_num) + "\n")
-        G.cube_var.set( int(W.cube_num + 1) )
+            Log(1, '\nERROR InitImage@MyGui.py :' + W.image_name
+                + ' has no index ' + str(W.cube_num) + "Go back to the last cube index :"
+                + str(W.cube_num) + "\n")
+        G.cube_var.set(int(W.cube_num + 1))
 
     else:  # including image not a cube, we try to destroy cube frame
         W.cube_bool = 0
@@ -298,8 +302,9 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
     #     DISPLAY  the image HERE the origin = lower change everything in y
     G.ax1 = G.fig.add_subplot(111)
     if not G.png_bool:
-        drawing = G.ax1.imshow(G.current_image, vmin=G.scale_dic[0]["min_cut"],
-                               vmax=G.scale_dic[0]["max_cut"], cmap=G.scale_dic[0]["cmap"], origin='lower' )
+        drawing = G.ax1.imshow(G.current_image,
+            vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+            cmap=G.scale_dic[0]["cmap"], origin='lower')
     else:  # This is not a fits image
         drawing = G.ax1.imshow(G.current_image,
                                cmap=G.scale_dic[0]["cmap"])
@@ -310,40 +315,35 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
     ############################
     try: RemoveCompass()
     except BaseException: pass
-    if W.verbose > 3: print("I am still ok1 ")
-
     DrawCompass()
-
-    if W.verbose > 3: print("I am still ok2 and I drew compass")
-
 
 
     ####
     # COLORBAR, TOOLBAR update , colorabr disconnected at begining, next to clf()
     G.toolbar.update()
-    G.cbar = G.fig.colorbar(drawing, pad = 0.02)
+    G.cbar = G.fig.colorbar(drawing, pad=0.02)
     # G.cbar.set_norm(NormalizeMy.MyNormalize(vmin=image.min(),vmax=image.max(),stretch='linear'))
     G.cbar = DraggableColorbar.DraggableColorbar(G.cbar, drawing)
     G.cbar.connect()
 
     ################
     # IMAGE GET INTENSITY  in G.toolbarframe
-    def z(x, y): return W.Im0[y, x]
-    def z_max(x, y ): return IF.PixelMax(W.Im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
+    def z(x, y):
+        return W.Im0[y, x]
+
+    def z_max(x, y):
+        return IF.PixelMax(W.Im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
 
     def format_coordinate(x, y):
         x, y = int(x), int(y)
         return "zmax=%5d, z=%5d, x=%4d, y=%4d" % (z_max(x, y), z(x, y), x, y)
 
     G.ax1.format_coord = format_coordinate
-    #G.ax1.format_coord = lambda x,y : "z={:5d}, zmax={:5d}, x={:4d}, y={:4d}".format(  z(x,y),z_max(x,y), x,y )
 
 
-    if W.verbose > 3: print("I am still ok 3.5")
     ######################
     # DRAW FIG AND COLOR BAR
     ######################
-    # G.cbar.draw_all()
     G.fig.canvas.draw()
 
     #####################
@@ -351,8 +351,9 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
     #####################
     Pick.RefreshPick("one")  # assuming that the default PIck is setted yet
 
-    if W.verbose > 3: print("I am still ok4 ")
-    if new_fits:  # I don't know why I need to pu that at the end but it worls like that, does not work it put in Science Variables
+    # I don't know why I need to pu that at the end but it worls like that
+    # # does not work it put in Science Variables
+    if new_fits:
         G.label_bool = 0
         IG.LabelResize()
 
@@ -360,7 +361,7 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
 
 
 def DrawCompass():
-    if W.verbose > 3: print("MG, what do I know from header", vars(W.head))
+    Log(3, "MG, what do I know from header", vars(W.head))
     if not ( ("CD1_1" in vars(W.head)) and ("CD2_2" in vars(W.head) ) ):
         if W.verbose > 0: print("WARNING WCS Matrix not detected, I don't know where the north is.")
         W.head.CD1_1 = W.head.pixel_scale * 3600
@@ -496,15 +497,14 @@ def Histopopo():
 
 
 def Quit():
-    if W.verbose > 0:
-        print("Closing Abism, Goodbye. Come back soon.\n_________________________________________________________________________\n\n\n")
-    import sys
+    """Kill process"""
+    Log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
     G.parent.destroy()
     sys.exit(1)
 
 
 def Restart():
-    """
+    """ TODO move me to Global Definer, WritePref and ReadPref
         Pushing this button will close ABISM and restart it the same way it was launch before.
         Programmers: this is made to reload the Software if a modification in the code were made.
     """
@@ -528,7 +528,7 @@ def Restart():
     if not isinstance(cmap, str):
         cmap = "jet"
     for i in [
-        ["--verbose", W.verbose],
+            ["--verbose", W.verbose],
         ["--bg", G.bg[0]],
         ["--fg", G.fg[0]],
 
@@ -578,23 +578,14 @@ def Restart():
 
 
 def Clear():
-    """
-        This button will clear the image frames and reinitiate its.
-        It was made in order to delete some arrows,
+    """Clear the image frames and reinitiate its.
+    Made as button callback  in order to delete some arrows,
         for example with the pick many mode.
     """
 
-    try:
-        G.AnswerFrame.destroy()   # in cas this doesn't exist
-
-    except BaseException:
-        pass
-
+    try: G.AnswerFrame.destroy()
+    except BaseException: pass
     LaunchImageInit()
-    return
-
-
-
 
 
 def Save(first=1):  # first time you save, to print(header and staff)
