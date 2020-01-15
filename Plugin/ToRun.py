@@ -26,19 +26,13 @@ import BasicFunction as BF  # 2D psf functions
 import GuyVariables as G
 import WorkVariables as W
 
-#Plugin
+# Plugin
 import ReadHeader as RH
 
 
 G.ax1.annotate("",
-          xy=(0.2,0.3) , xycoords='axes fraction',
-          xytext=(0.5,0.5) , textcoords='axes fraction',
-          arrowprops=dict(arrowstyle="->",facecolor="purple",edgecolor="purple",
-                          connectionstyle="arc3"),
-          )
-
-
-
-
-
-
+               xy=(0.2, 0.3), xycoords='axes fraction',
+               xytext=(0.5, 0.5), textcoords='axes fraction',
+               arrowprops=dict(arrowstyle="->", facecolor="purple", edgecolor="purple",
+                               connectionstyle="arc3"),
+               )

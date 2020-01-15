@@ -1,5 +1,5 @@
 # The Normalize class is largely based on code provided by Sarah Graves.
-""" if you want to add a scaling fct, like arctan, you need to add it in "call" and in "inverse" """  
+""" if you want to add a scaling fct, like arctan, you need to add it in "call" and in "inverse" """
 import numpy as np
 import numpy.ma as ma
 
@@ -52,14 +52,16 @@ class MyNormalize(Normalize):
         self.exponent = exponent
 
         if stretch == 'power' and np.equal(self.exponent, None):
-            raise Exception("For stretch=='power', an exponent should be specified")
+            raise Exception(
+                "For stretch=='power', an exponent should be specified")
 
         if np.equal(vmid, None):
             if stretch == 'log':
                 if vmin > 0:
                     self.midpoint = vmax / vmin
                 else:
-                    raise Exception("When using a log stretch, if vmin < 0, then vmid has to be specified")
+                    raise Exception(
+                        "When using a log stretch, if vmin < 0, then vmid has to be specified")
             elif stretch == 'arcsinh':
                 self.midpoint = -1. / 30.
             else:
@@ -67,7 +69,8 @@ class MyNormalize(Normalize):
         else:
             if stretch == 'log':
                 if vmin < vmid:
-                    raise Exception("When using a log stretch, vmin should be larger than vmid")
+                    raise Exception(
+                        "When using a log stretch, vmin should be larger than vmid")
                 self.midpoint = (vmax - vmid) / (vmin - vmid)
             elif stretch == 'arcsinh':
                 self.midpoint = (vmid - vmin) / (vmax - vmin)
@@ -103,7 +106,7 @@ class MyNormalize(Normalize):
             if clip:
                 mask = ma.getmask(val)
                 val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
-                                mask=mask)
+                               mask=mask)
             result = (val - vmin) * (1.0 / (vmax - vmin))
 
             # CUSTOM APLPY CODE
@@ -118,7 +121,7 @@ class MyNormalize(Normalize):
             elif self.stretch == 'log':
 
                 result = ma.log10(result * (self.midpoint - 1.) + 1.) \
-                       / ma.log10(self.midpoint)
+                    / ma.log10(self.midpoint)
 
             elif self.stretch == 'sqrt':
 
@@ -126,12 +129,12 @@ class MyNormalize(Normalize):
 
             elif self.stretch == 'square':
 
-                result = result * result 
+                result = result * result
 
             elif self.stretch == 'arcsinh':
 
                 result = ma.arcsinh(result / self.midpoint) \
-                       / ma.arcsinh(1. / self.midpoint)
+                    / ma.arcsinh(1. / self.midpoint)
 
             elif self.stretch == 'power':
 
@@ -173,7 +176,8 @@ class MyNormalize(Normalize):
 
         elif self.stretch == 'log':
 
-            val = (ma.power(10., val * ma.log10(self.midpoint)) - 1.) / (self.midpoint - 1.)
+            val = (ma.power(10., val * ma.log10(self.midpoint)) - 1.) / \
+                (self.midpoint - 1.)
 
         elif self.stretch == 'sqrt':
 
@@ -182,7 +186,7 @@ class MyNormalize(Normalize):
         elif self.stretch == 'arcsinh':
 
             val = self.midpoint * \
-                  ma.sinh(val * ma.arcsinh(1. / self.midpoint))
+                ma.sinh(val * ma.arcsinh(1. / self.midpoint))
 
         elif self.stretch == 'square':
 

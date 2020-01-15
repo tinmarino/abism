@@ -3,15 +3,15 @@
 1. Py3
 2. Lint
 3. Add logger
-4. Refactor (in class)
+4. Refactor(in class)
 
 
 # UO
 7. Open file window larger
-8. just white and dark background  (one fancy if you want)
+8. just white and dark background(one fancy if you want)
 9. remove pyfits -> astropy.io.fits
 10. Create pip package
 
 
-Change Pyfis to detect comment and not stipping last line 
-put displayheader and all primitives (low level) fct in the approproate directory. 
+Change Pyfis to detect comment and not stipping last line
+put displayheader and all primitives(low level) fct in the approproate directory.

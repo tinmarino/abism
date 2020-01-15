@@ -32,15 +32,15 @@ def AnalysisMenu(args):     # Create the Menu button and its children
         G.cu_fit = Tk.StringVar()
         G.cu_fit.set(W.type["fit"].replace("2D", ""))
         lst1 = [
-             ["Gaussian", "Gaussian",  lambda: MG.FitType("Gaussian")],
-             ["Moffat",   "Moffat",    lambda: MG.FitType("Moffat")],
-             ["Bessel1",  "Bessel1",   lambda: MG.FitType("Bessel1")],
-             ["None",     "None",      lambda: MG.FitType("None")],
+            ["Gaussian", "Gaussian", lambda: MG.FitType("Gaussian")],
+            ["Moffat",   "Moffat", lambda: MG.FitType("Moffat")],
+            ["Bessel1",  "Bessel1", lambda: MG.FitType("Bessel1")],
+            ["None",     "None", lambda: MG.FitType("None")],
         ]
         for i in lst1:
             fit_menu.add_radiobutton(
-               label=i[0], command=i[2],
-               variable=G.cu_fit, value=i[1])  # we use same value as label
+                label=i[0], command=i[2],
+                variable=G.cu_fit, value=i[1])  # we use same value as label
 
         # MORE OPTIONS
         if not G.more_bool:
@@ -65,16 +65,16 @@ def AnalysisMenu(args):     # Create the Menu button and its children
         G.cu_pick = Tk.StringVar()
         G.cu_pick.set(W.type["pick"])
         lst2 = [
-             ["PickOne"   , "one"     , lambda: Pick.RefreshPick("one")],
-             ["Binary Fit", "binary"  , lambda: Pick.RefreshPick("binary")],
-             ["PickMany"  , "many"    , lambda: Pick.RefreshPick("many")],
-             ["No Pick"   , "nopick"  , lambda: Pick.RefreshPick("nopick")],
+            ["PickOne", "one", lambda: Pick.RefreshPick("one")],
+            ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
+            ["PickMany", "many", lambda: Pick.RefreshPick("many")],
+            ["No Pick", "nopick", lambda: Pick.RefreshPick("nopick")],
         ]
 
         for i in lst2:
             pick_menu.add_radiobutton(
-                 label=i[0], command=i[2],
-                 variable=G.cu_pick, value=i[1])  # we use same value as label
+                label=i[0], command=i[2],
+                variable=G.cu_pick, value=i[1])  # we use same value as label
 
     FitType()
     PickType()
@@ -90,10 +90,12 @@ def MoreWidget():       # More photometry options frame
         j = G.analysis_menu.menu.entrycget(i, "label")
         if "Option" in j:
             if G.more_bool:
-                G.analysis_menu.menu.entryconfig(i, label=u'\u25be '+'More Option')
+                G.analysis_menu.menu.entryconfig(
+                    i, label=u'\u25be '+'More Option')
                 break
             else:
-                G.analysis_menu.menu.entryconfig(i, label=u'\u25b4 '+'Less Option')
+                G.analysis_menu.menu.entryconfig(
+                    i, label=u'\u25b4 '+'Less Option')
                 break
 
     # CHANGE BOOL MAY CLOSE
@@ -142,38 +144,39 @@ def MoreCreate():       # Create The Frame
     def NoiseType(frame):
         ""
         G.menu_noise = Tk.Menubutton(frame,
-                                text=u'\u25be '+'Background',
-                                relief=Tk.RAISED,
-                                background=G.menu_noise_color,
-                                **G.bu_arg)
+                                     text=u'\u25be '+'Background',
+                                     relief=Tk.RAISED,
+                                     background=G.menu_noise_color,
+                                     **G.bu_arg)
         G.menu_noise.menu = Tk.Menu(G.menu_noise)
 
         G.cu_noise = Tk.StringVar()
         G.cu_noise.set(W.type["noise"])
 
         lst = [
-                ["Annulus", "elliptical_annulus"],
-                ['Fit', 'fit'],
-                ["8Rects", "8rects"],
-                ['Manual', "manual"],
-                ["None", "None"],
+            ["Annulus", "elliptical_annulus"],
+            ['Fit', 'fit'],
+            ["8Rects", "8rects"],
+            ['Manual', "manual"],
+            ["None", "None"],
         ]
         for i in lst:
             if i[0] == "Manual":
                 G.menu_noise.menu.add_radiobutton(label=i[0],
-                    command=IG.ManualBackground,
-                    variable=G.cu_noise, value=i[1]) # W.type[noise] as value
+                                                  command=IG.ManualBackground,
+                                                  variable=G.cu_noise, value=i[1])  # W.type[noise] as value
             else:
                 G.menu_noise.menu.add_radiobutton(label=i[0],
-                    command=lambda i=i : MG.VarSet('W.type["noise"]', i[1]),
-                    variable=G.cu_noise, value=i[1])
+                                                  command=lambda i=i: MG.VarSet(
+                                                      'W.type["noise"]', i[1]),
+                                                  variable=G.cu_noise, value=i[1])
 
         G.menu_noise['menu'] = G.menu_noise.menu
         return G.menu_noise
 
     def PhotType(frame):
         G.menu_phot = Tk.Menubutton(frame, text=u'\u25be '+'Photometry',
-                    relief=Tk.RAISED, background=G.menu_phot_color, **G.bu_arg)
+                                    relief=Tk.RAISED, background=G.menu_phot_color, **G.bu_arg)
         G.menu_phot.menu = Tk.Menu(G.menu_phot)
 
         G.cu_phot = Tk.StringVar()
@@ -188,8 +191,9 @@ def MoreCreate():       # Create The Frame
 
         for i in lst:
             G.menu_phot.menu.add_radiobutton(label=i[0],
-                command=lambda i=i : MG.VarSet('W.type["phot"]', i[1]) ,
-                variable=G.cu_phot, value=i[1]) # we use W.type[phot"]
+                                             command=lambda i=i: MG.VarSet(
+                                                 'W.type["phot"]', i[1]),
+                                             variable=G.cu_phot, value=i[1])  # we use W.type[phot"]
 
         G.menu_phot['menu'] = G.menu_phot.menu
         return G.menu_phot
@@ -200,22 +204,21 @@ def MoreCreate():       # Create The Frame
         ################
         # isoplanetism
         G.iso_check = Tk.Checkbutton(frame,
-           text="Anisomorphism", variable=W.aniso_var,
-               command=lambda: MG.FitType(W.type["fit"]), **myargs) # by default onvalue=1
+                                     text="Anisomorphism", variable=W.aniso_var,
+                                     command=lambda: MG.FitType(W.type["fit"]), **myargs)  # by default onvalue=1
 
         G.same_check = Tk.Checkbutton(G.MoreGridFrame,
-          text="Binary_same_psf", variable=W.same_psf_var,
-              command = lambda: MG.FitType(W.type["fit"]), **myargs)
+                                      text="Binary_same_psf", variable=W.same_psf_var,
+                                      command=lambda: MG.FitType(W.type["fit"]), **myargs)
 
         G.same_center_check = Tk.Checkbutton(G.MoreGridFrame,
-          text="Saturated_same_center", variable=W.same_center_var,
-              command= lambda: MG.FitType(W.type["fit"]), **myargs)
+                                             text="Saturated_same_center", variable=W.same_center_var,
+                                             command=lambda: MG.FitType(W.type["fit"]), **myargs)
 
         return G.iso_check, G.same_check, G.same_center_check
 
-
     SubtractBackground(G.MoreGridFrame).grid(row=0, column=0,
-                                             columnspan = 2, sticky="nswe")
+                                             columnspan=2, sticky="nswe")
     NoiseType(G.MoreGridFrame).grid(row=1, column=0, sticky="nswe")
     PhotType(G.MoreGridFrame).grid(row=1, column=1, sticky="nswe")
 

@@ -19,11 +19,9 @@ for example style: sygma size: 3 means 3 sigma clipping
     default_dic.update(dic)
     dic = default_dic
 
-
     # No Clipping
     if dic["scale_cut_type"] == "None":
         min_cut, max_cut = np.min(grid), np.max(grid)
-
 
     # PERCENT in (like keep 80% of pixel in the remaining segment
     elif dic["scale_cut_type"] == "percent":
@@ -34,9 +32,8 @@ for example style: sygma size: 3 means 3 sigma clipping
             sort = grid.flatten()      # Sorted Flatten Image
             sort.sort()
         percent = (100. - percent) / 100.   # get a little percentage
-        min_cut = sort[  int(percent / 2 * len(sort))   ]
-        max_cut = sort[  int( (1-percent/2)*len(sort))  ]
-
+        min_cut = sort[int(percent / 2 * len(sort))]
+        max_cut = sort[int((1-percent/2)*len(sort))]
 
     # SIGMA clipping
     elif dic["scale_cut_type"] == "sigma_clip":
@@ -76,7 +73,7 @@ def Rescale(grid, dic={}):  # transform 0-1 to 0-1 with a certain function,
     # Transoform
     def fct(x):
         return x  # to avoid warnings from pep8
-    exec ("fct = lambda x: " + dic["fct"])  # read the true scale fct
+    exec("fct = lambda x: " + dic["fct"])  # read the true scale fct
     grid = fct(grid)
 
     # Scale back, to its "true" value, for min to stay min and max to remains

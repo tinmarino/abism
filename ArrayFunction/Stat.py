@@ -81,11 +81,12 @@ median, it is the input and output
             rms_old = dic["rms"]
             bol1 = abs(grid - dic["mean"]) < abs(dic["sigma"] * dic["rms"])
             grid1 = grid[bol1]
-            dic.update( Stat(grid1) )
+            dic.update(Stat(grid1))
 
             # Check if finished
-            bolt =  ( dic["rms"]  >  (1.-dic["error"])  * rms_old  ) # t like tmp
-            bolt = bolt&( dic["rms"]  < (1.+dic["error"]) *rms_old  ) # but it is error test
+            bolt = (dic["rms"] > (1.-dic["error"]) * rms_old)  # t like tmp
+            bolt = bolt & (dic["rms"] < (1.+dic["error"])
+                           * rms_old)  # but it is error test
 
             if bolt:    # Finished
                 return dic
@@ -103,14 +104,14 @@ def BadPixelCleaner(lst, dic={}):  # notfinished not working
     default_dic.update(dic)
     dic = default_dic
 
-
-    #MEDIAN
+    # MEDIAN
     med_size = dic["median_filter"]
     if med_size[0] != 0:
         median = scipy.ndimage.median_filter(
             cutted, size=(med_size[0], med_size[0])
         )
-        cutted[np.abs(cutted-median)>(med_size[1]-1)*median] = median[np.abs(cutted-median)>(med_size[1]-1)*median]
+        cutted[np.abs(cutted-median) > (med_size[1]-1) *
+               median] = median[np.abs(cutted-median) > (med_size[1]-1)*median]
     return
 
 
@@ -148,7 +149,8 @@ and defining a rectangle
         if med_size[0] != 0:
             median = scipy.ndimage.median_filter(
                 cutted, size=(med_size[0], med_size[0]))
-            cutted[np.abs(cutted-median) > (med_size[1]-1)*median] = median[np.abs(cutted-median) > (med_size[1]-1)*median]
+            cutted[np.abs(cutted-median) > (med_size[1]-1) *
+                   median] = median[np.abs(cutted-median) > (med_size[1]-1)*median]
 
     res = Stat(cutted, get=get)
     res["number_count"] = (ry2 - ry1) * (rx2 - rx1)

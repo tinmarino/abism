@@ -99,7 +99,8 @@ class Header:
         self.non_linearity_level = np.inf
 
         # COMPANY
-        if any("ESO OBS" in s for s in self.header.keys()):  # because, the HIERARCH disappear when readden by python
+        # because, the HIERARCH disappear when readden by python
+        if any("ESO OBS" in s for s in self.header.keys()):
             self.company = "ESO"
 
         # TELESCOP
@@ -295,8 +296,6 @@ class Header:
 
         #
         #  ZPT
-
-
 
 
 #

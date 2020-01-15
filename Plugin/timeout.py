@@ -3,8 +3,10 @@ import errno
 import os
 import signal
 
+
 class TimeoutError(Exception):
     pass
+
 
 def timeout(seconds=10, error_message="Fit did not converge, try again"):
     def decorator(func):
@@ -24,13 +26,12 @@ def timeout(seconds=10, error_message="Fit did not converge, try again"):
 
     return decorator
 
-@timeout(1) 
-def maintest() : 
-  import time 
-  time.sleep(0.5) 
+
+@timeout(1)
+def maintest():
+    import time
+    time.sleep(0.5)
 
 
-if __name__== "__main__":
-   maintest() 
-
-
+if __name__ == "__main__":
+    maintest()

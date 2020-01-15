@@ -30,7 +30,8 @@ def Title():
     """Create OS's window title, icon and Set geomrtry"""
     # TITLE
     # Adaptative Background Interactive Strehl Meter
-    G.parent.title('ABISM (' + "/".join(str(W.image_name).split("/")[-3:]) + ')')
+    G.parent.title(
+        'ABISM (' + "/".join(str(W.image_name).split("/")[-3:]) + ')')
 
     # ICON
     if os.path.isfile(W.path + '/Icon/bato_chico.gif'):
@@ -38,7 +39,8 @@ def Title():
         G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
     else:
         if W.verbose > 3:
-            print("->you have no beautiful icon because you didn't set the PATH in Abism.py")
+            print(
+                "->you have no beautiful icon because you didn't set the PATH in Abism.py")
 
     # GEOMETRY
     if "parent" in G.geo_dic:
@@ -79,8 +81,8 @@ def DrawFrameMaker():
     else:  # including don't set width
         G.MainPaned.add(G.DrawPaned)
 
-
     # TOP : IMAGE FRAME, displaying the full image
+
     def Image():
         G.ImageFrame = Frame(G.DrawPaned, bg=G.bg[0])
         G.all_frame.append("G.ImageFrame")
@@ -91,8 +93,8 @@ def DrawFrameMaker():
             G.DrawPaned.add(G.ImageFrame)
         G.all_frame.append("G.ImageFrame")
 
-
     # BOTTOM : 2 Frames
+
     def RightBottom():
         G.RightBottomPaned = PanedWindow(G.DrawPaned,
                                          orient=HORIZONTAL,
@@ -105,8 +107,8 @@ def DrawFrameMaker():
         G.DrawPaned.add(G.RightBottomPaned, **targ)
         G.all_frame.append("G.RightBottomPaned")
 
-
     # BOTTOM DIVIDE and create the 2 FRAMES
+
     def RightBottomSub():
         # In RightBottomPaned 2 : FitFrame, ResultFrame (should be star frame)
 
@@ -155,7 +157,8 @@ def TextFrameMaker():
 
     # PANED TODO remove the main text frame
     G.TextPaned = PanedWindow(G.TextFrame, orient=VERTICAL, **G.paned_dic)
-    G.TextPaned.pack(side=TOP, expand=1, fill=BOTH)  # this is the main paned on the left so it should expand
+    # this is the main paned on the left so it should expand
+    G.TextPaned.pack(side=TOP, expand=1, fill=BOTH)
     G.all_frame.append("G.TextPaned")
 
     LeftLabel()
@@ -171,7 +174,6 @@ def TextButton1(frame):
 
     G.Button1Frame = Frame(G.ButtonFrame, **G.fr_arg)
     G.Button1Frame.pack(side=TOP, fill=X, expand=0)
-
 
     # DEFINE BUTTON
     G.bu_quit = Button(G.Button1Frame, text='QUIT',
@@ -225,7 +227,8 @@ def LeftTop():
     if "LeftTopFrame" in G.geo_dic:
         arg.update({"height": int(G.geo_dic["LeftTopFrame"])})
         if W.verbose > 3:
-            print("I chose ", int(G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME")
+            print("I chose ", int(
+                G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME")
 
     G.TextPaned.add(G.LeftTopFrame, **arg)
     LeftTopArrow()
@@ -239,7 +242,7 @@ def LeftResult():
 
     arg = G.sub_paned_arg
     if "LeftBottomFrame" in G.geo_dic:
-        arg.update({ "height": int(G.geo_dic["LeftBottomFrame"])  })
+        arg.update({"height": int(G.geo_dic["LeftBottomFrame"])})
     G.TextPaned.add(G.LeftBottomFrame, **arg)
 
     # result Label
@@ -248,7 +251,8 @@ def LeftResult():
     G.ResultLabelFrame.pack(side=TOP, fill=X)
 
     # RESULT LABEL [written 'result' and fit type at the top
-    Label(G.ResultLabelFrame, text="Results", **G.frame_title_arg).pack(side=LEFT)
+    Label(G.ResultLabelFrame, text="Results",
+          **G.frame_title_arg).pack(side=LEFT)
     G.fit_type_label = Label(G.ResultLabelFrame,
                              text=W.type["fit"],
                              justify=CENTER,
@@ -267,10 +271,10 @@ def LeftResult():
     else:
         photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
 
-    G.result_frame_arrow = Button(G.LeftBottomFrame, command=ResultResize, image=photo, **G.bu_arg)
+    G.result_frame_arrow = Button(
+        G.LeftBottomFrame, command=ResultResize, image=photo, **G.bu_arg)
     G.result_frame_arrow.image = photo  # keep a reference
     G.result_frame_arrow.place(relx=1., rely=0., anchor="ne")
-
 
 
 ###
@@ -293,7 +297,6 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
     else:
         comp = "NOT ESO"
 
-
     # VLT/NACO INSTRUMENT
     if W.head.instrument == "NAOS+CONICA":
         ins = "NaCo"
@@ -305,7 +308,6 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
                  )  # to delete ESO-  and -U4
     lbl = comp + " / " + tel + " / " + ins
     lst.append((lbl, {}))
-
 
     # REDUCED ?
     if "reduced_type" in vars(W.head):
@@ -320,14 +322,12 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
         lbl += "%i x %i " % (shape[0], shape[1])
     lst.append((lbl, {}))
 
-
     # WCS
     if W.head.wcs_bool:
         lbl = "WCS detected"
     else:
         lbl = "WCS NOT detected"
     lst.append((lbl, {}))
-
 
     # Header reads Strehl variables ?
     bolt = (W.head.diameter == 99. or W.head.wavelength == 99.)
@@ -338,7 +338,6 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
     else:
         lbl = "Parameters read from header"
         lst.append((lbl, {"fg": "blue"}))
-
 
     # UNDERSAMPLED
     bol1 = W.head.wavelength * 1e-6
@@ -357,7 +356,8 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
     # GRID LABLES
     row = 0
     G.LabelFrame.columnconfigure(0, weight=1)
-    if W.verbose > 0: print("Label lst", lst)
+    if W.verbose > 0:
+        print("Label lst", lst)
     for i in lst:
         arg = G.lb_arg.copy()
         arg.update({"justify": CENTER})
@@ -366,11 +366,6 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
         i = i[0]
         Label(G.LabelFrame, text=i, **arg).grid(row=row, column=0, sticky="nsew")
         row += 1
-
-
-
-
-
 
     # place arrow to resize
     if G.label_bool:   # label is big
@@ -382,10 +377,8 @@ def LabelDisplay(expand=False):  # called later, display what I retrived from he
     G.label_frame_arrow.image = photo  # keep a reference
     G.label_frame_arrow.place(relx=1., rely=0., anchor="ne")
 
-
     # place frame_title_label
     Label(G.LabelFrame, text="Labels", **G.frame_title_arg).place(x=0, y=0)
-
 
     # Button to resize
     arg = G.bu_arg.copy()
@@ -407,12 +400,16 @@ def LabelResize():              # called  later, resize this area
     if G.label_bool:        # Show the label frame
         G.TextPaned.sash_place(0, 0, 22)
         photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        if W.verbose > 3: print("Resize Label: ", 22)
+        if W.verbose > 3:
+            print("Resize Label: ", 22)
 
     else:                   # collapse the label frame
-        G.TextPaned.sash_place(0, 0, G.last_label.winfo_y() + G.last_label.winfo_height())
+        G.TextPaned.sash_place(
+            0, 0, G.last_label.winfo_y() + G.last_label.winfo_height())
         photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-        if W.verbose > 3: print("REsize Label: ", G.last_label.winfo_y() + G.last_label.winfo_height())
+        if W.verbose > 3:
+            print("REsize Label: ", G.last_label.winfo_y() +
+                  G.last_label.winfo_height())
     G.label_bool = not G.label_bool
     G.label_frame_arrow['image'] = photo
     G.label_frame_arrow.image = photo  # keep a reference
@@ -436,10 +433,10 @@ def LeftTopArrow():  # jsut draw the arrow, see after
         photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
 
     # Pach Arrow image as button
-    G.top_frame_arrow = Button(G.LeftTopArrowFrame, command=TopResize, image=photo, **G.bu_arg)
+    G.top_frame_arrow = Button(
+        G.LeftTopArrowFrame, command=TopResize, image=photo, **G.bu_arg)
     G.top_frame_arrow.image = photo  # keep a reference
     G.top_frame_arrow.pack(side=RIGHT, anchor="ne", expand=0)
-
 
 
 def TopResize():        # called  later when clicking on toparrow
@@ -447,7 +444,8 @@ def TopResize():        # called  later when clicking on toparrow
         photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
         base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
         G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
-        if W.verbose > 3: print("Resize top: ", 22)
+        if W.verbose > 3:
+            print("Resize top: ", 22)
     else:
         photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
         place = G.parent.winfo_height() - G.TextPaned.winfo_rooty() - 200
@@ -460,18 +458,20 @@ def TopResize():        # called  later when clicking on toparrow
     return
 
 
-
 def ResultResize(how="max"):  # called  later
     # if not G.result_bool : # this is to expand
     if how == "max":  # resize max
         base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
         G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
-        if W.verbose > 3: print("REsize result: ", 22)
+        if W.verbose > 3:
+            print("REsize result: ", 22)
 
     elif how == "full":  # see everything but not more
         def Pos():  # calculate position of the sash
-            G.TextPaned.sash_place(1, 0, )  # to expand the widget, and estimate their size, no number is interpreted ad infinity
-            corner2 = max([i.winfo_rooty() for j in G.LeftBottomFrame.winfo_children() for i in j.winfo_children()])  # the max size
+            # to expand the widget, and estimate their size, no number is interpreted ad infinity
+            G.TextPaned.sash_place(1, 0, )
+            corner2 = max([i.winfo_rooty() for j in G.LeftBottomFrame.winfo_children(
+            ) for i in j.winfo_children()])  # the max size
             base = G.LeftBottomFrame.winfo_rooty()  # top of the left bottom Frame
             size = corner2 - base                   # size fo the left Botttom Frame
             base_sash1 = G.LeftTopFrame.winfo_rooty()
@@ -481,29 +481,26 @@ def ResultResize(how="max"):  # called  later
 
         pos = Pos()
         G.TextPaned.sash_place(1, 0, pos)
-        if W.verbose > 3: print("REsize Top: ", pos)
+        if W.verbose > 3:
+            print("REsize Top: ", pos)
 
     return
-
-
-
-
-
 
     ######################
     ### 4/  MORE FRAMES if click on some buttons  #
     ######################
 
 
-
 def TitleArrow(title, var):
     # TITEL
     if G.in_arrow_frame is None:
-        G.arrtitle = Label(G.LeftTopArrowFrame, text=title, **G.frame_title_arg)
+        G.arrtitle = Label(G.LeftTopArrowFrame,
+                           text=title, **G.frame_title_arg)
         G.arrtitle.pack(side=LEFT, anchor="nw")
         G.in_arrow_frame = var
         return True
-    else: return False
+    else:
+        return False
 
 
 def ImageParameter():
@@ -521,23 +518,26 @@ def ImageParameter():
                            })
         return
 
-
-    G.image_parameter_list = [  ["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
-                                ["Pixel scale" + "*" + " [''/pix]: ", "pixel_scale", 99.],
-                                ["Diameter" + "*" + " [m]:", "diameter", 99.],
-                                ["Obstruction (d2/d1)*" + " [%]:", "obstruction", 99.],
-                                ["Zero point [mag]: ", "zpt", 0.],
-                                ["Exposure time [sec]: ", "exptime", 1.],
-                                ]  # Label, variable , default value
+    G.image_parameter_list = [["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
+                              ["Pixel scale" + "*" + " [''/pix]: ",
+                               "pixel_scale", 99.],
+                              ["Diameter" + "*" + " [m]:", "diameter", 99.],
+                              ["Obstruction (d2/d1)*" + " [%]:",
+                               "obstruction", 99.],
+                              ["Zero point [mag]: ", "zpt", 0.],
+                              ["Exposure time [sec]: ", "exptime", 1.],
+                              ]  # Label, variable , default value
 
     ##########
     # INITIATE THE FRAME, change button color
     if G.bu_manual["background"] == G.bu_manual_color:
         G.ManualFrame = Frame(G.LeftTopFrame, bg=G.bg[0])
         G.all_frame.append("G.ManualFrame")
-        G.ManualFrame.pack(expand=0, fill=BOTH, side=TOP)  # to keep other guys upside
+        # to keep other guys upside
+        G.ManualFrame.pack(expand=0, fill=BOTH, side=TOP)
         # TITEL
-        Label(G.ManualFrame, text="Parameters", **G.frame_title_arg).pack(side=TOP, anchor="w")
+        Label(G.ManualFrame, text="Parameters", **
+              G.frame_title_arg).pack(side=TOP, anchor="w")
         G.ManualGridFrame = Frame(G.ManualFrame)
         G.ManualGridFrame.pack(expand=0, fill=BOTH, side=TOP)
         G.ManualGridFrame.columnconfigure(0, weight=1)
@@ -547,20 +547,21 @@ def ImageParameter():
         # THE ENTRIES (it is before the main dish )
         row = 0
         for i in G.image_parameter_list:
-            l = Label(G.ManualGridFrame, text=i[0], font=G.font_param, justify=LEFT, anchor="nw", **G.lb_arg)
+            l = Label(
+                G.ManualGridFrame, text=i[0], font=G.font_param, justify=LEFT, anchor="nw", **G.lb_arg)
             l.grid(row=row, column=0, sticky="NSEW")
             vars(G.tkvar)[i[1]] = StringVar()
-            vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(G.tkvar)[i[1]], font=G.font_param, **G.en_arg)
+            vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
+                G.tkvar)[i[1]], font=G.font_param, **G.en_arg)
             if vars(W.head)[i[1]] == i[2]:
                 vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
             vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
             vars(G.tkentry)[i[1]].bind('<Return>', GetValueIP)
-            if len(str(  vars(W.head)[i[1]]      )) > 6:  # not to long for display
-                vars(G.tkvar)[i[1]].set(  "%.5f" % float(  vars(W.head)[i[1]]  )   )
+            if len(str(vars(W.head)[i[1]])) > 6:  # not to long for display
+                vars(G.tkvar)[i[1]].set("%.5f" % float(vars(W.head)[i[1]]))
             else:
                 vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
             row += 1
-
 
         G.bu_manual["background"] = 'green'
         G.bu_manual["text"] = u'\u25b4 ' + 'ImageParameters'
@@ -570,7 +571,6 @@ def ImageParameter():
         TopResize()
         return
 
-
     elif G.bu_manual["background"] == 'green':  # destroy manualFrame  and save datas
         GetValueIP("")  # because receive event
         G.ManualFrame.destroy()
@@ -578,12 +578,12 @@ def ImageParameter():
         if G.in_arrow_frame == "param_title":
             G.arrtitle.destroy()
             G.in_arrow_frame = None
-        G.all_frame = [ x for x in G.all_frame if x != "G.ManualFrame" ]  # remove MoreFrame
+        G.all_frame = [x for x in G.all_frame if x !=
+                       "G.ManualFrame"]  # remove MoreFrame
         G.bu_manual["background"] = G.bu_manual_color
         G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
         return
     return
-
 
 
 def GetValueIP(event, destroy=True):  # ImageParameter
@@ -597,32 +597,38 @@ def GetValueIP(event, destroy=True):  # ImageParameter
         ResetLabel(expand=False)
 
 
-
 def Cube():
     if not W.cube_bool:
-        try: G.CubeFrame.destroy()
-        except BaseException: pass
+        try:
+            G.CubeFrame.destroy()
+        except BaseException:
+            pass
     else:
         # FRAME
-        G.CubeFrame = Frame(G.ButtonFrame, **G.fr_arg )
+        G.CubeFrame = Frame(G.ButtonFrame, **G.fr_arg)
         G.CubeFrame.pack(side=TOP, expand=0, fill=X)
 
         # CUBE IMAGE SELECTION
         # LEFT
-        G.bu_cubel = Button(G.CubeFrame, text = '<-', command=lambda: MG.CubeDisplay("-"), **G.bu_arg)
+        G.bu_cubel = Button(G.CubeFrame, text='<-',
+                            command=lambda: MG.CubeDisplay("-"), **G.bu_arg)
 
         # ENTRY
         G.cube_var = StringVar()
-        G.cube_entry = Entry(G.CubeFrame, width=10, justify=CENTER, textvariable=G.cube_var, **G.en_arg)
+        G.cube_entry = Entry(
+            G.CubeFrame, width=10, justify=CENTER, textvariable=G.cube_var, **G.en_arg)
         G.cube_var.set(W.cube_num + 1)
         G.cube_entry.bind("<Return>", lambda x: MG.CubeDisplay("0"))
 
         # RIGHT
-        G.bu_cuber = Button(G.CubeFrame, text = '->', command=lambda: MG.CubeDisplay("+"), **G.bu_arg)
+        G.bu_cuber = Button(G.CubeFrame, text='->',
+                            command=lambda: MG.CubeDisplay("+"), **G.bu_arg)
 
         # GRID
-        for i in range(3): G.CubeFrame.columnconfigure(i, weight=1)
-        Label(G.CubeFrame, text="Cube Number", **G.frame_title_arg).grid(row=0, column=0, columnspan=3, sticky="w")
+        for i in range(3):
+            G.CubeFrame.columnconfigure(i, weight=1)
+        Label(G.CubeFrame, text="Cube Number", **
+              G.frame_title_arg).grid(row=0, column=0, columnspan=3, sticky="w")
         G.bu_cubel.grid(row=1, column=0, sticky="nsew")
         G.cube_entry.grid(row=1, column=1, sticky="nsew")
         G.bu_cuber.grid(row=1, column=2, sticky="nsew")
@@ -647,37 +653,38 @@ def ManualBackground():
         G.ManualBackFrame.columnconfigure(1, weight=1)
 
         def GetValue(event):
-            G.background = float( G.tkvar.background.get() )
-            if W.verbose > 2: print("InitGui.py/ManualBack, called , ", G.background)
-
+            G.background = float(G.tkvar.background.get())
+            if W.verbose > 2:
+                print("InitGui.py/ManualBack, called , ", G.background)
 
         # ENTRY
-        Label(G.ManualBackFrame, text="Background value:", font=G.font_param, **G.lb_arg).grid(row=0, column=0, sticky="snew")
+        Label(G.ManualBackFrame, text="Background value:",
+              font=G.font_param, **G.lb_arg).grid(row=0, column=0, sticky="snew")
         G.tkvar.background = StringVar()
-        G.tkentry.background = Entry(G.ManualBackFrame, width=10, textvariable=G.tkvar.background, font=G.font_param, **G.en_arg)
+        G.tkentry.background = Entry(
+            G.ManualBackFrame, width=10, textvariable=G.tkvar.background, font=G.font_param, **G.en_arg)
         G.tkentry.background.grid(row=0, column=1, sticky="nsew")  # ,sticky=W)
         G.tkentry.background.bind('<Return>', GetValue)
         G.tkvar.background.set("0.0")
-        if "background" in vars(G): G.tkvar.background.set(str(G.background))
-
+        if "background" in vars(G):
+            G.tkvar.background.set(str(G.background))
 
         ###############
         # CLOSE button
-        G.bu_back_close = Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close', background=G.bu_close_color, command=ManualBackClose, **G.bu_arg)
+        G.bu_back_close = Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
+                                 background=G.bu_close_color, command=ManualBackClose, **G.bu_arg)
         G.bu_back_close.grid(row=1, column=0, columnspan=2)
-        if W.verbose > 3: print("Manual Back called")
+        if W.verbose > 3:
+            print("Manual Back called")
 
 
 def ManualBackClose():
     G.manual_back_bool = not G.manual_back_bool
     G.ManualBackFrame.destroy()
-    G.all_frame = [ x for x in G.all_frame if x != "G.ManualBackFrame" ]  # remove Frame
+    G.all_frame = [x for x in G.all_frame if x !=
+                   "G.ManualBackFrame"]  # remove Frame
 
-    G.background = float( G.tkvar.background.get() )
-
-
-
-
+    G.background = float(G.tkvar.background.get())
 
     ###########
     #  MISCELLANEOUS
@@ -690,9 +697,6 @@ def ResetLabel(expand=False):
     G.LabelFrame.pack(side=TOP, fill=BOTH, expand=0)
     LabelDisplay(expand=expand)
 
-
-
-
     ############
     # APPEARANCES
     ###########
@@ -701,18 +705,16 @@ def ResetLabel(expand=False):
 def PanedConfig(arg):  # change paned window canvas...
     for i in G.all_frame:
         if "Paned" in i:
-            if W.verbose > 3: print("I change ", i)
+            if W.verbose > 3:
+                print("I change ", i)
             for j in arg:
                 vars(G)[i[2:]][j] = arg[j]
     return
 
 
-
-
-
-
 def callback(event):
-    if W.verbose > 3: print("clicked at",)
+    if W.verbose > 3:
+        print("clicked at",)
     event.x,
     event.y,
     event.widget,
@@ -729,7 +731,6 @@ def TerminalWidget(Frame):  # not used
     os.system('xterm -into %d -geometry 40x20 &' % wid)
 
 
-
 def Shortcuts():
     #Shortcut, module, function, [  args, kargs  ]
     lst = [["<Control-o>", "MG", "Open"],
@@ -737,13 +738,8 @@ def Shortcuts():
            ["<Control-r>", "MG", "Restart"],
            ]
 
-
     for i in lst:
-        G.parent.bind_all(    i[0], lambda i=i: vars(i[1])[i[2]]()  )
-
-
-
-
+        G.parent.bind_all(i[0], lambda i=i: vars(i[1])[i[2]]())
 
 
 def ManualCut():
@@ -760,7 +756,8 @@ def ManualCut():
         G.all_frame.append("G.ManualCutFrame")
         G.ManualCutFrame.pack(side=TOP, expand=0, fill=X)
 
-        Label(G.ManualCutFrame, text="Cut image scale", **G.frame_title_arg).pack(side=TOP, anchor="w")
+        Label(G.ManualCutFrame, text="Cut image scale", **
+              G.frame_title_arg).pack(side=TOP, anchor="w")
 
         G.ManualCutGridFrame = Frame(G.ManualCutFrame, bg=G.bg[0])
         G.all_frame.append("G.ManualCutGridFrame")
@@ -772,43 +769,46 @@ def ManualCut():
         def GetValue(event):
             dic = {"min_cut": float(G.entries[1].get()),
                    "max_cut": float(G.entries[0].get())}
-            if W.verbose > 2: print("InitGui.py/ManualCut, dic called , ", dic)
+            if W.verbose > 2:
+                print("InitGui.py/ManualCut, dic called , ", dic)
             MG.Scale(dic=dic)  # Call MyGui
 
-
-        lst = [  ["Max cut", "max_cut"], ["Min cut", "min_cut"]  ]
+        lst = [["Max cut", "max_cut"], ["Min cut", "min_cut"]]
         G.entries = []
         r = 0
         for i in lst:
-            G.l = Label(G.ManualCutGridFrame, text=i[0], font=G.font_param, **G.lb_arg)
+            G.l = Label(G.ManualCutGridFrame,
+                        text=i[0], font=G.font_param, **G.lb_arg)
             G.l.grid(row=r, column=0, sticky="snew")  # , sticky=W)
             v = StringVar()
-            G.e = Entry(G.ManualCutGridFrame, width=10, textvariable=v, font=G.font_param, **G.en_arg)
+            G.e = Entry(G.ManualCutGridFrame, width=10,
+                        textvariable=v, font=G.font_param, **G.en_arg)
             G.e.grid(row=r, column=1, sticky="nsew")  # , sticky=W)
             G.e.bind('<Return>', GetValue)
             v.set("%.1f" % G.scale_dic[0][i[1]])
             G.entries.append(v)
             r += 1
 
-
         ###############
         # CLOSE button
-        G.bu_close = Button(G.ManualCutGridFrame, text=u'\u25b4 ' + 'Close', background=G.bu_close_color, command=ManualCutClose, **G.bu_arg)
+        G.bu_close = Button(G.ManualCutGridFrame, text=u'\u25b4 ' + 'Close',
+                            background=G.bu_close_color, command=ManualCutClose, **G.bu_arg)
         G.bu_close.grid(row=r, column=0, columnspan=2)
-        if W.verbose > 3: print("Manual Cut called")
-
-
-
+        if W.verbose > 3:
+            print("Manual Cut called")
 
 
 def ManualCutClose():
 
     G.manual_cut_bool = not G.manual_cut_bool
     G.ManualCutFrame.destroy()
-    G.all_frame = [ x for x in G.all_frame if x != "G.ManualCutFrame" ]  # remove Frame
+    G.all_frame = [x for x in G.all_frame if x !=
+                   "G.ManualCutFrame"]  # remove Frame
 
     G.scale_dic[0]["max_cut"] = float(G.entries[0].get())
     G.scale_dic[0]["min_cut"] = float(G.entries[1].get())
-    if W.verbose > 3: print( G.scale_dic[0]["min_cut"])
-    if W.verbose > 3: print( G.scale_dic[0]["max_cut"])
+    if W.verbose > 3:
+        print(G.scale_dic[0]["min_cut"])
+    if W.verbose > 3:
+        print(G.scale_dic[0]["max_cut"])
     MG.Scale()

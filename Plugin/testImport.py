@@ -38,8 +38,6 @@ import wraps
 """
 
 
-
-
 def module_exists(module_name):
     try:
         __import__(module_name)
@@ -47,6 +45,7 @@ def module_exists(module_name):
         return False
     else:
         return True
+
 
 def testAbismImports():
     importList = [
@@ -62,6 +61,5 @@ def testAbismImports():
     for i in importList:
         if (!module_exists(i)):
             print("Warning : module " + i + " cannot be imported")
-
 
     # To nest matplotlib in Tkinter
