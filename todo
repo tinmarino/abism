@@ -1,2 +1,9 @@
+# 2020
+
+1. Py3
+2. Lint
+3. Add logger
+4. Refactor (in class)
+
 Change Pyfis to detect comment and not stipping last line 
 put displayheader and all primitives (low level) fct in the approproate directory. 
