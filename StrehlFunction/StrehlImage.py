@@ -102,7 +102,10 @@ def PsfFit(grid,center=(0,0),max=1,dictionary={},full_answer=True):
 
       # ACTUAL FIT
       if W.type["fit"] != "None" :
-         res = FF.leastsqFit(vars(BF)[W.type["fit"]],(x,y),W.suposed_param,IX,err=eIX,doNotFit=doNotFit,bounds=James,verbose=verbose)
+         res = FF.leastsqFit(vars(BF)[W.type["fit"]],
+                             (x,y), W.suposed_param, IX,
+                             err=eIX, doNotFit=doNotFit,
+                             bounds=James, verbose=verbose)
       else :
           restmp = {'center_x':x0,'center_y':y0,'intensity':my_max,"r99x":5*my_fwhm,"r99y":5*my_fwhm }
           res= (restmp,0,0, IX,0 )
@@ -149,19 +152,17 @@ def Photometry(grid):
 
 
 
-  x0,y0 = W.strehl['center_x'], W.strehl['center_y']
-  ax1,ax2 = x0-r99x, x0+r99x
-  ay1,ay2 = y0-r99y, y0+r99y
+  x0, y0 = W.strehl['center_x'], W.strehl['center_y']
+  ax1, ax2 = int(x0-r99x), int(x0+r99x)
+  ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
 
   # RECT AP
-  if W.type["phot"]=='encircled_energy':                             # change photometry
+  if W.type["phot"]=='encircled_energy':  # change photometry
     W.strehl["sum"] =np.sum(  grid[ ax1:ax2, ay1:ay2 ]  )
     W.strehl["number_count"] = 4 * r99x * r99y
     W.strehl["my_photometry"]=W.strehl["sum"] - W.strehl["number_count"]* W.strehl["my_background"]
     if W.verbose >3 : print("doing encircled energy in ImageFunction.py,", W.strehl["sum"], "between :" , ax1,ax2,ay1, ay2 ,)
-
-
 
 
   # ELL AP
@@ -170,8 +171,7 @@ def Photometry(grid):
     ####
     # cut image
     myrad = int (r99u + r99v)
-    theta = 0
-    if W.strehl.has_key("theta") :   theta = W.strehl["theta"]
+    theta = W.strehl.get('theta', 0)
     x0,y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
 
     if W.verbose > 2 :  print("size of the myrad, of the phot", myrad )
@@ -279,8 +279,8 @@ def Background(grid, param = {}):
 
     # CUT
     myrad = max(ruo,rvo) +2 # In case
-    ax1,ax2 = W.strehl["center_x"] - myrad , W.strehl["center_x"] + myrad
-    ay1,ay2 = W.strehl["center_y"] - myrad , W.strehl["center_y"] + myrad
+    ax1,ax2 = int(W.strehl["center_x"] - myrad), int(W.strehl["center_x"] + myrad)
+    ay1,ay2 = int(W.strehl["center_y"] - myrad), int(W.strehl["center_y"] + myrad)
     cutted = W.Im0[ax1 : ax2, ay1 : ay2 ]
 
     bol_i   = IF.EllipticalAperture(cutted,dic={"center_x":myrad,"center_y":myrad,"ru":rui,"rv":rvi,"theta":W.strehl["theta"]} )["bol"]

@@ -132,7 +132,7 @@ def WorkVar() : # define the varaibles that we define the way the calculations s
       W.tmp = tmp() # this is for the temporary variables to pass from one function to an other. Like W.tmp.lst... carrefull
 
       W.imstat = G.VoidClass()
-      W.image_name='no_image_name'
+      W.image_name = 'no_image_name'
       W.strehl_type = 'max'
       W.strehl={}
 
@@ -228,7 +228,7 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
   W.image_name="no_image_name"
   for i in W.sys_argv[::-1] :
      if i.find(".fits") != -1 :
-        W.image_name = i
+        W.image_name = str(i)
         break
 
 

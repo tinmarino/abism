@@ -302,7 +302,7 @@ def EnergyRadius(grid,fit_type,dic={}):
     r99u = 3.14 * params['spread_x']
     r99v = 3.14 * params['spread_y']
   if ('Gaussian_hole' in fit_type):  # 2.14 for 99% energy, we ll use 3.14
-   if params.has_key('spread_y'):
+   if 'pread_y' in params.has_key:
     r99u = 3.14 * params['spread_x']
     r99v = 3.14 * params['spread_y']
    else:
@@ -341,7 +341,7 @@ def EnergyRadius(grid,fit_type,dic={}):
 
   ###########
   # r99x and r99y  ROTATE
-  if params.has_key("theta"):
+  if 'theta' in params:
     r99x = r99u * abs(np.cos(params["theta"]))  + r99v *  abs(np.sin(params["theta"]) )
     r99y = r99u * abs(np.sin(params["theta"]))  + r99v *  abs(np.cos(params["theta"]) )
   else :

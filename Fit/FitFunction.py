@@ -4,6 +4,7 @@ import time
 import matplotlib.pyplot as plt
 import pdb
 import math
+from functools import reduce
 
 
 from  leastsqbound import leastsqbound
@@ -84,7 +85,7 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
 
     if verbose:
         print(time.asctime(), )
-        print('CHI2:', (res**2).sum()/float(reduce(lambda x,y: x+y,
+        print('CHI2:', (res**2).sum() / float(reduce(lambda x,y: x+y,
             [1 if np.isscalar(i) else len(i) for i in y])-len(pfit)+1))
     return res
 
@@ -113,11 +114,11 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
     # fit all parameters by default
     if fitOnly is None:
         if len(doNotFit)>0:
-            fitOnly = filter(lambda x: x not in doNotFit, params.keys())
+            fitOnly = [x for x in params.keys() if x not in doNotFit]
         else:
-            fitOnly = params.keys()
+            fitOnly = [*params]
 
-    # build fitted parameters vector:
+    # build fitted paramete rs vector:
     pfit = [params[k] for k in fitOnly]
 
     # built fixed parameters dict:
@@ -146,7 +147,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
 
        plsq, cov, info, mesg, ier = \
                        leastsqbound(fitFunc, pfit, bounds=bounds_to_fit,
-                       args=(fitOnly,x,y,err,func,pfix, verbose),
+                       args=(fitOnly, x, y, err, func, pfix, verbose),
                        full_output=True, epsfcn=epsfcn, ftol=ftol)
 
 
@@ -175,7 +176,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
     if verbose:
         print('-'*20)
         print('REDUCED CHI2=', reducedChi2)
-        tmp = pfix.keys(); tmp.sort()
+        tmp = sorted([*pfix])
         for k in tmp:
             print(k, '=', pfix[k],)
             if uncer[k]!=0:

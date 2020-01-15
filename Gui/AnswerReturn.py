@@ -538,7 +538,7 @@ def DisplayAnswer(row=1,font="") :  # buttons at 0
   max_size1, max_size2 = 200, 200
 
   # SATURATED ?
-  if not W.strehl.has_key("intensity") : # binary
+  if not 'intensity' in W.strehl: # binary
      W.strehl["intensity"] =  W.strehl["intensity0"]+  W.strehl["intensity1"]
   if W.strehl["intensity"]> 1.0 * W.head.non_linearity_level :
      l = Label(G.AnswerFrame,bg=G.bg[0])

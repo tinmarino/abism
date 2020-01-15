@@ -251,7 +251,9 @@ References
         raise ValueError('length of x0 != length of bounds')
     if not isinstance(args, tuple):
         args = (args,)
-    m = _check_func('leastsq', 'func', func, x0, args, n)[0]
+    shape = _check_func('leastsq', 'func', func, x0, args, n)[0]
+    print("Shape id check leastsq", shape)
+    m = shape[0]
     if n > m:
         raise TypeError('Improper input: N=%s must not exceed M=%s' % (n, m))
 

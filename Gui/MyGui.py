@@ -289,7 +289,7 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
      ########################
 
     if re.match(r".*\.fits", W.image_name):
-        G.current_image = W.Im0.astype(np.float16)  # much faster also draw_artist can help ?
+        G.current_image = W.Im0.astype(np.float32)  # much faster also draw_artist can help ?
         if W.verbose > 3: print("dic init", G.scale_dic[0])
         Scale(dic=G.scale_dic[0], load=1)  # not to draw the image.
     else: G.current_image = W.Im0
@@ -330,7 +330,12 @@ def InitImage(new_fits=True):  # cube_change when this is jsu ta change in the f
     # IMAGE GET INTENSITY  in G.toolbarframe
     def z(x, y): return W.Im0[y, x]
     def z_max(x, y ): return IF.PixelMax(W.Im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
-    G.ax1.format_coord = lambda x, y: "zmax=%5d, z=%5d, x=%4d, y=%4d" % (z_max(x, y), z(x, y), x, y)
+
+    def format_coordinate(x, y):
+        x, y = int(x), int(y)
+        return "zmax=%5d, z=%5d, x=%4d, y=%4d" % (z_max(x, y), z(x, y), x, y)
+
+    G.ax1.format_coord = format_coordinate
     #G.ax1.format_coord = lambda x,y : "z={:5d}, zmax={:5d}, x={:4d}, y={:4d}".format(  z(x,y),z_max(x,y), x,y )
 
 
@@ -545,7 +550,7 @@ def Restart():
         ["--RightBottomPaned", G.RightBottomPaned.winfo_height()],
         ["--FitFrame", G.FitFrame.winfo_width()],
         ["--ResultFrame", G.ResultFrame.winfo_width()],
-        ["--ImageName", W.image_name.encode("utf8")],
+        ["--ImageName", W.image_name],
     ]:
         if not i[0] in arg:
             arg.append(i[0])
@@ -1049,8 +1054,6 @@ def FigurePlot(x, y, dic={}):
         #from mpl_toolkits.axes_grid1 import host_subplot
         #ax = host_subplot(111)
         SubPlot(x, y)
-        # if dic.has_key("title") :
-        #   plt.title(dic["title"])
         if not dic["warning"]: warnings.simplefilter("ignore")
         if W.verbose > 3: print("I will show ")
         G.contrast_fig.canvas.draw()

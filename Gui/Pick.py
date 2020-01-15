@@ -38,8 +38,8 @@ def RefreshPick(label): # This is the only callled routine
 
 
    # THE dicconnect
-  if   W.type.has_key("pick_old"):
-     if type(W.type["pick_old"])  is list : # for pick many
+  if 'pick_old' in W.type:
+     if type(W.type["pick_old"]) is list : # for pick many
         index_old = list(lst[:,1]).index(W.type["pick_old"][0])   # or G.connect_var.get()
      else :
         index_old = list(lst[:,1]).index(W.type["pick_old"])   # or G.connect_var.get()
@@ -59,12 +59,12 @@ def NoPick(disconnect=False) : # to check if all pick types are disconnect
 
 def PickEllipse(disconnect=False):
       # DISCONNECT
-      if disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "ellipse") :
-        try :
+      if disconnect and W.type.get('pick_old', '') == 'ellipse':
+        try:
           G.ellipse.Disconnect()
           G.ellipse.RemoveArtist()
           del G.ellipse
-        except : pass
+        except: pass
         return
       # CONNECT
       if W.type["pick"] == "ellipse" :
@@ -73,7 +73,7 @@ def PickEllipse(disconnect=False):
 
 def PickAnnulus(disconnect=False):
       # DISCONNECT
-      if disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "annulus") :
+      if disconnect and W.type.get('pick_old', '') == 'annulus':
         try :
           G.annulus.Disconnect()
           G.annulus.RemoveArtist()
@@ -96,7 +96,7 @@ def Profile(disconnect=False):
                return
       """
       # DISCONNECT
-      if disconnect and   ( W.type.has_key("pick_old") ) and (W.type["pick_old"] == "profile") :
+      if disconnect and W.type.get('pick_old', '') == 'profile':
         try :
           G.my_profile.Disconnect()
         except :
@@ -125,15 +125,15 @@ def PickOne(disconnect=False):
             })
 
       # DISCONNECT
-      if  disconnect and  ( W.type.has_key("pick_old")) and (W.type["pick_old"] == "one") :
-        if "rs_one" in vars(G) :
+      if disconnect and W.type.get('pick_old', '') == 'one':
+        if "rs_one" in vars(G):
            G.rs_one.set_active(False)
         if "cid_left" in vars(G) :
            G.fig.canvas.mpl_disconnect(G.cid_left)
         return
 
       # CONNECT
-      if W.type["pick"] == "one" :
+      if W.type["pick"] == "one":
         if W.verbose > 0 : print(" \n\n\n________________________________\n|Pick One| : \n    1/Draw a rectangle around your star with left button\n    2/Click on star 'center' with right button")
         G.rs_one=matplotlib.widgets.RectangleSelector(
            G.ax1, RectangleClick, drawtype='box',
@@ -162,7 +162,7 @@ def Binary(disconnect=False):
       return
 
   # DISCONNECT
-  if  disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "binary") :
+  if disconnect and W.type.get('pick_old', '') == 'binary':
     try :  G.fig.canvas.mpl_disconnect(G.pt1)
     except : pass
     try :G.fig.canvas.mpl_disconnect(G.pt2)
@@ -200,7 +200,7 @@ def Binary3(event):  # Here we call the math
 
 def TightBinary(disconnect=False):
   # DISCONNECT
-  if  disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "tightbinary") :
+  if disconnect and W.type.get('pick_old', '') == 'tightbinary':
     try :  G.fig.canvas.mpl_disconnect(G.pt1)
     except : pass
     try :G.fig.canvas.mpl_disconnect(G.pt2)
@@ -249,7 +249,7 @@ def PickMany(disconnect=False):
                })
                return
   # DISCONNECT
-  if disconnect and  ( W.type.has_key("pick_old") ) and (W.type["pick_old"][0] == "many") :
+  if disconnect and W.type.get('pick_old', '') == 'many':
      try : G.rs_many.set_active(False)
      except : pass #in case rs_many is not called yet
      return
@@ -274,7 +274,7 @@ def StatPick(disconnect=False) :
                return
 
       # DISCONNECT
-      if  disconnect and  ( W.type.has_key("pick_old")  ) and (W.type["pick_old"] == "stat") :
+      if disconnect and W.type.get('pick_old', '') == 'stat':
         try : G.rs_stat.set_active(False) # rs rectangle selector
         except : pass
         return
@@ -297,7 +297,8 @@ def RectangleClick(eclick,erelease):
       if W.verbose > 0 : print("Rectangle phot aborded: you clicked and released ont the same point")
       return
   if W.verbose>3 :print(G.image_click,G.image_release)
-  W.r=(G.image_click[1],G.image_release[1],G.image_click[0],G.image_release[0])  # we inverse to get x,y like row,column
+  W.r=(int(G.image_click[1]), int(G.image_release[1]),
+       int(G.image_click[0]), int(G.image_release[0]))
 
   MultiprocessCaller()
   return
