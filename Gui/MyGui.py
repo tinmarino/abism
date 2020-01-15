@@ -1113,20 +1113,21 @@ def FigurePlot(x, y, dic={}):
     return
 
 
-def AboutAbism():
+def About():
+    """Pop about window"""
     tk = Tk()
     tk.title("About Abism")
-    txt = "Adaptive Background Interactive Strehl Meter\n"
-    txt += "ABISM version " + G.version + " (2013) \n"
-    txt += "Authors: Tourneboeuf Martin, Girard Julien\n"
-    txt += "Emails: tinmarino@gmail.com, juliengirard@gmail.com\n"
-
+    txt = ("Adaptive Background Interactive Strehl Meter\n"
+        "ABISM version " + G.version + " (2013 -- 2020) \n"
+        "Authors: Girard Julien, Tourneboeuf Martin\n"
+        "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
     l1 = Label(tk, text=txt)
     l1.pack()
     tk.mainloop()
 
 
-def See(pdf=""):  # to read pdf doc
+def See(pdf=""):
+    """Call system see"""
     import subprocess
     my_pdf = W.path + "/Doc/" + pdf
 

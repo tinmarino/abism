@@ -120,7 +120,7 @@ def AbismMenu(args):                # Menu entry to configure ABSIM
         parent_menu.add_cascade(menu=pconfig_menu, label=label, underline=0)
         return
 
-    def AppearanceMenu1():  # MORE
+    def AppearanceMenu1():
         more_menu = Menu(G.abism_menu, **G.submenu_args)
 
         more_lst = [
@@ -138,8 +138,7 @@ def AbismMenu(args):                # Menu entry to configure ABSIM
         return
 
     lst = [
-        ["About ABISM", MG.AboutAbism],
-        ["Quick Guide", lambda: MG.See(pdf="quick_guide.pdf")],
+        ["About", MG.AboutAbism],
         ["Advanced Manual", lambda: MG.See(pdf="advanced_manual.pdf")],
         ["Appearance", AppearanceMenu1],
         ["Quit", MG.Quit],
@@ -154,8 +153,7 @@ def AbismMenu(args):                # Menu entry to configure ABSIM
     return G.abism_menu
 
     if (type(String) is str or type(String) is unicode) and String != "":
-        if W.verbose > 0:
-            print("Opening file : " + String)
+        Log(0, 'Opening file :', String)
         W.image_name = String
         InitImage()
 
