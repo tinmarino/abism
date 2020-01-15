@@ -6,7 +6,8 @@ import AnswerReturn as AR
 
 import Strehl
 
-
+import MyGui as MG
+import ImageFunction as IF
 import GuyVariables as G
 import WorkVariables as W
 
@@ -60,11 +61,11 @@ def PickEllipse(disconnect=False):
       # DISCONNECT
       if disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "ellipse") :
         try :
-	  G.ellipse.Disconnect()
-	  G.ellipse.RemoveArtist()
-	  del G.ellipse
+          G.ellipse.Disconnect()
+          G.ellipse.RemoveArtist()
+          del G.ellipse
         except : pass
-	return
+        return
       # CONNECT
       if W.type["pick"] == "ellipse" :
          G.ellipse = EventArtist.Ellipse(G.fig,G.ax1,array=W.Im0)
@@ -74,11 +75,11 @@ def PickAnnulus(disconnect=False):
       # DISCONNECT
       if disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "annulus") :
         try :
-	  G.annulus.Disconnect()
-	  G.annulus.RemoveArtist()
-	  del G.annulus
+          G.annulus.Disconnect()
+          G.annulus.RemoveArtist()
+          del G.annulus
         except : pass
-	return
+        return
       # CONNECT
       if W.type["pick"] == "annulus" :
          G.annulus = EventArtist.Annulus(G.fig,G.ax1,array=W.Im0)
@@ -96,17 +97,17 @@ def Profile(disconnect=False):
       """
       # DISCONNECT
       if disconnect and   ( W.type.has_key("pick_old") ) and (W.type["pick_old"] == "profile") :
-	try :
+        try :
           G.my_profile.Disconnect()
-	except :
-	  if W.verbose > 3 : print("Pick.Profile , cannot disconnect profile " )
-	try :
-	  G.my_profile.RemoveArtist()
-	  #del G.my_profile # maybe not
         except :
-	  if W.verbose > 3 : print("Pick.Profile , cannot remove artist profile " )
-	return
-	#if W.type["pick"] == "profile" : return # in order not to cal twice at the begining
+          if W.verbose > 3 : print("Pick.Profile , cannot disconnect profile " )
+        try :
+          G.my_profile.RemoveArtist()
+          #del G.my_profile # maybe not
+        except :
+          if W.verbose > 3 : print("Pick.Profile , cannot remove artist profile " )
+        return
+        #if W.type["pick"] == "profile" : return # in order not to cal twice at the begining
       # CONNECT
       if W.type["pick"] == "profile" :
         G.my_profile =  EventArtist.Profile(G.fig,G.ax1)
@@ -116,21 +117,20 @@ def Profile(disconnect=False):
 
 def PickOne(disconnect=False):
       if G.tutorial:
-               text="This button should be green and the zoom button of th eimage toolbar  unpressed. If it is pressed, clik again on it. You then hav eto draw a rectangle aroung the star to mesure the strehl ratio around this star. A first fit will be computed in the rectangle you 've just drawn. Then the photometry of the star will be computed according to the photometry and background measurement type you chose in 'MoreOption' in the file menu. By default, the photometry is processed in a 99% flux rectangle. And the backgorund, in 8 littel rectangels around the star. \n\n"
-               text+="The fit is necessary to get the maximum, the peak of the psf that will be compared to the diffraction pattern. You can set to assess the photometry of the object with the fit.\n\n"
-               text+="A Moffat fit type is chosen by default. but you can change it with the button FitType. I recommend you to use a Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for strehl>60%.\n\n"
-               TutorialReturn({"title":"Pick One Star",
-               "text":text,
-               })
-               return
+          text="This button should be green and the zoom button of th eimage toolbar  unpressed. If it is pressed, clik again on it. You then hav eto draw a rectangle aroung the star to mesure the strehl ratio around this star. A first fit will be computed in the rectangle you 've just drawn. Then the photometry of the star will be computed according to the photometry and background measurement type you chose in 'MoreOption' in the file menu. By default, the photometry is processed in a 99% flux rectangle. And the backgorund, in 8 littel rectangels around the star. \n\n"
+          text+="The fit is necessary to get the maximum, the peak of the psf that will be compared to the diffraction pattern. You can set to assess the photometry of the object with the fit.\n\n"
+          text+="A Moffat fit type is chosen by default. but you can change it with the button FitType. I recommend you to use a Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for strehl>60%.\n\n"
+          MG.TutorialReturn({"title":"Pick One Star",
+            "text":text,
+            })
 
       # DISCONNECT
       if  disconnect and  ( W.type.has_key("pick_old")) and (W.type["pick_old"] == "one") :
         if "rs_one" in vars(G) :
-	   G.rs_one.set_active(False)
-	if "cid_left" in vars(G) :
+           G.rs_one.set_active(False)
+        if "cid_left" in vars(G) :
            G.fig.canvas.mpl_disconnect(G.cid_left)
-	return
+        return
 
       # CONNECT
       if W.type["pick"] == "one" :
@@ -138,9 +138,9 @@ def PickOne(disconnect=False):
         G.rs_one=matplotlib.widgets.RectangleSelector(
            G.ax1, RectangleClick, drawtype='box',
            rectprops = dict(facecolor='green', edgecolor = 'black', alpha=0.5, fill=True),
-	   button=[1], #1/left, 2/center , 3/right
-	   )
-	G.cid_left = G.fig.canvas.mpl_connect( 'button_press_event',PickEvent )
+           button=[1], #1/left, 2/center , 3/right
+           )
+        G.cid_left = G.fig.canvas.mpl_connect( 'button_press_event',PickEvent )
 
 def PickEvent(event):
   if event.button != 3 or not event.inaxes  : return
@@ -155,11 +155,12 @@ def PickEvent(event):
 
 def Binary(disconnect=False):
   if G.tutorial:
-               text="If Binary button is green, make two click on a binary system : one on each star. A Binary fit will be processed. This is still in implementation."
-               TutorialReturn({"title":"Binary System",
-               "text":text,
-               })
-               return
+      text="If Binary button is green, make two click on a binary system : one on each star. A Binary fit will be processed. This is still in implementation."
+      MG.TutorialReturn({"title":"Binary System",
+          "text":text,
+          })
+      return
+
   # DISCONNECT
   if  disconnect and  (  W.type.has_key("pick_old")) and (W.type["pick_old"] == "binary") :
     try :  G.fig.canvas.mpl_disconnect(G.pt1)
@@ -243,7 +244,7 @@ def TightBinary3(event):  # Here we call the math
 def PickMany(disconnect=False):
   if G.tutorial:
                text="As for PickOne, you have to draw a rectangle around a star. But this time the output is shorten. After the Strehl measurment of the star you picked, you can pick an other star."
-               TutorialReturn({"title":"Pick Many Stars",
+               MG.TutorialReturn({"title":"Pick Many Stars",
                "text":text,
                })
                return
@@ -256,7 +257,7 @@ def PickMany(disconnect=False):
   # CONNECT
   if W.type["pick"] == "many" :
      G.arrows, G.answer_saved=[],{}
-     if W.verbose > 0 : print('\n\n\n______________________________\n|Pick Many| : draw rectangles around your stars-----------------------'	)
+     if W.verbose > 0 : print('\n\n\n______________________________\n|Pick Many| : draw rectangles around your stars-----------------------'        )
      W.type["pick"]=['many',1]     #G.pick count the index of the picked star
      if W.verbose>9 : print('pick,G.pick',W.type["pick"])
      G.rs_many=matplotlib.widgets.RectangleSelector(
@@ -266,8 +267,8 @@ def PickMany(disconnect=False):
 
 def StatPick(disconnect=False) :
       if G.tutorial:
-	       text="The Stats are defined in Arrayfunction/Stat.py"
-               TutorialReturn({"title":"Draw a rectangle",
+               text="The Stats are defined in Arrayfunction/Stat.py"
+               MG.TutorialReturn({"title":"Draw a rectangle",
                "text":text,
                })
                return
@@ -276,7 +277,7 @@ def StatPick(disconnect=False) :
       if  disconnect and  ( W.type.has_key("pick_old")  ) and (W.type["pick_old"] == "stat") :
         try : G.rs_stat.set_active(False) # rs rectangle selector
         except : pass
-	return
+        return
 
       # CONNECT
       if W.type["pick"] == "stat" :
@@ -310,7 +311,7 @@ def RectangleClick(eclick,erelease):
 def ManualNoiseRectangle():
   if G.tutorial:
                text="You need to read the terminal. You will be asked to make some rectangles in the sky, to get an average of the sky. Note the the sky estimated by this algorith is only a scalar variable (stocked in W.strehl['background']). "
-               TutorialReturn({"title":"Manual Background estimation",
+               MG.TutorialReturn({"title":"Manual Background estimation",
                "text":text,
                })
                return
@@ -341,19 +342,21 @@ def ManualNoiseRectangle():
      G.bu_noise_8_rects['background']='green'
      W.type["noise"]='8Rects'
   return
-def ManualRectangle(eclick,erelease) :
-           image_click =eclick.xdata, eclick.ydata
-           image_release =erelease.xdata,erelease.ydata
-           r=image_click[1],image_release[1],image_click[0],image_release[0]    # we inverse to get x,y like row,column
-           r = IF.Order4(r)
-           if G.rect_phot_bool :
-               if W.verbose > 0 : print( IF.RectanglePhot(W.Im0,r)  # when you want a phot from command)
 
-           if W.verbose>9 : print('----> MyGui.py, ManualRectangle',r)
-           if G.bu_noise_manual['background'] =='green':G.r = r
-           elif G.bu_noise_manual['background'] =='blue':G.remember_r.append(r)
-           G.rect_phot_bool =0
-           return
+
+def ManualRectangle(eclick,erelease):
+    image_click =eclick.xdata, eclick.ydata
+    image_release =erelease.xdata,erelease.ydata
+    r=image_click[1],image_release[1],image_click[0],image_release[0]    # we inverse to get x,y like row,column
+    r = IF.Order4(r)
+    if G.rect_phot_bool and W.verbose > 0:
+        # When you want a phot from command
+        print(IF.RectanglePhot(W.Im0,r))
+    if W.verbose > 9:
+        print('----> MyGui.py, ManualRectangle',r)
+    if G.bu_noise_manual['background'] =='green':G.r = r
+    elif G.bu_noise_manual['background'] =='blue':G.remember_r.append(r)
+    G.rect_phot_bool =0
        #############################
        ## MULTIPROCESSING TOOLS    #
        #############################
@@ -394,8 +397,4 @@ def PickWorker() :
      Strehl.StrehlMeter()
      AR.PC()  # write in console
      AR.PlotAnswer()
-     AR.PlotStar()	    # we transport star center, because if it is bad, it is good to know, this star center was det by iterative grav center  the fit image is a W.psf_fit[0][3]
-  return
-
-
-
+     AR.PlotStar()            # we transport star center, because if it is bad, it is good to know, this star center was det by iterative grav center  the fit image is a W.psf_fit[0][3]

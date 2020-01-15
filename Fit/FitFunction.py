@@ -84,8 +84,8 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
 
     if verbose:
         print(time.asctime(), )
-        print('CHI2:', (res**2).sum()/float(reduce(lambda x,y: x+y,)
-                    [1 if np.isscalar(i) else len(i) for i in y])-len(pfit)+1)
+        print('CHI2:', (res**2).sum()/float(reduce(lambda x,y: x+y,
+            [1 if np.isscalar(i) else len(i) for i in y])-len(pfit)+1))
     return res
 
 def leastsqFit(func, x, params, y, err=None, fitOnly=None,
@@ -141,7 +141,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
     else : #including bounds != {}
        bounds_to_fit=[[None,None]]*len(fitOnly) # now it is a list
        for key in bounds.keys() :
-	    if key in fitOnly : # becauser could be in notToFit
+            if key in fitOnly : # becauser could be in notToFit
                bounds_to_fit[fitOnly.index(key)] = bounds[key]
 
        plsq, cov, info, mesg, ier = \

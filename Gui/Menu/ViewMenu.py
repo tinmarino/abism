@@ -2,7 +2,7 @@ import GuyVariables as G
 import MyGui as MG
 import InitGui as IG
 
-from Tkinter import *
+from tkinter import *
 
 
 
@@ -18,7 +18,7 @@ def ViewMenu(args):
           color_menu = Menu(G.scale_menu, **G.submenu_args)
         else :
           color_menu = G.scale_menu.menu
-	color_menu.add_command(label="COLOR", bg=None, state=DISABLED)
+        color_menu.add_command(label="COLOR", bg=None, state=DISABLED)
            # if we don't want cascade, we just add in the menu
 
         G.cu_color=StringVar(); G.cu_color.set(G.scale_dic[0]["cmap"]) # because image not loaded yet
@@ -78,7 +78,7 @@ def ViewMenu(args):
         if G.scale_menu_type== "cascade" : scale_menu = Menu(G.scale_menu, **G.submenu_args)
         else :
           scale_menu = G.scale_menu.menu
-	scale_menu.add_command(label="FCT", bg=None, state=DISABLED)
+        scale_menu.add_command(label="FCT", bg=None, state=DISABLED)
 
         G.cu_scale=StringVar(); G.cu_scale.set(G.scale_dic[0]["stretch"])
         lst = [  ["Lin", "x", "linear"], ["Sqrt", "x**0.5", "sqrt"], ["Square", "x**2", "square"], ["Log", "np.log(x+1)/0.69", "log"], ["Arcsinh", "", "arcsinh" ]   ]
@@ -103,7 +103,7 @@ def ViewMenu(args):
         if G.scale_menu_type== "cascade" : cut_menu = Menu(G.scale_menu, **G.submenu_args)
         else :
           cut_menu = G.scale_menu.menu
-	cut_menu.add_command(label="CUTS", bg=None, state=DISABLED)
+        cut_menu.add_command(label="CUTS", bg=None, state=DISABLED)
 
         G.cu_cut=StringVar(); G.cu_cut.set("RMS")
         # label , scale_cut_type, key, value

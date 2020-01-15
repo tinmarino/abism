@@ -30,14 +30,14 @@ for ((row=0; row<=rows; row++)); do
     for ((col=0; col<=cols; col++)); do
         #echo $row $col ${array2[$row,$col]}
         #echo -n  ${array2[$row,$col]}$'\t'
-	stg="${array2[$row,$col]}"
-	if [[ $col == 0 ]] ; then 
-	   printf "%15s  " $stg 
-	elif [[ $row == 0 ]]; then 
-	   stg=${stg: ((size-1))} 
-	   printf "%.${size}s  " .$stg
-	else  # including the numbers 
-	   printf "%.${size}s  " $stg
+        stg="${array2[$row,$col]}"
+        if [[ $col == 0 ]] ; then 
+           printf "%15s  " $stg 
+        elif [[ $row == 0 ]]; then 
+           stg=${stg: ((size-1))} 
+           printf "%.${size}s  " .$stg
+        else  # including the numbers 
+           printf "%.${size}s  " $stg
         fi 
     done
     echo 

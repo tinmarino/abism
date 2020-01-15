@@ -30,7 +30,6 @@ import system
 import threading
 import time
 import timeout
-import tkFont
 import traceback
 import ttk
 import warnings
@@ -51,7 +50,7 @@ def module_exists(module_name):
 
 def testAbismImports():
     importList = [
-        'Tkinter',      # A module wrapper to Tcl/Tk to build graphical interface
+        'tkinter',      # A module wrapper to Tcl/Tk to build graphical interface
         'matplotlib',   # For graph, image display, here it is nested in Tk
         'Image',        # Librarie for Gaussian convolution
         'scipy',        # For the least square fit

@@ -1,4 +1,4 @@
-import Tkinter as Tk
+import tkinter as Tk
 import threading
 import time
 import sys
@@ -36,8 +36,8 @@ def PythonConsole():  # The called function
                         try:
                             arith = eval(key_input)
                         except:
-                            exec key_input in globals()
-                except Exception, err:
+                            exec(key_input, globals())
+                except Exception as err:
                     traceback.print_exc()
                     W.log(0, "I tried, I didn't succed command :, try again ")
 
@@ -100,7 +100,7 @@ def Run(String):  # Run the string in python
         stg = "quit() # to disable intercative shell "
         stg += "\nimport sys ; sys.exit() # to kill Abism "
     else:
-        exec String in globals()
+        exec(String, globals())
 
     # Keep a trace
     out = open(W.path + "/Plugin/old_command.txt", "a")

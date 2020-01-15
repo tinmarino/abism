@@ -1,4 +1,4 @@
-from Tkinter import *
+from tkinter import *
 import GuyVariables as G
 
 import MyGui as MG

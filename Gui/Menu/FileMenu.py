@@ -1,5 +1,5 @@
-from Tkinter import *
-from tkFileDialog import askopenfilename
+from tkinter import *
+from tkinter.filedialog import askopenfilename
 import GuyVariables as G
 import WorkVariables as W
 

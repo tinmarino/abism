@@ -1,4 +1,7 @@
-# ImageFunction works on array to separe matematics and graphics = to hide the misery.
+"""
+    ImageFunction works on array to separe matematics and graphics
+"""
+
 import numpy as np
 import scipy.ndimage # for the median filter
 import scipy.interpolate # for LocalMax
@@ -11,23 +14,19 @@ import GuyVariables as G  # check variables
 import WorkVariables as W # for verbose
 
 
-#To comment then
-import warnings # to hide some useless warning
-#from matplotlib import pyplot as plt
 
-
-
-def DoNotPassBorder(grid,point2d): # asssure the point is in the image.
+def DoNotPassBorder(grid,point2d):
+  """Ensure point is in image"""
   x= point2d[0]
   y= point2d[1]
-  if x < 0 : x = 0
-  if x > grid.shape[0] : x = len[grid]
-  if y < 0 : y = 0
-  if y > grid.shape[1] : y = len[grid]
-  return (x,y) , ""
+  if x < 0: x = 0
+  if x > grid.shape[0]: x = len(grid)
+  if y < 0: y = 0
+  if y > grid.shape[1]: y = len(grid)
+  return (x, y) , ""
 
 
-def Order2((a,b)):
+def Order2(a,b):
   if a>=b : return (b,a)
   else : return (a,b)
 
@@ -275,15 +274,15 @@ def GoodPixelMax(grid,r=(10,10,10,10)):   # array.float , 2 float , 1 float
     for j in range (int(ry1),int(ry2+1)):
       if (i,j) in bad : pass
       else:
-	try:  # in case we are out of the grid
-	  if grid[i][j]>m:
-	    m=grid[i][j]
-	    (x,y)=(i,j)
-	except : pass
-  if  (grid[x-1][y] < grid[x][y]/10
-			and grid[x][y-1] < grid[x][y]/10
-			and grid[x+1][y] < grid[x][y]/10
-			and grid[x][y+1] < grid[x][y]/10):
+        try:  # in case we are out of the grid
+          if grid[i][j]>m:
+            m=grid[i][j]
+            (x,y)=(i,j)
+        except : pass
+  if (grid[x-1][y] < grid[x][y]/10
+      and grid[x][y-1] < grid[x][y]/10
+      and grid[x+1][y] < grid[x][y]/10
+      and grid[x][y+1] < grid[x][y]/10):
     bad.append((x,y))
   return (x,y),m
 
@@ -319,11 +318,11 @@ def EnergyRadius(grid,fit_type,dic={}):
     if params["exponent"]< 1 :  ap = 10
     elif params["exponent"] > 3 :
          if params["exponent"] > 4 :
-	   if params["exponent"] > 10 :
-	     if False : pass
-	     else :  ap= 1.
-	   else : ap = 3.
-	 else : ap = 4.
+           if params["exponent"] > 10 :
+             if False : pass
+             else :  ap= 1.
+           else : ap = 3.
+         else : ap = 4.
     if '2D' in fit_type :  # r99 = r90
         r99u,r99v = params['spread_x'] * ap ,params['spread_y'] * ap
     else :
@@ -348,7 +347,7 @@ def EnergyRadius(grid,fit_type,dic={}):
   else :
     r99x,r99y = r99u,r99v
 
-  if W.verbose>3 : print("------>EnergyRadius(ImageFunction.py)->",(r99x,r99y)	    )
+  if W.verbose>3 : print("------>EnergyRadius(ImageFunction.py)->",(r99x,r99y)            )
   return (r99x,r99y),(r99u,r99v)
 
 
@@ -376,15 +375,15 @@ def FwhmFromFit(param,fit_type) : # and phot  all explicit  return fwhm_x, fwhm_
   elif ("Moffat" in fit_type) :
     if not "2D" in fit_type :
          param["spread_y"] = param["spread_x"]
-	 param["theta"] = 99
+         param["theta"] = 99
     if param['exponent']>1:
          photometry= np.pi*param['intensity']*param['spread_x']*param["spread_y"] /   ( param['exponent']-1 )
     else : # fit diverges
          x = np.arange(int(param["center_x"]-50) ,int( param["center_x"]+50+1) )
          y = np.arange(int(param["center_y"]-50) ,int( param["center_y"]+50+1) )
-	 Y,X = np.meshgrid(x,y)
-	 cut = BF.Moffat2D((X,Y),param)
-	 photometry = np.sum(cut)
+         Y,X = np.meshgrid(x,y)
+         cut = BF.Moffat2D((X,Y),param)
+         photometry = np.sum(cut)
 
 
     fwhm_x =2* abs(param['spread_x'])* np.sqrt(  (0.5)**(-1/param['exponent'])-1)
@@ -427,23 +426,23 @@ def EightRectangleNoise(grid,r,return_rectangle=0,dictionary={'size':4,'distance
   p=[]
   rx,ry,background,rms=(rx2-rx1)/2/distance/size,(ry2-ry1)/2/distance/size,[],[]  # we search the noise
   for i in ['NW','N','NE','E','SE','S','SW','W']:
-	if i == 'NW': (ax1,ax2,ay1,ay2)= (rx1-rx,rx1,ry2,ry2+ry)  #we define 8 boxes of noise
-	if i == 'N':  (ax1,ax2,ay1,ay2)= ((rx1+rx2)/2-rx/2,(rx1+rx2)/2+rx/2,ry2,ry2+ry)
-	if i == 'NE': (ax1,ax2,ay1,ay2)= (rx2,rx2+rx,ry2,ry2+ry)
-	if i == 'E':  (ax1,ax2,ay1,ay2)= (rx2,rx2+rx,(ry1+ry2)/2-ry/2,(ry1+ry2)/2+ry/2)
-	if i == 'SE': (ax1,ax2,ay1,ay2)= (rx2,rx2+rx,ry1-ry,ry1)
-	if i == 'S':  (ax1,ax2,ay1,ay2)= ((rx1+rx2)/2-rx/2,(rx1+rx2)/2+rx/2,ry1-ry,ry1)
-	if i == 'SW': (ax1,ax2,ay1,ay2)= (rx1-rx,rx1,ry1-ry,ry1)
-	if i == 'W':  (ax1,ax2,ay1,ay2)= (rx1-rx,rx1,(ry1+ry2)/2-ry/2,(ry1+ry2)/2+ry/2)
-	#tmp=Stat.RectanglePhot(grid,(ax1,ax2,ay1,ay2),dic={"get":["number_count","sum","rms"]})  # bad pixels
-	#background.append((tmp["sum"]/tmp["number_count"]))   #rectangle phot return the sum and the number_count # bite bad pixel
+        if i == 'NW': (ax1,ax2,ay1,ay2)= (rx1-rx,rx1,ry2,ry2+ry)  #we define 8 boxes of noise
+        if i == 'N':  (ax1,ax2,ay1,ay2)= ((rx1+rx2)/2-rx/2,(rx1+rx2)/2+rx/2,ry2,ry2+ry)
+        if i == 'NE': (ax1,ax2,ay1,ay2)= (rx2,rx2+rx,ry2,ry2+ry)
+        if i == 'E':  (ax1,ax2,ay1,ay2)= (rx2,rx2+rx,(ry1+ry2)/2-ry/2,(ry1+ry2)/2+ry/2)
+        if i == 'SE': (ax1,ax2,ay1,ay2)= (rx2,rx2+rx,ry1-ry,ry1)
+        if i == 'S':  (ax1,ax2,ay1,ay2)= ((rx1+rx2)/2-rx/2,(rx1+rx2)/2+rx/2,ry1-ry,ry1)
+        if i == 'SW': (ax1,ax2,ay1,ay2)= (rx1-rx,rx1,ry1-ry,ry1)
+        if i == 'W':  (ax1,ax2,ay1,ay2)= (rx1-rx,rx1,(ry1+ry2)/2-ry/2,(ry1+ry2)/2+ry/2)
+        #tmp=Stat.RectanglePhot(grid,(ax1,ax2,ay1,ay2),dic={"get":["number_count","sum","rms"]})  # bad pixels
+        #background.append((tmp["sum"]/tmp["number_count"]))   #rectangle phot return the sum and the number_count # bite bad pixel
 
-	background.append(  np.mean(grid[ ax1 : ax2+1 , ay1 : ay2+1 ])  )
-	if W.verbose >3 : print("One background :", background[-1] , '\n\n\n\n')
-	rms.append(     np.std(grid[ ax1 : ax2+1 , ay1 : ay2+1 ])   )
-	if return_rectangle : # we draw the rectangles
-	    center,width,height = (  ((ax1+ax2)/2,(ay1+ay2)/2), (ax2-ax1),(ay2-ay1) )
-	    p.append( (center, width, height) )
+        background.append(  np.mean(grid[ ax1 : ax2+1 , ay1 : ay2+1 ])  )
+        if W.verbose >3 : print("One background :", background[-1] , '\n\n\n\n')
+        rms.append(     np.std(grid[ ax1 : ax2+1 , ay1 : ay2+1 ])   )
+        if return_rectangle : # we draw the rectangles
+            center,width,height = (  ((ax1+ax2)/2,(ay1+ay2)/2), (ax2-ax1),(ay2-ay1) )
+            p.append( (center, width, height) )
   background.sort()
   background=np.mean(background[2:6])
   rms=np.median(rms)
@@ -482,16 +481,16 @@ def InBorder(grid,r): # to check if r is in the grid
 
 
                #################
-	       ## PROFILE OF A LINE (Cuting )
-	       #########################
+               ## PROFILE OF A LINE (Cuting )
+               #########################
 
 
-def RadialLine(grid,(point1,point2),return_point=0):
+def RadialLine(grid, point1_and_point2,return_point=0):
   # we get profile around a line, return 2 vectors
-  (x1,y1),(x2,y2) = point1,point2
+  (x1,y1),(x2,y2) = point1_and_point2
   vect_r = ((x2-x1),(y2-y1))
   lenght = np.sqrt(vect_r[1]**2+vect_r[0]**2) #of the line
-  (xmin,xmax),(ymin,ymax) = Order2((x1,x2)),Order2((y1,y2)) # the extreme points of the line
+  (xmin,xmax),(ymin,ymax) = Order2(x1,x2),Order2(y1,y2) # the extreme points of the line
   x,y = np.arange(int(xmin-1),int(xmax+1)) , np.arange(int(ymin-1),int(ymax+1))  #should put int otherwise mismatch with array
   Y,X= np.meshgrid(y,x)
   array = grid[int(xmin-1):int(xmax+1),int(ymin-1):int(ymax+1)]
@@ -508,13 +507,12 @@ def RadialLine(grid,(point1,point2),return_point=0):
       #good idea also :  od = [od for (Y,od) in sorted(zip(Y,od))]
   ab=ab[od.nonzero()]  # why do we have so many zero ?
   od=od[od.nonzero()]  # think, but it works
-  res = zip(ab,od)
-  res.sort()
+  res = sorted(zip(ab,od))
   res = np.array(res)
   #res[np.abs(IX-mIX)>(method[2]-1)*mIX] = mIX[np.abs(IX-mIX)>(method[2]-1)*mIX]
   if return_point :
     X,Y = X[od.nonzero()],Y[od.nonzero()]
-    res2 = zip(ab,X,Y)
+    res2 = sorted(zip(ab,X,Y))
     res2.sort()
     res2 = np.array(res2)
     return res[:,0],res[:,1],(res2[:,1].astype("int"),res2[:,2].astype("int") )   # abscice ordonate, points in array
@@ -556,9 +554,9 @@ def FindNStars(grid,N,binfact=3,separation=30): # N number of stars. BINFACT, th
       tmp=0
       IsFar = True
       for k in range(N):
-	IsFar &= ( (i-res[k][0])**2 + (j-res[k][1])**2 < separation   )   #here you see the separation
+        IsFar &= ( (i-res[k][0])**2 + (j-res[k][1])**2 < separation   )   #here you see the separation
       while( (fattable[i][j]>res[N-tmp-1][2]) & (tmp<N) ):
-	tmp+=1
+        tmp+=1
       try :
         res[N-tmp-1][0]=res[N-tmp][0]
         res[N-tmp-1][1]=res[N-tmp][1]
@@ -579,8 +577,8 @@ def ThetaProfile(grid,center,radius,theta):  # We take the profile in theta dire
 
 
                 ##################
-		## DIRECT INTERACT WITH EVENT
-		##################
+                ## DIRECT INTERACT WITH EVENT
+                ##################
 
 def EllipticalAperture(grid,dic={},interp=False,full_answer=False,xy_answer=True): # photomtery, return bol or dic
   """ rdic = ru rv theta x0 y0
@@ -690,9 +688,9 @@ def ContrastMap(grid,center,interp=True,xmin=1,xmax=50,step=2,dic={"theta":0,"ru
   tdic = {"logx":1,
           "logy":1,
           "title":"Contrast Map",
-	  "xlabel":"Distance [Pixel]",
-	  "ylabel":"Value [Normalised]",
-	  }
+          "xlabel":"Distance [Pixel]",
+          "ylabel":"Value [Normalised]",
+          }
   G.tmp_x=x
   G.tmp_y=y
   G.tmp_tdic=tdic
@@ -728,8 +726,8 @@ def AnnulusEventPhot(obj): # Called by Gui/Event...py  Event object
 
      if obj.outter_u < obj.inner_u :  # put outter radius after inner
          tmp = obj.inner_u
-	 obj.inner_u = obj.outter_u
-	 obj.outter_u = tmp
+     obj.inner_u = obj.outter_u
+     obj.outter_u = tmp
 
 
      # DEIFINE THE Bollean of being inside the elliptical aperture

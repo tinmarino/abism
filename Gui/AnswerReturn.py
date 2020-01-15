@@ -1,6 +1,6 @@
 try : from Tkinter import *
 except  : from tkinter import *
-import tkFont
+from tkinter import font as tkFont
 import numpy as np
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
@@ -72,8 +72,8 @@ def Separation( point = (  (0,0),(0,0))   , err= ((0,0),(0,0))  ) :
 
   res = {"im_angle":im_angle,
          "sky_angle":sky_angle ,
-	 "dist": dist, "dist_err": dist_err,
-	 }
+         "dist": dist, "dist_err": dist_err,
+         }
   return res
 
 
@@ -98,14 +98,14 @@ def PlotAnswer(unit=None,append=True): # CALLER
       if W.verbose > 3 : print("Idestroy AnswerFrame")
       if "AnswerFrame" in vars(G) : G.AnswerFrame.destroy()
       if append and ( "arrows" in vars(G) ) : #and ( len(G.arrows) !=0)   :
-	  try : # if load new image while being on pick many
+          try : # if load new image while being on pick many
              for i in range(len(G.arrows))  :
                 G.arrows.pop().remove()   # remove from G.arrows and from ax1.texts
              G.fig.canvas.draw()
-	  except :
-	     import traceback
-	     if W.verbose >3 : traceback.print_exc()
-	     if W.verbose >3 : print("Warning: cannot remove arrows")
+          except :
+             import traceback
+             if W.verbose >3 : traceback.print_exc()
+             if W.verbose >3 : print("Warning: cannot remove arrows")
 
 
 
@@ -215,7 +215,7 @@ def PlotPickOne():
              ["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f")  ],
              ["Peak: "            , W.strehl["intensity"],  "%.1f"% (W.head.zpt-2.5*np.log10(W.strehl["intensity"]/W.head.exptime))  +" [mag]"],
              #["Fit Type: "   , W.type["fit"]  , str(W.type["fit"]) ],
-	     ] # label , variable, value as string
+             ] # label , variable, value as string
   return
 
 
@@ -267,9 +267,9 @@ def PlotEllipse():
            my_wcs = W.head.pywcs.all_pix2sky( np.array([[ W.strehl["center_y"],W.strehl["center_x"] ]]), 0 )
       except :
         import traceback
-	traceback.print_exc()
+        traceback.print_exc()
         print("WARNING I did not manage to get WCS")
-	my_wcs= np.array( [ [99,99],[99,99] ])
+        my_wcs= np.array( [ [99,99],[99,99] ])
       W.strehl["center_ra"],W.strehl["center_dec"] = my_wcs[0,0],my_wcs[0,1]
 
 
@@ -281,7 +281,7 @@ def PlotEllipse():
              #["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f")  ],
              ["Eq. SR 2.17"+u"\u03bc" +"m: ", W.strehl["strehl2_2"]     , "%.1f"% W.strehl["strehl2_2"]+  "%"],
             ["Center RA,Dec: "               , (W.strehl["center_ra"],W.strehl["center_dec"]) ,  "%.8f"%W.strehl["center_ra"]+","+"%.8f"% W.strehl['center_dec']  ],
-	     ] # label , variable, value as string
+             ] # label , variable, value as string
 
 
 
@@ -317,16 +317,16 @@ def PlotBinary():
           G.lb_answer_type["text"]= "In detector units"
 
           W.tmp.lst=[["Binary: ", W.type["fit"],W.type["fit"] ],
-	       ["1 Star: ",(y0,x0),  "%.1f , %.1f"%(y0,x0)],
-	       ["2 Star: ",(y1,x1),  "%.1f , %.1f"%(y1,x1)],
+               ["1 Star: ",(y0,x0),  "%.1f , %.1f"%(y0,x0)],
+               ["2 Star: ",(y1,x1),  "%.1f , %.1f"%(y1,x1)],
                ["Separation: ", separation, "%.2f"%separation +"+/-"+ "%.2f"%sep_err +" [pxl]" ],
-	       ["Phot1: ",W.phot0,"%.1f"%W.phot0 + " [adu]"],
-	       ["Phot2: ",W.phot1,"%.1f"%W.phot1 + " [adu]"],
-	       ["Flux ratio: ",(W.phot0/W.phot1),"%.1f"%(W.phot0/W.phot1) ],
-	       ["Orientation: ",im_angle,"%.2f"%im_angle + u'\xb0'],
-	       ["Strehl1: ",W.strehl0,"%.1f"%W.strehl0+" %"   ],
-	       ["Strehl2: ",W.strehl1,"%.1f"%W.strehl1+" %"   ],
-	       ]
+               ["Phot1: ",W.phot0,"%.1f"%W.phot0 + " [adu]"],
+               ["Phot2: ",W.phot1,"%.1f"%W.phot1 + " [adu]"],
+               ["Flux ratio: ",(W.phot0/W.phot1),"%.1f"%(W.phot0/W.phot1) ],
+               ["Orientation: ",im_angle,"%.2f"%im_angle + u'\xb0'],
+               ["Strehl1: ",W.strehl0,"%.1f"%W.strehl0+" %"   ],
+               ["Strehl2: ",W.strehl1,"%.1f"%W.strehl1+" %"   ],
+               ]
 
 
 
@@ -344,8 +344,8 @@ def PlotBinary():
           #############"
           # WCS
           my_wcs = W.head.pywcs.all_pix2sky( np.array([   [ W.strehl["y0"],W.strehl["x0"]  ] ,  [W.strehl["y1"],W.strehl["x1"] ]     ]), 0 )
-	  my_wcs = np.array(my_wcs)
-	  ra,dec= my_wcs[:,0], my_wcs[:,1]
+          my_wcs = np.array(my_wcs)
+          ra,dec= my_wcs[:,0], my_wcs[:,1]
           pxll = W.head.pixel_scale
           if isinstance( W.head, RH.SinfoniHeader ):
               pxll = W.head.sinf_pixel_scale
@@ -353,16 +353,16 @@ def PlotBinary():
 
           ##########
           W.tmp.lst=[["Binary: ", W.type["fit"],W.type["fit"] ],
-	       ["1 Star: ",(ra[0],dec[0]), "%s , %s"% SkyFormat(ra[0],dec[0]) ],
-	       ["2 Star: ",(ra[1],dec[1]), "%s , %s"% SkyFormat(ra[1],dec[1]) ],
+               ["1 Star: ",(ra[0],dec[0]), "%s , %s"% SkyFormat(ra[0],dec[0]) ],
+               ["2 Star: ",(ra[1],dec[1]), "%s , %s"% SkyFormat(ra[1],dec[1]) ],
                ["Separation: ", separation, "%.1f"%(separation*W.head.pxll*1000) +"+/-"+ "%.1f"%(sep_err*pxll*1000) + " [mas]" ],
-	       ["Phot1: ",W.phot0,"%.1f"%( W.head.zpt -2.5 * np.log10(W.phot0/W.head.exptime) )  + " [mag]"],
-	       ["Phot2: ",W.phot1,"%.1f"%( W.head.zpt -2.5 *np.log10(W.phot1/W.head.exptime)  ) + " [mag]"],
-	       ["Flux ratio: ",(W.phot0/W.phot1),"%.1f"%(W.phot0/W.phot1) ],
-	       ["Orientation: ",sky_angle,"%.2f"%sky_angle + u'\xb0'],
-	       ["Strehl1: ",W.strehl0,"%.1f"%W.strehl0+" %"   ],
-	       ["Strehl2: ",W.strehl1,"%.1f"%W.strehl1+" %"   ],
-	       ]
+               ["Phot1: ",W.phot0,"%.1f"%( W.head.zpt -2.5 * np.log10(W.phot0/W.head.exptime) )  + " [mag]"],
+               ["Phot2: ",W.phot1,"%.1f"%( W.head.zpt -2.5 *np.log10(W.phot1/W.head.exptime)  ) + " [mag]"],
+               ["Flux ratio: ",(W.phot0/W.phot1),"%.1f"%(W.phot0/W.phot1) ],
+               ["Orientation: ",sky_angle,"%.2f"%sky_angle + u'\xb0'],
+               ["Strehl1: ",W.strehl0,"%.1f"%W.strehl0+" %"   ],
+               ["Strehl2: ",W.strehl1,"%.1f"%W.strehl1+" %"   ],
+               ]
 
 
 
@@ -372,7 +372,7 @@ def PlotPickMany(append=True):
       center_click=((G.image_click[0]+G.image_release[0])/2,(G.image_click[1]+G.image_release[1])/2)  #center  Of the Event
       tmp = G.ax1.annotate(str(W.type["pick"][1]),xy=center_click,xycoords='data',
                xytext=(23,16),textcoords="offset points",
-	       color="red",
+               color="red",
                arrowprops=dict(arrowstyle="->",connectionstyle="arc,angleA=0,armA=15,rad=5")
                )  # accept "data", "figure fraction", see help
       G.arrows.append(tmp)
@@ -384,14 +384,14 @@ def PlotPickMany(append=True):
          W.pick_many_det_lst = []
          W.pick_many_sky_lst = []
          sep=0
-	 sep_err = 0
-	 sky_angle = 0
-	 im_angle  = 0
+         sep_err = 0
+         sky_angle = 0
+         im_angle  = 0
       else : # including a pick many was pick yet
-	 x1,y1  = W.strehl["center_x"] ,W.strehl["center_y"]
-	 x0,y0  = W.pick_many_det_lst[-1][1][1][1]  ,  W.pick_many_det_lst[-1][1][1][0]
-	 dx0 , dy0 = W.psf_fit[1]["center_x"], W.psf_fit[1]["center_y"]
-	 dx1 , dy1 = W.dx0_old , W.dy0_old
+         x1,y1  = W.strehl["center_x"] ,W.strehl["center_y"]
+         x0,y0  = W.pick_many_det_lst[-1][1][1][1]  ,  W.pick_many_det_lst[-1][1][1][0]
+         dx0 , dy0 = W.psf_fit[1]["center_x"], W.psf_fit[1]["center_y"]
+         dx1 , dy1 = W.dx0_old , W.dy0_old
          tmp = Separation( point = ((x0,x1),(y0,y1) )  , err=  ((dx0,dx1),(dy0,dy1) )   )
          sep= tmp["dist"]
          sep_err = tmp["dist_err"]
@@ -399,7 +399,7 @@ def PlotPickMany(append=True):
          sky_angle   = tmp["sky_angle"]
          sep  = (W.strehl["center_y"] -  W.pick_many_det_lst[-1][1][1][0])**2
          sep += (W.strehl["center_x"] -  W.pick_many_det_lst[-1][1][1][1])**2
-	 # The last picked info, the seconline, the second column (with the float and no string) and x or y
+         # The last picked info, the seconline, the second column (with the float and no string) and x or y
          sep  = np.sqrt(sep)
 
 
@@ -412,12 +412,12 @@ def PlotPickMany(append=True):
         # STREHL
         [str(W.type["pick"][1]) +" Strehl: ", W.strehl["strehl"], "%.1f "% W.strehl["strehl"]  + u"\u00b1" + " %.1f" % W.strehl["err_strehl"] ],
 
-	# CENTER
+        # CENTER
         ["Center: ", (W.strehl["center_y"], W.strehl["center_x"]) , MyFormat(W.strehl["center_y"],3,"f") + ' , ' +  MyFormat(W.strehl["center_x"],3,"f")  ],
 
-	# SEPARATION
+        # SEPARATION
         ["Separation: ", (sep) , "%.3f"% sep + u"\u00b1" + "%.2f" % sep_err + "[pxl]" + " | pa: " + "%.2f" %im_angle +  u'\xb0'  ],
-	]
+        ]
       if append :  W.pick_many_det_lst.append (lst  )
       else      :  W.pick_many_det_lst[ W.type["pick"][1]-1 ] = lst
 
@@ -441,12 +441,12 @@ def PlotPickMany(append=True):
         # STREHL
         [str(W.type["pick"][1]) +" Strehl: ", W.strehl["strehl"], "%.1f "% W.strehl["strehl"]  + u"\u00b1" + " %.1f" % W.strehl["err_strehl"] ],
 
-	# CENTER
+        # CENTER
         ["Center: ", (W.strehl["center_ra"], W.strehl["center_dec"]) , "%s , %s"   %  SkyFormat( W.strehl['center_ra'],  W.strehl['center_dec'] )  ],
 
-	# SEPARATION
+        # SEPARATION
         ["Separation: ", sep, MyFormat(sep * pxll *1000 ,1,"f") +  u"\u00b1"+  MyFormat(sep_err * pxll *1000 ,1,"f")+  "[mas]" + " | pa: " + "%.2f" %sky_angle +  u'\xb0' ],
-	]
+        ]
       if append :  W.pick_many_sky_lst.append ( lst  )
       else      :  W.pick_many_sky_lst[ W.type["pick"][1]-1 ] = lst
 
@@ -468,18 +468,18 @@ def PlotPickMany(append=True):
 
       #4/ prepare list
       if G.scale_dic[0]["answer"]=="detector":
-	 if append :  W.tmp.lst = W.pick_many_det_lst[-1]
-	 else:
-	    W.tmp.lst = [item for sublist  in   W.pick_many_det_lst for item in sublist]
+         if append :  W.tmp.lst = W.pick_many_det_lst[-1]
+         else:
+            W.tmp.lst = [item for sublist  in   W.pick_many_det_lst for item in sublist]
       else : # including sky
-	 if append :  W.tmp.lst = W.pick_many_sky_lst[-1]
-	 else:
-	    W.tmp.lst = [item for sublist in   W.pick_many_sky_lst for item in sublist]
+         if append :  W.tmp.lst = W.pick_many_sky_lst[-1]
+         else:
+            W.tmp.lst = [item for sublist in   W.pick_many_sky_lst for item in sublist]
 
       # 5/increment pick and save
       if append :
          W.type["pick"][1]+=1
-	 W.dx0_old , W.dy0_old = W.psf_fit[1]["center_x"], W.psf_fit[1]["center_y"]
+         W.dx0_old , W.dy0_old = W.psf_fit[1]["center_x"], W.psf_fit[1]["center_y"]
 
       return
 
@@ -495,13 +495,13 @@ def PlotStat():
   row=0
   lst = [
          ["DIM X*DIM Y: " , "%.1f x %.1f" %( abs(W.r[0]-W.r[1]),abs(W.r[2]-W.r[3]))  ],
-	 ["MIN: ", "%.1f"% dicr["min"]  ],
-	 ["MAX: ", "%.1f"% dicr["max"]  ],
-	 ["SUM: ", "%.1f"% dicr["sum"]  ],
-	 ["MEAN: ", "%.1f"% dicr["mean"]  ],
-	 ["MEDIAN: ", "%.1f"% dicr["median"]  ],
-	 ["RMS: ", "%.1f"% dicr["rms"]  ],
-	]
+         ["MIN: ", "%.1f"% dicr["min"]  ],
+         ["MAX: ", "%.1f"% dicr["max"]  ],
+         ["SUM: ", "%.1f"% dicr["sum"]  ],
+         ["MEAN: ", "%.1f"% dicr["mean"]  ],
+         ["MEDIAN: ", "%.1f"% dicr["median"]  ],
+         ["RMS: ", "%.1f"% dicr["rms"]  ],
+        ]
 
 
   G.figresult.clf()
@@ -529,7 +529,7 @@ def DisplayAnswer(row=1,font="") :  # buttons at 0
     myargs.update( {"font":font ,"justify":LEFT,"anchor":"nw" })
     if i[0]=="Strehl: ":
          myargs["fg"] = "red"
-	 myargs["font"] = G.strehl_font
+         myargs["font"] = G.strehl_font
     l1 = Label(G.AnswerFrame,text=i[0],**myargs)
     l2 = Label(G.AnswerFrame,text=i[2],**myargs)
     l1.grid(row=row,column=0,sticky="nsew")
@@ -573,20 +573,20 @@ def DisplayAnswer(row=1,font="") :  # buttons at 0
         l["fg"]= "red"
         l["font"] = G.warning_font
         stg = "Wide Binary\n"
-	stg+="pick objects individually"
-	l["text"] = stg
+        stg+="pick objects individually"
+        l["text"] = stg
         l.grid(row=row,column=0,columnspan = 2 )
-	row+=1
+        row+=1
 
      if max_dist*3  > sep  : # means too high separation
         l = Label(G.AnswerFrame,bg=G.bg[0])
         l["fg"]= "red"
         l["font"] = G.warning_font
         stg = "Tight Binary\n"
-	stg+="may be unreliable"
-	l["text"] = stg
+        stg+="may be unreliable"
+        l["text"] = stg
         l.grid(row=row,column=0,columnspan = 2 )
-	row+=1
+        row+=1
 
 
   return
@@ -733,10 +733,10 @@ def ProfileAnswer():  # 1 and 2D
     lst = [
                ["LENGTH: " ,tlen           ],
                ["MIN: " ,ps["min"]      ],
-	       ["MAX: " ,ps["max"]      ],
+               ["MAX: " ,ps["max"]      ],
                ["MEAN: ",ps["mean"]     ],
                ["RMS: " ,ps["rms"]      ],
-	  ]
+          ]
     num=1.
     for i in lst:
       G.ax3.text(0.3,1.0-num/(len(lst)+1), i[0]+"%.1f"%i[1] )
@@ -748,8 +748,8 @@ def ProfileAnswer():  # 1 and 2D
   return
 
         ####################
-	#   2D 2D 2D
-	####################
+        #   2D 2D 2D
+        ####################
 
 
 
@@ -937,7 +937,7 @@ def PC(): # read W.psf_fit
       string=string[:-1]+"\n" # remove last "," and pass line
     stg_head=stg_head[:-1]+"\n"
     string = stg_head+string[:-2] # remove last <newline>
-    print(string  # verbose )
+    print(string) # verbose
 
     from subprocess import call
     sh = W.path+"/print_array.sh" # verbose
@@ -951,7 +951,7 @@ def PC(): # read W.psf_fit
         string+="      ##########################\n"
         string+=   "%15s = %s \n"%('REDUCED CHI2',str(W.psf_fit[4]["reduced_chi2"] ) )
         pfix=W.strehl["fit_dic"]
-	uncer=W.psf_fit[1]
+        uncer=W.psf_fit[1]
         for k in pfix.keys():
             string+=  "%15s = %s"%(k,pfix[k])
             if uncer[k]!=0:

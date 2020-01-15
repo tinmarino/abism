@@ -53,8 +53,8 @@ class Annulus: # This is actually the Annulus even, but it could be a "ellipse" 
             'draw_event', self.Init )
 
                ###################
-	       #### EVENTS
-	       ##################
+               #### EVENTS
+               ##################
 
 
 
@@ -137,16 +137,16 @@ class Annulus: # This is actually the Annulus even, but it could be a "ellipse" 
      elif string ==  "p" :  # print( )
        def PD(dic): # Write dictionary for RunCommand
          for k in dic.keys() :
-            print('%.20s    %.20s' %  (k,dic[k]) #verbose  )
+            print('%.20s    %.20s' %  (k,dic[k]))
 
-
+     # OVER
      return
 
 
 
                #################
-	       ###  DRAW
-	       ###############
+               ###  DRAW
+               ###############
 
   def RemoveArtist(self,draw=True):
      for i in self.artist_list :
@@ -186,18 +186,18 @@ class Annulus: # This is actually the Annulus even, but it could be a "ellipse" 
         ell.width  = 2*self.outter_u *self.rapport   # array to image invert
         ell.height = 2* self.outter_u
         ell.center = (self.y0,self.x0)
-	ell.angle  = theta
-	  #'solid' | 'dashed' | 'dashdot' | 'dotted'
+        ell.angle  = theta
+        #'solid' | 'dashed' | 'dashdot' | 'dotted'
      def In(ell) :
         ell.width  = 2*self.inner_u *self.rapport   # array to image invert
         ell.height = 2* self.inner_u
         ell.center = (self.y0,self.x0)
-	ell.angle  = theta
+        ell.angle  = theta
      def Ell(ell) :
         ell.width  = 2*self.ru *self.rapport   # array to image invert
         ell.height = 2* self.ru
         ell.center = (self.y0,self.x0)
-	ell.angle  = theta
+        ell.angle  = theta
 
 
      Out(self.artist_list[0])
@@ -238,8 +238,8 @@ class Annulus: # This is actually the Annulus even, but it could be a "ellipse" 
 
 
               #############
-	      # ELLIPSE
-	      #############
+              # ELLIPSE
+              #############
 
 
 
@@ -348,7 +348,7 @@ class Ellipse:
 
      # KNOW
      elif event.key ==  "p" :
-       print(vars(self) # verbose OK )
+       print(vars(self)) # verbose OK
        self.Draw()
 
      self.zoom_bool= False
@@ -410,8 +410,8 @@ class Ellipse:
 
 
               ##############
-	      ## PROFILE
-	      #############
+              ## PROFILE
+              #############
 
 
 
@@ -442,13 +442,13 @@ class Profile:
   def Disconnect(self):
     try : self.fig.canvas.mpl_disconnect(self.cid_press_event)
     except :
-      if W/verbose > 3 : print("EventArtist.profile cannot deisconnect press " )
+      if W.verbose > 3 : print("EventArtist.profile cannot deisconnect press " )
     try : self.fig.canvas.mpl_disconnect(self.cid_motion_event)
     except :
-      if W/verbose > 3 : print("EventArtist.profile cannot disconnect motion " )
+      if W.verbose > 3 : print("EventArtist.profile cannot disconnect motion " )
     try : self.fig.canvas.mpl_disconnect(self.cid_release_event)
     except :
-      if W/verbose > 3 : print("EventArtist.profile cannot disconnect release  " )
+      if W.verbose > 3 : print("EventArtist.profile cannot disconnect release  " )
 
 
 
@@ -462,12 +462,12 @@ class Profile:
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
         self.l = matplotlib.lines.Line2D(xdata=(0, 0),ydata=(0,0),linewidth=2,color='red',alpha=1)
-	self.DrawArtist()
+        self.DrawArtist()
 
         return
 
   def on_motion(self,event):
-	if self.point1 == None : return
+        if self.point1 == None : return
         self.point2= [event.ydata,event.xdata]
         self.l.set_data([  [self.point1[1],self.point2[1]]  ,    [self.point1[0],self.point2[0]]    ])  # here we invert because matplotlib take x y and we work in row column
         self.DrawArtist()
@@ -475,18 +475,18 @@ class Profile:
 
 
   def on_release(self,event):
-	IF.ProfileEvent(self)
-	self.point1=None
+        IF.ProfileEvent(self)
+        self.point1=None
 
-	#self.my_point2 = [event.ydata,event.xdata] # invert
-	#self.my_point1 = [self.my_point1[1],self.my_point1[0]]
+        #self.my_point2 = [event.ydata,event.xdata] # invert
+        #self.my_point1 = [self.my_point1[1],self.my_point1[0]]
         #self.RemoveArtist()
-	#import AnswerReturn as AR
+        #import AnswerReturn as AR
         #AR.ProfileAnswer()
 
         ####
-	##  DRAW
-	##########
+        ##  DRAW
+        ##########
 
 
   def RemoveArtist(self,draw=True):

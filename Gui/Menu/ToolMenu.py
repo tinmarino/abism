@@ -3,7 +3,7 @@ import MyGui as MG  # TODO remove that
 import Pick  # to connect PickOne per defautl
 import DebugConsole  # For pythonConsole
 
-import Tkinter as Tk
+import tkinter as Tk
 import LaunchCalculator  # TODO put taht in pluggins
 
 

@@ -1,4 +1,4 @@
-import tkFont
+from tkinter import font as tkFont
 try : from Tkinter import *
 except  : from tkinter import *
 import re
@@ -7,8 +7,6 @@ import matplotlib
 import GuyVariables as G
 import WorkVariables as W
 
-
-# TODO entirely remove this file
 
 def Main():
   GuiVar()         # Initialt Gui vars
@@ -105,9 +103,9 @@ def GuiVar(): # define the shared variables for the GUI definition
                     "sashpad":0,
                     "showhandle":0,
                     "bg":"blue",
-		            "borderwidth":0,
+                            "borderwidth":0,
                     "sashrelief":RAISED,
-		        }                                   # dictionnary to call PanedWindow in Tk
+                        }                                   # dictionnary to call PanedWindow in Tk
 
 
   G.frame_title_arg = {
@@ -209,18 +207,18 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
        if "[" in i[2] : # means we are in list or dictionary
            spt = i[2].split("[")
            stg =i[1] + "."+  spt[0]   # variable
-	   for bla in spt[1:] : stg+= "[" + bla  # index
-	   try :
-	     stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
-	     if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
-	     exec stg2 in globals() , locals()
-	   except :
-	     stg2 =stg +  "= argv[argv.index( i[0] ) + 1 ] "
-	     if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
-	     exec stg2 in globals() , locals()
+           for bla in spt[1:] : stg+= "[" + bla  # index
+           try :
+             stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
+             if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
+             exec(stg2, globals(), locals())
+           except :
+             stg2 =stg +  "= argv[argv.index( i[0] ) + 1 ] "
+             if W.verbose >3 : print("GlobalDef.Terminal geo_dic stg :" , stg)
+             exec(stg2, globals(), locals())
 
        else : #including not in a dict to be float
-	 try :
+         try :
            vars( i[1] )[ i[2] ]= float( argv[ argv.index( i[0] ) +1 ] )
          except :
            vars( i[1] )[ i[2] ]= argv[ argv.index( i[0] ) +1 ]
@@ -231,7 +229,7 @@ def TerminalVar(): # The variables can be setted with the terminal entry command
   for i in W.sys_argv[::-1] :
      if i.find(".fits") != -1 :
         W.image_name = i
-	break
+        break
 
 
   if "-cut_type" in  argv:
@@ -276,11 +274,11 @@ def Preference(string="test1") :
       for i in list1:
          i = i.replace('"','')
          if (i[0] == "-") :
-	   if i in list2 :
-	      pass
-	   else :
+           if i in list2 :
+              pass
+           else :
               list2.append(i)
-	      list2.append( list1[list1.index(i) +1] )
+              list2.append( list1[list1.index(i) +1] )
       return list2
 
 

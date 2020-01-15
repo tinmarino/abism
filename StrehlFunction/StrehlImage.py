@@ -22,8 +22,8 @@ import warnings
 
 
             ###############
-	    # PICK ONE
-	    ###############
+            # PICK ONE
+            ###############
 
 def PsfFit(grid,center=(0,0),max=1,dictionary={},full_answer=True):
   """full_answer get the photometry and the background """
@@ -51,13 +51,13 @@ def PsfFit(grid,center=(0,0),max=1,dictionary={},full_answer=True):
   W.suposed_param={'center_x':x0,'center_y':y0,'spread_x':0.83*(my_fwhm),'intensity':my_max,'background':0}  # 0.83 = sqrt(ln(2))
   James={"center_x":[x0-10,x0+10],
          "center_y":[y0-10,y0+10],
-	 "spread_x" :[-0.1, None],
-	 "spread_y" :[-0.1, None],
-	 #"exponent" :[1.2, 6 ],
-	 "background":[None,my_max],
-	 "instensity":[ local_median , 2.3 * my_max - local_median ],
+         "spread_x" :[-0.1, None],
+         "spread_y" :[-0.1, None],
+         #"exponent" :[1.2, 6 ],
+         "background":[None,my_max],
+         "instensity":[ local_median , 2.3 * my_max - local_median ],
 
-	}
+        }
 
 
 
@@ -300,8 +300,8 @@ def Background(grid, param = {}):
 
 
             ###############
-	    # BINARY
-	    ###############
+            # BINARY
+            ###############
 
 
 def BinaryPsf(grid,search=False): # slowlyer
@@ -357,16 +357,16 @@ def BinaryPsf(grid,search=False): # slowlyer
     James={
           #'x0':bd_x0,
           #'x1':bd_x1,
-	  #'y0':bd_y0,
-	  #'y1':bd_y1,
+          #'y0':bd_y0,
+          #'y1':bd_y1,
          'spread_x0':(-0.1,None) ,
-	 'spread_x1':(-0.1,None),
+         'spread_x1':(-0.1,None),
          'spread_y0':(-0.1,None),
-	 'spread_y1':(-0.1,None) ,
+         'spread_y1':(-0.1,None) ,
          'intensity0':(-0.1,None) ,
-	 'intensity1':(-0.1,None) ,
+         'intensity1':(-0.1,None) ,
          'background':(0,None) ,
-	 "theta":(-0.1,3.24) } # becasue James Bound hahahah, These are the fitting limits of the varaibles . WARNING    we put the intensity positive becasue in a binary fit situation you know.... who knows
+         "theta":(-0.1,3.24) } # becasue James Bound hahahah, These are the fitting limits of the varaibles . WARNING    we put the intensity positive becasue in a binary fit situation you know.... who knows
 
 
 
@@ -467,12 +467,12 @@ def BinaryPsf(grid,search=False): # slowlyer
     res[0].update( {"fwhm_x0":tmp["fwhm_x"] ,
                     "fwhm_y0":tmp["fwhm_y"] ,
                     "photometry_fit0":tmp["photometry_fit"] ,
-		   } )
+                   } )
     tmp =  IF.FwhmFromFit( dic_copy1 , fit_type )
     res[0].update( {"fwhm_x1":tmp["fwhm_x"] ,
                     "fwhm_y1":tmp["fwhm_y"] ,
                     "photometry_fit1":tmp["photometry_fit"]
-		   } )
+                   } )
 
 
     if False :
@@ -566,13 +566,13 @@ def TightBinaryPsf(grid,search=False): # slowlyer
           'y0':(G.star1[1]-2,G.star1[1]+2),
           'y1':(G.star2[1]-2,G.star2[1]+2),
          'spread_x0':(-0.1,None) ,
-	 'spread_x1':(-0.1,None),
+         'spread_x1':(-0.1,None),
          'spread_y0':(-0.1,None),
-	 'spread_y1':(-0.1,None) ,
+         'spread_y1':(-0.1,None) ,
          'intensity0':(min1,max1) ,
-	 'intensity1':(min2,max2) ,
+         'intensity1':(min2,max2) ,
          'background':(None,None) ,
-	 "theta":(-0.1,3.24) } # becasue James Bound hahahah, These are the fitting limits of the varaibles . WARNING    we put the intensity positive becasue in a binary fit situation you know.... who knows
+         "theta":(-0.1,3.24) } # becasue James Bound hahahah, These are the fitting limits of the varaibles . WARNING    we put the intensity positive becasue in a binary fit situation you know.... who knows
 
 
 
@@ -669,12 +669,12 @@ def TightBinaryPsf(grid,search=False): # slowlyer
     res[0].update( {"fwhm_x0":tmp["fwhm_x"] ,
                     "fwhm_y0":tmp["fwhm_y"] ,
                     "photometry_fit0":tmp["photometry_fit"] ,
-		   } )
+                   } )
     tmp =  IF.FwhmFromFit( dic_copy1 , W.type["fit"] )
     res[0].update( {"fwhm_x1":tmp["fwhm_x"] ,
                     "fwhm_y1":tmp["fwhm_y"] ,
                     "photometry_fit1":tmp["photometry_fit"]
-		   } )
+                   } )
 
 
     if False :
@@ -706,8 +706,8 @@ def TightBinaryPsf(grid,search=False): # slowlyer
 
 
           ################
-	  # ELLIPSE CANVAS
-	  ###############
+          # ELLIPSE CANVAS
+          ###############
 
 
 
@@ -755,7 +755,7 @@ def EllipseEventMax() : # receive EllipseEvent
    W.strehl.update(  {"center_x":local_max[0],
                       "center_y":local_max[1],
                       "intensity":local_max[2],
-		     }  )
+                     }  )
    return
 
 
@@ -764,8 +764,8 @@ def EllipseEventMax() : # receive EllipseEvent
 
 
           ###############
-	  # ANNULUS CANVAS
-	  #################
+          # ANNULUS CANVAS
+          #################
 
 
 
@@ -778,8 +778,8 @@ def AnnulusEventPhot(obj): # Called by Gui/Event...py  Event object
 
      if obj.outter_u < obj.inner_u :  # put outter radius after inner
          tmp = obj.inner_u
-	 obj.inner_u = obj.outter_u
-	 obj.outter_u = tmp
+         obj.inner_u = obj.outter_u
+         obj.outter_u = tmp
 
 
      # DEIFINE THE Bollean of being inside the elliptical aperture
