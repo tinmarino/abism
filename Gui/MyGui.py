@@ -53,13 +53,13 @@ def MyWindow():
     # Init main tk window
     IG.WindowInit()
     # Init matplotlib figure
-    LaunchImageInit()
+    InitMatplotlib()
 
     # Loop
     G.parent.mainloop()
 
 
-def LaunchImageInit():
+def InitMatplotlib():
     """Create the image"""
     def Create():
         G.fig = matplotlib.figure.Figure()  # figsize=(6,6))
@@ -281,9 +281,9 @@ def InitImage(new_fits=True):
         else:
             W.cube_num = W.hdulist[0].data.shape[0] - 1
             W.log(1, '\nERROR InitImage@MyGui.py :' + W.image_name
-                + ' has no index ' + str(W.cube_num) +
-                "Go back to the last cube index :"
-                + str(W.cube_num) + "\n")
+                  + ' has no index ' + str(W.cube_num)
+                  + 'Go back to the last cube index :'
+                  + str(W.cube_num) + "\n")
         G.cube_var.set(int(W.cube_num + 1))
 
     else:  # including image not a cube, we try to destroy cube frame
@@ -595,7 +595,7 @@ def Clear():
         G.AnswerFrame.destroy()
     except BaseException:
         pass
-    LaunchImageInit()
+    InitMatplotlib()
 
 
 def Save(first=1):
@@ -676,13 +676,17 @@ def Hide(hidden=0):
 
 def SubstractBackground():
     """Subtract A background image
-    Choose a FITS image tho subtract to the current image to get read of the sky value or/and the pixel response. This is a VERY basic task that is only subtracting 2 images. It could be improved but image reduction is not the goal of ABISM."""
-    String = askopenfilename(
+    Choose a FITS image tho subtract to the current image to get read of the sky
+    value or/and the pixel response. This is a VERY basic task that is only
+    subtracting 2 images.
+    It could be improved but image reduction is not the goal of ABISM
+    """
+    fp_sky = askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
-    W.image_bg_name = String     # image_background_name
-    W.hdulist_bg = pyfits.open(String)
+    W.image_bg_name = fp_sky     # image_background_name
+    W.hdulist_bg = pyfits.open(fp_sky)
     W.Im0_bg = W.hdulist_bg[0].data
-    if (not W.Im0.shape == W.Im0_bg.shape):
+    if not W.Im0.shape == W.Im0_bg.shape:
         W.Log(0, 'ERROR : Science image and Background image should have the same shape')
     else:
         W.Im0 -= W.Im0_bg
@@ -690,17 +694,13 @@ def SubstractBackground():
 
 
 def FitType(name):  # strange but works
-    """if name=="tutorial":
-               if G.tutorial:
-                           text="\nDifferent fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.   "
-                           text+="\n\nWhy is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result."
-                           text+="\n\nWhat should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat. "
-                           text+="\n\nProgrammers: Strehl@MyGui.py calls SeeingPSF@ImageFunction.py which calls BasicFunction.py.\n To do : fastly analyse the situation and choose a fit type consequently."
-                           TutorialReturn({"title":"Choose Fit Type",
-                           "text":text,
-                           })
-                           return
-               else : return # include no G.tutorial"""
+    """Choose Fit Type
+    Different fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.
+    Why is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result
+    What should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat.
+    Programmers: Strehl@MyGui.py calls SeeingPSF@ImageFunction.py which calls BasicFunction.py
+    Todo : fastly analyse the situation and choose a fit type consequently
+    """
     W.type["fit"] = name
     G.cu_fit.set(name.replace("2D", ""))  # to change radio but, check
     try:
@@ -719,29 +719,24 @@ def FitType(name):  # strange but works
         try:
             if W.same_center_var.get() == 0:
                 W.type["fit"] = W.type["fit"].replace('same_center', '')
-                if W.verbose > 0:
-                    print(
-                        " same_center : We asssume that the saturation is centered at the center of th object")
+                W.log(0, "same_center : We asssume that the saturation",
+                      "is centered at the center of th object")
             elif not 'same_center' in W.type["fit"]:
                 W.type["fit"] += "same_center"
-                if W.verbose > 0:
-                    print(
-                        "not same_center : We asssume that the saturation isn't centered at the center of th object")
+                W.log(0, "not same_center: We asssume that the saturation",
+                      "isn't centered at the center of th object")
         except BaseException:
             if not 'same_center' in W.type["fit"]:
                 W.type["fit"] += "same_center"
-    if W.verbose > 0:
-        print('Fit Type = ' + W.type["fit"])
+    W.log(0, 'Fit Type = ' + W.type["fit"])
 
     # same psf
     if W.same_psf_var.get() == 0:
         W.same_psf = 0
-        if W.verbose > 0:
-            print(" same_psf : We will fit the binary with the same psf")
+        W.log(0, "same_psf : We will fit the binary with the same psf")
     elif W.same_psf_var.get() == 1:
         W.same_psf = 1
-        if W.verbose > 2:
-            print(" not same_psf : We will fit each star with independant psf")
+        W.log(0, "not same_psf : We will fit each star with independant psf")
 
     # change the labels
     #G.fit_type_label["text"] = W.type["fit"]

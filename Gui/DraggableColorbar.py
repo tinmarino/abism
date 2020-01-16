@@ -1,33 +1,32 @@
 """ this module is imported from this web site :
 http://www.ster.kuleuven.be/~pieterd/python/html/plotting/interactive_colorbar.html
 it aims to create a colorbar with some events and connecxions,
-if you have some troubles to digest that, just take some laxative"""
+if you have some troubles to digest that, just take some laxative
+"""
 
 import pylab as plt
 import numpy as np
 from scipy.ndimage import gaussian_filter
 import NormalizeMy
 
-import MyGui as MG  # to draw
+import MyGui as MG
 
-#import GuyVariables as G
-try:
-    import GuyVariables as G
-except:
-    # verbose : this is ok, never will be printed at paranal
-    print("WARNING draggable colorbar.py could not load Gui>Variables")
+import GuyVariables as G
 
 
-class DraggableColorbar(object):
+class DraggableColorbar:
+    """The Scrollable colorbar"""
     def __init__(self, cbar, mappable):
         self.cbar = cbar  # the colorbar
         self.mappable = mappable  # the imshow
         self.press = None
-        self.cycle = sorted([i for i in dir(plt.cm)
-                             if ((hasattr(getattr(plt.cm, i), 'N'))
-                                 and (not "_r" in i)
-                                 )])
-        # added by martin
+        self.cycle = sorted([
+            i for i in dir(plt.cm)
+            if ((hasattr(getattr(plt.cm, i), 'N')) and (not "_r" in i))])
+        self.cidpress = None
+        self.cidrelease = None
+        self.cidmotion = None
+        self.keypress = None
         self.old = {}
 
     def connect(self):
@@ -48,7 +47,7 @@ class DraggableColorbar(object):
         self.press = event.x, event.y
 
     def key_press(self, event):
-        ""
+        """Start dragging"""
         # if event.inaxes != self.cbar.ax: return
 
         # INDEX
@@ -87,13 +86,8 @@ class DraggableColorbar(object):
             else:
                 cmap = cmap + "_r"
         MG.Draw(cmap=cmap)
-        # self.mappable.get_axes().set_title(cmap)
 
-        # for Abism, try to change color button, but just try because importation is not possible out of ABism
-        try:
-            G.cu_color.set(cmap)
-        except:
-            pass
+        G.cu_color.set(cmap)
 
     def on_motion(self, event):
         'on motion we will move the rect if the mouse is over us'
@@ -103,7 +97,6 @@ class DraggableColorbar(object):
             return
         self.old["norm"] = self.cbar.norm
         xprev, yprev = self.press
-        dx = event.x - xprev
         dy = event.y - yprev
         self.press = event.x, event.y
         scale = self.cbar.norm.vmax - self.cbar.norm.vmin
@@ -119,7 +112,6 @@ class DraggableColorbar(object):
     def on_release(self, event):
         """on release we reset the press data"""
         self.press = None
-        # MG.Draw(cbar=False)
 
     def disconnect(self):
         """disconnect all the stored connection ids"""
@@ -129,6 +121,7 @@ class DraggableColorbar(object):
 
 
 def example():
+    """Reference: Not used"""
     np.random.seed(1111)
 
     # Create empty image
@@ -139,11 +132,11 @@ def example():
     n = 10000
 
     # Generate random positions
-    r = np.random.random(n) * nx
+    r = np.random.randint(n) * nx
     theta = np.random.uniform(0., 2. * np.pi, n)
 
     # Generate random fluxes
-    f = np.random.random(n) ** 2
+    f = np.random.randint(n) ** 2
 
     # Compute position
     x = nx / 2 + r * np.cos(theta)

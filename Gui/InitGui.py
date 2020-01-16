@@ -9,6 +9,7 @@ from tkinter import *
 import MyGui as MG
 
 import MenuBar
+from FramePlot import ImageFrame
 
 import GuyVariables as G
 import WorkVariables as W
@@ -40,9 +41,8 @@ def Title():
         bitmap = PhotoImage(file=W.path + '/Icon/bato_chico.gif')
         G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
     else:
-        if W.verbose > 3:
-            print(
-                "->you have no beautiful icon because you didn't set the PATH in Abism.py")
+        W.log(3, "->you have no beautiful icon "
+              "because you didn't set the PATH in Abism.py")
 
     # GEOMETRY
     if "parent" in G.geo_dic:
@@ -84,16 +84,14 @@ def DrawFrameMaker():
         G.MainPaned.add(G.DrawPaned)
 
     # TOP : IMAGE FRAME, displaying the full image
+    G.ImageFrame = ImageFrame(G.DrawPaned)
+    if "ImageFrame" in G.geo_dic:
+        G.DrawPaned.add(G.ImageFrame,
+                        height=float(G.geo_dic["ImageFrame"]))
+    else:  # including don't set height
+        G.DrawPaned.add(G.ImageFrame)
+    G.all_frame.append("G.ImageFrame")
 
-    def Image():
-        G.ImageFrame = Frame(G.DrawPaned, bg=G.bg[0])
-        G.all_frame.append("G.ImageFrame")
-        if "ImageFrame" in G.geo_dic:
-            G.DrawPaned.add(G.ImageFrame,
-                            height=float(G.geo_dic["ImageFrame"]))
-        else:  # including don't set height
-            G.DrawPaned.add(G.ImageFrame)
-        G.all_frame.append("G.ImageFrame")
 
     # BOTTOM : 2 Frames
 
@@ -137,7 +135,6 @@ def DrawFrameMaker():
         Fit()
         Result()
 
-    Image()
     RightBottom()
     RightBottomSub()
 

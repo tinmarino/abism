@@ -31,5 +31,4 @@ def log(i, *args):
         DEBUG    10  2
         NOTSET    0  3
     """
-    print("GREPME Verbose:", verbose)
     _ = [logger.info(stg) for stg in args if verbose >= i]
