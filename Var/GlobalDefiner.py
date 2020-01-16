@@ -21,7 +21,7 @@ def MainVar():
     GuiVar()  # Initialt Gui vars
     WorkVar()  # Initial WorkVar
     Preference()
-    TerminalVar()  # Modify with sys input
+    ReadTerminalVar()  # Modify with sys input
 
     LinkColor()  # For G and called with BgCl()
 
@@ -171,7 +171,7 @@ def WorkVar():
     W.same_psf = 1
 
 
-def TerminalVar():
+def ReadTerminalVar():
     """The variables can be setted with the terminal entry command."""
     argv = W.sys_argv
 

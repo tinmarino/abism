@@ -8,8 +8,8 @@ from tkinter import *
 
 import MyGui as MG
 
-import MenuBar
-from FramePlot import ImageFrame
+from MenuBar import MenuBarMaker
+from FramePlot import RightFrame
 
 import GuyVariables as G
 import WorkVariables as W
@@ -52,7 +52,7 @@ def Title():
 def MainFrameMaker():
     """Init main Frame"""
     # 1 TOP
-    MenuBar.MenuBarMaker()
+    MenuBarMaker()
 
     # ALL What is not the menu is a paned windows :
     # I can rezie it with the mouse from left to right,
@@ -65,78 +65,7 @@ def MainFrameMaker():
     TextFrameMaker()
 
     # 3 RIGHT
-    DrawFrameMaker()
-
-
-def DrawFrameMaker():
-    """Create Frame with matplotlib
-    In: G.MainPaned
-    Out: DrawPaned
-    """
-    # CREATE
-    G.DrawPaned = PanedWindow(G.MainPaned, orient=VERTICAL, **G.paned_dic)
-    G.all_frame.append("G.DrawPaned")
-
-    # PACK, INCLUDE in MainPaned
-    if "DrawPaned" in G.geo_dic:
-        G.MainPaned.add(G.DrawPaned, width=float(G.geo_dic["DrawPaned"]))
-    else:  # including don't set width
-        G.MainPaned.add(G.DrawPaned)
-
-    # TOP : IMAGE FRAME, displaying the full image
-    G.ImageFrame = ImageFrame(G.DrawPaned)
-    if "ImageFrame" in G.geo_dic:
-        G.DrawPaned.add(G.ImageFrame,
-                        height=float(G.geo_dic["ImageFrame"]))
-    else:  # including don't set height
-        G.DrawPaned.add(G.ImageFrame)
-    G.all_frame.append("G.ImageFrame")
-
-
-    # BOTTOM : 2 Frames
-
-    def RightBottom():
-        G.RightBottomPaned = PanedWindow(G.DrawPaned,
-                                         orient=HORIZONTAL,
-                                         **G.paned_dic)
-        if "RightBottomPaned" in G.geo_dic:
-            targ = {"height": float(G.geo_dic["RightBottomPaned"])}
-        else:
-            targ = {}
-
-        G.DrawPaned.add(G.RightBottomPaned, **targ)
-        G.all_frame.append("G.RightBottomPaned")
-
-    # BOTTOM DIVIDE and create the 2 FRAMES
-
-    def RightBottomSub():
-        # In RightBottomPaned 2 : FitFrame, ResultFrame (should be star frame)
-
-        # LEFT of the bottom, the fit frame, to see in 1d the fit
-        def Fit():
-            G.FitFrame = Frame(G.RightBottomPaned, bg=G.bg[0])
-            if "FitFrame" in G.geo_dic:
-                targ = {"width": float(G.geo_dic["FitFrame"])}
-            else:
-                targ = {}
-            G.RightBottomPaned.add(G.FitFrame, **targ)
-            G.all_frame.append("G.FitFrame")
-
-        # RIGHT of the bottom, the result, 2-2d images, to see fit in 2d
-        def Result():
-            G.ResultFrame = Frame(G.RightBottomPaned, bg=G.bg[0])
-            if "ResultFrame" in G.geo_dic:
-                targ = {"width": float(G.geo_dic["ResultFrame"])}
-            else:
-                targ = {}
-            G.RightBottomPaned.add(G.ResultFrame, **targ)
-            G.all_frame.append("G.ResultFrame")
-
-        Fit()
-        Result()
-
-    RightBottom()
-    RightBottomSub()
+    G.DrawPaned = RightFrame(G.MainPaned)
 
 
 def TextFrameMaker():
@@ -225,9 +154,8 @@ def LeftTop():
     arg = G.sub_paned_arg
     if "LeftTopFrame" in G.geo_dic:
         arg.update({"height": int(G.geo_dic["LeftTopFrame"])})
-        if W.verbose > 3:
-            print("I chose ", int(
-                G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME")
+        W.log(3, "I chose ", int(
+            G.geo_dic["LeftTopFrame"]), " for height of LefTOPFRAME")
 
     G.TextPaned.add(G.LeftTopFrame, **arg)
     LeftTopArrow()

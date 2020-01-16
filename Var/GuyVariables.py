@@ -21,6 +21,12 @@ def Quit():
     sys_exit(1)
 
 
+# if "DrawPaned" in G.geo_dic:
+#     G.MainPaned.add(G.DrawPaned, width=float(G.geo_dic["DrawPaned"]))
+# else:  # including don't set width
+#     G.MainPaned.add(G.DrawPaned)
+# G.all_frame.append("G.DrawPaned")
+
 # TODO remove this
 class VoidClass:
     """Helper container"""

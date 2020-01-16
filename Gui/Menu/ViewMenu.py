@@ -1,18 +1,21 @@
+"""
+    Menu button view
+"""
+
+from tkinter import *
+
 import GuyVariables as G
 import MyGui as MG
 import InitGui as IG
 
-from tkinter import *
-
 
 def ViewMenu(args):
+    """Create the menu"""
     G.scale_menu = Menubutton(G.MenuBar, **args)
     G.scale_menu.menu = Menu(G.scale_menu, **G.submenu_args)
 
-    # "
-    # COLOR
-
     def Color():
+        """Color drop"""
         if G.scale_menu_type == "cascade":
             color_menu = Menu(G.scale_menu, **G.submenu_args)
         else:
@@ -71,10 +74,8 @@ def ViewMenu(args):
         else:
             G.scale_menu.menu.add_command(columnbreak=1)
 
-    ##############
-    # " SCALE FUNCTION
-
     def Scale():
+        """Scale of image drop"""
         if G.scale_menu_type == "cascade":
             scale_menu = Menu(G.scale_menu, **G.submenu_args)
         else:
@@ -97,13 +98,8 @@ def ViewMenu(args):
         else:
             G.scale_menu.menu.add_command(columnbreak=1)
 
-    #G.bu_scale['menu'] = G.bu_scale.menu
-    #G.bu_scale.bind("<Button-1>", lambda event : MG.Scale(dic={"tutorial":1, "fct":"truc"}) )
-
-    ##############
-    # CUT TYPE
-
     def Cut():
+        """Cut min max of the iamge scale"""
         if G.scale_menu_type == "cascade":
             cut_menu = Menu(G.scale_menu, **G.submenu_args)
         else:
@@ -136,9 +132,6 @@ def ViewMenu(args):
                 menu=cut_menu, underline=0, label="Cut")
         else:
             G.scale_menu.menu.add_command(columnbreak=1)
-
-    #G.bu_cut['menu'] = G.bu_cut.menu
-    #G.bu_cut.bind("<Button-1>", lambda event : MG.Scale(dic={"tutorial":1, "scale_cut_type":"truc"}) )
 
     Color()
     Scale()

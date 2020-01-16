@@ -61,88 +61,55 @@ def MyWindow():
 
 def InitMatplotlib():
     """Create the image"""
-    def Create():
-        G.fig = matplotlib.figure.Figure()  # figsize=(6,6))
-        G.figfit = matplotlib.figure.Figure(
-            figsize=(5, 2.5))  # figsize=(4,1), dpi=100
-        G.figresult = matplotlib.figure.Figure(figsize=(3, 2.5))
+    # Should not be used
+    G.fig = G.ImageFrame.get_figure()
+    G.ImageCanvas = G.ImageFrame.get_canvas()
+    G.toolbar = G.ImageFrame.get_toolbar()
 
-    def Size():
-        G.fig.subplots_adjust(left=0.07, right=0.93, top=0.95, bottom=0.05)
-        G.figfit.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.2)
-        G.figresult.subplots_adjust(
-            left=0.1, right=0.9, top=1.05, bottom=-0.15)
+    # TODO
+    G.figfit = matplotlib.figure.Figure(
+        figsize=(5, 2.5))  # figsize=(4,1), dpi=100
+    G.figresult = matplotlib.figure.Figure(figsize=(3, 2.5))
 
-    def Color():
-        G.fig.set_facecolor(G.bg[0])
-        G.figfit.set_facecolor(G.bg[0])
-        G.figresult.set_facecolor(G.bg[0])
+    G.figfit.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.2)
+    G.figresult.subplots_adjust(
+        left=0.1, right=0.9, top=1.05, bottom=-0.15)
 
-    def Canvas():
-        #############
-        # IMAGE
-        G.ImageFrame.rowconfigure(0, weight=100)
-        G.ImageFrame.rowconfigure(1, weight=1)  # not resize the toolbar
-        G.ImageFrame.columnconfigure(0, weight=1)  # not resize the toolbar
-        G.ImageCanvas = FigureCanvas(G.fig, master=G.ImageFrame)
-        G.ImageCanvas.get_tk_widget()["bg"] = G.bg[0]
-        # to have no little border use to know if I have focus
-        G.ImageCanvas.get_tk_widget()["highlightthickness"] = 0
-        G.ImageCanvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-        G.all_frame.append("G.ImageCanvas.get_tk_widget()")
-        Label(G.ImageFrame, text="Image", **G.frame_title_arg).place(x=0, y=0)
+    G.figfit.set_facecolor(G.bg[0])
+    G.figresult.set_facecolor(G.bg[0])
 
-        ###########
-        # TOOLBAR
-        G.ToolbarFrame = Frame(G.ImageFrame)
-        G.ToolbarFrame.grid(row=1, column=0, sticky="nsew")
-        G.toolbar = matplotlib.backends.backend_tkagg.NavigationToolbar2Tk(
-            G.ImageCanvas, G.ToolbarFrame)
-        # G.toolbar.grid(row=1,column=0,sticky="nsew")
-        G.toolbar.pack()
-        G.toolbar["bg"] = G.bg[0]
-        for i in G.toolbar.winfo_children():
-            i["bg"] = G.bg[0]
-        G.all_frame.append("G.toolbar")
 
-        # "
-        #  FIT
-        G.FitFrame.rowconfigure(0, weight=100)
-        G.FitFrame.rowconfigure(1, weight=1)
-        G.FitFrame.columnconfigure(0, weight=1)  # not resize the toolbar
-        G.dpfit = FigureCanvas(G.figfit, master=G.FitFrame)
-        G.dpfit.get_tk_widget()["bg"] = G.bg[0]
-        G.dpfit.get_tk_widget()["highlightthickness"] = 0
-        G.dpfit.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-        G.all_frame.append("G.dpfit.get_tk_widget()")
-        Label(G.FitFrame, text="Photometric Profile",
-              **G.frame_title_arg).place(x=0, y=0)
-        ToolbarFit(init=True)
+    # "
+    #  FIT
+    G.FitFrame.rowconfigure(0, weight=100)
+    G.FitFrame.rowconfigure(1, weight=1)
+    G.FitFrame.columnconfigure(0, weight=1)  # not resize the toolbar
+    G.dpfit = FigureCanvas(G.figfit, master=G.FitFrame)
+    G.dpfit.get_tk_widget()["bg"] = G.bg[0]
+    G.dpfit.get_tk_widget()["highlightthickness"] = 0
+    G.dpfit.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+    G.all_frame.append("G.dpfit.get_tk_widget()")
+    Label(G.FitFrame, text="Photometric Profile",
+            **G.frame_title_arg).place(x=0, y=0)
+    ToolbarFit(init=True)
 
-        #######
-        # STAR
-        G.ResultFrame.rowconfigure(0, weight=100)
-        G.ResultFrame.rowconfigure(1, weight=1)
-        G.ResultFrame.columnconfigure(0, weight=1)  # not resize the toolbar
-        G.dpresult = FigureCanvas(G.figresult, master=G.ResultFrame)
-        G.dpresult.get_tk_widget()["bg"] = G.bg[0]
-        G.dpresult.get_tk_widget()["highlightthickness"] = 0
-        G.dpresult.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-        G.all_frame.append("G.dpresult.get_tk_widget()")
-        Label(G.ResultFrame, text="2d shape", **
-              G.frame_title_arg).place(x=0, y=0)
-        ToolbarResult(init=True)
+    #######
+    # STAR
+    G.ResultFrame.rowconfigure(0, weight=100)
+    G.ResultFrame.rowconfigure(1, weight=1)
+    G.ResultFrame.columnconfigure(0, weight=1)  # not resize the toolbar
+    G.dpresult = FigureCanvas(G.figresult, master=G.ResultFrame)
+    G.dpresult.get_tk_widget()["bg"] = G.bg[0]
+    G.dpresult.get_tk_widget()["highlightthickness"] = 0
+    G.dpresult.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+    G.all_frame.append("G.dpresult.get_tk_widget()")
+    Label(G.ResultFrame, text="2d shape", **
+            G.frame_title_arg).place(x=0, y=0)
+    ToolbarResult(init=True)
 
-    def Call():
-        # in case the user launch the program without giving an image as arg
-        if W.image_name != "no_image_name":
-            InitImage()
-    Create()
-    Size()
-    Color()
-    Canvas()
-    Call()
-
+    # in case the user launch the program without giving an image as arg
+    if W.image_name != "no_image_name":
+        InitImage()
 
 def ToolbarFit(init=False):
     """Create toolbar"""
