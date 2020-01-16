@@ -35,32 +35,29 @@
 import numpy as np
 
 from astropy import wcs
-from astropy.io import fits
 
 import WorkVariables as W
 
 
 
 def CallHeaderClass(header):
-    """ the objects is.. fits.open(image)[0]
-    <class 'fits.header.Header'>"""
+    """ the objects is fits.open(image)[0]"""
 
     # 0/ DETERMINE the instrument
-    print(("header type is " + str(type(header))))
     if 'INSTRUM' in header:
-        instru = header['INSTRUM']
+        instrument = header['INSTRUM']
     elif 'INSTRUME' in header:
-        instru = header['INSTRUME']
+        instrument = header['INSTRUME']
     elif 'INSTRUMENT' in header:
-        instru = header['INSTRUMENT']
+        instrument = header['INSTRUMENT']
     else:
-        instru = ""
+        instrument = ""
+    W.log(0, 'Instrument:', instrument)
 
-    print(instru, "this is instru")
     # 1/ Call header Class According to the instrument
-    if ("NAOS" in instru) and ("CONICA" in instru):
+    if ("NAOS" in instrument) and ("CONICA" in instrument):
         W.head = NacoHeader(header)
-    elif "SINFONI" in instru:
+    elif "SINFONI" in instrument:
         W.head = SinfoniHeader(header)
     else:
         W.head = Header(header)
@@ -241,33 +238,31 @@ class Header:
             self.flathead = flatten_header(self.header)
             # If proj type in more than 8 characters, we cut from 3 dec----tan
             # -> dec--tan
+            # RA---TAN
+            # DEC--TAN
             tmp = self.flathead["CTYPE1"]
             if len(tmp) > 8:
-                self.flathead["CTYPE1"] = tmp[0:  3] + tmp[len(tmp) - 8 + 3:]
-                tmp = self.flathead["CTYPE2"]
-                if len(tmp) > 8:
-                    self.flathead["CTYPE2"] = tmp[
-                        0:  3] + tmp[len(tmp) - 8 + 3:]
-                    self.wcs = wcs.WCS(
-                        self.flathead)  # for coord transformation
+                self.flathead["CTYPE1"] = tmp[0:3] + tmp[len(tmp) - 8 + 3:]
+            tmp = self.flathead["CTYPE2"]
+            if len(tmp) > 8:
+                self.flathead["CTYPE2"] = tmp[0:3] + tmp[len(tmp) - 8 + 3:]
 
-            # No wcs proj ?
-            self.wcs_bool = True
-            if (self.wcs.all_pix2sky([[0, 0]], 0) == [[1, 1]]).all():
-                self.wcs_bool = False
-                self.wcs.all_pix2sky = lambda x, y: (99, 99)
+
+            self.wcs = wcs.WCS(self.flathead)  # for coord transformation
+
+            if (self.wcs.all_pix2world([[0, 0]], 0) == [[1, 1]]).all():
+                self.wcs.all_pix2world = lambda x, y: (99, 99)
 
         except:  # includding no wcs module
             import traceback
             W.log(0, traceback.format_exc(),
                   "WARNING I dit not manage to get WCS from wcs\n\n")
-            self.wcs_bool = False
 
             class void:
                 pass
             self.wcs = void()
             # this will be later transformed
-            self.wcs.all_pix2sky = lambda x, y: [[99, 99]] * len(x)
+            self.wcs.all_pix2world = lambda x, y: [[99, 99]] * len(x)
 
         #
         # WCS

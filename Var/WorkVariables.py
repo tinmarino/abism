@@ -11,9 +11,17 @@ verbose = 0
 
 
 # Logger
-logging.basicConfig(stream=stdout)
-logger = logging.getLogger('abism')
-logger.setLevel(logging.DEBUG)
+logFormatter = logging.Formatter(
+    'ABISM: %(asctime)-8s: %(message)s',
+    '%H:%M:%S')
+
+consoleHandler = logging.StreamHandler()
+consoleHandler.setLevel(logging.INFO)
+consoleHandler.setFormatter(logFormatter)
+
+logger = logging.getLogger('ABISM')
+logger.setLevel(logging.INFO)
+logger.handlers = [consoleHandler]
 
 
 def log(i, *args):
@@ -31,4 +39,7 @@ def log(i, *args):
         DEBUG    10  2
         NOTSET    0  3
     """
-    _ = [logger.info(stg) for stg in args if verbose >= i]
+    if verbose < i: return
+
+    message = str(i) + ' : ' + ' '.join([str(arg) for arg in args])
+    logger.info(message)

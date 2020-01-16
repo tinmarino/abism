@@ -50,12 +50,6 @@ def RefreshPick(label):  # This is the only callled routine
 
       # THE CALLL
     globals()[lst[index, 2]]()
-    try:
-        if W.verbose > 3:
-            print("Refresh called |tipe : ",
-                  lst[index, 2], "|old : ", W.type["pick_old"])
-    except:
-        pass
 
 
 def NoPick(disconnect=False):  # to check if all pick types are disconnect

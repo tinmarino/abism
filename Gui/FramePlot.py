@@ -207,7 +207,6 @@ class ImageFrame(PlotFrame):
 
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
-        W.log(3, "MG, what do I know from header", vars(W.head))
         if not (("CD1_1" in vars(W.head)) and ("CD2_2" in vars(W.head))):
             W.log(0, "WARNING WCS Matrix not detected,",
                   "I don't know where the north is")
@@ -246,7 +245,7 @@ class ImageFrame(PlotFrame):
 
         #################
         # 2/ DRAW        0 is the end of the arrow
-        if W.head.wcs_bool:
+        if W.head.wcs is not None:
             G.north = G.ax1.annotate(
                 "",
                 # we invert to get the text at the end of the arrwo
@@ -265,9 +264,11 @@ class ImageFrame(PlotFrame):
                 # connectionstyle="arc3"),
                 )
             G.north_text = G.ax1.annotate(
-                "N", xy=north_point, textcoords=coord_type, color='purple')
+                'N', xytext=north_point,
+                xy=north_point, textcoords=coord_type, color='purple')
             G.east_text = G.ax1.annotate(
-                "E", xy=east_point, textcoords=coord_type, color='red')
+                'E', xytext=east_point,
+                xy=east_point, textcoords=coord_type, color='red')
 
 
     def Cube(self):

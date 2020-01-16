@@ -35,6 +35,8 @@ import ttk
 import warnings
 import wraps
 
+tkinter: apt install python3-tk
+
 """
 
 

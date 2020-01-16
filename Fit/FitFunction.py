@@ -85,10 +85,13 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
                 res.append(df)
         res = np.array(res)
 
-    if verbose:
-        print(asctime(), end='')
-        print('CHI2:', (res**2).sum() / float(reduce(lambda x, y: x+y,
-                                                     [1 if np.isscalar(i) else len(i) for i in y])-len(pfit)+1))
+    # Log
+    l_chi = [1 if np.isscalar(i) else len(i) for i in y]
+    chi2 = (res**2).sum()
+    chi2 /= float(reduce(lambda x, y: x+y, l_chi)-len(pfit)+1)
+    W.log(1, 'CHI2:', chi2)
+
+    # Return
     return res
 
 
@@ -130,8 +133,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
         if k not in fitOnly:
             pfix[k] = params[k]
 
-    if verbose:
-        print('[dpfit] FITTED parameters:', fitOnly)
+    W.log(1, '[dpfit] FITTED parameters:', fitOnly)
 
     # NO BOUNDS
     if bounds == {}:
@@ -177,15 +179,15 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                 uncer[k] = np.sqrt(np.abs(np.diag(cov)[i]*reducedChi2))
 
     if verbose:
-        print('-'*20)
-        print('REDUCED CHI2=', reducedChi2)
+        W.log(1, '-'*20)
+        W.log(1, 'REDUCED CHI2=', reducedChi2)
         tmp = sorted([*pfix])
         for k in tmp:
-            print(k, '=', pfix[k],)
+            W.log(1, k, '=', pfix[k],)
             if uncer[k] != 0:
-                print('+/-', uncer[k])
+                W.log(1, '+/-', uncer[k])
             else:
-                print('')
+                W.log(1, '')
     # result:
     return pfix, uncer, chi2, model,  {"reduced_chi2": reducedChi2, "cov": cov, "plsq": plsq, "pfit": pfit, "fitOnly": fitOnly, "bounds": bounds}
 
@@ -252,15 +254,15 @@ def example():
         leastsqFit(polyN, X,
                    {'A0': 0., 'A1': 0., 'A2': 0.1},
                    Y, err=E, doNotFit=['A1'])
-    print('CHI2=', chi2)
+    W.log(1, 'CHI2=', chi2)
     for k in best.keys():
-        print(k, '=', best[k],)
+        W.log(1, k, '=', best[k],)
         if unc[k] > 0:
-            print('+/-', unc[k])
+            W.log(1, '+/-', unc[k])
         else:
-            print('')
-    print('Y=', Y)
-    print('MODEL=', model)
+            W.log(1, '')
+    W.log(1, 'Y=', Y)
+    W.log(1, 'MODEL=', model)
     return
 
 
@@ -355,13 +357,13 @@ def example5():
     ax1 = plt.subplot(111)
     ax1.plot(x, y)
     ax1.plot(x, model)
-    print(best)
+    W.log(1, best)
     for k in best.keys():
-        print(k, '=', best[k],)
+        W.log(1, k, '=', best[k],)
         if unc[k] > 0:
-            print('+/-', unc[k])
+            W.log(1, '+/-', unc[k])
         else:
-            print('')
+            W.log(1, '')
 
 
 def plot2dgaussian():

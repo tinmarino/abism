@@ -56,7 +56,6 @@ class TextFrame(Frame):
     def toogle(self, visible=None):
         """Toggle visibility: Hide and show"""
         self._see_me = visible if visible is not None else not self._see_me
-        W.log(0, 'Resizing see_me: ', self._see_me)
 
         # Toogle sash
         if self._see_me:
@@ -124,7 +123,7 @@ class LabelFrame(TextFrame):
         text_and_props.append((lbl, {}))
 
         # WCS
-        if W.head.wcs_bool:
+        if W.head.wcs is not None:
             lbl = "WCS detected"
         else:
             lbl = "WCS NOT detected"
