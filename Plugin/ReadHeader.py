@@ -234,7 +234,7 @@ class Header:
                     except IndexError:
                         # if len(key) < 2
                         pass
-                newheader.update('NAXIS', 2)
+                newheader.update(NAXIS=2)
 
                 return newheader
 
