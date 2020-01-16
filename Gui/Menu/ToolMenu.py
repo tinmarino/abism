@@ -4,7 +4,6 @@ import Pick  # to connect PickOne per defautl
 import DebugConsole  # For pythonConsole
 
 import tkinter as Tk
-import LaunchCalculator  # TODO put taht in pluggins
 
 
 def ToolMenu(args):
@@ -16,7 +15,6 @@ def ToolMenu(args):
         ["Stat", lambda: Pick.RefreshPick("stat")],
         ["Histogram", MG.Histopopo],
         ["Python Console", DebugConsole.PythonConsole],
-        [u'\u25be '+'Calculator', LaunchCalculator.Calculator],
     ]
     for i in lst:
         G.tool_menu.menu.add_command(label=i[0], command=i[1])

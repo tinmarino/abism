@@ -12,8 +12,6 @@ import WorkVariables as W
 import MyGui as MG  # TODO remove that
 import InitGui as IG
 
-import LaunchCalculator
-
 
 def MenuBarMaker():             # CALLER
     global args                 # the args of "MenuButton"
