@@ -705,24 +705,6 @@ def Hide(hidden=0):
     G.hidden_text_bool = not G.hidden_text_bool
 
 
-def daemon():  # TODO seems useless so remove
-    if W.verbose > 3:
-        print(threading.currentThread().getName(), 'Starting')
-    while True:
-        sleep(2)
-        fct()
-    if W.verbose > 3:
-        print('Exiting :')
-
-
-def fct():  # TODO put with daemon
-    a = raw_input("Abism listen >")
-    # Run(a)
-    G.TextPaned["bg"] = "green"
-    # sleep(1)
-    # G.parent.after(2000,fct)
-
-
 def SubstractBackground():
     if G.tutorial:
         text = "Choose a FITS image tho subtract to the current image to get read of the sky value or/and the pixel response. This is a VERY basic task that is only subtracting 2 images. It could be improved but image reduction is not the goal of ABISM."
