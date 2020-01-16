@@ -21,10 +21,9 @@ import GuyVariables as G
 # TODO this should not be here
 import WorkVariables as W
 
-class Plot(Frame):
+class PlotFrame(Frame):
     """Base class"""
     def __init__(self, parent, **args):
-
         super().__init__(parent, bg=G.bg[0], **args)
 
         # Grid stuff
@@ -38,6 +37,8 @@ class Plot(Frame):
         self._fig = None  # Figure
         self._arrow = None  # Button
         self._toolbar_frame = None  # Container for toolbar
+        self._toolbar = None
+        self._canvas = None
         # See toolbar by default cause it is grided
         #   And in case no hide button, I see it (cf: Image)
         self._see_toolbar = True
@@ -69,10 +70,8 @@ class Plot(Frame):
 
     def init_toolbar_button(self):
         """Create toolbar button"""
-        photo_up = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
         self._arrow = Button(
-            self, command=self.toogle_toolbar, image=photo_up, **G.bu_arg)
-        self._arrow.image = photo_up  # Garbage safety
+            self, command=self.toogle_toolbar, image=G.photo_up, **G.bu_arg)
         self._arrow.place(relx=1., rely=1., anchor="se")
         self.toogle_toolbar()
 
@@ -83,17 +82,13 @@ class Plot(Frame):
         # CREATE
         if self._see_toolbar:
             W.log(3, "Showing toolbar")
-            photo_down = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-            self._arrow.configure(image=photo_down)
-            self._arrow.image = photo_down  # Garbage safety
+            self._arrow.configure(image=G.photo_down)
             self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
 
         # DESTROY
         else:
             W.log(3, "Hidding toolbar")
-            photo_up = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-            self._arrow.configure(image=photo_up)
-            self._arrow.image = photo_up  # Garbage safety
+            self._arrow.configure(image=G.photo_up)
             self._toolbar_frame.grid_forget()
 
     def get_figure(self):
@@ -111,7 +106,7 @@ class Plot(Frame):
         return self._toolbar
 
 
-class ImageFrame(Plot):
+class ImageFrame(PlotFrame):
     """Frame with science image"""
     def __init__(self, parent):
         super().__init__(parent)
@@ -167,6 +162,8 @@ class ImageFrame(Plot):
         # ColorBar && TooBar
         self._toolbar.update()
         self._cbar = G.fig.colorbar(drawing, pad=0.02)
+        # TODO not here :
+        G.cbar = self._cbar
         self._cbar = DraggableColorbar(self._cbar, drawing)
         self._cbar.connect()
 
@@ -196,11 +193,9 @@ class ImageFrame(Plot):
 
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
-        # TODO move me !!
-        from InitGui import LabelResize
         if new_fits:
             G.label_bool = 0
-            LabelResize()
+            G.LabelFrame.update()
 
 
     def RemoveCompass(self):
@@ -332,7 +327,7 @@ class ImageFrame(Plot):
 
 
 
-class FitFrame(Plot):
+class FitFrame(PlotFrame):
     """Frame with the curve of the fit (1d)"""
     def __init__(self, parent):
         super().__init__(parent)
@@ -348,7 +343,7 @@ class FitFrame(Plot):
         self.init_toolbar_button()
 
 
-class ResultFrame(Plot):
+class ResultFrame(PlotFrame):
     """Frame with some results, dependant on operation"""
     def __init__(self, parent):
         super().__init__(parent)

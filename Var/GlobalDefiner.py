@@ -8,7 +8,7 @@ from sys import argv as sys_argv
 
 # Package
 # from tkinter import
-from tkinter import RAISED, IntVar
+from tkinter import RAISED, IntVar, PhotoImage
 from tkinter import font as tkFont
 import matplotlib
 
@@ -18,8 +18,8 @@ import WorkVariables as W
 
 def MainVar():
     """Init all <- Called by MyGui"""
-    GuiVar()  # Initialt Gui vars
     WorkVar()  # Initial WorkVar
+    GuiVar()  # Initialt Gui vars
     Preference()
     ReadTerminalVar()  # Modify with sys input
 
@@ -30,6 +30,10 @@ def GuiVar():
     """Define the shared variables for the GUI definition"""
     # VERSION
     G.version = '0.900'
+
+    # Icons
+    G.photo_down = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+    G.photo_up = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
 
     # BUTTON WIDTH
     G.button_width = 12  # the width of the standard buttons
@@ -194,8 +198,6 @@ def ReadTerminalVar():
         ["--TextPaned", "G", "geo_dic['TextPaned']"],
         ["--DrawPaned", "G", "geo_dic['DrawPaned']"],
         ["--LabelFrame", "G", "geo_dic['LabelFrame']"],
-        #["--LeftTopFrame","G","geo_dic['LeftTopFrame']" ],
-        # I commented that because it gets in conflict with result
         ["--LeftBottomFrame", "G", "geo_dic['LeftBottomFrame']"],
         ["--RightBottomPaned", "G", "geo_dic['RightBottomFrame']"],
         ["--ImageFrame", "G", "geo_dic['ImageFrame']"],
@@ -299,5 +301,5 @@ def Preference(string="test1"):
 
 def GetPreferenceDefined():
     """Personal favorites ..."""
-    preference = {"test1": """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --LeftTopFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """}
+    preference = {"test1": """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --OptionFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """}
     return preference

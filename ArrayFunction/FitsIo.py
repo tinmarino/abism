@@ -69,16 +69,15 @@ def ScienceVariable():
     # STAT
     vars(W.imstat).update(Stat(W.Im0))
 
-    # TODO, after refactoring INitGui and MyGui
     # Image parameters
-    import InitGui as IG
     if "ManualFrame" in vars(G):
         for i in G.image_parameter_list:
             vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
         # to restore the values in the unclosed ImageParameters Frame
-        IG.GetValueIP("", destroy=False)
+        G.LabelFrame.set_image_parameters("", destroy=False)
     # LABELS
-    IG.ResetLabel(expand=True)
+    G.LabelFrame.update(expand=True)
+    # TODO, after refactoring INitGui and MyGui
     from MyGui import FitType
     FitType(W.type["fit"])
 

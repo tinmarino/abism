@@ -111,12 +111,13 @@ def MoreWidget():       # More photometry options frame
 def MoreCreate():       # Create The Frame
     G.more_bool = not G.more_bool  # mean = 1
     G.top_bool = 0
-    IG.TopResize()
+    from FrameText import TopResize
+    TopResize()
 
     # #########""
     # FRAME
     # create the more_staff Frame
-    G.MoreFrame = Tk.Frame(G.LeftTopFrame, bg=G.bg[0])
+    G.MoreFrame = Tk.Frame(G.OptionFrame, bg=G.bg[0])
     G.all_frame.append("G.MoreFrame")
     G.MoreFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
 

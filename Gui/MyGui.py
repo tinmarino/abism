@@ -6,6 +6,7 @@
 # Standard
 import sys
 from os import system
+from os.path import isfile
 import warnings
 import threading
 from time import sleep
@@ -51,6 +52,9 @@ def MyWindow():
 
     # Init main variables
     MainVar()
+
+    # Give title
+    Title()
     # Init main tk window
     IG.WindowInit()
 
@@ -77,6 +81,40 @@ def MyWindow():
 
     # Loop
     G.parent.mainloop()
+
+
+def Title():
+    """Create OS's window title, icon and Set geomrtry"""
+    # TITLE
+    # Adaptative Background Interactive Strehl Meter
+    G.parent.title(
+        'ABISM (' + "/".join(str(W.image_name).split("/")[-3:]) + ')')
+
+    # ICON
+    if isfile(W.path + '/Icon/bato_chico.gif'):
+        bitmap = PhotoImage(file=W.path + '/Icon/bato_chico.gif')
+        G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
+    else:
+        W.log(3, "->you have no beautiful icon "
+              "because you didn't set the PATH in Abism.py")
+
+    # GEOMETRY
+    if "parent" in G.geo_dic:
+        G.parent.geometry(G.geo_dic["parent"])
+
+
+def Shortcuts():
+    """TODO not working
+    Shortcut, module, function, [  args, kargs  ]
+    # Take MG and parents
+    """
+    lst = [["<Control-o>", "MG", "Open"],
+           ["<Control-q>", "G", "Quit"],
+           ["<Control-r>", "MG", "Restart"],
+           ]
+
+    for i in lst:
+        G.parent.bind_all(i[0], lambda i=i: vars(i[1])[i[2]]())
 
 
 
@@ -119,78 +157,6 @@ def Histopopo():
     G.figfit.canvas.draw()
     warnings.simplefilter("default")
     return
-
-
-def Restart():
-    """ TODO move me to Global Definer, WritePref and ReadPref
-        Pushing this button will close ABISM and restart it the same way it was launch before.
-        Programmers: this is made to reload the Software if a modification in the code were made.
-    """
-
-    #################
-    # prepare arguments
-    arg = W.sys_argv
-
-    # IMAGE_NAME
-    matching = [s for s in arg if ".fits" in s]
-    if len(matching) > 0:
-        arg[arg.index(matching[0])] = W.image_name
-    else:
-        arg.insert(1, W.image_name)
-
-    # COLOR MAP
-    try:
-        cmap = G.cbar.cbar.get_cmap().name
-    except BaseException:
-        cmap = "jet"  # if no image loaded
-    if not isinstance(cmap, str):
-        cmap = "jet"
-    for i in [
-            ["--verbose", W.verbose],
-        ["--bg", G.bg[0]],
-        ["--fg", G.fg[0]],
-
-        # SCALE DIC
-        ["--cmap", cmap],
-        ["--scale_dic_stretch", G.scale_dic[0]["stretch"]],
-        ["--scale_dic_scale_cut_type", G.scale_dic[0]["scale_cut_type"]],
-        ["--scale_dic_percent", G.scale_dic[0]["percent"]],
-
-
-        # FRAME
-        ["--parent", G.parent.geometry()],
-        ["--TextPaned", G.TextPaned.winfo_width()],
-        ["--DrawPaned", G.DrawPaned.winfo_width()],
-        ["--LabelFrame", G.LabelFrame.winfo_width()],
-        ["--LeftBottomFrame", G.LeftBottomFrame.winfo_height()],
-        ["--LeftTopFrame", G.LeftTopFrame.winfo_height()],
-        ["--ImageFrame", G.ImageFrame.winfo_height()],
-        ["--RightBottomPaned", G.RightBottomPaned.winfo_height()],
-        ["--FitFrame", G.FitFrame.winfo_width()],
-        ["--ResultFrame", G.ResultFrame.winfo_width()],
-        ["--ImageName", W.image_name],
-    ]:
-        if not i[0] in arg:
-            arg.append(i[0])
-            arg.append('"' + str(i[1]) + '"')
-        else:
-            arg[arg.index(i[0]) + 1] = '"' + str(i[1]) + '"'
-
-    ###########
-    # PREPARE STG command line args
-    stg = "python "
-    for i in arg:
-        stg += " " + i
-    stg += " &"  # To keep the control of the terminal
-    W.log(0, "\n\n\n" + 80 * "_" + "\n",
-          "Restarting ABISM with command:\n" + stg + "\nplease wait")
-
-    ##########
-    # DESTROY AND LAUNCH
-    G.parent.destroy()  # I destroy Window,
-    system(stg)         # I call an other instance
-    sys.exit(1)         # I exit the current process.
-    # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
 def Save(first=1):
