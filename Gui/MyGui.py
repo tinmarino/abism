@@ -291,16 +291,6 @@ def RemoveCompass():
     G.ax1.texts.remove(G.east_text)
 
 
-def __automatic__():   # Not finished, not called
-    center, pixel_max = IF.GoodPixelMax(W.Im0, 'bidon')
-    # FindStarCenter
-    W.log(3, 'center,pixel_max : ', center, pixel_max)
-    # FWHM
-    FWHM = IF.FWHM(W.Im0, center)
-    W.log(3, FWHM)
-    StrehlMeter(center, 10 * FWHM)  # the image is in G
-
-
 def ScienceVariable():
     # BPM
     if "bpm_name" in vars(W):
