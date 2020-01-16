@@ -1,16 +1,18 @@
 # 2020
 
-1. Py3
+1. Py3 (+ tests)
 2. Lint
 3. Add logger
 4. Refactor(in class)
+5. Sphinx DOC
 
 
 # UO
 7. Open file window larger
 8. just white and dark background(one fancy if you want)
 9. remove pyfits -> astropy.io.fits
-10. Create pip package
+10. remove pywcs -> astropy ?
+11. Create pip package
 
 
 Change Pyfis to detect comment and not stipping last line

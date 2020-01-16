@@ -1,3 +1,6 @@
+"""
+    Array scale helpers
+"""
 import numpy as np
 
 import Stat
@@ -5,12 +8,11 @@ import WorkVariables as W  # to know the stats
 
 
 def MinMaxCut(grid, dic={}):  # From a true value renge give min_cut and max_cut
-    """
-        @brief: define the min and max cut for the viewable image.
-        @param  grid: the image (to be viewed) as a np.array
-        @param  dic: the scale_dic,  defining the clipping style and size,
-for example style: sygma size: 3 means 3 sigma clipping
-        @return the min and max cut in ADU
+    """Define the min and max cut for the viewable image.
+    @param  grid: the image (to be viewed) as a np.array
+    @param  dic:  the scale_dic,  defining the clipping style and size,
+                  for example style: sygma size: 3 means 3 sigma clipping
+    @return the min and max cut in ADU
     """
 
     # CONFIGURE DEFAULT DIC And get input
@@ -56,7 +58,7 @@ for example style: sygma size: 3 means 3 sigma clipping
 
 
 def Rescale(grid, dic={}):  # transform 0-1 to 0-1 with a certain function,
-    """
+    """ TODO give me a lambda
         above linear or under linear. like log or x**2
     """
     default_dic = {"fct": "x"}

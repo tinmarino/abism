@@ -4,6 +4,8 @@
 
 
 # Standard
+import sys
+from os import system
 import warnings
 import threading
 from time import sleep
@@ -36,7 +38,7 @@ import ImageFunction as IF  # Function on images
 
 
 # Variables
-from GlobalDefiner import MainVar, Log
+from GlobalDefiner import MainVar
 import GuyVariables as G
 import WorkVariables as W
 
@@ -235,8 +237,7 @@ def InitImage(new_fits=True):
         del G.cbar
         G.fig.clf()
     except BaseException:
-        if W.verbose > 2:
-            print("InitImage, cannot delete cbar")
+        W.log(2, 'InitImage, cannot delete cbar')
 
     # LOAD IMAGE AND HEADER
     if new_fits:
@@ -256,8 +257,7 @@ def InitImage(new_fits=True):
         from PIL import Image
         im = Image.open(W.image_name)
         W.Im0 = np.asarray(im)
-        if W.verbose > 3:
-            print("Image_name", W.image_name, "\n\n")
+        W.log(3, "Image_name", W.image_name, "\n\n")
         W.Im0 = W.Im0.transpose([2, 0, 1])
         hdu = pyfits.PrimaryHDU(W.Im0)
         W.hdulist = pyfits.HDUList([hdu])
@@ -280,7 +280,7 @@ def InitImage(new_fits=True):
 
         else:
             W.cube_num = W.hdulist[0].data.shape[0] - 1
-            Log(1, '\nERROR InitImage@MyGui.py :' + W.image_name
+            W.log(1, '\nERROR InitImage@MyGui.py :' + W.image_name
                 + ' has no index ' + str(W.cube_num) +
                 "Go back to the last cube index :"
                 + str(W.cube_num) + "\n")
@@ -303,8 +303,7 @@ def InitImage(new_fits=True):
     if re.match(r".*\.fits", W.image_name):
         # much faster also draw_artist can help ?
         G.current_image = W.Im0.astype(np.float32)
-        if W.verbose > 3:
-            print("dic init", G.scale_dic[0])
+        W.log(3, "dic init", G.scale_dic[0])
         Scale(dic=G.scale_dic[0], load=1)  # not to draw the image.
     else:
         G.current_image = W.Im0
@@ -371,10 +370,11 @@ def InitImage(new_fits=True):
 
 
 def DrawCompass():
-    Log(3, "MG, what do I know from header", vars(W.head))
+    """Draw WCS compass to see 'north'"""
+    W.log(3, "MG, what do I know from header", vars(W.head))
     if not (("CD1_1" in vars(W.head)) and ("CD2_2" in vars(W.head))):
-        if W.verbose > 0:
-            print("WARNING WCS Matrix not detected, I don't know where the north is.")
+        W.log(0, "WARNING WCS Matrix not detected,",
+              "I don't know where the north is")
         W.head.CD1_1 = W.head.pixel_scale * 3600
         W.head.CD2_2 = W.head.pixel_scale * 3600
 
@@ -394,8 +394,8 @@ def DrawCompass():
         north_point = arrow_center + north_direction / 10
         east_point = arrow_center + east_direction / 15
 
-    # else :
-    elif coord_type == "data":  # for the arrow IN the image coords can be "data" or "figure fraction"
+    # for the arrow IN the image coords can be "data" or "figure fraction"
+    elif coord_type == "data":
         # in figure fraction
         arrow_center = [0.945 * len(W.Im0), 0.1 * len(W.Im0)]
         # -  because y is upside down       think raw collumn
@@ -405,9 +405,8 @@ def DrawCompass():
                       20 * len(W.Im0), north_point[1]]
     W.north_direction = north_direction
     W.east_direction = east_direction
-    if W.verbose > 3:
-        print("north", north_point, east_point,
-              arrow_center, north_direction, east_direction)
+    W.log(3, "north", north_point, east_point,
+          arrow_center, north_direction, east_direction)
 
     #################
     # 2/ DRAW        0 is the end of the arrow
@@ -443,12 +442,10 @@ def RemoveCompass():
 def __automatic__():   # Not finished, not called
     center, pixel_max = IF.GoodPixelMax(W.Im0, 'bidon')
     # FindStarCenter
-    if W.verbose > 3:
-        print('center,pixel_max : ', center, pixel_max)
+    W.log(3, 'center,pixel_max : ', center, pixel_max)
     # FWHM
     FWHM = IF.FWHM(W.Im0, center)
-    if W.verbose > 3:
-        print(FWHM)
+    W.log(3, FWHM)
     StrehlMeter(center, 10 * FWHM)  # the image is in G
 
 
@@ -477,13 +474,11 @@ def ScienceVariable():
 
 
 def Histopopo():
-    if G.tutorial:
-        text = "This is drawing the histogram of pixel values. It may be usefull."
-        text += "\n\nProgrammers, We can implement a selection of the scale cut of the image with a dragging the vertical lines., with a binning of the image, this could even be in real time."
-        TutorialReturn({"title": "Histogram",
-                        "text": text,
-                        })
-        return
+    """This is drawing the histogram of pixel values. It may be usefull.
+    Programmers, We can implement a selection of the scale cut of the image
+    with a dragging the vertical lines., with a binning of the image,
+    this could even be in real time.
+    """
     matplotlib.font_manager.FontEntry(fname="DejaVuSans")
     font0 = matplotlib.font_manager.FontProperties()
     G.figfit.clf()
@@ -520,7 +515,7 @@ def Histopopo():
 
 def Quit():
     """Kill process"""
-    Log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
+    W.log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
     G.parent.destroy()
     sys.exit(1)
 
@@ -586,14 +581,11 @@ def Restart():
     for i in arg:
         stg += " " + i
     stg += " &"  # To keep the control of the terminal
-    if W.verbose > 0:
-        print("\n\n\n______________________________________\nRestarting ABISM with command:\n" +
-              stg + "\nplease wait")
+    W.log(0, "\n\n\n" + 80 * "_" + "\n",
+          "Restarting ABISM with command:\n" + stg + "\nplease wait")
 
     ##########
     # DESTROY AND LAUNCH
-    import sys
-    from os import system
     G.parent.destroy()  # I destroy Window,
     system(stg)         # I call an other instance
     sys.exit(1)         # I exit the current process.
@@ -613,8 +605,9 @@ def Clear():
     LaunchImageInit()
 
 
-def Save(first=1):  # first time you save, to print(header and staff)
-    """
+def Save(first=1):
+    """Save results of Strehl logging
+    first: time you save, to print(header and staff)
     """
     try:
         from os import popen
@@ -644,7 +637,7 @@ def Save(first=1):  # first time you save, to print(header and staff)
     appendBuffer.write("#######\n----->2/ Strehl Output : \n")
 
     try:
-        aa = W.answer_saved   # check existence
+        _ = W.answer_saved   # check existence
     except BaseException:
         W.answer_saved = W.answer
 
@@ -658,10 +651,10 @@ def Save(first=1):  # first time you save, to print(header and staff)
     #  Terminate
     appendBuffer.write("\n \n")
     appendBuffer.close()
-    return
 
 
-def CubeDisplay(String):    # Button CallBack
+def CubeDisplay(String):
+    """Callback for cube button + -"""
     if String == '+':
         W.cube_num += 1
     elif String == '-':
@@ -671,27 +664,10 @@ def CubeDisplay(String):    # Button CallBack
 
     G.cube_var.set(W.cube_num + 1)
     InitImage(new_fits=False)
-    return
-
-
-def Tutorial():                                     # In help menu
-    print("Not Impoemented well yet. Thing IMPORTANT TODO Martin")
-    G.help = True
-    G.tutorial = not G.tutorial
-    IG.ResetLabel()
-    Label(G.LabelFrame, foreground='blue',
-          text="Read the terminal \n or README file \n in Abism folder").pack(side=BOTTOM)
-    TutorialReturn(
-        {"title": "Tutorial", "text": "Click on the buttons to get the explanation of their function"})
-    return
-
-
-def TutorialReturn(dic):  # TODO remove all callers and himself
-    print("Not Working Man")
-    return
 
 
 def Hide(hidden=0):
+    """Hide Pane as button callback"""
     W.log(3, "My hidden", hidden)
     if G.hidden_text_bool:
         G.MainPaned.sash_place(0, G.hidden_frame_size, 0)
@@ -706,23 +682,18 @@ def Hide(hidden=0):
 
 
 def SubstractBackground():
-    if G.tutorial:
-        text = "Choose a FITS image tho subtract to the current image to get read of the sky value or/and the pixel response. This is a VERY basic task that is only subtracting 2 images. It could be improved but image reduction is not the goal of ABISM."
-        TutorialReturn({"title": "Subtract A background image",
-                        "text": text,
-                        })
-        return
+    """Subtract A background image
+    Choose a FITS image tho subtract to the current image to get read of the sky value or/and the pixel response. This is a VERY basic task that is only subtracting 2 images. It could be improved but image reduction is not the goal of ABISM."""
     String = askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
     W.image_bg_name = String     # image_background_name
     W.hdulist_bg = pyfits.open(String)
     W.Im0_bg = W.hdulist_bg[0].data
-    if (not W.Im0.shape == W.Im0_bg.shape) and (W.verbose > 0):
-        print('ERROR : Science image and Background image should have the same shape')
+    if (not W.Im0.shape == W.Im0_bg.shape):
+        W.Log(0, 'ERROR : Science image and Background image should have the same shape')
     else:
         W.Im0 -= W.Im0_bg
-        InitImage(load=0)
-    return
+        InitImage()
 
 
 def FitType(name):  # strange but works
@@ -793,10 +764,10 @@ def VarSet(var, value):  # change the value of a WorkVariable
     return
 
 
-def Scale(dic={}, load=0, run=""):  # Change contrast and color , load if it is loaded with InitImage
-    """ remember that we need to update G.scael_dic in case we opne a new image, but this is not really true  """
-    if W.verbose > 2:
-        print("Scale called ", dic)
+def Scale(dic={}, load=0, run=""):
+    """Change contrast and color , load if it is loaded with InitImage
+    remember that we need to update G.scael_dic in case we opne a new image, but this is not really true"""
+    W.log(2, "Scale called ", dic)
     if "tutorial" in dic:
         if G.tutorial:
             if "cmap" in dic:
@@ -1026,8 +997,7 @@ def FigurePlot(x, y, dic={}):
     dic : title:"string", logx:bol, logy:bol, xlabel:"" , ylabel:""
     """
     #from matplotlib import pyplot as plt
-    if W.verbose > 3:
-        print("MG.FigurePlotCalled")
+    W.log(3, "MG.FigurePlotCalled")
     from matplotlib import pyplot as plt  # necessary if we are in a sub process
     default_dic = {"warning": 0, "title": "no-title"}
     default_dic.update(dic)
@@ -1062,74 +1032,28 @@ def FigurePlot(x, y, dic={}):
         ############
         # TWIN axes
 
-    # MyProcess() :
-    if W.verbose > 3:
-        print("___________________________________________\n",
-              threading.currentThread().getName(), "Starting------------------\n")
+    W.log(3, 50 * '_', "\n", threading.currentThread().getName(),
+          "Starting------------------\n")
 
     global ax
     G.contrast_fig.clf()
     # tfig.canvas.set_window_title(dic["title"])
 
-    if not (isinstance(x[0], list)):  # otherwise multiple axes
-        if W.verbose > 3:
-            print("MG.FigurePlot, we make a single plot")
+    if not isinstance(x[0], list):  # otherwise multiple axes
+        W.log(3, "MG.FigurePlot, we make a single plot")
         ax = G.contrast_fig.add_subplot(111)
         #from mpl_toolkits.axes_grid1 import host_subplot
         #ax = host_subplot(111)
         SubPlot(x, y)
         if not dic["warning"]:
             warnings.simplefilter("ignore")
-        if W.verbose > 3:
-            print("I will show ")
+        W.log(3, "I will show ")
         G.contrast_fig.canvas.draw()
         if not dic["warning"]:
             warnings.simplefilter("default")
         # tfig.show()
-    if W.verbose > 3:
-        print("___________________________________________\n",
-              threading.currentThread().getName(), "Exiting------------------\n")
 
-    #w = threading.Thread(name='figure_tread', target=MyProcess)
-    # w.start()
-    return
-
-
-def About():
-    """Pop about window"""
-    tk = Tk()
-    tk.title("About Abism")
-    txt = ("Adaptive Background Interactive Strehl Meter\n"
-        "ABISM version " + G.version + " (2013 -- 2020) \n"
-        "Authors: Girard Julien, Tourneboeuf Martin\n"
-        "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
-    l1 = Label(tk, text=txt)
-    l1.pack()
-    tk.mainloop()
-
-
-def See(pdf=""):
-    """Call system see"""
-    import subprocess
-    my_pdf = W.path + "/Doc/" + pdf
-
-    fct = None
-    try:  # PARANAL acroread
-        subprocess.check_call("acroread", shell=False)
-        fct = "acroread"
-    except BaseException:
-        try:  # Linux see
-            subprocess.check_call("see", shell=False)
-            fct = "see"
-        except BaseException:
-            try:  # mac open
-                from subprocess import check_call
-                check_call("open   " + my_pdf, shell=False)
-                fct = "open"
-            except BaseException:
-                pass
-
-    if fct is not None:
-        subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
-    elif W.verbose > 0:
-        print("ERROR pdf viewer : need to be implemented ")
+    # Over
+    W.log(3, '_' * 50 + "\n",
+          threading.currentThread().getName(),
+          'Exiting' + 20 * '-' + "\n")

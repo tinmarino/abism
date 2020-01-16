@@ -28,9 +28,8 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
     """full_answer get the photometry and the background """
     # dictionary will be used for the noise or not
     (x0, y0), (rx1, rx2, ry1, ry2) = center, W.r
-    if W.verbose > 3:
-        print("----->Seeingfit@ImageFunction.py -> r: ",
-              rx1, rx2, ry1, ry2, 'center :', center)
+    W.log(3, "----->Seeingfit@ImageFunction.py -> r: ",
+          rx1, rx2, ry1, ry2, 'center :', center)
     my_max = max
     X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
     y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way

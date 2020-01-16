@@ -1,13 +1,15 @@
-import scipy.optimize
-import numpy as np
-import time
-import matplotlib.pyplot as plt
-import pdb
-import math
+"""
+    Helper to make a 2D function (i.e Gaussian) fit an array
+"""
+from time import asctime
 from functools import reduce
 
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.optimize
 
 from leastsqbound import leastsqbound
+import WorkVariables as W
 
 
 """
@@ -35,7 +37,7 @@ def polyN(x, params):
 
 
 def radial2dgrid(radius, sample, center=[0, 0]):
-
+    """Conver circle to grid"""
     x = np.linspace(-radius, radius, sample)+center[1]
     y = np.linspace(-radius, radius, sample)+center[0]
     xi1 = np.tile(x, sample)
@@ -84,7 +86,7 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
         res = np.array(res)
 
     if verbose:
-        print(time.asctime(), )
+        print(asctime(), end='')
         print('CHI2:', (res**2).sum() / float(reduce(lambda x, y: x+y,
                                                      [1 if np.isscalar(i) else len(i) for i in y])-len(pfit)+1))
     return res

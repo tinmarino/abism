@@ -4,10 +4,11 @@
 
 # Standard
 import re
-import logging
+from sys import argv as sys_argv
 
 # Package
-from tkinter import *
+# from tkinter import
+from tkinter import RAISED, IntVar
 from tkinter import font as tkFont
 import matplotlib
 
@@ -15,51 +16,29 @@ import matplotlib
 import GuyVariables as G
 import WorkVariables as W
 
-# Logger
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger('abism')
-logger.setLevel(logging.DEBUG)
-
-
-def Log(level, *stgs):
-    """Log str(stgs) if verbose = level
-    nickname py  me
-    CRITICAL 50  -3
-    ERROR    40  -2
-    WARNING  30  -1
-    INFO     20  1
-    DEBUG    10  2
-    NOTSET    0  3
-    """
-
-    for stg in stgs:
-        logger.info(stg)
-
-
 def MainVar():
     """Init all <- Called by MyGui"""
-    GuiVar()         # Initialt Gui vars
-    WorkVar()        # Initial WorkVar
-    Preference()      # Change W.sys_argv in function of a preference, default behaviour lets say, the command line are stored in PreferenceDefined
-    TerminalVar()     # Modify with sys input
-    AfterTerminal()
+    GuiVar()  # Initialt Gui vars
+    WorkVar()  # Initial WorkVar
+    Preference()
+    TerminalVar()  # Modify with sys input
 
-    LinkedColor()  # For G and called with BgCl()
+    LinkColor()  # For G and called with BgCl()
 
 
-def GuiVar():  # define the shared variables for the GUI definition
+def GuiVar():
+    """Define the shared variables for the GUI definition"""
     # VERSION
     G.version = '0.900'
 
     # BUTTON WIDTH
-    G.button_width = 12                         # the width of the standard buttons
-    G.bu_width = 12                         # THE SAME
-    G.menu_button_width = 8                          # Size of menu buttons
+    G.button_width = 12  # the width of the standard buttons
+    G.menu_button_width = 8  # Size of menu buttons
 
     # GUI FORM
     # we don't hide text frame by default, the text framme is the output frame on the left
     G.hidden_text_bool = 0
-    G.scale_menu_type = "column"                  # can be "column" or "cascade"
+    G.scale_menu_type = "column" # can be "column" or "cascade"
     G.all_frame = []                        # all frames will be here to change color
     # Can be tkinter or shell , written interaction with the mainloop
     G.interaction_type = "tkinter"
@@ -146,14 +125,22 @@ def GuiVar():  # define the shared variables for the GUI definition
     #######################
 
 
-def WorkVar():  # define the varaibles that we define the way the calculations should be runned. This is an important function of the software.
+def WorkVar():
+    """Define the varaibles that we define the way the calculations should be runned.
+    This is an important function of the software.
+    """
+    # Define verbose level
     W.verbose = 1
 
-    W.sys_argv = sys.argv
+    # Cache locally arg in
+    W.sys_argv = sys_argv
 
     class tmp:
-        pass
-    W.tmp = tmp()  # this is for the temporary variables to pass from one function to an other. Like W.tmp.lst... carrefull
+        """ Placeholder of the most ugly container
+        this is for the temporary variables to pass from one function to an other.
+        Like W.tmp.lst... carrefull
+        """
+    W.tmp = tmp()
 
     W.imstat = G.VoidClass()
     W.image_name = 'no_image_name'
@@ -184,13 +171,14 @@ def WorkVar():  # define the varaibles that we define the way the calculations s
     W.same_psf = 1
 
 
-def TerminalVar():  # The variables can be setted with the terminal entry command.
+def TerminalVar():
+    """The variables can be setted with the terminal entry command."""
     argv = W.sys_argv
 
     lst = [
         ["--verbose", W, "verbose"],
-        ["--phot_type", "W", "type['phot']"],
-        ["--noise_type", "W", "type['noise']"],
+        ["--phot_type", W, "type['phot']"],
+        ["--noise_type", W, "type['noise']"],
 
         ["--bg", "G", "bg[0]"],
         ["--fg", "G", "fg[0]"],
@@ -220,42 +208,39 @@ def TerminalVar():  # The variables can be setted with the terminal entry comman
 
     ]  # prefix for command line , module, variable_name
 
+    # Ugly stuff ...
     for i in lst:
-        if i[0] in argv:
-            if "[" in i[2]:  # means we are in list or dictionary
-                spt = i[2].split("[")
-                stg = i[1] + "." + spt[0]   # variable
+        if not i[0] in argv: continue
 
-                for bla in spt[1:]:
-                    stg += "[" + bla  # index
-                try:
-                    stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
+        if "[" in i[2]:  # means we are in list or dictionary
+            spt = i[2].split("[")
+            stg = i[1] + "." + spt[0]   # variable
 
-                    if W.verbose > 3:
-                        print("GlobalDef.Terminal geo_dic stg :", stg)
-                    exec(stg2, globals(), locals())
-                except:
-                    stg2 = stg + "= argv[argv.index( i[0] ) + 1 ] "
+            for bla in spt[1:]:
+                stg += "[" + bla  # index
+            try:
+                stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
+                W.log(3, "GlobalDef.Terminal geo_dic stg :", stg)
+                exec(stg2, globals(), locals())
+            except:
+                stg2 = stg + "= argv[argv.index( i[0] ) + 1 ] "
+                W.log(3, "GlobalDef.Terminal geo_dic stg :", stg)
+                exec(stg2, globals(), locals())
 
-                    if W.verbose > 3:
-                        print("GlobalDef.Terminal geo_dic stg :", stg)
-                    exec(stg2, globals(), locals())
+        else:  # including not in a dict to be float
+            try:
+                vars(i[1])[i[2]] = float(argv[argv.index(i[0]) + 1])
+            except:
+                vars(i[1])[i[2]] = argv[argv.index(i[0]) + 1]
 
-            else:  # including not in a dict to be float
-                try:
-                    vars(i[1])[i[2]] = float(argv[argv.index(i[0]) + 1])
-                except:
-                    vars(i[1])[i[2]] = argv[argv.index(i[0]) + 1]
-
-    # IMAGE_NAME
-    W.image_name = "no_image_name"
-
+    # Search image_name in argv
+    W.image_name = 'no_image_name'
     for i in W.sys_argv[::-1]:
         if i.find(".fits") != -1:
             W.image_name = str(i)
-
             break
 
+    # Search cut_type in argv
     if "-cut_type" in argv:
         try:  # one number -> percentage
             G.scale_dic[0]["percent"] = float(argv[argv.index("-cut_type")+1])
@@ -273,12 +258,9 @@ def TerminalVar():  # The variables can be setted with the terminal entry comman
                 pass
 
 
-def AfterTerminal():
-    return
-
-
-def LinkedColor():
-        # BUTTON
+def LinkColor():
+    """Link GUI colors to global vars (bg, fg)"""
+    # BUTTON
     G.bu_arg = {"bd": 3, "highlightcolor": G.bg[0], "padx": 0, "pady": 0,
                 "highlightthickness": 0, "fg": G.fg[0]}  # for the borders
     # LABEL
@@ -294,33 +276,28 @@ def LinkedColor():
 
 
 def Preference(string="test1"):
-    def Append(list1, list2):  # list2.append(list1) but with pass if exsit
-        for i in list1:
-            i = i.replace('"', '')
+    """Change W.sys_argv in function of a preference,
+    default behaviour lets say,
+    the command line are stored in PreferenceDefined
+    """
+    # Get default
+    preference = GetPreferenceDefined()
+    my_pref = [
+        pref.replace('"', '')
+        for pref in preference[string].split(' ')
+        if not re.match(r'^\s*$', pref)]
 
-            if (i[0] == "-"):
-                if i in list2:
-                    pass
-                else:
-                    list2.append(i)
-                    list2.append(list1[list1.index(i) + 1])
+    # Update with users
+    for i in my_pref:
+        if i[0] != "-" or i in W.sys_argv: continue
+        W.sys_argv.append(i)
+        W.sys_argv.append(my_pref[my_pref.index(i) + 1])
 
-        return list2
-
-    PreferenceDefined()
-    my_pref = preference[string]
-    my_pref = my_pref.split(" ")
-    # destroy " because everything is string yet
-    my_pref = [i.replace('"', '') for i in my_pref]
-    my_pref = [i for i in my_pref if (
-        not re.match("^\s*$", i))]  # detroy null entry
-
-    W.sys_argv = Append(my_pref, W.sys_argv)
-    Log(2, "Preferences string :", W.sys_argv)
+    # Log in
+    W.log(1, "Preferences string :", W.sys_argv)
 
 
-def PreferenceDefined():
+def GetPreferenceDefined():
     """Personal favorites ..."""
-    global preference
-    preference = {}
-    preference["test1"] = """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --LeftTopFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """
+    preference = {"test1": """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --LeftTopFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """}
+    return preference

@@ -1,4 +1,9 @@
-from tkinter import *
+"""
+    Scrolldown on file tab
+"""
+from tkinter import Menu, Menubutton, Tk, Frame, \
+    Scrollbar, Button, Entry, Text, Label, \
+    LEFT, RIGHT, BOTH, TOP, X, Y, INSERT, END
 from tkinter.filedialog import askopenfilename
 import GuyVariables as G
 import WorkVariables as W
@@ -6,8 +11,8 @@ import WorkVariables as W
 import MyGui as MG
 
 
-def FileMenu(args):                 # Open image, header...
-    """
+def FileMenu(args):
+    """Menu, open_image, header
         args is a dictionnary containing the arguments to make all menuENtry
         identical, logical, responsible, pratical
     """
@@ -22,7 +27,7 @@ def FileMenu(args):                 # Open image, header...
 
 
 def Open():
-    """Open an imae file
+    """Open an image file
     A click on this button will open a window.
     You need to select a FITS image to load with Abism.
     This is an other way to load an image, the first one is to load it
@@ -31,27 +36,20 @@ def Open():
 
     # the same dir as the image
     initialdir = "/".join(W.image_name.split("/")[: -1])
-    String = askopenfilename(title="Open a FITS image", filetypes=[(
+    s_file = askopenfilename(title="Open a FITS image", filetypes=[(
         "fitsfiles", "*.fits"), ("allfiles", "*")], initialdir=initialdir)
+    s_file = str(s_file)
+    W.log(0, "Opening file : " + s_file)
+    W.image_name = s_file
+    MG.InitImage()
 
-    if (type(String) is str or type(String) is unicode) and String != "":
-        if W.verbose > 0:
-            print("Opening file : " + String)
-        W.image_name = String
-        MG.InitImage()
-
+    # Chancge title
     title = W.image_name.split('/')  # we cut the title
     G.parent.title('Abism (' + title[-1]+')')
 
-    #drawing= G.ax1.imshow(W.Im0,vmin=G.min_cut,vmax=G.max_cut)
-    # G.cbar.set_clim(vmin=G.min_cut,vmax=G.max_cut)
-    # G.cbar.draw_all()
-    # G.fig.canvas.draw()
-    return
 
-
-def DisplayHeader():   # for user
-    """"A basic Window to display the header."""
+def DisplayHeader():
+    """Pop Window to display the header (helper)"""
     # parent
     root = Tk()
     root.title('header('+W.image_name+')')
@@ -65,10 +63,10 @@ def DisplayHeader():   # for user
     scroll = Scrollbar(root)
     scroll.pack(side=RIGHT, fill=Y)
 
+    find_list = []
+
     # CONFIGURE FIND
     def find():
-        global find_list
-        find_list = []
         global s
         global olds
         if not "olds" in globals():

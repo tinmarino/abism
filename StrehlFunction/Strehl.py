@@ -39,8 +39,8 @@ def StrehlError():  # after strehl , number count , background, center_x, and ce
 
     if W.type["pick"] != "ellipse":
         W.type["aperture"] = "fit"
-        if W.verbose > 3:
-            print("\n\n WARNING: StrehlError changed the aperture type to fit because not ellipse pick it shouldn't matter ")
+        W.log(3, "\n\n WARNING: StrehlError changed the aperture type "
+              "to fit because not ellipse pick it shouldn't matter ")
     # INTENSITY
     if W.type["aperture"] and W.type["fit"] != "None":
         dI = W.psf_fit[1]["intensity"]
@@ -90,8 +90,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
         W.psf_fit = SI.PsfFit(W.Im0, center=star_center,
                               max=star_max, dictionary=dictionary)
     FIT()
-    if W.verbose > 0:
-        print("Fit efectuated in %f seconds" % (time.time() - start_time))
+    W.log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
 
     W.strehl.update(W.psf_fit[0])
 
