@@ -131,27 +131,17 @@ def Histopopo():
     G.ax2 = G.figfit.add_subplot(111)
     G.ax2.format_coord = lambda x, y: ""  # not see x y label in the toolbar
 
-    #plt.rcParams['mathtext.fontset'] = "regular"
-    # plt.rcParams['mathtext.default']="regular"
-    font = {'family': 'sans-serif', 'sans-serif': ['Helvetica'],
-            'weight': 'normal', 'size': 12}
-    #matplotlib.rc('font', **font)
-    G.ax2.set_xticklabels(G.ax2.get_xticks(), font)
-    G.ax2.set_xticklabels(G.ax2.get_xticks(), font)
-    # ,label='Encircled Energy')
+    for tick in G.ax2.xaxis.get_major_ticks():
+        tick.label.set_fontsize(14)
     G.ax2.axvline(x=G.scale_dic[0]["min_cut"],
                   color='black', linestyle='-', linewidth=2)
-    # ,label='Encircled Energy')
     G.ax2.axvline(x=G.scale_dic[0]["max_cut"],
                   color='black', linestyle='-', linewidth=2)
     # G.ax2.set_title("HISTOGRAM")
     G.ax2.set_xticklabels(
-        W.sort, fontproperties=fm.FontProperties(family="Helvetica"))
+        W.sort) # , fontproperties=fm.FontProperties(family="Helvetica"))
     G.hist = G.ax2.hist(W.sort, 100, log=True)  # n, bin, patches
 
-    # LABELS Because pb of font
-    #G.ax2.set_xticks((  0,np.max(G.hist[0]) ))
-    #G.ax2.set_yticks((  0,np.max(W.Im0) ))
 
     warnings.simplefilter("ignore")
     G.figfit.canvas.draw()
