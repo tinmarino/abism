@@ -2,8 +2,8 @@
     The Tkinter Frame For text / butto ninterface (left)
 
     Label
-    Top
-    Result
+    Option
+    Answer
 """
 
 import re
@@ -20,41 +20,70 @@ import WorkVariables as W
 
 class TextFrame(Frame):
     """TextScrollable frame
-    parent must be vertical pane
+    parent <- must be vertical pane
+    children <- are grided
     """
-    def __init__(self, parent, **args):
-        super_args = G.fr_arg
-        super_args.update(args)
-        super().__init__(parent, **super_args)
+    def __init__(self, parent, label_text='Frame'):
+        super().__init__(parent, **G.fr_arg)
+
+        # Prepare grid attributes
+        self.columnconfigure(0, weight=1)
 
         # Add to parent paned
         parent.add(self, **G.sub_paned_arg)
 
         self._parent = parent  # for sash positioning
         self._arrow = None  # Button
-        self._see_me = True
+        # TODO can I impoorve that trick ?
+        self._last = None  # To get the normal size
+        self._see_me = True  # Bool do you see me
+        self._label_text = label_text
 
-    def toogle(self):
+    def init_after(self):
+        """Place a last widget"""
+        # Place button to resize
+        self._arrow = Button(
+            self, command=self.toogle, image=G.photo_up, **G.bu_arg)
+        self._arrow.place(relx=1., rely=0., anchor="ne")
+
+        # Place a label for the eye
+        Label(self, text=self._label_text, **G.frame_title_arg).place(x=0, y=0)
+
+        # Last widget
+        self._last = Label(self, height=0, width=0)
+        self._last.grid()
+
+    def toogle(self, visible=None):
         """Toggle visibility: Hide and show"""
-        self._see_me = not self._see_me
-        W.log(3, 'Resizing see_me: ', self._see_me)
+        self._see_me = visible if visible is not None else not self._see_me
+        W.log(0, 'Resizing see_me: ', self._see_me)
 
+        # Toogle sash
         if self._see_me:
             self._parent.sash_place(0, 0, 22)
             self._arrow.configure(image=G.photo_down)
-
         else:
-            G.TextPaned.sash_place(
-                0, 0, G.last_label.winfo_y() + G.last_label.winfo_height())
+            G.TextPaned.sash_place(0, 0, self._last.winfo_y())
             self._arrow.configure(image=G.photo_up)
+
+    def clear(self):
+        """Destroy all children, take care !"""
+        W.log(3, 'Clearing ' + self._label_text)
+        # Destroy children
+        children = self.grid_slaves()
+        for child in children:
+            child.destroy()
+
+        # Restore default
+        self.init_after()
 
 
 class LabelFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, label_text='Info')
 
-    def update(self, expand=False):
+    def update(self):
         """Called later, display what I retrived from header
         warning: expand not working well
         ESO /  not ESO
@@ -63,7 +92,6 @@ class LabelFrame(TextFrame):
         Nx x Ny x Nz
         WCS detected or not
         """
-        # Old name: def ResetLabel(expand=False):
 
         # Declare list of label (text, properties)
         text_and_props = []
@@ -128,7 +156,6 @@ class LabelFrame(TextFrame):
 
         # Grid labels
         row = 0
-        self.columnconfigure(0, weight=1)
         for i in text_and_props:
             arg = G.lb_arg.copy()
             arg.update({"justify": CENTER})
@@ -139,32 +166,11 @@ class LabelFrame(TextFrame):
                 row=row, column=0, sticky="nsew")
             row += 1
 
-        self._arrow = Button(
-            self, command=self.toogle, image=G.photo_up, **G.bu_arg)
-        self._arrow.place(relx=1., rely=0., anchor="ne")
-
-        # place frame_title_label
-        Label(self, text="Labels", **G.frame_title_arg).place(x=0, y=0)
-
-        # Button to resize
-        # TODO remove after mutualize
-        arg = G.bu_arg.copy()
-        arg.update({"text": "OK",
-                    "command": self.update,
-                    "padx": 3,
-                    "width": 20
-                    })
-        G.last_label = Button(self, **arg)
-        G.last_label.grid(row=row, column=0, sticky="nswe")
-        row += 1
-
-        if expand:
-            G.label_bool = 0
-            self.update()
-
+        # Create what it takes
+        self.init_after()
 
     def set_image_parameters(self, event, destroy=True):
-        """Set imageparameter"""
+        """Set imageparameter, labels"""
         # Parse
         for i in G.image_parameter_list:
             vars(W.head)[i[1]] = float(vars(G.tkentry)[i[1]].get())
@@ -175,42 +181,114 @@ class LabelFrame(TextFrame):
                 vars(G.tkentry)[i[1]]["bg"] = "#ffffff"
 
         # Show
-        self.update(expand=False)
+        self.update()
 
 
 class OptionFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, label_text='Option')
+        self.init_after()
+
+    def ask_image_parameters(self):
+        """Create Image Parameters Frame
+        Warning do not confound with Label one
+        To measure the Strehl ratio I really need :\n"
+        -> Diameter of the telescope [in meters]\n"
+        -> Obstruction of the telescope [ in % of the area obstructed ]\n"
+        -> Wavelenght [ in micro meter ], the central wavelength of the band\n"
+        -> Pixel_scale [ in arcsec per pixel ]\n"
+        All the above parameters are used to get the diffraction pattern of the telescope
+            because the peak of the PSF will be divided by the maximum of the diffraction
+            patter WITH the same photometry to get the strehl.\n\n"
+        Put the corresponding values in the entry widgets.
+        Then, to save the values, press enter i, ONE of the entry widget
+        or click on ImageParamter button again.\n"
+        Note that these parameters should be readden from your image header.
+        If it is not the case, you can send me an email or modify ReadHeader.py module."
+        """
+        G.image_parameter_list = [["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
+                                ["Pixel scale" + "*" + " [''/pix]: ",
+                                "pixel_scale", 99.],
+                                ["Diameter" + "*" + " [m]:", "diameter", 99.],
+                                ["Obstruction (d2/d1)*" + " [%]:",
+                                "obstruction", 99.],
+                                ["Zero point [mag]: ", "zpt", 0.],
+                                ["Exposure time [sec]: ", "exptime", 1.],
+                                ]  # Label, variable , default value
+
+        ##########
+        # INITIATE THE FRAME, change button color
+        if G.bu_manual["background"] == G.bu_manual_color:
+            # Grid new frame
+            G.ManualFrame = Frame(self, bg=G.bg[0])
+            G.ManualFrame.grid(sticky='nsew')
+
+            # TITEL
+            Label(G.ManualFrame, text="Parameters", **
+                G.frame_title_arg).pack(side=TOP, anchor="w")
+            G.ManualGridFrame = Frame(G.ManualFrame)
+            G.ManualGridFrame.pack(expand=0, fill=BOTH, side=TOP)
+            G.ManualGridFrame.columnconfigure(0, weight=1)
+            G.ManualGridFrame.columnconfigure(1, weight=1)
+
+            ###################
+            # THE ENTRIES (it is before the main dish )
+            row = 0
+            for i in G.image_parameter_list:
+                l = Label(G.ManualGridFrame, text=i[0], font=G.font_param,
+                        justify=LEFT, anchor="nw", **G.lb_arg)
+                l.grid(row=row, column=0, sticky="NSEW")
+                vars(G.tkvar)[i[1]] = StringVar()
+                vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
+                    G.tkvar)[i[1]], font=G.font_param, **G.en_arg)
+                if vars(W.head)[i[1]] == i[2]:
+                    vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
+                vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
+                vars(G.tkentry)[i[1]].bind('<Return>', G.LabelFrame.set_image_parameters)
+                if len(str(vars(W.head)[i[1]])) > 6:  # not to long for display
+                    vars(G.tkvar)[i[1]].set("%.5f" % float(vars(W.head)[i[1]]))
+                else:
+                    vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
+                row += 1
+
+            G.bu_manual["background"] = 'green'
+            G.bu_manual["text"] = u'\u25b4 ' + 'ImageParameters'
+
+            # EXPAND
+            self.toogle(visible=True)
+
+        elif G.bu_manual["background"] == 'green':  # destroy manualFrame  and save datas
+
+            G.ManualFrame.destroy()
+            del G.ManualFrame
+            if G.in_arrow_frame == "param_title":
+                G.arrtitle.destroy()
+                G.in_arrow_frame = None
+            G.all_frame = [x for x in G.all_frame if x !=
+                        "G.ManualFrame"]  # remove MoreFrame
+            G.bu_manual["background"] = G.bu_manual_color
+            G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
 
 
-class ResultFrame(TextFrame):
+class AnswerFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, label_text='Result')
 
-        # Pack Result Label
-        Label(
-            self, text="Results",
-            **G.frame_title_arg).pack(side=LEFT)
-        G.fit_type_label = Label(
-            self, text=W.type["fit"],
-            justify=CENTER, **G.lb_arg)
-        G.fit_type_label.pack(fill=X)
+        self.init_after()
 
-        # Pack Answer frame
-        G.AnswerFrame = Frame(G.TextPaned, bg=G.bg[0])
-        G.all_frame.append("G.AnswerFrame")
-        G.AnswerFrame.pack(expand=0, fill=BOTH)
+    def init_after(self):
+        """Add fit type label"""
+        self._fit_type_label = Label(self, text=W.type["fit"], justify=CENTER, **G.lb_arg)
+        self._fit_type_label.grid(sticky='nsew')
+        # Add also standard above
+        super().init_after()
 
-        # ARROW in RESULT LABEL
-        # if G.result_bool :  # label is big
-        photo_down = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
+    def set_fit_type_text(self, s_text):
+        """Change fit type label text"""
+        self._fit_type_label.configure(text=s_text)
 
-        G.result_frame_arrow = Button(
-            self, command=ResultResize, image=photo_down, **G.bu_arg)
-        G.result_frame_arrow.image = photo_down  # keep a reference
-        G.result_frame_arrow.place(relx=1., rely=0., anchor="ne")
 
 
 class ButtonFrame(Frame):
@@ -218,23 +296,23 @@ class ButtonFrame(Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        # Quit
+        # Create Quit
         G.bu_quit = Button(
             self, text='QUIT',
             background=G.bu_quit_color,
             command=G.Quit, **G.bu_arg)
 
-        # Restart
+        # Create Restart
         G.bu_restart = Button(
             self, text='RESTART',
             background=G.bu_restart_color,
             command=G.Restart, **G.bu_arg)
 
-        # Expand Image Parameter
+        # Create Expand Image Parameter
         G.bu_manual = Button(
             self, text=u'\u25be ' + 'ImageParameters',
             background=G.bu_manual_color,
-            command=ImageParameter, **G.bu_arg)  # MANUAL M
+            command=G.OptionFrame.ask_image_parameters, **G.bu_arg)
 
         # Grid
         self.columnconfigure(0, weight=1)
@@ -251,175 +329,21 @@ class LeftFrame(Frame):
         super().__init__(parent, **G.fr_arg)
         parent.add(self)
 
-        # Pack some buttons
-        button_frame = ButtonFrame(self)
-        button_frame.pack(side=TOP, expand=0, fill=X)
-
-        # Pack paned 3 frames
+        # Create Paned
         G.TextPaned = PanedWindow(self, orient=VERTICAL, **G.paned_dic)
-        G.TextPaned.pack(side=TOP, expand=1, fill=BOTH)
 
-        # LabelFrame
+        # Add LabelFrame
         G.LabelFrame = LabelFrame(G.TextPaned)
 
-        # LabelFrame
-        G.OptionFrame = LabelFrame(G.TextPaned)
-        LeftTopArrow()
+        # Add LabelFrame
+        G.OptionFrame = OptionFrame(G.TextPaned)
 
-        # ResultFrame
-        G.ResultLabelFrame = G.LeftBottomFrame = ResultFrame(G.TextPaned)
+        # Add AnswerFrame
+        G.AnswerFrame = AnswerFrame(G.TextPaned)
 
+        # Create Buttons with callback to preceding
+        button_frame = ButtonFrame(self)
 
-def ImageParameter():
-    """Image Parameters
-    To measure the Strehl ratio I really need :\n"
-    -> Diameter of the telescope [in meters]\n"
-    -> Obstruction of the telescope [ in % of the area obstructed ]\n"
-    -> Wavelenght [ in micro meter ], the central wavelength of the band\n"
-    -> Pixel_scale [ in arcsec per pixel ]\n"
-    All the above parameters are used to get the diffraction pattern of the telescope
-        because the peak of the PSF will be divided by the maximum of the diffraction
-        patter WITH the same photometry to get the strehl.\n\n"
-    Put the corresponding values in the entry widgets.
-    Then, to save the values, press enter i, ONE of the entry widget
-    or click on ImageParamter button again.\n"
-    Note that these parameters should be readden from your image header.
-    If it is not the case, you can send me an email or modify ReadHeader.py module."
-    """
-    G.image_parameter_list = [["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
-                              ["Pixel scale" + "*" + " [''/pix]: ",
-                               "pixel_scale", 99.],
-                              ["Diameter" + "*" + " [m]:", "diameter", 99.],
-                              ["Obstruction (d2/d1)*" + " [%]:",
-                               "obstruction", 99.],
-                              ["Zero point [mag]: ", "zpt", 0.],
-                              ["Exposure time [sec]: ", "exptime", 1.],
-                              ]  # Label, variable , default value
-
-    ##########
-    # INITIATE THE FRAME, change button color
-    if G.bu_manual["background"] == G.bu_manual_color:
-        G.ManualFrame = Frame(G.OptionFrame, bg=G.bg[0])
-        G.all_frame.append("G.ManualFrame")
-        # to keep other guys upside
-        G.ManualFrame.pack(expand=0, fill=BOTH, side=TOP)
-        # TITEL
-        Label(G.ManualFrame, text="Parameters", **
-              G.frame_title_arg).pack(side=TOP, anchor="w")
-        G.ManualGridFrame = Frame(G.ManualFrame)
-        G.ManualGridFrame.pack(expand=0, fill=BOTH, side=TOP)
-        G.ManualGridFrame.columnconfigure(0, weight=1)
-        G.ManualGridFrame.columnconfigure(1, weight=1)
-
-        ###################
-        # THE ENTRIES (it is before the main dish )
-        row = 0
-        for i in G.image_parameter_list:
-            l = Label(G.ManualGridFrame, text=i[0], font=G.font_param,
-                      justify=LEFT, anchor="nw", **G.lb_arg)
-            l.grid(row=row, column=0, sticky="NSEW")
-            vars(G.tkvar)[i[1]] = StringVar()
-            vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
-                G.tkvar)[i[1]], font=G.font_param, **G.en_arg)
-            if vars(W.head)[i[1]] == i[2]:
-                vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
-            vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
-            vars(G.tkentry)[i[1]].bind('<Return>', GetValueIP)
-            if len(str(vars(W.head)[i[1]])) > 6:  # not to long for display
-                vars(G.tkvar)[i[1]].set("%.5f" % float(vars(W.head)[i[1]]))
-            else:
-                vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
-            row += 1
-
-        G.bu_manual["background"] = 'green'
-        G.bu_manual["text"] = u'\u25b4 ' + 'ImageParameters'
-
-        # EXPAND
-        G.top_bool = 0
-        TopResize()
-
-    elif G.bu_manual["background"] == 'green':  # destroy manualFrame  and save datas
-        GetValueIP("")  # because receive event
-        G.ManualFrame.destroy()
-        del G.ManualFrame
-        if G.in_arrow_frame == "param_title":
-            G.arrtitle.destroy()
-            G.in_arrow_frame = None
-        G.all_frame = [x for x in G.all_frame if x !=
-                       "G.ManualFrame"]  # remove MoreFrame
-        G.bu_manual["background"] = G.bu_manual_color
-        G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
-
-
-
-def TopResize():        # called  later when clicking on toparrow
-    if G.top_bool:
-        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
-        G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
-    else:
-        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-        place = G.parent.winfo_height() - G.TextPaned.winfo_rooty() - 200
-        G.TextPaned.sash_place(1, 0, place)
-
-    G.top_bool = not G.top_bool
-    G.top_frame_arrow['image'] = photo
-    G.top_frame_arrow.image = photo  # keep a reference
-
-    return
-
-
-###
-# TEXT ARROWS
-####
-def LeftTopArrow():  # jsut draw the arrow, see after
-    # TODO mutualize
-    """ this do not need to be on a function but if you want to place
-        the arrow it will vanish when packing other frame. SO I packed the
-        arrow, otherwhise you need to redraw it all the time
-    """
-    # PACK TEH FRAME
-    G.LeftTopArrowFrame = Frame(G.OptionFrame, **G.fr_arg)
-    G.LeftTopArrowFrame.pack(side=TOP, expand=0, fill=X)
-
-    # Load ARROW IMAGE
-    if G.top_bool:  # label is big
-        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-    else:
-        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-
-    # Pach Arrow image as button
-    G.top_frame_arrow = Button(
-        G.LeftTopArrowFrame, command=TopResize, image=photo, **G.bu_arg)
-    G.top_frame_arrow.image = photo  # keep a reference
-    G.top_frame_arrow.pack(side=RIGHT, anchor="ne", expand=0)
-
-
-def ResultResize(how="max"):  # called  later
-    # if not G.result_bool : # this is to expand
-    if how == "max":  # resize max
-        base = G.TextPaned.sash_coord(0)[1]  # jus height of the previous sash
-        G.TextPaned.sash_place(1, 0, base + 22 + 2 * G.paned_dic["sashwidth"])
-        if W.verbose > 3:
-            print("REsize result: ", 22)
-
-    elif how == "full":  # see everything but not more
-        def Pos():  # calculate position of the sash
-            # to expand the widget, and estimate their size, no number is interpreted ad infinity
-            G.TextPaned.sash_place(1, 0, )
-            corner2 = max([i.winfo_rooty() for j in G.LeftBottomFrame.winfo_children(
-            ) for i in j.winfo_children()])  # the max size
-            base = G.LeftBottomFrame.winfo_rooty()  # top of the left bottom Frame
-            size = corner2 - base                   # size fo the left Botttom Frame
-            base_sash1 = G.OptionFrame.winfo_rooty()
-            pos = G.parent.winfo_height() - size - base_sash1
-
-            return max(pos, 22)  # minimum 22 pixels
-
-        pos = Pos()
-        G.TextPaned.sash_place(1, 0, pos)
-        if W.verbose > 3:
-            print("REsize Top: ", pos)
-
-    return
-
+        # Pack buttons and pane
+        button_frame.pack(side=TOP, expand=0, fill=X)
+        G.TextPaned.pack(side=TOP, expand=1, fill=BOTH)

@@ -76,7 +76,7 @@ def ScienceVariable():
         # to restore the values in the unclosed ImageParameters Frame
         G.LabelFrame.set_image_parameters("", destroy=False)
     # LABELS
-    G.LabelFrame.update(expand=True)
+    G.LabelFrame.update()
     # TODO, after refactoring INitGui and MyGui
     from MyGui import FitType
     FitType(W.type["fit"])

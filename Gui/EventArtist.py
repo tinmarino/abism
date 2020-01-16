@@ -454,7 +454,7 @@ class Profile:
         return
 
     def on_motion(self, event):
-        if self.point1 == None:
+        if self.point1 is None:
             return
         self.point2 = [event.ydata, event.xdata]
         # here we invert because matplotlib take x y and we work in row column

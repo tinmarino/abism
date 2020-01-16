@@ -1,3 +1,6 @@
+"""
+    To pretty print the answer, may go to FameText
+"""
 try:
     from Tkinter import *
 except:
@@ -94,18 +97,13 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         G.scale_dic[0]["answer"] = unit
 
     # FIT TYPE
-    G.fit_type_label.pack_forget()
-    G.fit_type_label = Label(
-        G.ResultLabelFrame, text=W.type["fit"], justify=CENTER, **G.lb_arg)
-    G.fit_type_label.pack(fill=X)
+    G.AnswerFrame.set_fit_type_text(W.type['fit'])
+    G.AnswerFrame.clear()
+
     ##################
     # 1/  Destroy  answer frame, remove arrows
     if ((not type(W.type["pick"]) is list) or (W.type["pick"][0] == 'many' and W.type["pick"][1] == 1)) or (not append):
 
-        if W.verbose > 3:
-            print("Idestroy AnswerFrame")
-        if "AnswerFrame" in vars(G):
-            G.AnswerFrame.destroy()
         if append and ("arrows" in vars(G)):  # and ( len(G.arrows) !=0)   :
             try:  # if load new image while being on pick many
                 for i in range(len(G.arrows)):
@@ -118,24 +116,15 @@ def PlotAnswer(unit=None, append=True):  # CALLER
                 if W.verbose > 3:
                     print("Warning: cannot remove arrows")
 
-         ##################
-        # 1.2and  construct it
-        # in G.all_frame yet
-        G.AnswerFrame = Frame(G.LeftBottomFrame, bg=G.bg[0])
-        G.AnswerFrame.pack(expand=0, fill=BOTH)
 
         ########
         # 1.3 ANd put the button sky o detector units
         # to fill th ecolumn on th epossible space
-        G.AnswerFrame.columnconfigure(0, weight=1)
         G.bu_answer_type = Button(
             G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, **G.bu_arg)
         G.lb_answer_type = Label(
             G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **G.lb_arg)
-        G.AnswerFrame.columnconfigure(0, weight=1)
-        G.AnswerFrame.columnconfigure(1, minsize=150, weight=1)
 
-    # "
     # 2/ CALL the corresponding PLot
     if W.type["pick"] == 'one':
         PlotPickOne()
@@ -156,7 +145,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         PlotStat()
     DisplayAnswer(font=G.answer_font)
 
-    # CHange sash if Answer atrofied
+    # Change sash if Answer atrofied
     place = G.parent.winfo_height() - G.TextPaned.winfo_rooty() - 300
     if G.TextPaned.sash_coord(1)[1] > place + 30:
         G.TextPaned.sash_place(1, 0, place)
@@ -611,9 +600,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
             l = Label(G.AnswerFrame, bg=G.bg[0])
             l["fg"] = "red"
             l["font"] = G.warning_font
-            stg = "Wide Binary\n"
-            stg += "pick objects individually"
-            l["text"] = stg
+            l["text"] = "Wide Binary\npick objects individually"
             l.grid(row=row, column=0, columnspan=2)
             row += 1
 
@@ -621,9 +608,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
             l = Label(G.AnswerFrame, bg=G.bg[0])
             l["fg"] = "red"
             l["font"] = G.warning_font
-            stg = "Tight Binary\n"
-            stg += "may be unreliable"
-            l["text"] = stg
+            l["text"] = "Tight Binary\nmay be unreliable"
             l.grid(row=row, column=0, columnspan=2)
             row += 1
 

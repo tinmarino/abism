@@ -11,7 +11,7 @@ verbose = 0
 
 
 # Logger
-logging.basicConfig(stream=stdout, level=logging.DEBUG)
+logging.basicConfig(stream=stdout)
 logger = logging.getLogger('abism')
 logger.setLevel(logging.DEBUG)
 

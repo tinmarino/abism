@@ -3,6 +3,8 @@ import tkinter as Tk
 import GuyVariables as G
 import WorkVariables as W
 
+import Pick
+
 import MyGui as MG    # TODO must be removed
 import MenuBar        # TODO must removed that too
 import InitGui as IG  # TODO must be removed too
@@ -110,16 +112,14 @@ def MoreWidget():       # More photometry options frame
 
 def MoreCreate():       # Create The Frame
     G.more_bool = not G.more_bool  # mean = 1
-    G.top_bool = 0
-    from FrameText import TopResize
-    TopResize()
+    G.OptionFrame.toogle(visible=True)
 
     # #########""
     # FRAME
     # create the more_staff Frame
     G.MoreFrame = Tk.Frame(G.OptionFrame, bg=G.bg[0])
     G.all_frame.append("G.MoreFrame")
-    G.MoreFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
+    G.MoreFrame.grid(sticky='nsew')
 
     Tk.Label(G.MoreFrame,
              text="More Options",

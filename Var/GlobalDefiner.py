@@ -134,7 +134,7 @@ def WorkVar():
     This is an important function of the software.
     """
     # Define verbose level
-    W.verbose = 1
+    W.verbose = 5
 
     # Cache locally arg in
     W.sys_argv = sys_argv
@@ -198,10 +198,10 @@ def ReadTerminalVar():
         ["--TextPaned", "G", "geo_dic['TextPaned']"],
         ["--DrawPaned", "G", "geo_dic['DrawPaned']"],
         ["--LabelFrame", "G", "geo_dic['LabelFrame']"],
-        ["--LeftBottomFrame", "G", "geo_dic['LeftBottomFrame']"],
+        ["--ResultFrame", "G", "geo_dic['ResultFrame']"],
         ["--RightBottomPaned", "G", "geo_dic['RightBottomFrame']"],
         ["--ImageFrame", "G", "geo_dic['ImageFrame']"],
-        ["--ResultFrame", "G", "geo_dic['ResultFrame']"],
+        ["--AnswerFrame", "G", "geo_dic['AnswerFrame']"],
         ["--FitFrame", "G", "geo_dic['FitFrame']"],
 
         ["--ImageName", W, "image_name"],
@@ -301,5 +301,5 @@ def Preference(string="test1"):
 
 def GetPreferenceDefined():
     """Personal favorites ..."""
-    preference = {"test1": """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --LeftBottomFrame "255" --OptionFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """}
+    preference = {"test1": """--parent "862x743+73+31" --cmap "jet" --bg "#d0d0d0" --verbose "1.0" --TextPaned "283" --DrawPaned "575" --AnswerFrame "255" --OptionFrame "454" --ImageFrame "521" --RightBottomPaned "188" --FitFrame "275" --ResultFrame "294" """}
     return preference

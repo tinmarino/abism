@@ -45,7 +45,7 @@ def Order4(r, grid=None):
         tmp = ry1
         ry1 = ry2
         ry2 = tmp
-    if grid != None:
+    if grid is not None:
         rx1 = max(rx1, 0)
         ry1 = max(ry1, 0)
         rx2 = min(rx2, len(grid)-1)
@@ -86,7 +86,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
                "interpolation" # interpolation of the 5*5
     """
     # INIT R
-    if r == None:
+    if r is None:
         r = (center[0]-size, center[0]+size+1,
              center[1]-size, center[1]+size+1)
 
@@ -156,7 +156,7 @@ def GravityCenter(grid, center=None, rad=None, r=None, bol=None):
     # bol is the bollean of teh selected pixels
 
     # 1/ Create Constants
-    if r == None:
+    if r is None:
         (x0, y0) = int(center[0]), int(center[1])
         my_r = int(rad)
         rx1, rx2, ry1, ry2 = x0-my_r, x0+my_r, y0-myr, y0+my_r
@@ -292,7 +292,7 @@ def PointIntensity(grid, point):
 
 
 def PixelMax(grid, r=None):   # array.float , 2 float , 1 float     RETURN center, max (=2+1floats)
-    if r == None:
+    if r is None:
         r = 0, len(grid), 0, len(grid[0])
     cut1 = grid[r[0]: r[1], r[2]: r[3]]
     x, y = np.unravel_index(cut1.argmax(), cut1.shape)
@@ -514,7 +514,7 @@ def FindBadPixel(grid, r=None, method=('median', 3, 2), ordered=False):
     # In the method we define in arg1 the number of pixel to include in the median
     # and in arg2, the max differnce between true image and median
     # the bad pixels can be noise or warm pixel
-    if r == None:
+    if r is None:
         IX = grid
     else:
         if ordered == False:
@@ -589,7 +589,7 @@ def RadialLine(grid, point1_and_point2, return_point=0):
 
 # we supose that r is ordere for the display og the strahl funciton
 def XProfile(grid, center, r=None, direction='X'):
-    if r == None:
+    if r is None:
         r = (0, len(grid)-1,   "useless", "useless")
     Order4(r)
     if direction == 'X':

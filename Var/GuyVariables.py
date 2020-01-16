@@ -65,12 +65,12 @@ def Restart():
         ["--TextPaned", TextPaned.winfo_width()],
         ["--DrawPaned", DrawPaned.winfo_width()],
         ["--LabelFrame", LabelFrame.winfo_width()],
-        ["--LeftBottomFrame", LeftBottomFrame.winfo_height()],
+        ["--ResultFrame", ResultFrame.winfo_height()],
         ["--OptionFrame", OptionFrame.winfo_height()],
         ["--ImageFrame", ImageFrame.winfo_height()],
         ["--RightBottomPaned", RightBottomPaned.winfo_height()],
         ["--FitFrame", FitFrame.winfo_width()],
-        ["--ResultFrame", ResultFrame.winfo_width()],
+        ["--AnswerFrame", AnswerFrame.winfo_width()],
         ["--ImageName", W.image_name],
     ]:
         if not i[0] in arg:
@@ -130,14 +130,11 @@ TODO this in shpinx
 
 3 | leftTop | | son of TextPaned,
 
-3 | LeftBottomFrame | | son of textPaned
-
-4 | ResultLabelFrame - | son of leftBottomFrame
-
+3 | ResultFrame | | son of textPaned
 4 | Button1Frame | | with button exit, restart and staff
 
 4 | FitFrame    | Tk.Frame   | Chile of RightBottomPaned, it is used to display the fit in one dimension, here I ca see the ADU of the star
 
-5 | ResultFrame | Tk.Frame   | Even if it has a bad name, it is used, to see the star from above, I 2D, just like a zoom of the ImageFrame, on this graph, There is also the fitted image. Do both look the same ? If not, the result is wrong.
+5 | AnswerFrame | Tk.Frame   | Even if it has a bad name, it is used, to see the star from above, I 2D, just like a zoom of the ImageFrame, on this graph, There is also the fitted image. Do both look the same ? If not, the result is wrong.
 
 """

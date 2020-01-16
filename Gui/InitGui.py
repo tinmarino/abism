@@ -120,10 +120,8 @@ def ManualCut():
         ManualCutClose()
 
     else:  # including no manula_cut_bool
-        G.top_resize = 1
-        TopResize()
-        G.top_resize = 0
-        TopResize()
+        G.OptionFrame.toogle(see=False)
+        G.OptionFrame.toogle(see=True)
         G.manual_cut_bool = not G.manual_cut_bool
         G.ManualCutFrame = Frame(G.OptionFrame, bg=G.bg[0])
         G.all_frame.append("G.ManualCutFrame")
