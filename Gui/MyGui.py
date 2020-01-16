@@ -513,13 +513,6 @@ def Histopopo():
     return
 
 
-def Quit():
-    """Kill process"""
-    W.log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
-    G.parent.destroy()
-    sys.exit(1)
-
-
 def Restart():
     """ TODO move me to Global Definer, WritePref and ReadPref
         Pushing this button will close ABISM and restart it the same way it was launch before.

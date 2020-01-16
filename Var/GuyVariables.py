@@ -1,25 +1,33 @@
-from tkinter import *
+"""
+    Utilities for Abism GUI
+"""
+
+# Standard
+from sys import exit as sys_exit
+
+import WorkVariables as W
 
 """
     Read globalDefiner
 """
 
+# Gui parent
+parent = None
 
-class GuiGlobals:
-    # I mean these vars are local to the main tk loop, but as it is the main
-    # loop, they are globzal to ABISM current runtime
-    def __init__(self):
-        self.parent = instance  # This is the parent of everything. The first
-# defined and the one doing the mainloop
+def Quit():
+    """Kill process"""
+    W.log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
+    parent.destroy()
+    sys_exit(1)
+
 
 # TODO remove this
-
-
 class VoidClass:
-    pass
+    """Helper container"""
 
 
 """
+TODO this in shpinx
 
 0 |  parent      | Tkinter.Tk | Is the main Window, it handles the main loop, all other things ar his children
 

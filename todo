@@ -8,11 +8,12 @@
 
 
 # UO
-7. Open file window larger
-8. just white and dark background(one fancy if you want)
-9. remove pyfits -> astropy.io.fits
-10. remove pywcs -> astropy ?
-11. Create pip package
+7. Dark mode
+8. Open file window larger
+9. just white and dark background(one fancy if you want)
+10. remove pyfits -> astropy.io.fits
+11. remove pywcs -> astropy ?
+12. Create pip package
 
 
 Change Pyfis to detect comment and not stipping last line

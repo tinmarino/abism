@@ -1,10 +1,12 @@
+"""
+    Half os the gui initiallisation is here
+"""
 import re
 import os.path          # For the Icon
 
 from tkinter import *
 
 import MyGui as MG
-import Pick  # pick et pick et kolegram bour et bour et ratatam
 
 import MenuBar
 
@@ -167,7 +169,7 @@ def TextFrameMaker():
 
 
 def TextButton1(frame):
-    """"""
+    """Frame 1 with quit, restart"""
     # FRAMES
     G.ButtonFrame = Frame(frame, bg=G.bg[0])
     G.all_frame.append("G.Button1Frame")
@@ -178,7 +180,7 @@ def TextButton1(frame):
     # DEFINE BUTTON
     G.bu_quit = Button(G.Button1Frame, text='QUIT',
                        background=G.bu_quit_color,
-                       command=MG.Quit, **G.bu_arg)  # QUIT
+                       command=G.Quit, **G.bu_arg)  # QUIT
 
     G.bu_restart = Button(G.Button1Frame, text='RESTART',
                           background=G.bu_restart_color,
@@ -504,20 +506,21 @@ def TitleArrow(title, var):
 
 
 def ImageParameter():
-    if G.tutorial:
-        text = "To measure the Strehl ratio I really need :\n"
-        text += "-> Diameter of the telescope [in meters]\n"
-        text += "-> Obstruction of the telescope [ in % of the area obstructed ]\n"
-        text += "-> Wavelenght [ in micro meter ], the central wavelength of the band\n"
-        text += "-> Pixel_scale [ in arcsec per pixel ]\n"
-        text += "All the above parameters are used to get the diffraction pattern of the telescope because the peak of the PSF will be divided by the maximum of the diffraction patter WITH the same photometry to get the strehl.\n\n"
-        text += "Put the corresponding values in the entry widgets. Then, to save the values, press enter i, ONE of the entry widget or click on ImageParamter button again.\n"
-        text += "Note that these parameters should be readden from your image header. If it is not the case, you can send me an email or modify ReadHeader.py module."
-        MG.TutorialReturn({"title": "Image Parameters",
-                           "text": text
-                           })
-        return
-
+    """Image Parameters
+    To measure the Strehl ratio I really need :\n"
+    -> Diameter of the telescope [in meters]\n"
+    -> Obstruction of the telescope [ in % of the area obstructed ]\n"
+    -> Wavelenght [ in micro meter ], the central wavelength of the band\n"
+    -> Pixel_scale [ in arcsec per pixel ]\n"
+    All the above parameters are used to get the diffraction pattern of the telescope
+        because the peak of the PSF will be divided by the maximum of the diffraction
+        patter WITH the same photometry to get the strehl.\n\n"
+    Put the corresponding values in the entry widgets.
+    Then, to save the values, press enter i, ONE of the entry widget
+    or click on ImageParamter button again.\n"
+    Note that these parameters should be readden from your image header.
+    If it is not the case, you can send me an email or modify ReadHeader.py module."
+    """
     G.image_parameter_list = [["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
                               ["Pixel scale" + "*" + " [''/pix]: ",
                                "pixel_scale", 99.],
@@ -569,7 +572,6 @@ def ImageParameter():
         # EXPAND
         G.top_bool = 0
         TopResize()
-        return
 
     elif G.bu_manual["background"] == 'green':  # destroy manualFrame  and save datas
         GetValueIP("")  # because receive event
@@ -582,11 +584,10 @@ def ImageParameter():
                        "G.ManualFrame"]  # remove MoreFrame
         G.bu_manual["background"] = G.bu_manual_color
         G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
-        return
-    return
 
 
-def GetValueIP(event, destroy=True):  # ImageParameter
+def GetValueIP(event, destroy=True):
+    """Get imageparameter color"""
     for i in G.image_parameter_list:
         vars(W.head)[i[1]] = float(vars(G.tkentry)[i[1]].get())
         # COLOR
@@ -702,39 +703,24 @@ def ResetLabel(expand=False):
     ###########
 
 
-def PanedConfig(arg):  # change paned window canvas...
+def PanedConfig(arg):
+    """Change paned window canvas..."""
     for i in G.all_frame:
-        if "Paned" in i:
-            if W.verbose > 3:
-                print("I change ", i)
-            for j in arg:
-                vars(G)[i[2:]][j] = arg[j]
-    return
+        if not "Paned" in i: continue
+        W.log(3, "Changing", i)
+        for j in arg:
+            vars(G)[i[2:]][j] = arg[j]
 
 
-def callback(event):
-    if W.verbose > 3:
-        print("clicked at",)
-    event.x,
-    event.y,
-    event.widget,
-    event.key
-
-
-def TerminalWidget(Frame):  # not used
-    import os
-    wid = Frame.winfo_id()
-    # G.c=Button(G.TerminalFrame,text='CLEAR',background= 'cyan',
-    #                command =MG.Clear)                    # CLEAR
-    # G.c.pack(side=BOTTOM,expand=0,fill=X)
-    #os.system('xterm -into %d -geometry 100x150 -sb -e "tty; sh" &' % wid)
-    os.system('xterm -into %d -geometry 40x20 &' % wid)
+def debug_callback(event):
+    """TODO move me in utils"""
+    W.log(3, "clicked at", event.x, event.y, event.widget, event.key)
 
 
 def Shortcuts():
-    #Shortcut, module, function, [  args, kargs  ]
+    """Shortcut, module, function, [  args, kargs  ]"""
     lst = [["<Control-o>", "MG", "Open"],
-           ["<Control-q>", "MG", "Quit"],
+           ["<Control-q>", "G", "Quit"],
            ["<Control-r>", "MG", "Restart"],
            ]
 
@@ -769,8 +755,7 @@ def ManualCut():
         def GetValue(event):
             dic = {"min_cut": float(G.entries[1].get()),
                    "max_cut": float(G.entries[0].get())}
-            if W.verbose > 2:
-                print("InitGui.py/ManualCut, dic called , ", dic)
+            W.log(2, "InitGui.py/ManualCut, dic called , ", dic)
             MG.Scale(dic=dic)  # Call MyGui
 
         lst = [["Max cut", "max_cut"], ["Min cut", "min_cut"]]
@@ -799,16 +784,15 @@ def ManualCut():
 
 
 def ManualCutClose():
-
+    """Stop Manual cut"""
+    # Remove frame
     G.manual_cut_bool = not G.manual_cut_bool
     G.ManualCutFrame.destroy()
     G.all_frame = [x for x in G.all_frame if x !=
-                   "G.ManualCutFrame"]  # remove Frame
+                   'G.ManualCutFrame']
 
-    G.scale_dic[0]["max_cut"] = float(G.entries[0].get())
-    G.scale_dic[0]["min_cut"] = float(G.entries[1].get())
-    if W.verbose > 3:
-        print(G.scale_dic[0]["min_cut"])
-    if W.verbose > 3:
-        print(G.scale_dic[0]["max_cut"])
+    # Update scale
+    G.scale_dic[0]['max_cut'] = float(G.entries[0].get())
+    G.scale_dic[0]['min_cut'] = float(G.entries[1].get())
+    W.log(3, 'Cut min, max:', G.scale_dic[0]['min_cut'], G.scale_dic[0]['max_cut'])
     MG.Scale()
