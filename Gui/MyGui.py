@@ -596,50 +596,54 @@ def FitType(name):  # strange but works
     return
 
 
-def VarSet(var, value):  # change the value of a WorkVariable
-    string = var + '=' + '"' + value + '"'
-    if W.verbose > 0:
-        print("-----> VarSet : Change the value from:", string)
-    exec(string)
-    return
-
-
 def Scale(dic={}, load=0, run=""):
-    """Change contrast and color , load if it is loaded with InitImage
-    remember that we need to update G.scael_dic in case we opne a new image, but this is not really true"""
-    W.log(2, "Scale called ", dic)
-    if "tutorial" in dic:
-        if G.tutorial:
-            if "cmap" in dic:
-                text = "A menu button will be displayed and in this, there is waht is called some radio buttons, which permits to select a color for the image. And there is at the bottom a button for plotting the contours of objects. You have for colors from bright to faint:\n\n"
-                text += "->jet: red,yellow,green,blue\n"
-                text += "->Black&White: White,Black\n"
-                text += "->spectral:red,yellow,green,blue, purple\n"
-                text += "->RdYlBu: blue, white, red\n"
-                text += "->BuPu: purple, white\n"
-                text += "->Contour: This will display the 3 and 5 sigma contours of the objects on the image. To delete the contours that may crowd your image, just click again on contour.\n"
-                TutorialReturn({"title": "Image Color",
-                                "text": text,
-                                })
-            elif "fct" in dic:
-                text = "A menu button with some radio button is displayed. Chose the function that will transforme the image according to a function. This function is apllied to the images values rescaled from 0 to 1 and then the image is mutliplied again fit the true min and max cut made.\n\n"
-                text += "Programmers, This function is trabsforming G.current_image when the true image is stocked under W.Im0 \nIf you want to add some function look at the InitGuy.py module, a function with some (2,3,4) thresholds (=steps) could be usefull to get stars of (2,3,4) differents color, nothing more, one color for each intensity range. This can be done with if also. "
-                TutorialReturn({"title": "Rescale Image Function",
-                                "text": text,
-                                })
-            elif "scale_cut_type" in dic:
-                text = "A menu button with some radio button is displayed. You need to chose the cut for scaling the displaued color of the image (ie: the values of the minimum and maximum color). Youhave different way of cutting :\n\n"
-                text += "-> None, will take the true max and min values of th image to set the displayed color range. Usefull for saturated objects.\n"
-                text += "-> Percentage, set the max (min) color as the maximum (minimum) value of the central percent% values. For example, 95% reject the 2.5% higher values and then take the maximum of the kept values.\n"
-                text += "-> RMS, will take make a -1,5 sigma for min and max\n"
-                text += "-> Manual, The power is in your hand, a new frame is displayed, enter the min and max value. When satified, please close the frame.\n"
-                text += "\n\nProgrammers, a cut setted with the histogram can be nice but not so usefull."
-                TutorialReturn({"title": "Cut Image Scale",
-                                "text": text,
-                                })
-            return
-        else:
-            return  # including no tutorial
+    """Cut Image Scale
+    Change contrast and color , load if it is loaded with InitImage
+    remember that we need to update G.scael_dic in case we opne a new image,
+    but this is not really true
+
+    cmap: Image Color
+        A menu button will be displayed and in this,
+        there is waht is called some radio buttons,
+        which permits to select a color for the image.
+        And there is at the bottom a button for plotting the contours of objects.
+        You have for colors from bright to faint:\n\n"
+        ->jet: red,yellow,green,blue\n"
+        ->Black&White: White,Black\n"
+        ->spectral:red,yellow,green,blue, purple\n"
+        ->RdYlBu: blue, white, red\n"
+        ->BuPu: purple, white\n"
+        ->Contour: This will display the 3 and 5 sigma contours of the objects
+            on the image. To delete the contours that may crowd your image,
+            just click again on contour.\n"
+
+    fct: Rescale Image Function
+        A menu button with some radio button is displayed. Chose the function
+        that will transforme the image according to a function. This function
+        is apllied to the images values rescaled from 0 to 1 and then the image
+        is mutliplied again fit the true min and max cut made.\n\n"
+        Programmers, This function is trabsforming G.current_image when the
+        true image is stocked under W.Im0 \nIf you want to add some function
+        look at the InitGuy.py module, a function with some (2,3,4) thresholds
+        (=steps) could be usefull to get stars of (2,3,4) differents color,
+        nothing more, one color for each intensity range. This can be done with
+        if also.
+
+    scale_cut_type: Cut Image Scale
+        A menu button with some radio button is displayed. You need to chose
+        the cut for scaling the displaued color of the image (ie: the values of
+        the minimum and maximum color). Youhave different way of cutting :\n\n"
+        -> None, will take the true max and min values of th image to set the
+        displayed color range. Usefull for saturated objects.\n" -> Percentage,
+        set the max (min) color as the maximum (minimum) value of the central
+        percent% values. For example, 95% reject the 2.5% higher values and
+        then take the maximum of the kept values.\n" -> RMS, will take make a
+        -1,5 sigma for min and max\n" -> Manual, The power is in your hand, a
+        new frame is displayed, enter the min and max value. When satified,
+        please close the frame.\n" \n\nProgrammers, a cut setted with the
+        histogram can be nice but not so usefull.
+    """
+    W.log(2, "Scale called with:", dic)
 
     # RUN THE Stff to change radio button for mac
     if run != "":

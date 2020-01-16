@@ -162,14 +162,14 @@ def MoreCreate():       # Create The Frame
         ]
         for i in lst:
             if i[0] == "Manual":
-                G.menu_noise.menu.add_radiobutton(label=i[0],
-                                                  command=IG.ManualBackground,
-                                                  variable=G.cu_noise, value=i[1])  # W.type[noise] as value
+                G.menu_noise.menu.add_radiobutton(
+                    label=i[0], command=IG.ManualBackground,
+                    variable=G.cu_noise, value=i[1])
             else:
-                G.menu_noise.menu.add_radiobutton(label=i[0],
-                                                  command=lambda i=i: MG.VarSet(
-                                                      'W.type["noise"]', i[1]),
-                                                  variable=G.cu_noise, value=i[1])
+                def set_noise(i): W.type['noise'] = i[1]
+                G.menu_noise.menu.add_radiobutton(
+                    label=i[0], command=set_noise,
+                    variable=G.cu_noise, value=i[1])
 
         G.menu_noise['menu'] = G.menu_noise.menu
         return G.menu_noise
@@ -183,17 +183,17 @@ def MoreCreate():       # Create The Frame
         G.cu_phot.set(W.type["phot"])
 
         lst = [
-            ["Elliptical Aperture", "elliptical_aperture"],
+            ['Elliptical Aperture', 'elliptical_aperture'],
             ['Fit', 'fit'],
             ['Rectangle Aperture', 'encircled_energy'],
             ['Manual', 'manual'],
         ]
 
         for i in lst:
-            G.menu_phot.menu.add_radiobutton(label=i[0],
-                                             command=lambda i=i: MG.VarSet(
-                                                 'W.type["phot"]', i[1]),
-                                             variable=G.cu_phot, value=i[1])  # we use W.type[phot"]
+            def set_phot(i): W.type['phot'] = i[1]
+            G.menu_phot.menu.add_radiobutton(
+                label=i[0], command=set_phot,
+                variable=G.cu_phot, value=i[1])
 
         G.menu_phot['menu'] = G.menu_phot.menu
         return G.menu_phot
