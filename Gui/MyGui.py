@@ -52,15 +52,9 @@ def MyWindow():
     MainVar()
     # Init main tk window
     IG.WindowInit()
+
+    # ######################
     # Init matplotlib figure
-    InitMatplotlib()
-
-    # Loop
-    G.parent.mainloop()
-
-
-def InitMatplotlib():
-    """Create the image"""
     # Create Image
     G.fig = G.ImageFrame.get_figure()
     G.ImageCanvas = G.ImageFrame.get_canvas()
@@ -78,6 +72,10 @@ def InitMatplotlib():
     # TODO remove hardcoded "no_image_name"
     if W.image_name != "no_image_name":
         InitImage()
+
+    # Loop
+    G.parent.mainloop()
+
 
 
 def InitImage(new_fits=True):
@@ -425,19 +423,6 @@ def Restart():
     system(stg)         # I call an other instance
     sys.exit(1)         # I exit the current process.
     # As the loop is now opened, this may not be necessary but anyway it is safer
-
-
-def Clear():
-    """Clear the image frames and reinitiate its.
-    Made as button callback  in order to delete some arrows,
-        for example with the pick many mode.
-    """
-
-    try:
-        G.AnswerFrame.destroy()
-    except BaseException:
-        pass
-    InitMatplotlib()
 
 
 def Save(first=1):

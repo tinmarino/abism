@@ -2,18 +2,19 @@
 
 1. Py3 (+ tests)
 2. Lint
-3. Add logger
-4. Refactor(in class)
-5. Sphinx DOC
+  1. Sphinx DOC
+3. Refactor(in class)
 
 
-# UO
-7. Dark mode
-8. Open file window larger
-9. just white and dark background(one fancy if you want)
-10. remove pyfits -> astropy.io.fits
-11. remove pywcs -> astropy ?
-12. Create pip package
+# UI
+
+1. matplotlib: Scrolll zoom
+  1. https://stackoverflow.com/questions/11551049/matplotlib-plot-zooming-with-scroll-wheel
+2. Dark mode
+4. just white and dark background(one fancy if you want)
+5. remove pyfits -> astropy.io.fits
+6. remove pywcs -> astropy ?
+7. Create pip package
 
 
 Change Pyfis to detect comment and not stipping last line
