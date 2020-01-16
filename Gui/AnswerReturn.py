@@ -681,8 +681,9 @@ def PlotOneStar1D():
 
 
 def PlotBinaryStar1D():
-    x0, y0 = W.strehl["x0"],  W.strehl["y0"]
-    x1, y1 = W.strehl["x1"],  W.strehl["y1"]
+    """Draw 1D of binary system"""
+    x0, y0 = W.strehl["x0"], W.strehl["y0"]
+    x1, y1 = W.strehl["x1"], W.strehl["y1"]
     fwhm0, fwhm1 = W.strehl["fwhm_x0"], W.strehl["fwhm_x1"]
 
     #######
@@ -690,10 +691,10 @@ def PlotBinaryStar1D():
     # following the line x0,x1
     # Do not by pass the image borders
     line_len = np.sqrt((x1-x0)**2 + (y1-y0)**2)
-    dx0 = (x0-x1)/line_len * 5*fwhm0
-    dy0 = (y0-y1)/line_len * 5*fwhm0
-    dx1 = (x1-x0)/line_len * 5*fwhm1
-    dy1 = (y1-y0)/line_len * 5*fwhm1
+    dx0 = (x0-x1) / line_len * 5 * fwhm0
+    dy0 = (y0-y1) / line_len * 5 * fwhm0
+    dx1 = (x1-x0) / line_len * 5 * fwhm1
+    dy1 = (y1-y0) / line_len * 5 * fwhm1
 
     extremity0 = IF.DoNotPassBorder(W.Im0, (int(x0+dx0), int(y0+dy0)))
     extremity1 = IF.DoNotPassBorder(W.Im0, (int(x1+dx1), int(y1+dy1)))

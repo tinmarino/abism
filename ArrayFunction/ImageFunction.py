@@ -14,18 +14,22 @@ import WorkVariables as W  # for verbose
 
 
 def DoNotPassBorder(grid, point2d):
-    """Ensure point is in image"""
+    """Ensure point is in image
+    Arg: grid <- image
+         pinrt2d <- x,y
+    Returns: new point
+    """
     x = point2d[0]
     y = point2d[1]
     if x < 0:
         x = 0
-    if x > grid.shape[0]:
+    elif x > grid.shape[0]:
         x = len(grid)
     if y < 0:
         y = 0
-    if y > grid.shape[1]:
+    elif y > grid.shape[1]:
         y = len(grid)
-    return (x, y), ""
+    return x, y
 
 
 def Order2(a, b):

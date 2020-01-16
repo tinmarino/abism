@@ -352,7 +352,8 @@ def BinaryPsf(grid, search=False):  # slowlyer
     W.suposed_param = {'x0': max0[0], 'x1': max1[0], 'y0': max0[1], 'y1': max1[1],
                        'spread_x0': 0.83*(dist0), 'spread_x1': 0.83*dist1,
                        'spread_y0': 0.83*(dist0), 'spread_y1': 0.83*dist1,
-                       'intensity0': grid[max0[0]][max0[1]], 'intensity1': grid[max1[0]][max1[1]],
+                       'intensity0': grid[int(max0[0])][int(max0[1])],
+                       'intensity1': grid[int(max1[0])][int(max1[1])],
                        'background': 0, "theta": 1}
 
     James = {
