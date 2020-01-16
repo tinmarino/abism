@@ -1,0 +1,128 @@
+G.dpfit
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************
+from tkinter import PhotoImage
+import GuyVariables as G
+
+photo_down = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+G.FitFrame._arrow.configure(image=photo_down)
+G.FitFrame._arrow.image=photo_down
+G.FitFrame._arrow['image']=photo_down
+
+
+
+***************************

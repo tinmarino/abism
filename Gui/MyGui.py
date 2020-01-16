@@ -61,138 +61,23 @@ def MyWindow():
 
 def InitMatplotlib():
     """Create the image"""
-    # Should not be used
+    # Create Image
     G.fig = G.ImageFrame.get_figure()
     G.ImageCanvas = G.ImageFrame.get_canvas()
     G.toolbar = G.ImageFrame.get_toolbar()
 
-    # TODO
-    G.figfit = matplotlib.figure.Figure(
-        figsize=(5, 2.5))  # figsize=(4,1), dpi=100
-    G.figresult = matplotlib.figure.Figure(figsize=(3, 2.5))
+    # Create Fit
+    G.figfit = G.FitFrame.get_figure()
+    G.dpfit = G.FitFrame.get_canvas()
 
-    G.figfit.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.2)
-    G.figresult.subplots_adjust(
-        left=0.1, right=0.9, top=1.05, bottom=-0.15)
-
-    G.figfit.set_facecolor(G.bg[0])
-    G.figresult.set_facecolor(G.bg[0])
-
-
-    # "
-    #  FIT
-    G.FitFrame.rowconfigure(0, weight=100)
-    G.FitFrame.rowconfigure(1, weight=1)
-    G.FitFrame.columnconfigure(0, weight=1)  # not resize the toolbar
-    G.dpfit = FigureCanvas(G.figfit, master=G.FitFrame)
-    G.dpfit.get_tk_widget()["bg"] = G.bg[0]
-    G.dpfit.get_tk_widget()["highlightthickness"] = 0
-    G.dpfit.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-    G.all_frame.append("G.dpfit.get_tk_widget()")
-    Label(G.FitFrame, text="Photometric Profile",
-            **G.frame_title_arg).place(x=0, y=0)
-    ToolbarFit(init=True)
-
-    #######
-    # STAR
-    G.ResultFrame.rowconfigure(0, weight=100)
-    G.ResultFrame.rowconfigure(1, weight=1)
-    G.ResultFrame.columnconfigure(0, weight=1)  # not resize the toolbar
-    G.dpresult = FigureCanvas(G.figresult, master=G.ResultFrame)
-    G.dpresult.get_tk_widget()["bg"] = G.bg[0]
-    G.dpresult.get_tk_widget()["highlightthickness"] = 0
-    G.dpresult.get_tk_widget().grid(row=0, column=0, sticky="nsew")
-    G.all_frame.append("G.dpresult.get_tk_widget()")
-    Label(G.ResultFrame, text="2d shape", **
-            G.frame_title_arg).place(x=0, y=0)
-    ToolbarResult(init=True)
+    # Create Result
+    G.figresult = G.ResultFrame.get_figure()
+    G.dpresult = G.ResultFrame.get_canvas()
 
     # in case the user launch the program without giving an image as arg
+    # TODO remove hardcoded "no_image_name"
     if W.image_name != "no_image_name":
         InitImage()
-
-def ToolbarFit(init=False):
-    """Create toolbar"""
-    if init:
-        if G.toolbar_fit_bool:
-            photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        else:
-            photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-        G.fit_frame_arrow = Button(
-            G.FitFrame, command=ToolbarFit, image=photo, **G.bu_arg)
-        G.fit_frame_arrow.image = photo  # keep a reference
-        G.fit_frame_arrow.place(relx=1., rely=1., anchor="se")
-        return
-
-    G.toolbar_fit_bool = not G.toolbar_fit_bool
-
-    # CREATE
-    if G.toolbar_fit_bool:
-        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-        G.fit_frame_arrow['image'] = photo
-        G.fit_frame_arrow.image = photo  # keep a reference
-        if not "toolbar_fit" in vars(G):
-            G.toolbar_fit = matplotlib.backends.backend_tkagg.NavigationToolbar2Tk(
-                G.dpfit, G.FitFrame)
-        G.toolbar_fit.grid(row=1, column=0, sticky="nsew")
-
-        # COLOR
-        G.toolbar_fit["bg"] = G.bg[0]
-        for i in G.toolbar_fit.winfo_children():
-            i["bg"] = G.bg[0]
-        G.all_frame.append("G.toolbar_fit")
-
-        # ARROW
-        ToolbarFit(init=True)
-
-    # DESTROY
-    else:  # including not toolbar_bool and not init
-        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        G.fit_frame_arrow['image'] = photo
-        G.fit_frame_arrow.image = photo  # keep a reference
-        G.toolbar_fit.grid_forget()
-        ToolbarFit(init=True)
-
-
-def ToolbarResult(init=False):
-    """Create result frame"""
-    if init:
-        if G.toolbar_result_bool:
-            photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        else:
-            photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-        G.result_frame_arrow = Button(
-            G.ResultFrame, command=ToolbarResult, image=photo, **G.bu_arg)
-        G.result_frame_arrow.image = photo  # keep a reference
-        G.result_frame_arrow.place(relx=1., rely=1., anchor="se")
-        return
-
-    G.toolbar_result_bool = not G.toolbar_result_bool
-
-    # CREATE
-    if G.toolbar_result_bool:
-        photo = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
-        G.result_frame_arrow['image'] = photo
-        G.result_frame_arrow.image = photo  # keep a reference
-        if not "toolbar_result" in vars(G):
-            G.toolbar_result = matplotlib.backends.backend_tkagg.NavigationToolbar2Tk(
-                G.dpresult, G.ResultFrame)
-        G.toolbar_result.grid(row=1, column=0, sticky="nsew")
-
-        # COLOR
-        G.toolbar_result["bg"] = G.bg[0]
-        for i in G.toolbar_result.winfo_children():
-            i["bg"] = G.bg[0]
-        G.all_frame.append("G.toolbar_result")
-        ToolbarResult(init=True)
-
-    # DESTROY
-    else:  # including not toolbar_bool and not init
-        photo = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-        G.result_frame_arrow['image'] = photo
-        G.result_frame_arrow.image = photo  # keep a reference
-        G.toolbar_result.grid_forget()
-        ToolbarResult(init=True)
 
 
 def InitImage(new_fits=True):
