@@ -199,7 +199,7 @@ def PlotPickOne():
 
         ###
         # WCS
-        my_wcs = W.head.pywcs.all_pix2sky(
+        my_wcs = W.head.wcs.all_pix2sky(
             np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
         W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
         pxll = W.head.pixel_scale
@@ -279,9 +279,9 @@ def PlotEllipse():
         # WCS
         try:
             # if len( W.hdulist[0].data.shape ) == 3: # if cube,  just cut the WCS object, see antoine
-            #   my_wcs = ProjectWcs(W.head.pywcs).all_pix2sky( np.array([[ W.strehl["center_y"],W.strehl["center_x"] ]]), 0 )
+            #   my_wcs = ProjectWcs(W.head.wcs).all_pix2sky( np.array([[ W.strehl["center_y"],W.strehl["center_x"] ]]), 0 )
             # else : # not cube
-            my_wcs = W.head.pywcs.all_pix2sky(
+            my_wcs = W.head.wcs.all_pix2sky(
                 np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
         except:
             import traceback
@@ -359,7 +359,7 @@ def PlotBinary():
 
         # "
         # WCS
-        my_wcs = W.head.pywcs.all_pix2sky(np.array(
+        my_wcs = W.head.wcs.all_pix2sky(np.array(
             [[W.strehl["y0"], W.strehl["x0"]],  [W.strehl["y1"], W.strehl["x1"]]]), 0)
         my_wcs = np.array(my_wcs)
         ra, dec = my_wcs[:, 0], my_wcs[:, 1]
@@ -453,7 +453,7 @@ def PlotPickMany(append=True):
     # 2.2  Sky COORD
 
       # WCS
-    my_wcs = W.head.pywcs.all_pix2sky(
+    my_wcs = W.head.wcs.all_pix2sky(
         np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
     W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
     pxll = W.head.pixel_scale

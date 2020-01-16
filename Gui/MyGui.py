@@ -20,7 +20,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 # Fancy
 import matplotlib
 import matplotlib.font_manager as fm
-import pyfits
+from astropy.io import fits
 import numpy as np
 
 # Gui
@@ -232,7 +232,7 @@ def SubstractBackground():
     fp_sky = askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
     W.image_bg_name = fp_sky     # image_background_name
-    W.hdulist_bg = pyfits.open(fp_sky)
+    W.hdulist_bg = fits.open(fp_sky)
     W.Im0_bg = W.hdulist_bg[0].data
     if not W.Im0.shape == W.Im0_bg.shape:
         W.Log(0, 'ERROR : Science image and Background image should have the same shape')

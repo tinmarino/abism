@@ -126,3 +126,5 @@ G.FitFrame._arrow['image']=photo_down
 
 
 ***************************
+print(W.verbose)
+***************************

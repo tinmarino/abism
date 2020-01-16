@@ -1,7 +1,4 @@
-# ImageFunction works on array to separe matematics and graphics = to hide the misery.
 import numpy as np
-import scipy.ndimage  # for the median filter
-import scipy.interpolate  # for LocalMax
 
 # import MyGui as MG # for the plot of the contrast map
 import ImageFunction as IF
@@ -63,8 +60,7 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
     #############
 
     def Fit():
-        if W.verbose > 0:
-            verbose = 1
+        verbose = W.verbose > 1
 
         if (W.type["fit"] == "Gaussian2D"):
             tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
@@ -163,9 +159,8 @@ def Photometry(grid):
         W.strehl["number_count"] = 4 * r99x * r99y
         W.strehl["my_photometry"] = W.strehl["sum"] - \
             W.strehl["number_count"] * W.strehl["my_background"]
-        if W.verbose > 3:
-            print("doing encircled energy in ImageFunction.py,",
-                  W.strehl["sum"], "between :", ax1, ax2, ay1, ay2,)
+        W.log(3, "doing encircled energy in ImageFunction.py,",
+              W.strehl["sum"], "between :", ax1, ax2, ay1, ay2,)
 
     # ELL AP
     elif W.type["phot"] == "elliptical_aperture":
@@ -176,8 +171,7 @@ def Photometry(grid):
         theta = W.strehl.get('theta', 0)
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
 
-        if W.verbose > 2:
-            print("size of the myrad, of the phot", myrad)
+        W.log(2, "size of the myrad, of the phot", myrad)
         cx1, cx2 = max(x0-myrad, 0), min(x0+myrad,
                                          len(grid)+1)  # c like cut If borders
         cy1, cy2 = max(y0-myrad, 0), min(y0+myrad,
@@ -186,14 +180,11 @@ def Photometry(grid):
 
         bol = IF.EllipticalAperture(W.Im0, dic={
                                     "center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v, "theta": theta})["bol"]
-        if W.verbose > 2:
-            print("phot len", len(bol), len(im_cut))
-        if W.verbose > 3:
-            print("ImageFUnciton, Photometry ", r99u, r99v, theta)
+        W.log(2, "phot len", len(bol), len(im_cut))
+        W.log(3, "ImageFUnciton, Photometry ", r99u, r99v, theta)
         phot = Stat.Stat(W.Im0[bol], get=["number_count", "sum"])
         W.strehl["sum"] = phot["sum"]
-        if W.verbose > 2:
-            print("phot", phot)
+        W.log(2, "phot", phot)
         W.strehl["number_count"] = phot["number_count"]
         W.strehl["my_photometry"] = phot["sum"] - \
             phot["number_count"] * W.strehl["my_background"]
@@ -206,14 +197,12 @@ def Photometry(grid):
         W.strehl["number_count"] = tmp["number_count"]
         W.strehl["my_photometry"] = photometry - \
             W.strehl["number_count"] * W.strehl["my_background"]
-        if W.verbose > 3:
-            print("doing manual phot in ImageFunction.py ")
+        W.log(3, "doing manual phot in ImageFunction.py ")
 
     # FIT
     elif W.type["phot"] == 'fit':
         W.strehl["my_photometry"] = W.strehl["photometry_fit"]
-        if W.verbose > 3:
-            print("doing fit  phot in ImageFunction.py ")
+        W.log(3, "doing fit  phot in ImageFunction.py ")
 
     ###########
     # LONG SHORT AXE, ELLIPTICITY
@@ -256,8 +245,7 @@ def Background(grid, param={}):
         restmp = IF.EightRectangleNoise(
             grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
         dic['my_background'], dic['rms'] = restmp["background"], restmp['rms']
-        if W.verbose > 3:
-            print(" ImageFunction.py : Background, I am in 8 rects ")
+        W.log(3, " ImageFunction.py : Background, I am in 8 rects ")
 
     # MANUAL
     elif param["noise"] == "manual":
@@ -267,9 +255,7 @@ def Background(grid, param={}):
     # FIT
     elif param["noise"] == 'fit':
         if param["fit"] == "None":
-            if W.verbose > 0:
-                print(
-                    "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
+            W.log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
             param = param.copy()
             param.update({"noise": "annulus"})
             return Background(W.Im0, param=param)
@@ -349,11 +335,8 @@ def BinaryPsf(grid, search=False):  # slowlyer
                    2),  int(my_center[1] + fit_range/2)
 
     rx1, rx2, ry1, ry2 = IF.Order4((rx1, rx2, ry1, ry2), grid=W.Im0)
-    if W.verbose > 3:
-        print("----->IF.BinaryPSF :")
-        print("The fit is done between points ",
-              (rx1, ry1), " and ", (rx2, ry2))
-        print("with fit", fit_type)
+    W.log(3, "----->IF.BinaryPSF :", "The fit is done between points ",
+          (rx1, ry1), " and ", (rx2, ry2), "with fit", fit_type)
     X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
     y, x = np.meshgrid(Y, X)
     IX = grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
@@ -361,8 +344,7 @@ def BinaryPsf(grid, search=False):  # slowlyer
     # the error
     eIX = (IX-mIX).std()
     eIX *= np.ones(IX.shape)
-    if W.verbose > 3:
-        print("Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
+    W.log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
 
     ###################
     ## Supposed params and bounds #
@@ -390,8 +372,8 @@ def BinaryPsf(grid, search=False):  # slowlyer
     ###########
     # DO NOT FIT, dic_for_fit
     if (not "Gaussian" in fit_type) and (not "Moffat" in fit_type):
-        if W.verbose > 0:
-            print("WARNING : There is no bessel, None, and Gaussian hole fit type for binary  fi, fit type is set to gaussian")
+        W.log(0, "WARNING : There is no bessel, None, and Gaussian hole fit "
+              "type for binary fi, fit type is set to gaussian")
         fit_type = "Gaussian"
 
     if "Moffat" in fit_type:
@@ -422,13 +404,10 @@ def BinaryPsf(grid, search=False):  # slowlyer
 
     ##########
     # print()
-    if W.verbose > 3:
-        print("Binary FiT, supposed parameters : ", W.suposed_param)
-    if W.verbose > 3:
-        print("fit type is : ", fit_type)
-    if W.verbose > 3:
-        print("anisoplanetism=" +
-              str(bool(dic_for_fit["aniso"])), "same_psf="+str(bool(dic_for_fit["same_psf"])))
+    W.log(3, "Binary FiT, supposed parameters : ", W.suposed_param)
+    W.log(3, "fit type is : ", fit_type)
+    W.log(3, "anisoplanetism=" + str(bool(dic_for_fit["aniso"])),
+          "same_psf="+str(bool(dic_for_fit["same_psf"])))
 
     #####################
     # FIT FIT  ahora si que si
@@ -557,15 +536,14 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
     # DEFINE fitting space
     fit_range = star_distance + 5 * max(dist0, dist1)  # range of the fit
     # the error
-    rx1, rx2 = int(my_center[0] - fit_range /
-                   2),  int(my_center[0] + fit_range/2)
-    ry1, ry2 = int(my_center[1] - fit_range /
-                   2),  int(my_center[1] + fit_range/2)
-    if W.verbose > 3:
-        print("----->IF.BinaryPSF :")
-        print("The fit is done between points ",
-              (rx1, ry1), " and ", (rx2, ry2))
-        print("with fit", W.type["fit"])
+    rx1 = int(my_center[0] - fit_range / 2)
+    rx2 = int(my_center[0] + fit_range / 2)
+    ry1 = int(my_center[1] + fit_range / 2)
+    ry2 = int(my_center[1] - fit_range / 2)
+    W.log(3, "----->IF.BinaryPSF :",
+          "The fit is done between points ",
+          (rx1, ry1), " and ", (rx2, ry2),
+          "with fit", W.type["fit"])
     X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
     y, x = np.meshgrid(Y, X)
     IX = grid[rx1:rx2+1, ry1:ry2+1]
@@ -608,8 +586,7 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
     ###########
     # DO NOT FIT, dic_for_fit
     if "Bessel" in W.type["fit"]:
-        if W.verbose > 0:
-            print("WARNING : no bessel 2pt fit type now,fit type is set to gaussian")
+        W.log(0, "WARNING : no bessel 2pt fit type now,fit type is set to gaussian")
         W.type["fit"] = "Gaussian"
 
     if "Moffat" in W.type["fit"]:
@@ -638,12 +615,9 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
 
     ##########
     # print()
-    if W.verbose > 3:
-        print("Binary FiT, supposed parameters : ", W.suposed_param)
-    if W.verbose > 3:
-        print("fit type is : ", W.type["fit"])
-    if W.verbose > 3:
-        print("anisoplanetism=" +
+    W.log(3, "Binary FiT, supposed parameters : ", W.suposed_param)
+    W.log(3, "fit type is : ", W.type["fit"])
+    W.log(3, "anisoplanetism=" +
               str(bool(dic_for_fit["aniso"])), "same_psf="+str(bool(dic_for_fit["same_psf"])))
 
     #####################
@@ -835,9 +809,6 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     res["my_photometry"] = res["phot"] - \
         len(obj.array[bol_e])*res["my_background"]
 
-    if W.verbose > 2:
-        print("phot1 :", res["phot"])
-    if W.verbose > 2:
-        print("phot2 :", res["my_photometry"])
-    if W.verbose > 2:
-        print("back :", res["my_background"], "\n")
+    W.log(2, "phot1 :", res["phot"])
+    W.log(2, "phot2 :", res["my_photometry"])
+    W.log(2, "back :", res["my_background"], "\n")

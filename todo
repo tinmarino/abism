@@ -12,8 +12,6 @@
   1. https://stackoverflow.com/questions/11551049/matplotlib-plot-zooming-with-scroll-wheel
 2. Dark mode
 4. just white and dark background(one fancy if you want)
-5. remove pyfits -> astropy.io.fits
-6. remove pywcs -> astropy ?
 7. Create pip package
 
 

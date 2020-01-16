@@ -1,21 +1,49 @@
-# import pyfits
-import sys
+"""
+    Fits Header parser
+    These are the importants files I retrieve from the header.
+
+    diameter        (real in m)     The primary diameter
+    wavelenght      (real in um)    The wavelength of the detection
+    obstruction     (real in %)     The percentage in area of the central
+    obstruction. This is 14%**2 for VLT i guess, TODO check that !!
+    pixel_scale     (real in arsec/pixel) The number anguler size of one p
+    pixel in arcsec
+    exptime         (real in sec)   The time of one exposure.  This will not
+    infer the strehl ratio but the potometry  as well as the zero point.
+    zpt             (real in log)   The luminosity of 1 intensity Arbitrary
+    Unit during one second. The higher the Zero point, the fainter stars (or noise)
+    you may detect. It depends on the filter AND the airmass.
+    wcs             (wcs object)  This set of matrices can be used to get the
+    position on sky of your object.
+    telescope       (string)        Name of your telescope
+    date            (string)        Date, maybe of last modification
+    date_obs        (string)        Data of observation.
+    instrument      (string)        Name of the instrument.
+    company         (string)        Name of the company owning the telescope:
+        ESO, CFHT, Carnergie...
+
+    instrument      (string)        Name of the camera. Can be used to
+    automatially retrieve informations.
+    reduced_type    (string)        RAW or REDUCED
+
+    saturation_level  (real ADU)    The ADU of saturation of the CCD, proper to
+    the science camera.
+    non_lineratiry_level (real ADU) The ADU where non linearity starts, I wont
+    use this value I guess. Or just as a quiet warning.
+"""
+
 import numpy as np
+
+from astropy import wcs
+from astropy.io import fits
 
 import WorkVariables as W
 
-try:
-    import pywcs
-    import_pywcs_bool = 1
-except ImportError as exc:
-    sys.stderr.write(
-        "Warning: failed to import settings module ({})".format(exc))
-    import_pywcs_bool = 0
 
 
 def CallHeaderClass(header):
-    """ the objects is.. pyfits.open(image)[0]
-    <class 'pyfits.header.Header'>"""
+    """ the objects is.. fits.open(image)[0]
+    <class 'fits.header.Header'>"""
 
     # 0/ DETERMINE the instrument
     print(("header type is " + str(type(header))))
@@ -39,41 +67,7 @@ def CallHeaderClass(header):
 
 
 class Header:
-
-    def __doc__():
-        """
-        These are the importants files I retrieve from the header.
-
-        diameter        (real in m)     The primary diameter
-        wavelenght      (real in um)    The wavelength of the detection
-        obstruction     (real in %)     The percentage in area of the central
-        obstruction. This is 14%**2 for VLT i guess, TODO check that !!
-        pixel_scale     (real in arsec/pixel) The number anguler size of one p
-        pixel in arcsec
-        exptime         (real in sec)   The time of one exposure.  This will not
-        infer the strehl ratio but the potometry  as well as the zero point.
-        zpt             (real in log)   The luminosity of 1 intensity Arbitrary
-        Unit during one second. The higher the Zero point, the fainter stars (or noise)
-        you may detect. It depends on the filter AND the airmass.
-        pywcs           (pywcs object)  This set of matrices can be used to get the
-        position on sky of your object.
-        telescope       (string)        Name of your telescope
-        date            (string)        Date, maybe of last modification
-        date_obs        (string)        Data of observation.
-        instrument      (string)        Name of the instrument.
-        company         (string)        Name of the company owning the telescope:
-            ESO, CFHT, Carnergie...
-
-        instrument      (string)        Name of the camera. Can be used to
-        automatially retrieve informations.
-        reduced_type    (string)        RAW or REDUCED
-
-        saturation_level  (real ADU)    The ADU of saturation of the CCD, proper to
-        the science camera.
-        non_lineratiry_level (real ADU) The ADU where non linearity starts, I wont
-        use this value I guess. Or just as a quiet warning.
-        """
-
+    """Container"""
     def __init__(self, header):
         self.header = header
 
@@ -85,7 +79,7 @@ class Header:
 
         self.exptime = 1.     # sec
         self.zpt = 0.
-        self.pywcs = None
+        self.wcs = None
 
         # Doc
         self.telescope = 'UNKNOWN telescope'
@@ -120,9 +114,6 @@ class Header:
         if 'HIERARCH ESO PRO TYPE' in self.header:
             self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
 
-        # Sthrel
-        # diameter wavelenght obstruction pixel_scale"""
-        #
         # WAVELENGHT
         if 'FILTER' in self.header:
             filt = self.header['FILTER']
@@ -216,21 +207,19 @@ class Header:
         self.WCSKey()
 
     def WCSKey(self):  # and zpt for all classes
-        ""
-        #
-        # PYWCS f
+        """Fill WCS"""
         try:
             def flatten_header(header):
                 """
                 Attempt to turn an N-dimensional fits header into a 2-dimensional header
                 Turns all CRPIX[>2] etc. into new keywords with suffix 'A'
 
-                header must be a pyfits.Header instance
+                header must be a fits.Header instance
                 """
 
-                # astropy.io.fits != pyfits -> sadness
+                # astropy.io.fits != fits -> sadness
                 # if not hasattr(header,'copy')
-                # raise Exception("flatten_header requires a pyfits.Header
+                # raise Exception("flatten_header requires a fits.Header
                 # instance")
 
                 newheader = header.copy()
@@ -259,27 +248,26 @@ class Header:
                 if len(tmp) > 8:
                     self.flathead["CTYPE2"] = tmp[
                         0:  3] + tmp[len(tmp) - 8 + 3:]
-                    self.pywcs = pywcs.WCS(
+                    self.wcs = wcs.WCS(
                         self.flathead)  # for coord transformation
 
             # No wcs proj ?
             self.wcs_bool = True
-            if (self.pywcs.all_pix2sky([[0, 0]], 0) == [[1, 1]]).all():
+            if (self.wcs.all_pix2sky([[0, 0]], 0) == [[1, 1]]).all():
                 self.wcs_bool = False
-                self.pywcs.all_pix2sky = lambda x, y: (99, 99)
+                self.wcs.all_pix2sky = lambda x, y: (99, 99)
 
-        except:  # includding no pywcs module
-            if W.verbose > 0:
-                import traceback
-                traceback.print_exc()
-                print("WARNING I dit not manage to get WCS from pywcs\n\n")
+        except:  # includding no wcs module
+            import traceback
+            W.log(0, traceback.format_exc(),
+                  "WARNING I dit not manage to get WCS from wcs\n\n")
             self.wcs_bool = False
 
             class void:
                 pass
-            self.pywcs = void()
-            self.pywcs.all_pix2sky = lambda x, y: [
-                [99, 99]] * len(x)  # this will be later transformed
+            self.wcs = void()
+            # this will be later transformed
+            self.wcs.all_pix2sky = lambda x, y: [[99, 99]] * len(x)
 
         #
         # WCS

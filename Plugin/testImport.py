@@ -54,8 +54,7 @@ def testAbismImports():
         'Image',        # Librarie for Gaussian convolution
         'scipy',        # For the least square fit
         'numpy',        # For many functions and array type
-        'pywcs',        # Not necessary but cool to have the wcs of obj
-        'pyfits',       # Obviously necessary to convert fits to array
+        'astropy',      # Replace p.y.w.c.s and p.y.f.i.t.s
     ]
 
     for i in importList:

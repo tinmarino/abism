@@ -2,7 +2,6 @@
     it will be called by exec (import ToRun) """
 
 import matplotlib
-import pyfits
 import numpy as np
 
 from tkinter import *

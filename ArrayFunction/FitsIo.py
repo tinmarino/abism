@@ -2,7 +2,7 @@
     Fits image format io
 """
 
-import pyfits
+from astropy.io import fits
 from numpy import isnan
 
 from ReadHeader import CallHeaderClass
@@ -20,7 +20,7 @@ def OpenImage(new_fits=True):
     """
 
     if new_fits:
-        W.hdulist = pyfits.open(W.image_name)
+        W.hdulist = fits.open(W.image_name)
         W.Im0 = W.hdulist[0].data  # define the 2d image : W.Im0
         W.Im0[isnan(W.Im0)] = 0  # delete the np.nan
         # Parse header
@@ -59,7 +59,7 @@ def ScienceVariable():
     """
     # BPM
     if "bpm_name" in vars(W):
-        hdu = pyfits.open(W.bpm_name)
+        hdu = fits.open(W.bpm_name)
         W.Im_bpm = hdu[0].data
     else:
         W.Im_bpm = 0 * W.Im0 + 1

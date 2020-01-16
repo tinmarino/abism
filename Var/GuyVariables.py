@@ -92,7 +92,7 @@ def Restart():
     # DESTROY AND LAUNCH
     parent.destroy()  # I destroy Window,
     system(stg)         # I call an other instance
-    sys.exit(1)         # I exit the current process.
+    sys_exit(1)         # I exit the current process.
     # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
