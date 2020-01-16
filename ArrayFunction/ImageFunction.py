@@ -835,3 +835,6 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
         print("phot2 :", res["my_photometry"])
     if W.verbose > 2:
         print("back :", res["my_background"], "\n")
+
+
+

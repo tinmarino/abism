@@ -523,47 +523,6 @@ def GetValueIP(event, destroy=True):
         ResetLabel(expand=False)
 
 
-def Cube():
-    if not W.cube_bool:
-        try:
-            G.CubeFrame.destroy()
-        except BaseException:
-            pass
-    else:
-        # FRAME
-        G.CubeFrame = Frame(G.ButtonFrame, **G.fr_arg)
-        G.CubeFrame.pack(side=TOP, expand=0, fill=X)
-
-        # CUBE IMAGE SELECTION
-        # LEFT
-        G.bu_cubel = Button(G.CubeFrame, text='<-',
-                            command=lambda: MG.CubeDisplay("-"), **G.bu_arg)
-
-        # ENTRY
-        G.cube_var = StringVar()
-        G.cube_entry = Entry(
-            G.CubeFrame, width=10, justify=CENTER, textvariable=G.cube_var, **G.en_arg)
-        G.cube_var.set(W.cube_num + 1)
-        G.cube_entry.bind("<Return>", lambda x: MG.CubeDisplay("0"))
-
-        # RIGHT
-        G.bu_cuber = Button(G.CubeFrame, text='->',
-                            command=lambda: MG.CubeDisplay("+"), **G.bu_arg)
-
-        # GRID
-        for i in range(3):
-            G.CubeFrame.columnconfigure(i, weight=1)
-        Label(G.CubeFrame, text="Cube Number", **
-              G.frame_title_arg).grid(row=0, column=0, columnspan=3, sticky="w")
-        G.bu_cubel.grid(row=1, column=0, sticky="nsew")
-        G.cube_entry.grid(row=1, column=1, sticky="nsew")
-        G.bu_cuber.grid(row=1, column=2, sticky="nsew")
-
-    #W.cube_bool = not W.cube_bool
-    # we change cube bool in init image
-    return
-
-
 def ManualBackground():
     if G.manual_back_bool:
         ManualBackClose()
