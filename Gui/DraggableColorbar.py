@@ -124,9 +124,6 @@ class DraggableColorbar:
 
 
 
-##################################################
-# For Abism
-
 
 # The Normalize class is largely based on code provided by Sarah Graves.
 """ if you want to add a scaling fct, like arctan, you need to add it in "call" and in "inverse" """
@@ -135,6 +132,38 @@ import numpy.ma as ma
 
 import matplotlib.cbook as cbook
 from matplotlib.colors import Normalize
+
+def zoom_fun(event, ax, callback=plt.draw, base_scale=2):
+    """Enbale zoom on canvas"""
+    W.log(3, 'Scrooling called with factor', base_scale, 'on', ax)
+    # get the current x and y limits
+    cur_xlim = ax.get_xlim()
+    cur_ylim = ax.get_ylim()
+    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+    xdata = event.xdata # get event x location
+    ydata = event.ydata # get event y location
+    if event.button == 'up':
+        # deal with zoom in
+        scale_factor = 1/base_scale
+    elif event.button == 'down':
+        # deal with zoom out
+        scale_factor = base_scale
+    else:
+        # deal with something that should never happen
+        scale_factor = 1
+    # set new limits
+    ax.set_xlim([xdata - cur_xrange*scale_factor,
+                    xdata + cur_xrange*scale_factor])
+    ax.set_ylim([ydata - cur_yrange*scale_factor,
+                    ydata + cur_yrange*scale_factor])
+    callback()
+
+
+def example_call_zoom(ax):
+    fig = ax.get_figure() # get the figure of interest
+    # attach the call back
+    fig.canvas.mpl_connect('scroll_event', lambda event, ax=ax:zoom_fun(event, ax))
 
 
 class MyNormalize(Normalize):

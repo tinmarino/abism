@@ -123,6 +123,15 @@ class ImageFrame(PlotFrame):
         self.init_canvas(self._fig)
 
 
+    def set_figure_scrollable(self):
+        """Enable scroll with mouse"""
+        from DraggableColorbar import zoom_fun
+        def zoom_handler(event):
+            zoom_fun(event, G.ax1, self._fig.canvas.draw, base_scale=1.2)
+
+        self._fig.canvas.mpl_connect('scroll_event', zoom_handler)
+
+
     def draw_image(self, new_fits=True):
         """Init image
         From Work variable
@@ -197,6 +206,8 @@ class ImageFrame(PlotFrame):
             G.label_bool = 0
             G.LabelFrame.update()
 
+        self.set_figure_scrollable()
+
 
     def CutImageScale(self, dic={}, load=0, run=""):
         """Cut Image Scale
@@ -264,8 +275,7 @@ class ImageFrame(PlotFrame):
         ###########
         # CONTOURS
         if("contour" in dic) and not isinstance(dic["contour"], bool):
-            if W.verbose > 3:
-                print("contour ? ", G.scale_dic[0]["contour"])
+            W.log(3, "contour ? ", G.scale_dic[0]["contour"])
             G.scale_dic[0]["contour"] = not G.scale_dic[0]["contour"]
             if G.scale_dic[0]["contour"]:
                 if "median" not in G.scale_dic[0]:
