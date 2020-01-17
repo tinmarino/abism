@@ -1,16 +1,12 @@
 # 2020
 
-1. Py3 (+ tests)
-2. Lint
-  1. Sphinx DOC
-3. Refactor(in class)
-4. Make PlotFrame.clear_axes() -> as (see hitopop)
+1. Make PlotFrame.clear_axes() -> as (see hitopop)
+2. Find a way to get consisten version naming 0.901 soon
 
 # UI
 
-1. matplotlib: Scrolll zoom
-  1. https://stackoverflow.com/questions/11551049/matplotlib-plot-zooming-with-scroll-wheel
+1. make sahs working on left pane hide
 2. Dark mode
-4. just white and dark background(one fancy if you want)
-7. Create pip package
-8. Doc
+  1. just white and dark background(one fancy if you want)
+3. Create pip package
+4. Doc
