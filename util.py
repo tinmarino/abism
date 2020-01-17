@@ -9,13 +9,11 @@ from os.path import dirname, abspath
 from functools import lru_cache
 
 # Package
-# from tkinter import
 from tkinter import RAISED, IntVar, PhotoImage
-from tkinter import font as tkFont
 import matplotlib
 
 
-_verbose = 0
+_verbose = 5
 
 
 def get_version():
@@ -123,24 +121,12 @@ def GuiVar():
     G.geo_dic['ResultFrame'] = 300
 
     # COLORS
-    G.bg = ["#d0d0d0"]               # light grey  # the backgroudn of abism
-    G.fg = ["black"]                 # foreground, the color of the font
     G.all_cmaps = sorted([i for i in dir(matplotlib.cm) if hasattr(
         getattr(matplotlib.cm, i), 'N')])  # inclouding inverse
 
-    # BUTTONS COLORS
-    G.bu_manual_color = "blue"                     # Color of buttons
-    G.menu_noise_color = "grey"
-    G.bu_subtract_bg_color = "grey"
-    G.menu_phot_color = "grey"
-    G.bu_close_color = "grey"
-    G.bu_quit_color = "red"
-    G.bu_restart_color = 'cyan'
-
 
     # SCALE dic for the color and contrast
-    G.scale_dic_list = [{}]
-    G.scale_dic = G.scale_dic_list
+    G.scale_dic = [{}]
     G.scale_dic[0]["cmap"] = "jet"
     G.scale_dic[0]["contour"] = False
     G.scale_dic[0]["answer"] = "detector"
@@ -167,16 +153,7 @@ def GuiVar():
     G.tkvar = VoidClass()
     G.tkentry = VoidClass()
 
-    # DICTIONARIES
-    # The sas is the little between windows "glissiere", to resize
-    G.paned_dic = {"sashwidth": 2,
-                   "sashpad": 0,
-                   "showhandle": 0,
-                   "bg": "blue",
-                   "borderwidth": 0,
-                   "sashrelief": RAISED,
-                   }                                   # dictionnary to call PanedWindow in Tk
-
+    from tkinter import font as tkFont
     G.frame_title_arg = {
         "fg": "blue", "bg": "white", "font": tkFont.Font(size=10),
         "highlightbackground": "black", "highlightcolor": "black", "highlightthickness": 1,
@@ -239,18 +216,18 @@ def WorkVar():
 
 
 def ReadTerminalVar():
-    """The variables can be setted with the terminal entry command."""
+    """The variables can be setted with the terminal entry command.
+    TODO
+    verbose, bg, fg
+    """
     import back.util_back as W
     import front.util_front as G
     argv = W.sys_argv
 
     lst = [
-        # ["--verbose", W, "verbose"],
+
         ["--phot_type", W, "type['phot']"],
         ["--noise_type", W, "type['noise']"],
-
-        ["--bg", "G", "bg[0]"],
-        ["--fg", "G", "fg[0]"],
 
         # SCALE DIC
         ["--cmap", "G", "scale_dic[0]['cmap']"],  # COLOR
@@ -316,7 +293,6 @@ def ReadTerminalVar():
             G.scale_dic[0]["scale_cut_type"] = argv[argv.index("-cut_type")+1]
             try:
                 tmp = float(argv[argv.index("-cut_type")+1])
-
                 if G.scale_dic[0]["scale_cut_type"] == "percent":
                     G.scale_dic[0]["percent"] = tmp
                 elif G.scale_dic[0]["scale_cut_type"] == "sigma_clip":
@@ -328,19 +304,15 @@ def ReadTerminalVar():
 def LinkColor():
     import front.util_front as G
     """Link GUI colors to global vars (bg, fg)"""
-    # BUTTON
-    G.bu_arg = {"bd": 3, "highlightcolor": G.bg[0], "padx": 0, "pady": 0,
-                "highlightthickness": 0, "fg": G.fg[0]}  # for the borders
     # LABEL
-    G.lb_arg = {"bg": G.bg[0], "fg": G.fg[0]}
+    from front.util_front import skin
+    G.lb_arg = {"bg": skin().color.bg, "fg": skin().color.fg}
     # MENU
-    G.me_arg = {"bg": G.bg[0], "fg": G.fg[0]}
-    G.submenu_args = {"background": G.bg[0], "foreground": G.fg[0]}
-    # ENTRY
-    G.en_arg = {"bg": "white", "fg": G.fg[0], "bd": 0}
+    G.me_arg = {"bg": skin().color.bg, "fg": skin().color.fg}
 
-    # FRAME
-    G.fr_arg = {"bg": G.bg[0]}
+    G.submenu_args = {"bg": skin().color.bg, "fg": skin().color.fg}
+    # ENTRY
+    G.en_arg = {"bg": "white", "fg": skin().color.fg, "bd": 0}
 
 
 def Preference(string="test1"):

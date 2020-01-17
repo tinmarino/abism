@@ -12,6 +12,7 @@ import traceback
 from util import log
 import back.util_back as W
 import front.util_front as G
+from front.util_front import skin
 
 
 """
@@ -62,7 +63,7 @@ def PythonConsole():  # The called function
         def MyText(frame, new=0):  # if not new, Clear it
             if not new:
                 G.text_user.pack_forget()
-            G.text_user = Tk.Text(frame, bg=G.bg[0])
+            G.text_user = Tk.Text(frame, bg=skin().color.bg, fg=skin().color.fg)
             G.text_user.insert(Tk.INSERT, "")
             G.text_user.pack(side=Tk.TOP, fill=Tk.BOTH, expand=True)
             G.text_user.focus_force()
@@ -77,18 +78,24 @@ def PythonConsole():  # The called function
     bu_frame = Tk.Frame(window_run, bg="purple")
     bu_frame.pack(side=Tk.BOTTOM, expand=0, fill=Tk.X)
     but_list = []
+    opts = skin().button_dic.copy()
+
+    opts.update({'background': 'DeepSkyBlue'})
     but_list.append(  # Run button
-        Tk.Button(bu_frame, text="Run", background="DeepSkyBlue",
+        Tk.Button(bu_frame, text="Run",
                   command=lambda:
-                  Run(G.text_user.get("1.0", Tk.END)), **G.bu_arg)
+                  Run(G.text_user.get("1.0", Tk.END)), **opts)
     )
+
     but_list.append(  # Clear button
         Tk.Button(bu_frame, text="Clear",
                   command=lambda: MyText(frame), **G.submenu_args)
     )
+
+    opts.update({'background': 'red'})
     but_list.append(  # Quit button
-        Tk.Button(bu_frame, text='QUIT', background='red',
-                  command=window_run.destroy, **G.bu_arg)
+        Tk.Button(bu_frame, text='QUIT',
+                  command=window_run.destroy, **opts)
     )
 
     for bu in but_list:
@@ -106,8 +113,6 @@ def Run(String):  # Run the string in python
         stg += "\nimport sys ; sys.exit() # to kill Abism "
     else:
         exec(String, globals())
-
-    out.close()
 
 
 def my_raw_input(message):  # Take input from Console if debbuger is in cosole mode (and not Tk)

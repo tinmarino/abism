@@ -6,6 +6,7 @@ import AnalysisMenu
 import ToolMenu
 import ViewMenu
 
+from front.util_front import skin
 import front.util_front as G
 
 
@@ -13,7 +14,7 @@ def MenuBarMaker(root):
     """Create the menu bar (autopack top)"""
 
     # Pack bar at top
-    menu_bar = Frame(G.parent, bg=G.bg[0])
+    menu_bar = Frame(G.parent, bg=skin().color.bg)
     menu_bar.pack(side=TOP, expand=0, fill=X)
 
     # Prepare argument dic

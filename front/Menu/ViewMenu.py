@@ -8,6 +8,7 @@ import tkinter as Tk
 import WindowRoot as MG
 
 from util import log
+from front.util_front import skin
 import front.util_front as G
 import back.util_back as W
 
@@ -155,7 +156,7 @@ def ManualCutOpen():
     G.manual_cut_bool = not G.manual_cut_bool
 
     # Pack main
-    G.ManualCutFrame = Tk.Frame(G.OptionFrame, bg=G.bg[0])
+    G.ManualCutFrame = Tk.Frame(G.OptionFrame, bg=skin().color.bg)
     G.all_frame.append("G.ManualCutFrame")
     G.ManualCutFrame.grid(sticky='nsew')
 
@@ -165,7 +166,7 @@ def ManualCutOpen():
         G.frame_title_arg
         ).pack(side=Tk.TOP, anchor="w")
 
-    G.ManualCutGridFrame = Tk.Frame(G.ManualCutFrame, bg=G.bg[0])
+    G.ManualCutGridFrame = Tk.Frame(G.ManualCutFrame, bg=skin().color.bg)
     G.all_frame.append("G.ManualCutGridFrame")
     G.ManualCutGridFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
 
@@ -183,11 +184,11 @@ def ManualCutOpen():
     r = 0
     for i in lst:
         G.l = Tk.Label(G.ManualCutGridFrame,
-                        text=i[0], font=G.font_param, **G.lb_arg)
+                        text=i[0], font=skin().font.answer, **G.lb_arg)
         G.l.grid(row=r, column=0, sticky="snew")  # , sticky=W)
         v = Tk.StringVar()
         G.e = Tk.Entry(G.ManualCutGridFrame, width=10,
-                        textvariable=v, font=G.font_param, **G.en_arg)
+                        textvariable=v, font=skin().font.answer, **G.en_arg)
         G.e.grid(row=r, column=1, sticky="nsew")  # , sticky=W)
         G.e.bind('<Return>', GetValue)
         v.set("%.1f" % G.scale_dic[0][i[1]])
@@ -198,9 +199,10 @@ def ManualCutOpen():
     # CLOSE button
     G.bu_close = Tk.Button(
         G.ManualCutGridFrame, text=u'\u25b4 ' + 'Close',
-        background=G.bu_close_color, command=ManualCutClose, **G.bu_arg)
+        command=ManualCutClose, **skin().button_dic)
     G.bu_close.grid(row=r, column=0, columnspan=2)
     log(3, "Manual Cut called")
+    G.OptionFrame.init_after()
 
 
 def ManualCutClose():

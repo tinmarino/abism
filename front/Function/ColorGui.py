@@ -1,5 +1,6 @@
 from tkinter import *
 
+from front.util_front import skin
 import front.util_front as G
 import back.util_back as W
 
@@ -8,7 +9,7 @@ import util
 
 def BgCl(color=None, who="bg"):
     """
-        # Background COlor, change the color of ABism take G.bg[0] t
+        # Background COlor, change the color of ABism take skin().color.bg t
         # Defined colors, set bg, fg, lists
     """
     if color is not None:
@@ -23,7 +24,7 @@ def BgCl(color=None, who="bg"):
             if "Paned" not in i:
                 log(7, i)
             try:
-                exec(i + "['bg'] = G.bg[0]") in globals(), locals()
+                exec(i + "['bg'] = skin().color.bg") in globals(), locals()
                 # remove 2 first letter because it is G.
                 # done for sed , not Paned please
             except:

@@ -4,9 +4,7 @@
 """
 import re
 
-from tkinter import Frame, PanedWindow, Label, PhotoImage, Button, \
-    StringVar, Entry, \
-    VERTICAL, HORIZONTAL, TOP, X, CENTER
+import tkinter as tk
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, \
@@ -20,15 +18,15 @@ from DraggableColorbar import DraggableColorbar
 
 from util import log
 import front.util_front as G
-from front.util_front import photo_up, photo_down
+from front.util_front import photo_up, photo_down, skin
 
 # TODO this should not be here
 import back.util_back as W
 
-class PlotFrame(Frame):
+class PlotFrame(tk.Frame):
     """Base class"""
-    def __init__(self, parent, **args):
-        super().__init__(parent, bg=G.bg[0], **args)
+    def __init__(self, parent):
+        super().__init__(parent, skin().frame_dic)
 
         # Grid stuff
         self.rowconfigure(0, weight=100)
@@ -54,28 +52,28 @@ class PlotFrame(Frame):
         Toolbar requires canvas
         """
         self._canvas = FigureCanvas(fig, master=self)
-        self._canvas.get_tk_widget()['bg'] = G.bg[0]
+        self._canvas.get_tk_widget()['bg'] = skin().color.bg
         # No borders: used to locate focus
         self._canvas.get_tk_widget()["highlightthickness"] = 0
         self._canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
 
         # TOOLBAR
-        self._toolbar_frame = Frame(self)
+        self._toolbar_frame = tk.Frame(self, **skin().frame_dic)
         self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
         self._toolbar = NavigationToolbar2Tk(self._canvas, self._toolbar_frame)
-        self._toolbar["bg"] = G.bg[0]
+        self._toolbar["bg"] = skin().color.bg
         for i in self._toolbar.winfo_children():
-            i["bg"] = G.bg[0]
+            i["bg"] = skin().color.bg
         self._toolbar.grid(row=0, column=0, sticky="nsew")
 
     def init_label(self, s_label):
         """Create label bottom left"""
-        Label(self, text=s_label, **G.frame_title_arg).place(x=0, y=0)
+        tk.Label(self, text=s_label, **G.frame_title_arg).place(x=0, y=0)
 
     def init_toolbar_button(self):
         """Create toolbar button"""
-        self._arrow = Button(
-            self, command=self.toogle_toolbar, image=photo_up(), **G.bu_arg)
+        self._arrow = tk.Button(
+            self, command=self.toogle_toolbar, image=photo_up(), **skin().button_dic)
         self._arrow.place(relx=1., rely=1., anchor="se")
         self.toogle_toolbar()
 
@@ -118,7 +116,7 @@ class ImageFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure()
         self._fig.subplots_adjust(left=0.07, right=0.93, top=0.95, bottom=0.05)
-        self._fig.set_facecolor(G.bg[0])
+        self._fig.set_facecolor(skin().color.bg)
 
         # Label && Canvas
         self.init_label("Image")
@@ -288,8 +286,8 @@ class ImageFrame(PlotFrame):
                                         origin='lower', colors="k",
                                         linewidths=3)
                 # extent=(-3,3,-2,2))
-                log(0 ,
-                        "---> Contour of 3 and 5 sigma, clik again on contour to delete its.")
+                log(0, "---> Contour of 3 and 5 sigma, "
+                    "clik again on contour to delete its.")
 
             else:  # include no contour  delete the contours
                 if not load:
@@ -451,31 +449,31 @@ class ImageFrame(PlotFrame):
                 pass
         else:
             # FRAME
-            G.CubeFrame = Frame(G.ButtonFrame, **G.fr_arg)
-            G.CubeFrame.pack(side=TOP, expand=0, fill=X)
+            G.CubeFrame = tk.Frame(G.ButtonFrame, **skin().frame_dic)
+            G.CubeFrame.pack(side=tk.TOP, expand=0, fill=tk.X)
 
             # CUBE IMAGE SELECTION
             # LEFT
-            G.bu_cubel = Button(G.CubeFrame, text='<-',
-                                command=lambda: self.CubeDisplay("-"), **G.bu_arg)
+            G.bu_cubel = tk.Button(G.CubeFrame, text='<-',
+                                command=lambda: self.CubeDisplay("-"), **skin().button_dic)
 
             # ENTRY
-            G.cube_var = StringVar()
-            G.cube_entry = Entry(
-                G.CubeFrame, width=10, justify=CENTER,
+            G.cube_var = tk.StringVar()
+            G.cube_entry = tk.Entry(
+                G.CubeFrame, width=10, justify=tk.CENTER,
                 textvariable=G.cube_var, **G.en_arg)
             G.cube_var.set(W.cube_num + 1)
             G.cube_entry.bind("<Return>", lambda x: self.CubeDisplay("0"))
 
             # RIGHT
-            G.bu_cuber = Button(
+            G.bu_cuber = tk.Button(
                 G.CubeFrame, text='->',
-                command=lambda: self.CubeDisplay("+"), **G.bu_arg)
+                command=lambda: self.CubeDisplay("+"), **skin().button_dic)
 
             # GRID
             for i in range(3):
                 G.CubeFrame.columnconfigure(i, weight=1)
-            Label(G.CubeFrame, text="Cube Number", **
+            tk.Label(G.CubeFrame, text="Cube Number", **
                   G.frame_title_arg).grid(row=0, column=0, columnspan=3, sticky="w")
             G.bu_cubel.grid(row=1, column=0, sticky="nsew")
             G.cube_entry.grid(row=1, column=1, sticky="nsew")
@@ -504,7 +502,7 @@ class FitFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure(figsize=(5, 2.5))
         self._fig.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.2)
-        self._fig.set_facecolor(G.bg[0])
+        self._fig.set_facecolor(skin().color.bg)
 
         # Label && Canvas
         self.init_label("Photometric Profile")
@@ -520,7 +518,7 @@ class ResultFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure(figsize=(3, 2.5))
         self._fig.subplots_adjust(left=0.1, right=0.9, top=1.05, bottom=-0.15)
-        self._fig.set_facecolor(G.bg[0])
+        self._fig.set_facecolor(skin().color.bg)
 
         # Label && Canvas
         self.init_label("2D Shape")
@@ -528,19 +526,19 @@ class ResultFrame(PlotFrame):
         self.init_toolbar_button()
 
 
-class RightFrame(PanedWindow):
+class RightFrame(tk.PanedWindow):
     """Full Container"""
     def __init__(self, parent):
         # Append self, vertically splited
-        super().__init__(parent, orient=VERTICAL, **G.paned_dic)
+        super().__init__(parent, orient=tk.VERTICAL, **skin().paned_dic)
         parent.add(self)
 
         # Add science image frame
         G.ImageFrame = ImageFrame(self)
 
         # Append bottom, horizontally splitted container of 2 frames
-        G.RightBottomPaned = PanedWindow(
-            self, orient=HORIZONTAL, **G.paned_dic)
+        G.RightBottomPaned = tk.PanedWindow(
+            self, orient=tk.HORIZONTAL, **skin().paned_dic)
         self.add(G.RightBottomPaned)
 
         # Add Fit (bottom left)

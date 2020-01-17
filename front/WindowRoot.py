@@ -27,6 +27,7 @@ from back.FitsIo import OpenImage
 
 # Variables
 from util import MainVar, root_path, icon_path, log
+from front.util_front import skin
 import front.util_front as G
 import back.util_back as W
 
@@ -57,7 +58,7 @@ class RootWindow(Tk):
         # ALL What is not the menu is a paned windows :
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **G.paned_dic)
+        G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **skin().paned_dic)
         G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
 
         # 2 LEFT

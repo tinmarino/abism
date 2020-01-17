@@ -126,10 +126,7 @@ def PanedConfig(arg):
 
 def Print(color="", HLS={}):
   log(3, print(color, HLS) if imported:
-    G.bg[0]=color
-    # func2 = lambda x: IG.PanedConfig( {"bg":x} )
     func2(color)
-    # IG.BgCl(color=color,who=who2 )
 
 if __name__ == '__main__':
    Main()

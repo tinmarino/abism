@@ -12,7 +12,7 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
 
 
 from util import log
-from front.util_front import photo_up, photo_down, quit_process
+from front.util_front import photo_up, photo_down, quit_process, skin
 import front.util_front as G
 import back.util_back as W
 
@@ -22,8 +22,8 @@ class TextFrame(Frame):
     parent <- must be vertical pane
     children <- are grided
     """
-    def __init__(self, parent, label_text='Frame'):
-        super().__init__(parent, **G.fr_arg)
+    def __init__(self, parent, label_text='Frame', index=0):
+        super().__init__(parent, skin().frame_dic)
 
         # Prepare grid attributes
         self.columnconfigure(0, weight=1)
@@ -37,32 +37,49 @@ class TextFrame(Frame):
         self._last = None  # To get the normal size
         self._see_me = True  # Bool do you see me
         self._label_text = label_text
+        self._index = index  # for sash
 
     def init_after(self):
         """Place a last widget"""
         # Place button to resize
         self._arrow = Button(
-            self, command=self.toogle, image=photo_up(), **G.bu_arg)
+            self, command=self.toogle, image=photo_up(), **skin().button_dic)
         self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
         Label(self, text=self._label_text, **G.frame_title_arg).place(x=0, y=0)
 
         # Last widget
-        self._last = Label(self, height=0, width=0)
+        if self._last is not None:
+            self._last.destroy()
+        self._last = Label(self, height=0, width=0, **skin().frame_dic)
         self._last.grid()
 
     def toogle(self, visible=None):
         """Toggle visibility: Hide and show"""
-        self._see_me = visible if visible is not None else not self._see_me
+        # Check: not work if last
+        if self._index is None:
+            W.log(3, 'Warning: cannnto hide last sash')
+            return
+
+        if visible is not None:
+            self._see_me = visible
+        else:
+            self._see_me = not self._see_me
 
         # Toogle sash
         if self._see_me:
-            self._parent.sash_place(0, 0, 22)
-            self._arrow.configure(image=photo_down())
-        else:
-            G.TextPaned.sash_place(0, 0, self._last.winfo_y())
             self._arrow.configure(image=photo_up())
+            i_height = self.winfo_y() + self._last.winfo_y() \
+                - self._last.winfo_height()
+        else:
+            i_height = self.winfo_y() + 22
+            self._arrow.configure(image=photo_down())
+        self._parent.sash_place(self._index, 0, i_height)
+
+        log(3, 'Toggle sash: nb=', self._index,
+              ',visible=', self._see_me,
+              ',height=', i_height)
 
     def clear(self):
         """Destroy all children, take care !"""
@@ -78,8 +95,8 @@ class TextFrame(Frame):
 
 class LabelFrame(TextFrame):
     """Some conf"""
-    def __init__(self, parent):
-        super().__init__(parent, label_text='Info')
+    def __init__(self, parent, **args):
+        super().__init__(parent, **args)
 
     def update(self):
         """Called later, display what I retrived from header
@@ -185,8 +202,8 @@ class LabelFrame(TextFrame):
 
 class OptionFrame(TextFrame):
     """Some conf"""
-    def __init__(self, parent):
-        super().__init__(parent, label_text='Option')
+    def __init__(self, parent, **args):
+        super().__init__(parent, **args)
         self.init_after()
 
     def ask_image_parameters(self):
@@ -218,13 +235,14 @@ class OptionFrame(TextFrame):
 
         ##########
         # INITIATE THE FRAME, change button color
-        if G.bu_manual["background"] == G.bu_manual_color:
+        # TODO old trick to check for color, change it
+        if G.bu_manual['background'] == skin().color.parameter1:
             # Grid new frame
-            G.ManualFrame = Frame(self, bg=G.bg[0])
+            G.ManualFrame = Frame(self, **skin().frame_dic)
             G.ManualFrame.grid(sticky='nsew')
 
             # TITEL
-            Label(G.ManualFrame, text="Parameters",
+            Label(G.ManualFrame, text='Parameters',
                   **G.frame_title_arg).pack(side=TOP, anchor="w")
             G.ManualGridFrame = Frame(G.ManualFrame)
             G.ManualGridFrame.pack(expand=0, fill=BOTH, side=TOP)
@@ -235,12 +253,12 @@ class OptionFrame(TextFrame):
             # THE ENTRIES (it is before the main dish )
             row = 0
             for i in G.image_parameter_list:
-                l = Label(G.ManualGridFrame, text=i[0], font=G.font_param,
+                l = Label(G.ManualGridFrame, text=i[0], font=skin().font.answer,
                           justify=LEFT, anchor="nw", **G.lb_arg)
                 l.grid(row=row, column=0, sticky="NSEW")
                 vars(G.tkvar)[i[1]] = StringVar()
                 vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
-                    G.tkvar)[i[1]], font=G.font_param, **G.en_arg)
+                    G.tkvar)[i[1]], font=skin().font.answer, **G.en_arg)
                 if vars(W.head)[i[1]] == i[2]:
                     vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
                 vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
@@ -251,13 +269,14 @@ class OptionFrame(TextFrame):
                     vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
                 row += 1
 
-            G.bu_manual["background"] = 'green'
-            G.bu_manual["text"] = u'\u25b4 ' + 'ImageParameters'
-
             # EXPAND
+            G.bu_manual['background'] =  skin().color.parameter2
+            G.bu_manual['text'] = u'\u25b4 ' + 'ImageParameters'
+
+            self.init_after()
             self.toogle(visible=True)
 
-        elif G.bu_manual["background"] == 'green':  # destroy manualFrame  and save datas
+        elif G.bu_manual['background'] == skin().color.parameter2:  # destroy manualFrame  and save datas
 
             G.ManualFrame.destroy()
             del G.ManualFrame
@@ -266,14 +285,15 @@ class OptionFrame(TextFrame):
                 G.in_arrow_frame = None
             # Remove MoreFrame
             G.all_frame = [x for x in G.all_frame if x != "G.ManualFrame"]
-            G.bu_manual["background"] = G.bu_manual_color
+            G.bu_manual["background"] =  skin().color.parameter1
             G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
+            self.toogle(visible=False)
 
 
 class AnswerFrame(TextFrame):
     """Some conf"""
-    def __init__(self, parent):
-        super().__init__(parent, label_text='Result')
+    def __init__(self, parent, **args):
+        super().__init__(parent, **args)
 
         self.init_after()
 
@@ -289,29 +309,31 @@ class AnswerFrame(TextFrame):
         self._fit_type_label.configure(text=s_text)
 
 
-
 class ButtonFrame(Frame):
     """Frame 1 with quit, restart"""
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, parent, **args):
+        super().__init__(parent, **args)
+
+        # Define button option
+        opts = skin().button_dic.copy()
 
         # Create Quit
+        opts.update({'background':skin().color.quit})
         G.bu_quit = Button(
             self, text='QUIT',
-            background=G.bu_quit_color,
-            command=quit_process, **G.bu_arg)
+            command=quit_process, **opts)
 
         # Create Restart
+        opts.update({'background':skin().color.restart})
         G.bu_restart = Button(
             self, text='RESTART',
-            background=G.bu_restart_color,
-            command=G.Restart, **G.bu_arg)
+            command=G.Restart, **opts)
 
         # Create Expand Image Parameter
+        opts.update({'background':skin().color.parameter1})
         G.bu_manual = Button(
             self, text=u'\u25be ' + 'ImageParameters',
-            background=G.bu_manual_color,
-            command=G.OptionFrame.ask_image_parameters, **G.bu_arg)
+            command=G.OptionFrame.ask_image_parameters, **opts)
 
         # Grid
         self.columnconfigure(0, weight=1)
@@ -325,21 +347,20 @@ class LeftFrame(Frame):
     """Full Container"""
     def __init__(self, parent):
         # Append self -> parent
-        super().__init__(parent, **G.fr_arg)
+        super().__init__(parent, **skin().frame_dic)
         parent.add(self)
 
         # Create Paned
-        G.TextPaned = PanedWindow(self, orient=VERTICAL, **G.paned_dic)
+        G.TextPaned = PanedWindow(self, orient=VERTICAL, **skin().paned_dic)
 
         # Add LabelFrame
-        G.LabelFrame = LabelFrame(G.TextPaned)
+        G.LabelFrame = LabelFrame(G.TextPaned, index=0, label_text='Info')
 
         # Add LabelFrame
-        G.OptionFrame = OptionFrame(G.TextPaned)
+        G.OptionFrame = OptionFrame(G.TextPaned, index=1, label_text='Option')
 
         # Add AnswerFrame
-        G.AnswerFrame = AnswerFrame(G.TextPaned)
-
+        G.AnswerFrame = AnswerFrame(G.TextPaned, label_text='Result')
         # Create Buttons with callback to preceding
         button_frame = ButtonFrame(self)
 

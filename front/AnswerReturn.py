@@ -119,7 +119,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         # 1.3 ANd put the button sky o detector units
         # to fill th ecolumn on th epossible space
         G.bu_answer_type = Button(
-            G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, **G.bu_arg)
+            G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, **skin().button_dic)
         G.lb_answer_type = Label(
             G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **G.lb_arg)
 
@@ -567,7 +567,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
     if not 'intensity' in W.strehl:  # binary
         W.strehl["intensity"] = W.strehl["intensity0"] + W.strehl["intensity1"]
     if W.strehl["intensity"] > 1.0 * W.head.non_linearity_level:
-        l = Label(G.AnswerFrame, bg=G.bg[0])
+        l = Label(G.AnswerFrame, bg=skin().color.bg)
         l["fg"] = "red"
         l["font"] = skin().font.warning
         if W.strehl["intensity"] > 1.0 * W.head.saturation_level:
@@ -595,7 +595,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         sep = np.sqrt(sep)
 
         if max_dist*15 < sep:  # means too high separation
-            l = Label(G.AnswerFrame, bg=G.bg[0])
+            l = Label(G.AnswerFrame, bg=skin().color.bg)
             l["fg"] = "red"
             l["font"] = skin().font.warning
             l["text"] = "Wide Binary\npick objects individually"
@@ -603,7 +603,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
             row += 1
 
         if max_dist*3 > sep:  # means too high separation
-            l = Label(G.AnswerFrame, bg=G.bg[0])
+            l = Label(G.AnswerFrame, bg=skin().color.bg)
             l["fg"] = "red"
             l["font"] = skin().font.warning
             l["text"] = "Tight Binary\nmay be unreliable"
