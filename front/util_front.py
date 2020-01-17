@@ -64,7 +64,9 @@ def Restart():
     if not isinstance(cmap, str):
         cmap = "jet"
     for i in [
-            ["--verbose", W.verbose],
+        # TODO --verbose
+        # TODO --help -h
+        # TODO argparse
         ["--bg", bg[0]],
         ["--fg", fg[0]],
 
@@ -109,9 +111,3 @@ def Restart():
     system(stg)         # I call an other instance
     sys_exit(1)         # I exit the current process.
     # As the loop is now opened, this may not be necessary but anyway it is safer
-
-
-
-# TODO remove this
-class VoidClass:
-    """Helper container"""

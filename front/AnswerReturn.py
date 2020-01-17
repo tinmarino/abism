@@ -111,10 +111,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
                 G.fig.canvas.draw()
             except:
                 import traceback
-                if W.verbose > 3:
-                    traceback.print_exc()
-                if W.verbose > 3:
-                    print("Warning: cannot remove arrows")
+                log(3, traceback.format_exc() + "\nWarning: cannot remove arrows")
 
 
         ########
@@ -752,8 +749,7 @@ def ProfileAnswer():  # 1 and 2D
         G.figfit.canvas.draw()
 
     def Data():
-        if W.verbose > 8:
-            print("ProfileAnswer :", zip(points, W.Im0[tuple(points)]))
+        log(8, "ProfileAnswer :", zip(points, W.Im0[tuple(points)]))
         # STAT
         # like profile_stat points[0] is x and points[1] is y
         ps = Stat.Stat(W.Im0[tuple(points)])
@@ -973,13 +969,12 @@ def PC():  # read W.psf_fit
             string = string[:-1]+"\n"  # remove last "," and pass line
         stg_head = stg_head[:-1]+"\n"
         string = stg_head+string[:-2]  # remove last <newline>
-        print(string)  # verbose
+        log(0, string)
 
         from subprocess import call
         sh = W.path+"/print_array.sh"  # verbose
         call("bash " + sh + " '" + string + "' ", shell=True)
-        if W.verbose > 0:
-            print("\n\n")
+        log(0, "\n\n")
 
     def PFit():  # write fit
         string = "      ##########################\n"
@@ -994,12 +989,8 @@ def PC():  # read W.psf_fit
             if uncer[k] != 0:
                 string += ' +/- %s' % (uncer[k])
             string += "\n"
-        if W.verbose > 0:
-            print(string)
-        # result:
-
+        log(0, string)
     try:
-        # PCor() # it is done before
         PFit()
     except:
         pass
@@ -1035,7 +1026,6 @@ def CallContrastMap():
 
     G.TEXT = Text(G.ContrastButton1Frame, height=1)
     G.TEXT.bind()
-    #  if W.verbose >3 : print("CallCOntrastMap: I got a new contrast_max", G.v1[0].get() ,   W.strehl["contrast_max"], "\nevent:", event)
 
     #G.v1= [ ]
     #v =  StringVar()
@@ -1046,8 +1036,7 @@ def CallContrastMap():
     # G.v1.append(v)
 
     def Get(event):
-        if W.verbose > 1:
-            print(G.v.get())
+        log(1, G.v.get())
 
     def Worker():
         import ImageFunction as IF

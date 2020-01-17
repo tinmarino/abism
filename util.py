@@ -17,7 +17,13 @@ import matplotlib
 
 
 # Exported
-verbose = 0
+_verbose = 0
+
+def get_verbose():
+    return _verbose
+
+def set_verbose(i_level):
+    _verbose = i_level
 
 
 @lru_cache(1)
@@ -66,10 +72,15 @@ def log(i, *args):
         DEBUG    10  2
         NOTSET    0  3
     """
-    if verbose < i: return
+    if get_verbose() < i: return
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     _get_logger().info(message)
+
+
+# TODO remove this
+class VoidClass:
+    """Helper container"""
 
 
 def MainVar():
@@ -158,8 +169,8 @@ def GuiVar():
 
     # CLASS
     # (we save the tkvariables ) # it may be changed see image parameters
-    G.tkvar = G.VoidClass()
-    G.tkentry = G.VoidClass()
+    G.tkvar = VoidClass()
+    G.tkentry = VoidClass()
 
     # DICTIONARIES
     G.paned_dic = {"sashwidth": 2,                  # The sas is the little between windows "glissiere", to resize
@@ -190,7 +201,7 @@ def WorkVar():
     This is an important function of the software.
     """
     # Define verbose level
-    W.verbose = 5
+    set_verbose(5)
 
     # Cache locally arg in
     W.sys_argv = sys_argv
@@ -202,7 +213,7 @@ def WorkVar():
         """
     W.tmp = tmp()
 
-    W.imstat = G.VoidClass()
+    W.imstat = VoidClass()
     W.image_name = 'no_image_name'
     W.strehl_type = 'max'
     W.strehl = {}
@@ -238,7 +249,7 @@ def ReadTerminalVar():
     argv = W.sys_argv
 
     lst = [
-        ["--verbose", W, "verbose"],
+        # ["--verbose", W, "verbose"],
         ["--phot_type", W, "type['phot']"],
         ["--noise_type", W, "type['noise']"],
 

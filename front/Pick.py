@@ -102,14 +102,12 @@ def Profile(disconnect=False):
         try:
             G.my_profile.Disconnect()
         except:
-            if W.verbose > 3:
-                print("Pick.Profile , cannot disconnect profile ")
+            log(3, "Pick.Profile , cannot disconnect profile ")
         try:
             G.my_profile.RemoveArtist()
             # del G.my_profile # maybe not
         except:
-            if W.verbose > 3:
-                print("Pick.Profile , cannot remove artist profile ")
+            log(3, "Pick.Profile , cannot remove artist profile ")
         return
         # if W.type["pick"] == "profile" : return # in order not to cal twice at the begining
     # CONNECT
@@ -136,8 +134,9 @@ def PickOne(disconnect=False):
 
     # CONNECT
     if W.type["pick"] == "one":
-        if W.verbose > 0:
-            print(" \n\n\n________________________________\n|Pick One| : \n    1/Draw a rectangle around your star with left button\n    2/Click on star 'center' with right button")
+        log(0, " \n\n\n________________________________\n|Pick One|:\n"
+            "    1/Draw a rectangle around your star with left button\n"
+            "    2/Click on star 'center' with right button")
         G.rs_one = matplotlib.widgets.RectangleSelector(
             G.ax1, RectangleClick, drawtype='box',
             rectprops=dict(facecolor='green', edgecolor='black',
@@ -151,8 +150,7 @@ def PickEvent(event):
     if event.button != 3 or not event.inaxes:
         return
     elif G.toolbar._active == "PAN" or G.toolbar._active == "ZOOM":
-        if W.verbose > 3:
-            print(
+        log(3 ,
                 "WARNING: Zoom or Pan actif, please unselect its before picking your object")
         return
     W.r = [event.ydata-15, event.ydata+15, event.xdata-15, event.xdata+15]
@@ -182,8 +180,8 @@ def Binary(disconnect=False):
 
     # CONNECT
     if W.type["pick"] == "binary":
-        if W.verbose > 0:
-            print("\n\n\n______________________________________\n|Binary| : Make 2 clicks, one per star-------------------")
+        log(0, "\n\n\n______________________________________\n"
+            "|Binary| : Make 2 clicks, one per star-------------------")
         G.pt1 = G.fig.canvas.mpl_connect('button_press_event', Binary2)
         G.ImageCanvas.get_tk_widget()["cursor"] = "target"
         return
@@ -193,8 +191,7 @@ def Binary(disconnect=False):
 def Binary2(event):
     if not event.inaxes:
         return
-    if W.verbose > 0:
-        print("1st point : ", event.xdata, event.ydata)
+    log(0, "1st point : ", event.xdata, event.ydata)
     G.star1 = [event.ydata, event.xdata]
     # we need to inverse, always the same issue ..
     G.fig.canvas.mpl_disconnect(G.pt1)
@@ -205,8 +202,7 @@ def Binary2(event):
 def Binary3(event):  # Here we call the math
     if not event.inaxes:
         return
-    if W.verbose > 0:
-        print("2nd point : ", event.xdata, event.ydata)
+    log(0, "2nd point : ", event.xdata, event.ydata)
     G.star2 = [event.ydata, event.xdata]
     G.fig.canvas.mpl_disconnect(G.pt2)
 
@@ -231,8 +227,9 @@ def TightBinary(disconnect=False):
 
     # CONNECT
     if W.type["pick"] == "tightbinary":
-        if W.verbose > 0:
-            print("\n\n\n______________________________________\n|TightBinary| : Make 2 clicks, one per star, be precise, the parameters will be more constrained-------------------")
+        log(0, "\n\n\n______________________________________\n"
+            "|TightBinary| : Make 2 clicks, one per star, be precise, "
+            "the parameters will be more constrained-------------------")
         G.pt1 = G.fig.canvas.mpl_connect('button_press_event', TightBinary2)
         G.ImageCanvas.get_tk_widget()["cursor"] = "target"
         #  CLick on same psf and no aniso
@@ -245,8 +242,7 @@ def TightBinary(disconnect=False):
 def TightBinary2(event):
     if not event.inaxes:
         return
-    if W.verbose > 0:
-        print("1st point : ", event.xdata, event.ydata)
+    log(0, "1st point : ", event.xdata, event.ydata)
     G.star1 = [event.ydata, event.xdata]
     # we need to inverse, always the same issue ..
     G.fig.canvas.mpl_disconnect(G.pt1)
@@ -257,8 +253,7 @@ def TightBinary2(event):
 def TightBinary3(event):  # Here we call the math
     if not event.inaxes:
         return
-    if W.verbose > 0:
-        print("2nd point : ", event.xdata, event.ydata)
+    log(0, "2nd point : ", event.xdata, event.ydata)
     G.star2 = [event.ydata, event.xdata]
     G.fig.canvas.mpl_disconnect(G.pt2)
 
@@ -285,12 +280,11 @@ def PickMany(disconnect=False):
     # CONNECT
     if W.type["pick"] == "many":
         G.arrows, G.answer_saved = [], {}
-        if W.verbose > 0:
-            print('\n\n\n______________________________\n|Pick Many| : draw rectangles around your stars-----------------------')
+        log(0, "\n\n\n______________________________\n"
+            "|Pick Many| : draw rectangles around your stars-----------------------")
         # G.pick count the index of the picked star
         W.type["pick"] = ['many', 1]
-        if W.verbose > 9:
-            print('pick,G.pick', W.type["pick"])
+        log(9, 'pick,G.pick', W.type["pick"])
         G.rs_many = matplotlib.widgets.RectangleSelector(
             G.ax1, RectangleClick, drawtype='box',
             rectprops=dict(facecolor='blue', edgecolor='black', alpha=0.5, fill=True))
@@ -315,8 +309,9 @@ def StatPick(disconnect=False):
 
     # CONNECT
     if W.type["pick"] == "stat":
-        if W.verbose > 0:
-            print("\n\n\n________________________________\n|Pick Stat| : draw a rectangle around a region and ABISM will give you some statistical informationcomputed in the region-------------------")
+        log(0, "\n\n\n________________________________\n"
+            "|Pick Stat| : draw a rectangle around a region and ABISM "
+            "will give you some statistical informationcomputed in the region-------------------")
         W.type["pick"] = 'stat'
         G.rs_stat = matplotlib.widgets.RectangleSelector(
             G.ax1, RectangleClick, drawtype='box',
@@ -325,16 +320,13 @@ def StatPick(disconnect=False):
 
 def RectangleClick(eclick, erelease):
     """return the extreme coord of the human drawn rectangle  And call StrehlMeter"""
-    if W.verbose > 3:
-        print('rectangle click_________________')
+    log(3, 'rectangle click_________________')
     G.image_click = eclick.xdata, eclick.ydata
     G.image_release = erelease.xdata, erelease.ydata
     if G.image_click == G.image_release:
-        if W.verbose > 0:
-            print("Rectangle phot aborded: you clicked and released ont the same point")
+        log(0, "Rectangle phot aborded: you clicked and released ont the same point")
         return
-    if W.verbose > 3:
-        print(G.image_click, G.image_release)
+    log(3, G.image_click, G.image_release)
     W.r = (int(G.image_click[1]), int(G.image_release[1]),
            int(G.image_click[0]), int(G.image_release[0]))
 
@@ -348,9 +340,8 @@ def ManualRectangle(eclick, erelease):
     # we inverse to get x,y like row,column
     r = image_click[1], image_release[1], image_click[0], image_release[0]
     r = IF.Order4(r)
-    if G.rect_phot_bool and W.verbose > 0:
-            # When you want a phot from command
-        print(IF.RectanglePhot(W.Im0, r))
+    if G.rect_phot_bool:
+        log(0, IF.RectanglePhot(W.Im0, r))
     log(9, '----> WindowRoot.py, ManualRectangle', r)
     if G.bu_noise_manual['background'] == 'green':
         G.r = r
@@ -374,16 +365,14 @@ def PickWorker():
     import time
     start = time.time()
     if W.type["pick"] == "binary":
-        if W.verbose > 3:
-            print("I call binary math")
+        log(3, "I call binary math")
         Strehl.BinaryStrehl()
         AR.PlotAnswer()
         AR.PlotStar2()
         AR.PlotStar()
         AR.PC()
     if W.type["pick"] == "tightbinary":
-        if W.verbose > 3:
-            print("I call binary math")
+        log(3, "I call binary math")
         Strehl.TightBinaryStrehl()
         AR.PlotAnswer()
         AR.PlotStar2()

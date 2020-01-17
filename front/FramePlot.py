@@ -19,7 +19,6 @@ from DraggableColorbar import DraggableColorbar
 
 
 from util import log
-
 import front.util_front as G
 from front.util_front import photo_up, photo_down
 
@@ -263,8 +262,7 @@ class ImageFrame(PlotFrame):
 
         # RUN THE Stff to change radio button for mac
         if run != "":
-            if W.verbose > 3:
-                print("Scale, run=", run)
+            log(3, "Scale, run=", run)
             exec(run, globals())
 
             #######
@@ -290,8 +288,7 @@ class ImageFrame(PlotFrame):
                                         origin='lower', colors="k",
                                         linewidths=3)
                 # extent=(-3,3,-2,2))
-                if W.verbose > 0:
-                    print(
+                log(0 ,
                         "---> Contour of 3 and 5 sigma, clik again on contour to delete its.")
 
             else:  # include no contour  delete the contours
@@ -301,8 +298,7 @@ class ImageFrame(PlotFrame):
 
         ############
         # UPDATE UPDATE
-        if W.verbose > 2:
-            print(" MG.scale ,Scale_dic ", G.scale_dic[0])
+        log(2, " MG.scale ,Scale_dic ", G.scale_dic[0])
         dic["contour"] = G.scale_dic[0]["contour"]
         G.scale_dic[0].update(dic)  # UPDATE DIC
 
@@ -320,8 +316,7 @@ class ImageFrame(PlotFrame):
                 tmp = Scale.MinMaxCut(W.Im0, dic=dictmp)
                 G.scale_dic[0]["min_cut"] = tmp["min_cut"]
                 G.scale_dic[0]["max_cut"] = tmp["max_cut"]
-            if W.verbose > 2:
-                "I called Scale cut "
+            log(2, "I called Scale cut ")
 
         ######
         # SCALE FCT

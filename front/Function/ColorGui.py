@@ -21,8 +21,7 @@ def BgCl(color=None, who="bg"):
     def Frames():  # BG for frames in all_frame
         for i in G.all_frame:
             if "Paned" not in i:
-                if W.verbose > 7:
-                    print(i)
+                log(7, i)
             try:
                 exec(i + "['bg'] = G.bg[0]") in globals(), locals()
                 # remove 2 first letter because it is G.

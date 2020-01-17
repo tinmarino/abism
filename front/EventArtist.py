@@ -7,7 +7,6 @@ import Pick
 import ImageFunction as IF  # to give him the output
 
 
-import back.util_back as W  # for verbose
 import front.util_front as G  # to know if on zoom
 
 
@@ -55,8 +54,7 @@ class Annulus:  # This is actually the Annulus even, but it could be a "ellipse"
         ##################
 
     def on_motion(self, event):
-        if W.verbose > 9:
-            print("annulus detect motion")
+        log(9, "annulus detect motion")
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
@@ -242,7 +240,7 @@ class Ellipse:
     def __init__(self, figure, ax, array=None):  # array is the array called by imshow
         self.fig = figure   # G.fig
         self.ax = ax        # G.ax1
-        self.array = array  # W.Im0
+        self.array = array
         self.artist = ""
         self.num_key = ""    # number of key operation to make like if you press   5r, the r operation is done 5 times we put 0 to concatenate
         self.zoom_bool = False
@@ -338,7 +336,7 @@ class Ellipse:
 
         # KNOW
         elif event.key == "p":
-            print(vars(self))  # verbose OK
+            log(0, vars(self))
             self.Draw()
 
         self.zoom_bool = False
@@ -354,8 +352,7 @@ class Ellipse:
         try:
             self.artist.remove()
         except:
-            if W.verbose > 3:
-                print("I cannot remove artist Ellispe")
+            log(3, "I cannot remove artist Ellispe")
         if draw:
             self.fig.canvas.draw()
 
@@ -422,26 +419,22 @@ class Profile:
         try:
             self.fig.canvas.mpl_disconnect(self.cid_press_event)
         except:
-            if W.verbose > 3:
-                print("EventArtist.profile cannot deisconnect press ")
+            log(3, "EventArtist.profile cannot deisconnect press ")
         try:
             self.fig.canvas.mpl_disconnect(self.cid_motion_event)
         except:
-            if W.verbose > 3:
-                print("EventArtist.profile cannot disconnect motion ")
+            log(3, "EventArtist.profile cannot disconnect motion ")
         try:
             self.fig.canvas.mpl_disconnect(self.cid_release_event)
         except:
-            if W.verbose > 3:
-                print("EventArtist.profile cannot disconnect release  ")
+            log(3, "EventArtist.profile cannot disconnect release  ")
 
     def on_press(self, event):
         if not event.inaxes:
             return
         elif G.toolbar._active == "PAN" or G.toolbar._active == "ZOOM":
-            if W.verbose > 3:
-                print(
-                    "WARNING: Zoom or Pan actif, please unselect its before picking your object")
+            log(3, "WARNING: Zoom or Pan actif, "
+                "please unselect its before picking your object")
             return
         self.RemoveArtist(draw=True)  # Important not to draw
         self.point1 = [event.ydata, event.xdata]

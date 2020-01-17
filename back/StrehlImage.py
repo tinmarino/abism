@@ -6,7 +6,7 @@ import FitFunction as FF
 import BasicFunction as BF
 
 
-from util import log
+from util import log, get_verbose
 import front.util_front as G
 import back.util_back as W
 
@@ -55,7 +55,7 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
     #############
 
     def Fit():
-        verbose = W.verbose > 1
+        verbose = get_verbose() > 1
 
         if (W.type["fit"] == "Gaussian2D"):
             tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
@@ -413,7 +413,7 @@ def BinaryPsf(grid, search=False):  # slowlyer
         (x, y), W.suposed_param, IX,
         err=eIX, doNotFit=doNotFit,
         bounds=James,
-        verbose=W.verbose > 1,
+        verbose=get_verbose() > 1,
     )
 
     ##############
@@ -624,7 +624,7 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
         (x, y), W.suposed_param, IX,
         err=eIX, doNotFit=doNotFit,
         bounds=James,
-        verbose=W.verbose > 1,
+        verbose=get_verbose() > 1,
     )
 
     ##############

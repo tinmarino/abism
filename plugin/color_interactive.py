@@ -125,8 +125,7 @@ def PanedConfig(arg):
 
 
 def Print(color="", HLS={}):
-  if W.verbose > 3: print(color, HLS)
-  if imported:
+  log(3, print(color, HLS) if imported:
     G.bg[0]=color
     # func2 = lambda x: IG.PanedConfig( {"bg":x} )
     func2(color)

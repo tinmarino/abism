@@ -6,9 +6,10 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-
 import Stat
 import BasicFunction as BF
+
+from util import log
 import front.util_front as G  # check variables
 import back.util_back as W  # for verbose
 
@@ -80,8 +81,7 @@ def LocalMax2(grid, center=None, r=None, size=4):  # size useless, old
 
     res = float(coord[0])/100 + reindex[0], float(coord[1]) / \
         100 + reindex[1],  grid[coord[0], coord[1]]
-    if W.verbose > 3:
-        print(" LocalMax@ImageFunction.py : ", res)
+    log(3, " LocalMax@ImageFunction.py : ", res)
     return res
 
 
@@ -105,8 +105,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
     # 1st MAX
     coord1 = np.unravel_index(cut1.argmax(), cut1.shape)
     coord1 = (coord1[0] + r[0],  coord1[1] + r[2])
-    if W.verbose > 3:
-        print("LocalMax coord", coord1, r)
+    log(3, "LocalMax coord", coord1, r)
 
     # INTERPOLATE
     if type == "interpolation":
@@ -117,8 +116,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
         x = np.arange(xmin, xmax)
         y = np.arange(ymin, ymax)
         cut2 = grid[xmin: xmax, ymin: ymax]
-        if W.verbose > 3:
-            print("LocalMax shapes:", x.shape, y.shape,
+        log(3, "LocalMax shapes:", x.shape, y.shape,
                   cut2.shape, xmin, xmax, ymin, ymax)
         interp = scipy.interpolate.interp2d(x, y, cut2, kind="cubic")
 
@@ -128,8 +126,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
 
         # 2nd Max
         coord2 = np.unravel_index(zz.argmax(), zz.shape)
-        if W.verbose > 3:
-            print("coord, cut ", coord2, cut2)
+        log(3, "coord, cut ", coord2, cut2)
         res = xx[coord2[0]],  yy[coord2[1]],  zz[coord2[0], coord2[1]]
 
     # GRAVITY CENTER
@@ -144,14 +141,12 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
         X, Y = np.meshgrid(x, y)
         norm = np.sum(cut2)
         coord2 = np.sum(X*cut1) / norm, np.sum(Y * cut1) / norm
-        if W.verbose > 3:
-            print("coord1, cut ", coord2, cut2)
+        log(3, "coord1, cut ", coord2, cut2)
         res = coord2[0]+r[0],  coord2[1]+r[2],  cut2[coord2[0], coord2[1]]
 
     #res =  grid[coord[0],coord[1]],( float(coord[0])/100 +reindex[0], float(coord[1])/100 +reindex[1])
 
-    if W.verbose > 3:
-        print(" LocalMax@ImageFunction.py : ", res)
+    log(3, " LocalMax@ImageFunction.py : ", res)
     return res
 
 
@@ -214,8 +209,7 @@ def DecreasingGravityCenter(grid, r=None, binfact=2, radiusmin=4):
     rx1, rx2, ry1, ry2 = r
     if (r[1]-r[0] > radiusmin):
         dist = float((r[1]-r[0]))/2/binfact
-        if W.verbose > 2:
-            print("DecreasingGravityCenter", "r", r)
+        log(2, "DecreasingGravityCenter", "r", r)
         rx1 = int(G[0] - dist)
         rx2 = int(G[0] + dist)
     if (r[3]-r[2] > radiusmin):
@@ -242,8 +236,7 @@ def FWHM(grid, centermax, direction='average'):
         return res + 0.5
     else:
         while (grid[i][j] > max2):
-            if W.verbose > 3:
-                print('FWHM :i,j,I=', i, j, grid[i][j], direction)
+            log(3, 'FWHM :i,j,I=', i, j, grid[i][j], direction)
             if direction == 'x':
                 i += 1
             if direction == '-x':
@@ -255,8 +248,7 @@ def FWHM(grid, centermax, direction='average'):
             if grid[i][j] > grid[int(x)][int(y)]/2:
                 break
         fwhm = np.sqrt((j-y)**2+(i-x)**2)*2
-        if W.verbose > 3:
-            print("FWHM2:", fwhm)
+        log(3, "FWHM2:", fwhm)
         return fwhm
 
 
@@ -392,8 +384,7 @@ def EnergyRadius(grid, fit_type, dic={}):
     else:
         r99x, r99y = r99u, r99v
 
-    if W.verbose > 3:
-        print("------>EnergyRadius(ImageFunction.py)->", (r99x, r99y))
+    log(3, "------>EnergyRadius(ImageFunction.py)->", (r99x, r99y))
     return (r99x, r99y), (r99u, r99v)
 
 
@@ -496,8 +487,7 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
         # background.append((tmp["sum"]/tmp["number_count"]))   #rectangle phot return the sum and the number_count # bite bad pixel
 
         background.append(np.mean(grid[ax1: ax2+1, ay1: ay2+1]))
-        if W.verbose > 3:
-            print("One background :", background[-1], '\n\n\n\n')
+        log(3, "One background :", background[-1], '\n\n\n\n')
         rms.append(np.std(grid[ax1: ax2+1, ay1: ay2+1]))
         if return_rectangle:  # we draw the rectangles
             center, width, height = (
@@ -506,8 +496,7 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
     background.sort()
     background = np.mean(background[2:6])
     rms = np.median(rms)
-    if W.verbose > 3:
-        print('----->8rectsbackground', background)
+    log(3, '----->8rectsbackground', background)
     if return_rectangle:
         return background, 'uselesse', p
     return {'background': background, 'rms': rms}
@@ -742,8 +731,7 @@ def ContrastMap(grid, center, interp=True, xmin=1, xmax=50, step=2, dic={"theta"
                "center_y": center[1], "theta": in_dic["theta"]}
     ratio = in_dic["rv"] / in_dic["ru"]
 
-    if W.verbose > 3:
-        print("ContrastMap initiated ")
+    log(3, "ContrastMap initiated ")
     for xi in x:
         ell_dic.update({"ru": xi, "rv": ratio*xi})
         # photomtery, return bol or dic
@@ -770,8 +758,7 @@ def ContrastMap(grid, center, interp=True, xmin=1, xmax=50, step=2, dic={"theta"
     G.tmp_x = x
     G.tmp_y = y
     G.tmp_tdic = tdic
-    if W.verbose > 3:
-        print("Contrast Map :", x, y, tdic)
+    log(3, "Contrast Map :", x, y, tdic)
     return x, y, tdic
 
 
@@ -833,12 +820,9 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     res["my_photometry"] = res["phot"] - \
         len(obj.array[bol_e])*res["my_background"]
 
-    if W.verbose > 2:
-        print("phot1 :", res["phot"])
-    if W.verbose > 2:
-        print("phot2 :", res["my_photometry"])
-    if W.verbose > 2:
-        print("back :", res["my_background"], "\n")
+    log(2, "phot1 :", res["phot"])
+    log(2, "phot2 :", res["my_photometry"])
+    log(2, "back :", res["my_background"], "\n")
 
 
 

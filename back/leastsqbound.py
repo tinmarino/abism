@@ -7,6 +7,7 @@ from numpy import empty_like, sqrt, cos, sin, arcsin
 from scipy.optimize.minpack import _check_func
 from scipy.optimize import _minpack, leastsq
 
+from util import log
 
 def _internal2external_grad(xi, bounds):
     """
@@ -310,7 +311,7 @@ References
 
     if (info not in [1, 2, 3, 4] and not full_output):
         if info in [5, 6, 7, 8]:
-            warnings.warn(errors[info][0], RuntimeWarning)
+            log(0, 'Warning: leastsqbound:', errors[info][0])
         else:
             try:
                 raise errors[info][1](errors[info][0])
