@@ -15,15 +15,23 @@ from tkinter import font as tkFont
 import matplotlib
 
 
-
-# Exported
 _verbose = 0
 
+
+def get_version():
+    """Return: version string"""
+    return '0.901'
+
+
 def get_verbose():
+    """Return verbose module variable"""
     return _verbose
 
+
 def set_verbose(i_level):
+    """Set verbose module variable"""
     _verbose = i_level
+    return _verbose
 
 
 @lru_cache(1)
@@ -94,11 +102,8 @@ def MainVar():
 
 
 def GuiVar():
-    import front.util_front as G
     """Define the shared variables for the GUI definition"""
-    # VERSION
-    G.version = '0.900'
-
+    import front.util_front as G
 
     # BUTTON WIDTH
     G.button_width = 12  # the width of the standard buttons
@@ -173,7 +178,8 @@ def GuiVar():
     G.tkentry = VoidClass()
 
     # DICTIONARIES
-    G.paned_dic = {"sashwidth": 2,                  # The sas is the little between windows "glissiere", to resize
+    # The sas is the little between windows "glissiere", to resize
+    G.paned_dic = {"sashwidth": 2,
                    "sashpad": 0,
                    "showhandle": 0,
                    "bg": "blue",

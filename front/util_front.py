@@ -7,9 +7,9 @@ from sys import exit as sys_exit
 from os import system
 from functools import lru_cache
 
-from tkinter import PhotoImage
+import tkinter as tk
 
-from util import root_path, log
+from util import root_path, log, get_version
 import back.util_back as W
 
 """
@@ -19,23 +19,19 @@ import back.util_back as W
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""
-    return PhotoImage(file=root_path() + "/res/arrow_up.gif")
+    return tk.PhotoImage(file=root_path() + "/res/arrow_up.gif")
 
 
 @lru_cache(1)
 def photo_down():
     """Return path of arrow_down icon"""
-    return PhotoImage(file=root_path() + "/res/arrow_down.gif")
+    return tk.PhotoImage(file=root_path() + "/res/arrow_down.gif")
 
 
-# Gui parent
-parent = None
-
-
-def Quit():
+def quit_process():
     """Kill process"""
     log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
-    parent.destroy()
+    # parent.destroy()
     sys_exit(1)
 
 
@@ -111,3 +107,43 @@ def Restart():
     system(stg)         # I call an other instance
     sys_exit(1)         # I exit the current process.
     # As the loop is now opened, this may not be necessary but anyway it is safer
+
+
+def about_window():
+    """Pop about window"""
+    root = tk.Tk()
+    root.title("About Abism")
+    txt = ("Adaptive Background Interactive Strehl Meter\n"
+           "ABISM version " + get_version() + " (2013 -- 2020) \n"
+           "Authors: Girard Julien, Tourneboeuf Martin\n"
+           "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
+    tk.Label(root, text=txt).pack()
+    root.mainloop()
+
+
+def system_open(path=""):
+    """Call system defautl open for file
+    path: path of the file to oopen relative to abism root path
+    """
+    import subprocess
+    my_pdf = root_path() + path
+
+    fct = None
+    try:  # PARANAL acroread
+        subprocess.check_call("acroread", shell=False)
+        fct = "acroread"
+    except BaseException:
+        try:  # Linux see
+            subprocess.check_call("see", shell=False)
+            fct = "see"
+        except BaseException:
+            try:  # mac open
+                from subprocess import check_call
+                check_call("open   " + my_pdf, shell=False)
+                fct = "open"
+            except BaseException:
+                pass
+
+    if fct is not None:
+        subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
+    log(0, "ERROR pdf viewer : need to be implemented ")

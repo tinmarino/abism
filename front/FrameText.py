@@ -6,17 +6,13 @@
     Answer
 """
 
-import re
-import os
-
-
 from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
     VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
 
 
 from util import log
-from front.util_front import photo_up, photo_down
+from front.util_front import photo_up, photo_down, quit_process
 import front.util_front as G
 import back.util_back as W
 
@@ -63,7 +59,7 @@ class TextFrame(Frame):
         # Toogle sash
         if self._see_me:
             self._parent.sash_place(0, 0, 22)
-            self._arrow.configure(image=G.photo_down)
+            self._arrow.configure(image=photo_down())
         else:
             G.TextPaned.sash_place(0, 0, self._last.winfo_y())
             self._arrow.configure(image=photo_up())
@@ -94,6 +90,7 @@ class LabelFrame(TextFrame):
         Nx x Ny x Nz
         WCS detected or not
         """
+        import re
 
         # Declare list of label (text, properties)
         text_and_props = []
@@ -209,15 +206,15 @@ class OptionFrame(TextFrame):
         Note that these parameters should be readden from your image header.
         If it is not the case, you can send me an email or modify ReadHeader.py module."
         """
-        G.image_parameter_list = [["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
-                                ["Pixel scale" + "*" + " [''/pix]: ",
-                                "pixel_scale", 99.],
-                                ["Diameter" + "*" + " [m]:", "diameter", 99.],
-                                ["Obstruction (d2/d1)*" + " [%]:",
-                                "obstruction", 99.],
-                                ["Zero point [mag]: ", "zpt", 0.],
-                                ["Exposure time [sec]: ", "exptime", 1.],
-                                ]  # Label, variable , default value
+        # Label, variable , default value
+        G.image_parameter_list = [
+            ["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
+            ["Pixel scale" + "*" + " [''/pix]: ", "pixel_scale", 99.],
+            ["Diameter" + "*" + " [m]:", "diameter", 99.],
+            ["Obstruction (d2/d1)*" + " [%]:", "obstruction", 99.],
+            ["Zero point [mag]: ", "zpt", 0.],
+            ["Exposure time [sec]: ", "exptime", 1.],
+            ]
 
         ##########
         # INITIATE THE FRAME, change button color
@@ -227,8 +224,8 @@ class OptionFrame(TextFrame):
             G.ManualFrame.grid(sticky='nsew')
 
             # TITEL
-            Label(G.ManualFrame, text="Parameters", **
-                G.frame_title_arg).pack(side=TOP, anchor="w")
+            Label(G.ManualFrame, text="Parameters",
+                  **G.frame_title_arg).pack(side=TOP, anchor="w")
             G.ManualGridFrame = Frame(G.ManualFrame)
             G.ManualGridFrame.pack(expand=0, fill=BOTH, side=TOP)
             G.ManualGridFrame.columnconfigure(0, weight=1)
@@ -239,7 +236,7 @@ class OptionFrame(TextFrame):
             row = 0
             for i in G.image_parameter_list:
                 l = Label(G.ManualGridFrame, text=i[0], font=G.font_param,
-                        justify=LEFT, anchor="nw", **G.lb_arg)
+                          justify=LEFT, anchor="nw", **G.lb_arg)
                 l.grid(row=row, column=0, sticky="NSEW")
                 vars(G.tkvar)[i[1]] = StringVar()
                 vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
@@ -267,8 +264,8 @@ class OptionFrame(TextFrame):
             if G.in_arrow_frame == "param_title":
                 G.arrtitle.destroy()
                 G.in_arrow_frame = None
-            G.all_frame = [x for x in G.all_frame if x !=
-                        "G.ManualFrame"]  # remove MoreFrame
+            # Remove MoreFrame
+            G.all_frame = [x for x in G.all_frame if x != "G.ManualFrame"]
             G.bu_manual["background"] = G.bu_manual_color
             G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
 
@@ -302,7 +299,7 @@ class ButtonFrame(Frame):
         G.bu_quit = Button(
             self, text='QUIT',
             background=G.bu_quit_color,
-            command=G.Quit, **G.bu_arg)
+            command=quit_process, **G.bu_arg)
 
         # Create Restart
         G.bu_restart = Button(
