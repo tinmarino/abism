@@ -19,7 +19,6 @@ from astropy.io import fits
 import numpy as np
 
 # Gui
-from Gui.NormalizeMy import MyNormalize
 import MenuBar
 #from Gui.Menu.MenuBar import MenuBarMaker
 from Gui.FrameText import LeftFrame
@@ -321,36 +320,6 @@ def Scale(dic={}, load=0, run=""):
         except BaseException:
             pass  # in case you didn't pick the star yet
     return
-
-
-def Draw(min=None, max=None, cmap=None, norm=False, cbar=True):
-    if min is not None:
-        G.scale_dic[0]["min_cut"] = min
-        G.scale_dic[0]["max_cut"] = max
-    if cmap is not None:
-        G.scale_dic[0]["cmap"] = cmap
-
-    cmap = G.scale_dic[0]["cmap"]
-    min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
-
-    mynorm = NormalizeMy.MyNormalize(
-        vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
-    G.cbar.mappable.set_cmap(cmap)
-    G.cbar.cbar.set_cmap(cmap=cmap)
-    G.cbar.cbar.set_norm(mynorm)
-    G.cbar.mappable.set_norm(mynorm)
-
-    G.cbar.cbar.patch.figure.canvas.draw()
-    G.fig.canvas.draw()
-
-    try:  # if no fig result, and if not work nevermind
-        for i in (G.figresult_mappable1, G.figresult_mappable2):
-            i.set_norm(mynorm)
-            i.set_cmap(cmap)
-        G.figresult.canvas.draw()
-    except BaseException:
-        W.log(2, "Draw cannot draw in figresult")
-    # except : pass
 
 
 def FigurePlot(x, y, dic={}):
