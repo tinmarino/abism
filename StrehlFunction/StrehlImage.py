@@ -1,6 +1,5 @@
 import numpy as np
 
-# import MyGui as MG # for the plot of the contrast map
 import ImageFunction as IF
 
 

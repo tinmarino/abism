@@ -17,7 +17,7 @@ import GuyVariables as G
 import WorkVariables as W
 
 def MainVar():
-    """Init all <- Called by MyGui"""
+    """Init all <- Called by WindowRoot"""
     WorkVar()  # Initial WorkVar
     GuiVar()  # Initialt Gui vars
     Preference()

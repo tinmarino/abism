@@ -39,7 +39,7 @@ def OpenImage(new_fits=True):
 
         else:
             W.cube_num = W.hdulist[0].data.shape[0] - 1
-            W.log(1, '\nERROR InitImage@MyGui.py :' + W.image_name
+            W.log(1, '\nERROR InitImage@WindowRoot.py :' + W.image_name
                   + ' has no index ' + str(W.cube_num)
                   + 'Go back to the last cube index :'
                   + str(W.cube_num) + "\n")
@@ -77,7 +77,7 @@ def ScienceVariable():
         G.LabelFrame.set_image_parameters("", destroy=False)
     # LABELS
     G.LabelFrame.update()
-    # TODO, after refactoring INitGui and MyGui
-    from MyGui import FitType
+    # TODO, after refactoring INitGui and WindowRoot
+    from WindowRoot import FitType
     FitType(W.type["fit"])
 

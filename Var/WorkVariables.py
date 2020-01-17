@@ -3,7 +3,6 @@
     It is made in order to share the variables, you may want to read GlobalDefiner.
 """
 
-from sys import stdout
 import logging
 
 # Exported

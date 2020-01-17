@@ -7,32 +7,32 @@ import ToolMenu
 import ViewMenu
 
 import GuyVariables as G
-import WorkVariables as W
-
-import MyGui as MG  # TODO remove that
-import InitGui as IG
 
 
-def MenuBarMaker():             # CALLER
-    global args                 # the args of "MenuButton"
+def MenuBarMaker(root):
+    """Create the menu bar (autopack top)"""
 
-    G.MenuBar = Frame(G.parent, bg=G.bg[0])
-    G.all_frame.append("G.MenuBar")
-    G.MenuBar.pack(side=TOP, expand=0, fill=X)
+    # Pack bar at top
+    menu_bar = Frame(G.parent, bg=G.bg[0])
+    menu_bar.pack(side=TOP, expand=0, fill=X)
 
-    col = 0
+    # Prepare argument dic
     args = G.me_arg.copy()
     args.update({"relief": FLAT, "width": G.menu_button_width})
-    for i in [
-        [AbismMenu.AbismMenu, {"text": u"\u25be "+"ABISM"}],
-        [FileMenu.FileMenu, {"text": u"\u25be "+"File"}],
-        [AnalysisMenu.AnalysisMenu,  {"text": u'\u25be '+'Analysis'}],
-        [ViewMenu.ViewMenu,  {"text": u'\u25be '+'View'}],
-        [ToolMenu.ToolMenu,  {"text": u'\u25be '+'Tools'}],
-    ]:
-        args.update(i[1])
-        button = i[0](args)
-        G.MenuBar.columnconfigure(col, weight=1)
-        button.grid(row=0, column=col, sticky="nsew")
 
-        col += 1
+    # For all menu button (tab)
+    for col, i in enumerate([
+            [AbismMenu.AbismMenu, {"text": u"\u25be "+"ABISM"}],
+            [FileMenu.FileMenu, {"text": u"\u25be "+"File"}],
+            [AnalysisMenu.AnalysisMenu, {"text": u'\u25be '+'Analysis'}],
+            [ViewMenu.ViewMenu, {"text": u'\u25be '+'View'}],
+            [ToolMenu.ToolMenu, {"text": u'\u25be '+'Tools'}],
+                ]):
+        # Same weight
+        menu_bar.columnconfigure(col, weight=1)
+        # Prepare button args
+        args.update(i[1])
+        # Create button
+        button = i[0](root, menu_bar, args)
+        # Grid it
+        button.grid(row=0, column=col, sticky="nsew")

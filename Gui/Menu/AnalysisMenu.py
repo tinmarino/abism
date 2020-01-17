@@ -5,9 +5,7 @@ import WorkVariables as W
 
 import Pick
 
-import MyGui as MG    # TODO must be removed
-import MenuBar        # TODO must removed that too
-import InitGui as IG  # TODO must be removed too
+import WindowRoot as MG    # TODO must be removed
 
 """
              #TODO ["Ellipse"   , "ellipse" ,
@@ -23,94 +21,97 @@ import InitGui as IG  # TODO must be removed too
 """
 
 
-def AnalysisMenu(args):     # Create the Menu button and its children
-    G.analysis_menu = Tk.Menubutton(G.MenuBar, **args)
-    G.analysis_menu.menu = Tk.Menu(G.analysis_menu, **G.submenu_args)
+def AnalysisMenu(root, parent, args):
+    """Create the Menu button and its children"""
+    menu_button = Tk.Menubutton(parent, **args)
+    menu_button.menu = Tk.Menu(menu_button, **G.submenu_args)
 
-    def FitType():
-        fit_menu = G.analysis_menu.menu
-        fit_menu.add_command(label="Fit Type", bg=None, state=Tk.DISABLED)
+    ##############################
+    # FitType
+    fit_menu = menu_button.menu
+    fit_menu.add_command(label="Fit Type", bg=None, state=Tk.DISABLED)
 
-        G.cu_fit = Tk.StringVar()
-        G.cu_fit.set(W.type["fit"].replace("2D", ""))
-        lst1 = [
-            ["Gaussian", "Gaussian", lambda: MG.FitType("Gaussian")],
-            ["Moffat",   "Moffat", lambda: MG.FitType("Moffat")],
-            ["Bessel1",  "Bessel1", lambda: MG.FitType("Bessel1")],
-            ["None",     "None", lambda: MG.FitType("None")],
-        ]
-        for i in lst1:
-            fit_menu.add_radiobutton(
-                label=i[0], command=i[2],
-                variable=G.cu_fit, value=i[1])  # we use same value as label
+    G.cu_fit = Tk.StringVar()
+    G.cu_fit.set(W.type["fit"].replace("2D", ""))
+    lst1 = [
+        ["Gaussian", "Gaussian", lambda: MG.FitType("Gaussian")],
+        ["Moffat",   "Moffat", lambda: MG.FitType("Moffat")],
+        ["Bessel1",  "Bessel1", lambda: MG.FitType("Bessel1")],
+        ["None",     "None", lambda: MG.FitType("None")],
+    ]
+    for i in lst1:
+        fit_menu.add_radiobutton(
+            label=i[0], command=i[2],
+            variable=G.cu_fit, value=i[1])  # we use same value as label
 
-        # MORE OPTIONS
-        if not G.more_bool:
-            G.analysis_menu.menu.add_command(
-                label=u'\u25be '+'More Options', command=MoreWidget)
+    # MORE OPTIONS
+    if not G.more_bool:
+        menu_button.menu.add_command(
+            label=u'\u25be '+'More Options',
+            command=lambda: MoreWidget(menu_button))
+    else:
+        menu_button.menu.add_command(
+            label=u'\u25b4 '+'Less Options',
+            command=lambda: MoreWidget(menu_button))
 
-        else:
-            G.analysis_menu.menu.add_command(
-                label=u'\u25b4 '+'Less Options',
-                command=MoreWidget)
+    menu_button.menu.add_command(columnbreak=1)
 
-        G.analysis_menu.menu.add_command(columnbreak=1)
-        return
+    ###############################
+    # Pick type
+    pick_menu = menu_button.menu
+    pick_menu.add_command(label="Pick Object(s)",
+                            bg=None,
+                            state=Tk.DISABLED)
 
-    def PickType():
-        pick_menu = G.analysis_menu.menu
-        pick_menu.add_command(label="Pick Object(s)",
-                              bg=None,
-                              state=Tk.DISABLED)
+    # more options
+    G.cu_pick = Tk.StringVar()
+    G.cu_pick.set(W.type["pick"])
+    lst2 = [
+        ["PickOne", "one", lambda: Pick.RefreshPick("one")],
+        ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
+        ["PickMany", "many", lambda: Pick.RefreshPick("many")],
+        ["No Pick", "nopick", lambda: Pick.RefreshPick("nopick")],
+    ]
 
-        # more options
-        G.cu_pick = Tk.StringVar()
-        G.cu_pick.set(W.type["pick"])
-        lst2 = [
-            ["PickOne", "one", lambda: Pick.RefreshPick("one")],
-            ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
-            ["PickMany", "many", lambda: Pick.RefreshPick("many")],
-            ["No Pick", "nopick", lambda: Pick.RefreshPick("nopick")],
-        ]
-
-        for i in lst2:
-            pick_menu.add_radiobutton(
-                label=i[0], command=i[2],
-                variable=G.cu_pick, value=i[1])  # we use same value as label
-
-    FitType()
-    PickType()
-    G.analysis_menu['menu'] = G.analysis_menu.menu
-    return G.analysis_menu
+    for i in lst2:
+        pick_menu.add_radiobutton(
+            label=i[0], command=i[2],
+            variable=G.cu_pick, value=i[1])  # we use same value as label
 
 
-def MoreWidget():
+    menu_button['menu'] = menu_button.menu
+
+    # Caller grid me
+    return menu_button
+
+
+def MoreWidget(parent):
     """More photometry options frame"""
 
     # Change  menu label more option -> less option
     for i in range(1, 10):
-        j = G.analysis_menu.menu.entrycget(i, "label")
+        j = parent.menu.entrycget(i, "label")
         if "Option" in j:
             if G.more_bool:
-                G.analysis_menu.menu.entryconfig(
+                parent.menu.entryconfig(
                     i, label=u'\u25be '+'More Option')
                 break
             else:
-                G.analysis_menu.menu.entryconfig(
+                parent.menu.entryconfig(
                     i, label=u'\u25b4 '+'Less Option')
                 break
 
     # CHANGE BOOL MAY CLOSE
     if G.more_bool == 1:  # close more frame
-        MoreClose()
+        MoreClose(parent)
 
     else:  # CREATE
-        MoreCreate()
+        MoreCreate(parent)
 
     return
 
 
-def MoreCreate():       # Create The Frame
+def MoreCreate(parent):       # Create The Frame
     G.more_bool = not G.more_bool  # mean = 1
     G.OptionFrame.toogle(visible=True)
 
@@ -236,7 +237,7 @@ def MoreCreate():       # Create The Frame
     return  # From MoreCreate
 
 
-def MoreClose():
+def MoreClose(parent):
     """Close the Frame"""
     # change bool destroy
     G.more_bool = not G.more_bool
@@ -250,9 +251,9 @@ def MoreClose():
 
     # Change help menu label
     for i in range(1, 10):
-        j = G.analysis_menu.menu.entrycget(i, "label")
+        j = parent.menu.entrycget(i, "label")
         if "Option" in j:
-            G.analysis_menu.menu.entryconfig(i, label=u'\u25be '+'More Option')
+            parent.menu.entryconfig(i, label=u'\u25be '+'More Option')
             break
 
 
@@ -277,7 +278,7 @@ def ManualBackOpen():
 
     def GetValue(event):
         G.background = float(G.tkvar.background.get())
-        W.log(2, "InitGui.py/ManualBack, called , ", G.background)
+        W.log(2, "ManualBack, called , ", G.background)
 
     # ENTRY
     Tk.Label(

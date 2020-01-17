@@ -5,7 +5,6 @@ import numpy as np  # for the np.arrange to load the ultimate row befora
 
 try:
   import GuyVariables as G
-  import InitGui as IG
   import WorkVariables as W
   imported = True
 except:

@@ -4,6 +4,8 @@
 
 
 # Standard
+import sys
+import os
 from os.path import isfile
 import warnings
 import threading
@@ -17,13 +19,14 @@ from astropy.io import fits
 import numpy as np
 
 # Gui
-import NormalizeMy
-from MenuBar import MenuBarMaker
+from Gui.NormalizeMy import MyNormalize
+import MenuBar
+#from Gui.Menu.MenuBar import MenuBarMaker
 from Gui.FrameText import LeftFrame
 from Gui.FramePlot import RightFrame
 
 # ArrayFunction
-from FitsIo import OpenImage
+from ArrayFunction.FitsIo import OpenImage
 
 
 # Variables
@@ -32,90 +35,91 @@ import GuyVariables as G
 import WorkVariables as W
 
 
-def MyWindow():
-    """Create main window loop"""
-    # Namespace
-    G.parent = Tk()
-
-    # Init main variables
-    MainVar()
-
-    # Give title
-    Title()
-
-    MenuBarMaker()
-
-    # ALL What is not the menu is a paned windows :
-    # I can rezie it with the mouse from left to right,
-    # This (all but not the Menu) Frame is called MainPaned
-    G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **G.paned_dic)
-    G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
-
-    # 2 LEFT
-    G.TextFrame = LeftFrame(G.MainPaned)
-
-    # 3 RIGHT
-    G.DrawPaned = RightFrame(G.MainPaned)
-
-    # ######################
-    # Init matplotlib figure
-    # Create Image
-    G.fig = G.ImageFrame.get_figure()
-    G.ImageCanvas = G.ImageFrame.get_canvas()
-    G.toolbar = G.ImageFrame.get_toolbar()
-
-    # Create Fit
-    G.figfit = G.FitFrame.get_figure()
-    G.dpfit = G.FitFrame.get_canvas()
-
-    # Create Result
-    G.figresult = G.ResultFrame.get_figure()
-    G.dpresult = G.ResultFrame.get_canvas()
-
-    # in case the user launch the program without giving an image as arg
-    # TODO remove hardcoded "no_image_name"
-    if W.image_name != "no_image_name":
-        OpenImage()
-        G.ImageFrame.draw_image()
-
-    # Loop
-    G.parent.mainloop()
-
-
-def Title():
-    """Create OS's window title, icon and Set geomrtry"""
-    # TITLE
-    # Adaptative Background Interactive Strehl Meter
-    G.parent.title(
-        'ABISM (' + "/".join(str(W.image_name).split("/")[-3:]) + ')')
-
-    # ICON
-    if isfile(W.path + '/Icon/bato_chico.gif'):
-        bitmap = PhotoImage(file=W.path + '/Icon/bato_chico.gif')
-        G.parent.tk.call('wm', 'iconphoto', G.parent._w, bitmap)
-    else:
-        W.log(3, "->you have no beautiful icon "
-              "because you didn't set the PATH in Abism.py")
-
-    # GEOMETRY
-    if "parent" in G.geo_dic:
-        G.parent.geometry(G.geo_dic["parent"])
-
-
-def Shortcuts():
-    """TODO not working
-    Shortcut, module, function, [  args, kargs  ]
-    # Take MG and parents
+class RootWindow(Tk):
+    """Main window app object
+    May one day destroy GuyVariables ...
+    Call me like Tk:
+        root_window = WindowRoot()
+        root_window.mainloop()
     """
-    lst = [["<Control-o>", "MG", "Open"],
-           ["<Control-q>", "G", "Quit"],
-           ["<Control-r>", "MG", "Restart"],
-           ]
+    def __init__(self, root_path='.'):
+        # Create main app
+        super().__init__()
 
-    for i in lst:
-        G.parent.bind_all(i[0], lambda i=i: vars(i[1])[i[2]]())
+        # Init globals TODO dirty
+        G.parent = self
+        W.path = root_path
+        MainVar()
+
+        # Give title
+        self.set_title()
+        self.set_icon()
+
+        # Create menu
+        MenuBar.MenuBarMaker(self)
+
+        # ALL What is not the menu is a paned windows :
+        # I can rezie it with the mouse from left to right,
+        # This (all but not the Menu) Frame is called MainPaned
+        G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **G.paned_dic)
+        G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
+
+        # 2 LEFT
+        G.TextFrame = LeftFrame(G.MainPaned)
+
+        # 3 RIGHT
+        G.DrawPaned = RightFrame(G.MainPaned)
+
+        # ######################
+        # Init matplotlib figure
+        # TODO this should be done as getter
+        # Create Image
+        G.fig = G.ImageFrame.get_figure()
+        G.ImageCanvas = G.ImageFrame.get_canvas()
+        G.toolbar = G.ImageFrame.get_toolbar()
+
+        # Create Fit
+        G.figfit = G.FitFrame.get_figure()
+        G.dpfit = G.FitFrame.get_canvas()
+
+        # Create Result
+        G.figresult = G.ResultFrame.get_figure()
+        G.dpresult = G.ResultFrame.get_canvas()
+
+        # in case the user launch the program without giving an image as arg
+        # TODO remove hardcoded "no_image_name"
+        if W.image_name != "no_image_name":
+            OpenImage()
+            G.ImageFrame.draw_image()
 
 
+
+    def set_title(self):
+        """Create OS's window title, icon and Set geomrtry"""
+        self.title('ABISM (' +
+                   "/".join(str(W.image_name).split("/")[-3:]) + ')')
+
+    def set_icon(self):
+        """Create OS Icon from resources"""
+        if isfile(W.path + '/Icon/bato_chico.gif'):
+            bitmap = PhotoImage(file=W.path + '/Icon/bato_chico.gif')
+            self.tk.call('wm', 'iconphoto', self._w, bitmap)
+        else:
+            W.log(3, "->you have no beautiful icon "
+                  "because you didn't set the PATH in Abism.py")
+
+    def set_shortcuts(self):
+        """TODO not working
+        Shortcut, module, function, [  args, kargs  ]
+        # Take MG and parents
+        """
+
+        for i in [
+                ["<Control-o>", "MG", "Open"],
+                ["<Control-q>", "G", "Quit"],
+                ["<Control-r>", "MG", "Restart"],
+                ]:
+            self.bind_all(i[0], lambda i=i: vars(i[1])[i[2]]())
 
 
 def Save(first=1):
@@ -205,7 +209,7 @@ def FitType(name):  # strange but works
     Different fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.
     Why is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result
     What should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat.
-    Programmers: Strehl@MyGui.py calls SeeingPSF@ImageFunction.py which calls BasicFunction.py
+    Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls BasicFunction.py
     Todo : fastly analyse the situation and choose a fit type consequently
     """
     W.type["fit"] = name
@@ -408,8 +412,7 @@ def Draw(min=None, max=None, cmap=None, norm=False, cbar=True):
             i.set_cmap(cmap)
         G.figresult.canvas.draw()
     except BaseException:
-        if W.verbose > 2:
-            print("MyGui, Draw cannot draw in figresult")
+        W.log(2, "Draw cannot draw in figresult")
     # except : pass
 
 

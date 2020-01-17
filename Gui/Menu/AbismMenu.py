@@ -11,10 +11,10 @@ import WorkVariables as W
 """
 
 
-def AbismMenu(args):
+def AbismMenu(root, parent, args):
     """Create the menu on Abism tab click"""
-    G.abism_menu = Menubutton(G.MenuBar, **args)
-    G.abism_menu.menu = Menu(G.abism_menu, **G.submenu_args)
+    menu_button = Menubutton(parent, **args)
+    menu_button.menu = Menu(menu_button, **G.submenu_args)
 
     lst = [
         ["About", About],
@@ -25,10 +25,12 @@ def AbismMenu(args):
         if "Appearance" in i[0]:
             i[1]()
         else:
-            G.abism_menu.menu.add_command(label=i[0], command=i[1])
+            menu_button.menu.add_command(label=i[0], command=i[1])
 
-    G.abism_menu['menu'] = G.abism_menu.menu
-    return G.abism_menu
+    menu_button['menu'] = menu_button.menu
+
+    # Caller grid me
+    return menu_button
 
 
 def About():
@@ -67,5 +69,4 @@ def See(pdf=""):
 
     if fct is not None:
         subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
-    elif W.verbose > 0:
-        print("ERROR pdf viewer : need to be implemented ")
+    W.log(0, "ERROR pdf viewer : need to be implemented ")

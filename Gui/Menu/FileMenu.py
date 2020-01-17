@@ -1,55 +1,60 @@
 """
     Scrolldown on file tab
 """
-from tkinter import Menu, Menubutton, Tk, Frame, \
-    Scrollbar, Button, Entry, Text, Label, \
-    LEFT, RIGHT, BOTH, TOP, X, Y, INSERT, END
+from tkinter import Menu, Menubutton
 from tkinter.filedialog import askopenfilename
 
 
-import GuyVariables as G
 import WorkVariables as W
+import GuyVariables as G
 
-import MyGui as MG
 from Plugin.FitsHeaderWindow import DisplayHeader
 
 
-def FileMenu(args):
+def FileMenu(root, parent, args):
     """Menu, open_image, header
         args is a dictionnary containing the arguments to make all menuENtry
         identical, logical, responsible, pratical
     """
-    G.menu = Menubutton(G.MenuBar, **args)
-    G.menu.menu = Menu(G.menu, **G.submenu_args)
+    menu_button = Menubutton(parent, **args)
+    menu_button.menu = Menu(menu_button, **G.submenu_args)
 
-    G.menu.menu.add_command(label='Open', command=Open)
+    # Open
+    initialdir = "/".join(W.image_name.split("/")[: -1])
+    menu_button.menu.add_command(
+        label='Open',
+        command=lambda: OpenFile(root, initialdir=initialdir))
 
-    G.menu.menu.add_command(
+    # Show header
+    menu_button.menu.add_command(
         label='Display Header',
-        command=lambda: DisplayHeader(W.image_name,
-                                      W.head.header.tostring(sep="\n")))
+        command=lambda: DisplayHeader(
+            W.image_name, W.head.header.tostring(sep="\n")))
 
-    G.menu['menu'] = G.menu.menu
-    return G.menu
+    menu_button['menu'] = menu_button.menu
+
+    # Caller grid me
+    return menu_button
 
 
-def Open():
+def OpenFile(root, initialdir=''):
     """Open an image file
     A click on this button will open a window.
     You need to select a FITS image to load with Abism.
     This is an other way to load an image, the first one is to load it
     directly in the script by bash Abism.sh [-i] image.fits.
     """
-
-    # the same dir as the image
-    initialdir = "/".join(W.image_name.split("/")[: -1])
+    # Pop window to ak for a file
     s_file = askopenfilename(title="Open a FITS image", filetypes=[(
         "fitsfiles", "*.fits"), ("allfiles", "*")], initialdir=initialdir)
+
+    # Stringigy && Log && Cache
     s_file = str(s_file)
     W.log(0, "Opening file : " + s_file)
     W.image_name = s_file
-    MG.InitImage()
 
-    # Chancge title
-    title = W.image_name.split('/')  # we cut the title
-    G.parent.title('Abism (' + title[-1]+')')
+    root.ImageFrame.draw_image()
+
+    # Change title
+    fname = W.image_name.split('/')[-1]
+    root.title('Abism (' + fname + ')')

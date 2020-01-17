@@ -8,15 +8,16 @@
 import sys
 import os
 
-# Add current folders to the python path
+# Get current path
 path = os.path.dirname(os.path.abspath(__file__))
-for root, dirnames, filenames in os.walk(path):
+
+#  Extend current path
+for root, _, _ in os.walk(path):
     sys.path.append(root)
 
 # Local imports
-import WorkVariables as W
-import MyGui as MG
+from Gui.WindowRoot import RootWindow
 
 # Go
-W.path = path
-MG.MyWindow()
+root_window = RootWindow(root_path=path)
+root_window.mainloop()

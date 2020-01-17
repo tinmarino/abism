@@ -5,16 +5,15 @@
 from tkinter import *
 import tkinter as Tk
 
-import MyGui as MG
-import InitGui as IG
+import WindowRoot as MG
 
 import GuyVariables as G
 import WorkVariables as W
 
 
-def ViewMenu(args):
+def ViewMenu(root, parent, args):
     """Create the menu"""
-    G.scale_menu = Menubutton(G.MenuBar, **args)
+    G.scale_menu = Menubutton(parent, **args)
     G.scale_menu.menu = Menu(G.scale_menu, **G.submenu_args)
 
     def Color():
@@ -179,7 +178,7 @@ def ManualCutOpen():
         dic = {"min_cut": float(G.entries[1].get()),
                 "max_cut": float(G.entries[0].get())}
         W.log(2, "ManualCut, dic called , ", dic)
-        MG.Scale(dic=dic)  # Call MyGui
+        MG.Scale(dic=dic)
 
     lst = [["Max cut", "max_cut"], ["Min cut", "min_cut"]]
     G.entries = []

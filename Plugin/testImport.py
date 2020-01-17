@@ -9,7 +9,7 @@ Fit/leastsqbound.py:330:            from numpy.linalg import LinAlgError
 Gui/DraggableColorbar.py:8:from scipy.ndimage import gaussian_filter
 from scipy.optimize.minpack import _check_func
 
-Gui/MyGui.py:8:from tkFileDialog import askopenfilename
+Gui/WindowRoot.py:8:from tkFileDialog import askopenfilename
 
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 import WorkVariables

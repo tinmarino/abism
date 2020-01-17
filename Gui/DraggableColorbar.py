@@ -9,7 +9,8 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 import NormalizeMy
 
-import MyGui as MG
+# TODO remove
+import WindowRoot as MG
 
 import GuyVariables as G
 

@@ -136,7 +136,7 @@ class ImageFrame(PlotFrame):
 
         # Scale (much faster also draw_artist can help ?)
         import re
-        from MyGui import Scale
+        from WindowRoot import Scale
         if re.match(r".*\.fits", W.image_name):
             G.current_image = W.Im0.astype(float32)
             W.log(3, "dic init", G.scale_dic[0])

@@ -6,7 +6,7 @@ import AnswerReturn as AR
 
 import Strehl
 
-import MyGui as MG
+import WindowRoot as MG
 import ImageFunction as IF
 import GuyVariables as G
 import WorkVariables as W
@@ -349,8 +349,7 @@ def ManualRectangle(eclick, erelease):
     if G.rect_phot_bool and W.verbose > 0:
             # When you want a phot from command
         print(IF.RectanglePhot(W.Im0, r))
-    if W.verbose > 9:
-        print('----> MyGui.py, ManualRectangle', r)
+    W.log(9, '----> WindowRoot.py, ManualRectangle', r)
     if G.bu_noise_manual['background'] == 'green':
         G.r = r
     elif G.bu_noise_manual['background'] == 'blue':

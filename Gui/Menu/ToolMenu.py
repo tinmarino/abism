@@ -1,15 +1,19 @@
-import GuyVariables as G
-import MyGui as MG  # TODO remove that
+"""
+    Menu for some other tools (in plugin)
+"""
+import tkinter as Tk
+
 import Pick  # to connect PickOne per defautl
 
 from Plugin.DebugConsole import PythonConsole
 from Plugin.Histogram import Histopopo
 
-import tkinter as Tk
+import GuyVariables as G
 
 
-def ToolMenu(args):
-    G.tool_menu = Tk.Menubutton(G.MenuBar, **args)
+def ToolMenu(root, parent, args):
+    """Only function"""
+    G.tool_menu = Tk.Menubutton(parent, **args)
     G.tool_menu.menu = Tk.Menu(G.tool_menu, **G.submenu_args)
 
     lst = [

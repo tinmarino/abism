@@ -9,7 +9,6 @@ from tkinter.filedialog import askopenfilename
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 
 # Gui
-import InitGui as IG  # draw the GUI
 import Pick
 import DraggableColorbar
 import mynormalize
