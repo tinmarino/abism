@@ -36,6 +36,7 @@ import numpy as np
 
 from astropy import wcs
 
+from util import log
 import back.util_back as W
 
 
@@ -52,7 +53,7 @@ def CallHeaderClass(header):
         instrument = header['INSTRUMENT']
     else:
         instrument = ""
-    W.log(0, 'Instrument:', instrument)
+    log(0, 'Instrument:', instrument)
 
     # 1/ Call header Class According to the instrument
     if ("NAOS" in instrument) and ("CONICA" in instrument):
@@ -254,7 +255,7 @@ class Header:
 
         except:  # includding no wcs module
             import traceback
-            W.log(0, traceback.format_exc(),
+            log(0, traceback.format_exc(),
                   "WARNING I dit not manage to get WCS from wcs\n\n")
 
         #

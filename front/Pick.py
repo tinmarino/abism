@@ -8,6 +8,8 @@ import Strehl
 
 import WindowRoot as MG
 import ImageFunction as IF
+
+from util import log
 import front.util_front as G
 import back.util_back as W
 
@@ -349,7 +351,7 @@ def ManualRectangle(eclick, erelease):
     if G.rect_phot_bool and W.verbose > 0:
             # When you want a phot from command
         print(IF.RectanglePhot(W.Im0, r))
-    W.log(9, '----> WindowRoot.py, ManualRectangle', r)
+    log(9, '----> WindowRoot.py, ManualRectangle', r)
     if G.bu_noise_manual['background'] == 'green':
         G.r = r
     elif G.bu_noise_manual['background'] == 'blue':

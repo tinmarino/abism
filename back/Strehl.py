@@ -1,13 +1,13 @@
 import numpy as np
 import multiprocessing
 from threading import Thread
+import scipy.ndimage
 
-#from timeout import timeout
 import ImageFunction as IF
 import AnswerReturn as AR
 import StrehlImage as SI
-import scipy.ndimage
 
+from util import log
 import front.util_front as G
 import back.util_back as W
 
@@ -39,7 +39,7 @@ def StrehlError():  # after strehl , number count , background, center_x, and ce
 
     if W.type["pick"] != "ellipse":
         W.type["aperture"] = "fit"
-        W.log(3, "\n\n WARNING: StrehlError changed the aperture type "
+        log(3, "\n\n WARNING: StrehlError changed the aperture type "
               "to fit because not ellipse pick it shouldn't matter ")
     # INTENSITY
     if W.type["aperture"] and W.type["fit"] != "None":
@@ -90,7 +90,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
         W.psf_fit = SI.PsfFit(W.Im0, center=star_center,
                               max=star_max, dictionary=dictionary)
     FIT()
-    W.log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
+    log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
 
     W.strehl.update(W.psf_fit[0])
 

@@ -26,7 +26,7 @@ from back.FitsIo import OpenImage
 
 
 # Variables
-from util import MainVar, root_path, icon_path
+from util import MainVar, root_path, icon_path, log
 import front.util_front as G
 import back.util_back as W
 
@@ -99,7 +99,7 @@ class RootWindow(Tk):
             bitmap = PhotoImage(file=W.path + '/res/bato_chico.gif')
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
         else:
-            W.log(3, "->you have no beautiful icon "
+            log(3, "->you have no beautiful icon "
                   "because you didn't set the PATH in Abism.py")
 
     def set_shortcuts(self):

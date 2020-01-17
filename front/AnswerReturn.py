@@ -16,6 +16,7 @@ import BasicFunction as BF
 import ReadHeader as RH  # to know witch telescope
 import Stat
 
+from util import log
 import front.util_front as G
 import back.util_back as W
 
@@ -631,7 +632,7 @@ def PlotOneStar1D():
     #################
     # PLOT radius profile
     params = W.strehl
-    W.log(3, 'center=', center)
+    log(3, 'center=', center)
 
     # AX
     G.figfit.clf()
@@ -1075,7 +1076,7 @@ def FigurePlot(x, y, dic={}):
     or also its can be list of list for a multiple axes
     dic : title:"string", logx:bol, logy:bol, xlabel:"" , ylabel:""
     """
-    W.log(3, "MG.FigurePlotCalled")
+    log(3, "MG.FigurePlotCalled")
     from matplotlib import pyplot as plt  # necessary if we are in a sub process
     default_dic = {"warning": 0, "title": "no-title"}
     default_dic.update(dic)
@@ -1110,7 +1111,7 @@ def FigurePlot(x, y, dic={}):
         ############
         # TWIN axes
 
-    W.log(3, 50 * '_', "\n", currentThread().getName(),
+    log(3, 50 * '_', "\n", currentThread().getName(),
           "Starting------------------\n")
 
     global ax
@@ -1118,14 +1119,14 @@ def FigurePlot(x, y, dic={}):
     # tfig.canvas.set_window_title(dic["title"])
 
     if not isinstance(x[0], list):  # otherwise multiple axes
-        W.log(3, "FigurePlot, we make a single plot")
+        log(3, "FigurePlot, we make a single plot")
         ax = G.contrast_fig.add_subplot(111)
         #from mpl_toolkits.axes_grid1 import host_subplot
         #ax = host_subplot(111)
         SubPlot(x, y)
-        W.log(3, "I will show ")
+        log(3, "I will show ")
         G.contrast_fig.canvas.draw()
 
     # Over
-    W.log(3, '_' * 50 + "\n", currentThread().getName(),
+    log(3, '_' * 50 + "\n", currentThread().getName(),
           'Exiting' + 20 * '-' + "\n")

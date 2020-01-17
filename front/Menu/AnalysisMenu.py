@@ -5,6 +5,7 @@ import back.util_back as W
 
 import Pick
 
+from util import log
 import WindowRoot as MG    # TODO must be removed
 
 """
@@ -278,7 +279,7 @@ def ManualBackOpen():
 
     def GetValue(event):
         G.background = float(G.tkvar.background.get())
-        W.log(2, "ManualBack, called , ", G.background)
+        log(2, "ManualBack, called , ", G.background)
 
     # ENTRY
     Tk.Label(
@@ -299,7 +300,7 @@ def ManualBackOpen():
     G.bu_back_close = Tk.Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
                                 background=G.bu_close_color, command=ManualBackClose, **G.bu_arg)
     G.bu_back_close.grid(row=1, column=0, columnspan=2)
-    W.log(3, "Manual Back called")
+    log(3, "Manual Back called")
 
 
 def ManualBackClose():
@@ -358,24 +359,24 @@ def SetFitType(name):  # strange but works
         try:
             if W.same_center_var.get() == 0:
                 W.type["fit"] = W.type["fit"].replace('same_center', '')
-                W.log(0, "same_center : We asssume that the saturation",
+                log(0, "same_center : We asssume that the saturation",
                       "is centered at the center of th object")
             elif not 'same_center' in W.type["fit"]:
                 W.type["fit"] += "same_center"
-                W.log(0, "not same_center: We asssume that the saturation",
+                log(0, "not same_center: We asssume that the saturation",
                       "isn't centered at the center of th object")
         except BaseException:
             if not 'same_center' in W.type["fit"]:
                 W.type["fit"] += "same_center"
-    W.log(0, 'Fit Type = ' + W.type["fit"])
+    log(0, 'Fit Type = ' + W.type["fit"])
 
     # same psf
     if W.same_psf_var.get() == 0:
         W.same_psf = 0
-        W.log(0, "same_psf : We will fit the binary with the same psf")
+        log(0, "same_psf : We will fit the binary with the same psf")
     elif W.same_psf_var.get() == 1:
         W.same_psf = 1
-        W.log(0, "not same_psf : We will fit each star with independant psf")
+        log(0, "not same_psf : We will fit each star with independant psf")
 
     # change the labels
     #G.fit_type_label["text"] = W.type["fit"]

@@ -5,6 +5,7 @@ from tkinter import Menu, Menubutton
 from tkinter.filedialog import askopenfilename
 
 
+from util import log
 import back.util_back as W
 import front.util_front as G
 
@@ -50,7 +51,7 @@ def OpenFile(root, initialdir=''):
 
     # Stringigy && Log && Cache
     s_file = str(s_file)
-    W.log(0, "Opening file : " + s_file)
+    log(0, "Opening file : " + s_file)
     W.image_name = s_file
 
     root.ImageFrame.draw_image()

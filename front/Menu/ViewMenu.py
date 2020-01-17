@@ -7,6 +7,7 @@ import tkinter as Tk
 
 import WindowRoot as MG
 
+from util import log
 import front.util_front as G
 import back.util_back as W
 
@@ -174,7 +175,7 @@ def ManualCutOpen():
     def GetValue(event):
         dic = {"min_cut": float(G.entries[1].get()),
                 "max_cut": float(G.entries[0].get())}
-        W.log(2, "ManualCut, dic called , ", dic)
+        log(2, "ManualCut, dic called , ", dic)
         G.ImageFrame.CutImageScale(dic=dic)
 
     lst = [["Max cut", "max_cut"], ["Min cut", "min_cut"]]
@@ -199,7 +200,7 @@ def ManualCutOpen():
         G.ManualCutGridFrame, text=u'\u25b4 ' + 'Close',
         background=G.bu_close_color, command=ManualCutClose, **G.bu_arg)
     G.bu_close.grid(row=r, column=0, columnspan=2)
-    W.log(3, "Manual Cut called")
+    log(3, "Manual Cut called")
 
 
 def ManualCutClose():
@@ -213,7 +214,7 @@ def ManualCutClose():
     # Update scale
     G.scale_dic[0]['max_cut'] = float(G.entries[0].get())
     G.scale_dic[0]['min_cut'] = float(G.entries[1].get())
-    W.log(3, 'Cut min, max:', G.scale_dic[0]['min_cut'], G.scale_dic[0]['max_cut'])
+    log(3, 'Cut min, max:', G.scale_dic[0]['min_cut'], G.scale_dic[0]['max_cut'])
     G.ImageFrame.CutImageScale()
 
 

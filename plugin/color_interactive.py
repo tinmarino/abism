@@ -6,6 +6,8 @@ import numpy as np  # for the np.arrange to load the ultimate row befora
 try:
   import front.util_front as G
   import back.util_back as W
+
+  from util import log
   imported = True
 except:
   print("Not in ABSIM, cannot load modules"  # verbose OK)
@@ -116,7 +118,7 @@ def PanedConfig(arg):
     """Change paned window canvas..."""
     for i in G.all_frame:
         if not "Paned" in i: continue
-        W.log(3, "Changing", i)
+        log(3, "Changing", i)
         for j in arg:
             vars(G)[i[2:]][j] = arg[j]
 

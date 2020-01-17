@@ -8,6 +8,7 @@ from numpy import isnan
 from plugin.ReadHeader import CallHeaderClass
 from back.Stat import Stat
 
+from util import log
 
 import front.util_front as G
 import back.util_back as W
@@ -39,7 +40,7 @@ def OpenImage(new_fits=True):
 
         else:
             W.cube_num = W.hdulist[0].data.shape[0] - 1
-            W.log(1, '\nERROR InitImage@WindowRoot.py :' + W.image_name
+            log(1, '\nERROR InitImage@WindowRoot.py :' + W.image_name
                   + ' has no index ' + str(W.cube_num)
                   + 'Go back to the last cube index :'
                   + str(W.cube_num) + "\n")

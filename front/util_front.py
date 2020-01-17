@@ -9,7 +9,7 @@ from functools import lru_cache
 
 from tkinter import PhotoImage
 
-from util import root_path
+from util import root_path, log
 import back.util_back as W
 
 """
@@ -34,7 +34,7 @@ parent = None
 
 def Quit():
     """Kill process"""
-    W.log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
+    log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
     parent.destroy()
     sys_exit(1)
 
@@ -100,7 +100,7 @@ def Restart():
     for i in arg:
         stg += " " + i
     stg += " &"  # To keep the control of the terminal
-    W.log(0, "\n\n\n" + 80 * "_" + "\n",
+    log(0, "\n\n\n" + 80 * "_" + "\n",
           "Restarting ABISM with command:\n" + stg + "\nplease wait")
 
     ##########

@@ -18,6 +18,8 @@ from ImageFunction import PixelMax
 from DraggableColorbar import DraggableColorbar
 
 
+from util import log
+
 import front.util_front as G
 from front.util_front import photo_up, photo_down
 
@@ -84,13 +86,13 @@ class PlotFrame(Frame):
 
         # CREATE
         if self._see_toolbar:
-            W.log(3, "Showing toolbar")
+            log(3, "Showing toolbar")
             self._arrow.configure(image=photo_down())
             self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
 
         # DESTROY
         else:
-            W.log(3, "Hidding toolbar")
+            log(3, "Hidding toolbar")
             self._arrow.configure(image=photo_up())
             self._toolbar_frame.grid_forget()
 
@@ -143,13 +145,13 @@ class ImageFrame(PlotFrame):
             del self._cbar
             self._fig.clf()
         except BaseException:
-            W.log(2, 'InitImage, cannot delete cbar')
+            log(2, 'InitImage, cannot delete cbar')
 
 
         # Scale (much faster also draw_artist can help ?)
         if re.match(r".*\.fits", W.image_name):
             G.current_image = W.Im0.astype(float32)
-            W.log(3, "dic init", G.scale_dic[0])
+            log(3, "dic init", G.scale_dic[0])
             self.CutImageScale(dic=G.scale_dic[0], load=1)  # not to draw the image.
         else:
             G.current_image = W.Im0
@@ -257,7 +259,7 @@ class ImageFrame(PlotFrame):
             please close the frame.\n" \n\nProgrammers, a cut setted with the
             histogram can be nice but not so usefull.
         """
-        W.log(2, "Scale called with:", dic)
+        log(2, "Scale called with:", dic)
 
         # RUN THE Stff to change radio button for mac
         if run != "":
@@ -276,7 +278,7 @@ class ImageFrame(PlotFrame):
         ###########
         # CONTOURS
         if("contour" in dic) and not isinstance(dic["contour"], bool):
-            W.log(3, "contour ? ", G.scale_dic[0]["contour"])
+            log(3, "contour ? ", G.scale_dic[0]["contour"])
             G.scale_dic[0]["contour"] = not G.scale_dic[0]["contour"]
             if G.scale_dic[0]["contour"]:
                 if "median" not in G.scale_dic[0]:
@@ -370,7 +372,7 @@ class ImageFrame(PlotFrame):
                 i.set_cmap(cmap)
             G.figresult.canvas.draw()
         except BaseException:
-            W.log(2, "Draw cannot draw in figresult")
+            log(2, "Draw cannot draw in figresult")
 
 
 
@@ -384,7 +386,7 @@ class ImageFrame(PlotFrame):
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
         if not (("CD1_1" in vars(W.head)) and ("CD2_2" in vars(W.head))):
-            W.log(0, "WARNING WCS Matrix not detected,",
+            log(0, "WARNING WCS Matrix not detected,",
                   "I don't know where the north is")
             W.head.CD1_1 = W.head.pixel_scale * 3600
             W.head.CD2_2 = W.head.pixel_scale * 3600
@@ -416,7 +418,7 @@ class ImageFrame(PlotFrame):
                           north_point[1]]
         W.north_direction = north_direction
         W.east_direction = east_direction
-        W.log(3, "north", north_point, east_point,
+        log(3, "north", north_point, east_point,
               arrow_center, north_direction, east_direction)
 
         #################

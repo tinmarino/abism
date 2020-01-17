@@ -135,7 +135,7 @@ from matplotlib.colors import Normalize
 
 def zoom_fun(event, ax, callback=plt.draw, base_scale=2):
     """Enbale zoom on canvas"""
-    W.log(3, 'Scrooling called with factor', base_scale, 'on', ax)
+    log(3, 'Scrooling called with factor', base_scale, 'on', ax)
     # get the current x and y limits
     cur_xlim = ax.get_xlim()
     cur_ylim = ax.get_ylim()

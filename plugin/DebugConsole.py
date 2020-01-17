@@ -5,6 +5,7 @@ import sys
 import select
 import traceback
 
+from util import log
 import back.util_back as W
 import front.util_front as G
 
@@ -39,10 +40,10 @@ def PythonConsole():  # The called function
                             exec(key_input, globals())
                 except Exception as err:
                     traceback.print_exc()
-                    W.log(0, "I tried, I didn't succed command :, try again ")
+                    log(0, "I tried, I didn't succed command :, try again ")
 
                 if "key_input" in vars():
-                    W.log(0, "You asked for : " + '"' + key_input + '"')
+                    log(0, "You asked for : " + '"' + key_input + '"')
 
         # Launch worker
         w = threading.Thread(name='console_tread', target=worker)

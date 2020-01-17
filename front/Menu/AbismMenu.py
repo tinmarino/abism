@@ -3,6 +3,7 @@
 """
 from tkinter import Menu, Menubutton, Tk, Label
 
+from util import log
 import front.util_front as G
 import back.util_back as W
 
@@ -69,4 +70,4 @@ def See(pdf=""):
 
     if fct is not None:
         subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
-    W.log(0, "ERROR pdf viewer : need to be implemented ")
+    log(0, "ERROR pdf viewer : need to be implemented ")

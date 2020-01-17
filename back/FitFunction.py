@@ -89,7 +89,7 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
     l_chi = [1 if np.isscalar(i) else len(i) for i in y]
     chi2 = (res**2).sum()
     chi2 /= float(reduce(lambda x, y: x+y, l_chi)-len(pfit)+1)
-    W.log(1, 'CHI2:', chi2)
+    log(1, 'CHI2:', chi2)
 
     # Return
     return res
@@ -133,7 +133,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
         if k not in fitOnly:
             pfix[k] = params[k]
 
-    W.log(1, '[dpfit] FITTED parameters:', fitOnly)
+    log(1, '[dpfit] FITTED parameters:', fitOnly)
 
     # NO BOUNDS
     if bounds == {}:
@@ -179,15 +179,15 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                 uncer[k] = np.sqrt(np.abs(np.diag(cov)[i]*reducedChi2))
 
     if verbose:
-        W.log(1, '-'*20)
-        W.log(1, 'REDUCED CHI2=', reducedChi2)
+        log(1, '-'*20)
+        log(1, 'REDUCED CHI2=', reducedChi2)
         tmp = sorted([*pfix])
         for k in tmp:
-            W.log(1, k, '=', pfix[k],)
+            log(1, k, '=', pfix[k],)
             if uncer[k] != 0:
-                W.log(1, '+/-', uncer[k])
+                log(1, '+/-', uncer[k])
             else:
-                W.log(1, '')
+                log(1, '')
     # result:
     return pfix, uncer, chi2, model,  {"reduced_chi2": reducedChi2, "cov": cov, "plsq": plsq, "pfit": pfit, "fitOnly": fitOnly, "bounds": bounds}
 
@@ -254,15 +254,15 @@ def example():
         leastsqFit(polyN, X,
                    {'A0': 0., 'A1': 0., 'A2': 0.1},
                    Y, err=E, doNotFit=['A1'])
-    W.log(1, 'CHI2=', chi2)
+    log(1, 'CHI2=', chi2)
     for k in best.keys():
-        W.log(1, k, '=', best[k],)
+        log(1, k, '=', best[k],)
         if unc[k] > 0:
-            W.log(1, '+/-', unc[k])
+            log(1, '+/-', unc[k])
         else:
-            W.log(1, '')
-    W.log(1, 'Y=', Y)
-    W.log(1, 'MODEL=', model)
+            log(1, '')
+    log(1, 'Y=', Y)
+    log(1, 'MODEL=', model)
     return
 
 
@@ -357,13 +357,13 @@ def example5():
     ax1 = plt.subplot(111)
     ax1.plot(x, y)
     ax1.plot(x, model)
-    W.log(1, best)
+    log(1, best)
     for k in best.keys():
-        W.log(1, k, '=', best[k],)
+        log(1, k, '=', best[k],)
         if unc[k] > 0:
-            W.log(1, '+/-', unc[k])
+            log(1, '+/-', unc[k])
         else:
-            W.log(1, '')
+            log(1, '')
 
 
 def plot2dgaussian():

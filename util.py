@@ -6,6 +6,7 @@
 import re
 from sys import argv as sys_argv
 from os.path import dirname, abspath
+from functools import lru_cache
 
 # Package
 # from tkinter import
@@ -13,18 +14,63 @@ from tkinter import RAISED, IntVar, PhotoImage
 from tkinter import font as tkFont
 import matplotlib
 
-# Local
-import front.util_front as G
-import back.util_back as W
 
 
+# Exported
+verbose = 0
+
+
+@lru_cache(1)
 def root_path():
     """Return: path of this file"""
     return dirname(abspath(__file__))
 
+
+@lru_cache(1)
 def icon_path():
     """Return path of window icon"""
     return root_path() + '/res/bato_chico.gif'
+
+
+@lru_cache(1)
+def _get_logger():
+    import logging
+    # Logger
+    logFormatter = logging.Formatter(
+        'ABISM: %(asctime)-8s: %(message)s',
+        '%H:%M:%S')
+
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(logging.INFO)
+    consoleHandler.setFormatter(logFormatter)
+
+    logger = logging.getLogger('ABISM')
+    logger.setLevel(logging.INFO)
+    logger.handlers = [consoleHandler]
+
+    return logger
+
+
+def log(i, *args):
+    """Log utility
+    @brief: this is a log accroding to the verbose
+            very simple function, very large comment
+    @param: i is the verbose,
+    @param: **args are the strings to print,
+    @return: print in the stdout, means the calling terminal
+        nickname py  me
+        CRITICAL 50  -3
+        ERROR    40  -2
+        WARNING  30  -1
+        INFO     20  1
+        DEBUG    10  2
+        NOTSET    0  3
+    """
+    if verbose < i: return
+
+    message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
+    _get_logger().info(message)
+
 
 def MainVar():
     """Init all <- Called by WindowRoot"""
@@ -37,6 +83,7 @@ def MainVar():
 
 
 def GuiVar():
+    import front.util_front as G
     """Define the shared variables for the GUI definition"""
     # VERSION
     G.version = '0.900'
@@ -137,6 +184,8 @@ def GuiVar():
 
 
 def WorkVar():
+    import back.util_back as W
+    import front.util_front as G
     """Define the varaibles that we define the way the calculations should be runned.
     This is an important function of the software.
     """
@@ -184,6 +233,8 @@ def WorkVar():
 
 def ReadTerminalVar():
     """The variables can be setted with the terminal entry command."""
+    import back.util_back as W
+    import front.util_front as G
     argv = W.sys_argv
 
     lst = [
@@ -229,11 +280,11 @@ def ReadTerminalVar():
                 stg += "[" + bla  # index
             try:
                 stg2 = stg + "=float( argv[argv.index( i[0] ) + 1 ])  "
-                W.log(3, "GlobalDef.Terminal geo_dic stg :", stg)
+                log(3, "GlobalDef.Terminal geo_dic stg :", stg)
                 exec(stg2, globals(), locals())
             except:
                 stg2 = stg + "= argv[argv.index( i[0] ) + 1 ] "
-                W.log(3, "GlobalDef.Terminal geo_dic stg :", stg)
+                log(3, "GlobalDef.Terminal geo_dic stg :", stg)
                 exec(stg2, globals(), locals())
 
         else:  # including not in a dict to be float
@@ -268,6 +319,7 @@ def ReadTerminalVar():
 
 
 def LinkColor():
+    import front.util_front as G
     """Link GUI colors to global vars (bg, fg)"""
     # BUTTON
     G.bu_arg = {"bd": 3, "highlightcolor": G.bg[0], "padx": 0, "pady": 0,
@@ -289,6 +341,7 @@ def Preference(string="test1"):
     default behaviour lets say,
     the command line are stored in PreferenceDefined
     """
+    import back.util_back as W
     # Get default
     preference = GetPreferenceDefined()
     my_pref = [
@@ -303,7 +356,7 @@ def Preference(string="test1"):
         W.sys_argv.append(my_pref[my_pref.index(i) + 1])
 
     # Log in
-    W.log(1, "Preferences string :", W.sys_argv)
+    log(1, "Preferences string :", W.sys_argv)
 
 
 def GetPreferenceDefined():
