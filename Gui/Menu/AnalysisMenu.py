@@ -52,7 +52,7 @@ def AnalysisMenu(args):     # Create the Menu button and its children
         else:
             G.analysis_menu.menu.add_command(
                 label=u'\u25b4 '+'Less Options',
-                command=MenuBar.MoreWidget)
+                command=MoreWidget)
 
         G.analysis_menu.menu.add_command(columnbreak=1)
         return
@@ -84,8 +84,8 @@ def AnalysisMenu(args):     # Create the Menu button and its children
     return G.analysis_menu
 
 
-def MoreWidget():       # More photometry options frame
-    ""
+def MoreWidget():
+    """More photometry options frame"""
 
     # Change  menu label more option -> less option
     for i in range(1, 10):
@@ -164,7 +164,7 @@ def MoreCreate():       # Create The Frame
         for i in lst:
             if i[0] == "Manual":
                 G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=IG.ManualBackground,
+                    label=i[0], command=ManualBackground,
                     variable=G.cu_noise, value=i[1])
             else:
                 def set_noise(i): W.type['noise'] = i[1]
@@ -236,8 +236,8 @@ def MoreCreate():       # Create The Frame
     return  # From MoreCreate
 
 
-def MoreClose():        # Close the Frame
-    ""
+def MoreClose():
+    """Close the Frame"""
     # change bool destroy
     G.more_bool = not G.more_bool
     G.MoreFrame.destroy()
@@ -255,4 +255,55 @@ def MoreClose():        # Close the Frame
             G.analysis_menu.menu.entryconfig(i, label=u'\u25be '+'More Option')
             break
 
-    return
+
+def ManualBackground():
+    """Create manual background frame"""
+    if G.manual_back_bool:
+        ManualBackClose()
+    else:
+        ManualBackOpen()
+    G.manual_back_bool = not G.manual_back_bool
+
+
+def ManualBackOpen():
+    W.type["noise"] = "manual"
+    G.manual_back_bool = not G.manual_back_bool
+    G.ManualBackFrame = Tk.Frame(G.OptionFrame, bg=G.bg[0])
+    G.all_frame.append("G.ManualBackFrame")
+    G.ManualBackFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
+
+    G.ManualBackFrame.columnconfigure(0, weight=1)
+    G.ManualBackFrame.columnconfigure(1, weight=1)
+
+    def GetValue(event):
+        G.background = float(G.tkvar.background.get())
+        W.log(2, "InitGui.py/ManualBack, called , ", G.background)
+
+    # ENTRY
+    Tk.Label(
+        G.ManualBackFrame, text="Background value:",
+        font=G.font_param, **G.lb_arg
+        ).grid(row=0, column=0, sticky="snew")
+    G.tkvar.background = Tk.StringVar()
+    G.tkentry.background = Tk.Entry(
+        G.ManualBackFrame, width=10, textvariable=G.tkvar.background, font=G.font_param, **G.en_arg)
+    G.tkentry.background.grid(row=0, column=1, sticky="nsew")  # ,sticky=W)
+    G.tkentry.background.bind('<Return>', GetValue)
+    G.tkvar.background.set("0.0")
+    if "background" in vars(G):
+        G.tkvar.background.set(str(G.background))
+
+    ###############
+    # CLOSE button
+    G.bu_back_close = Tk.Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
+                                background=G.bu_close_color, command=ManualBackClose, **G.bu_arg)
+    G.bu_back_close.grid(row=1, column=0, columnspan=2)
+    W.log(3, "Manual Back called")
+
+
+def ManualBackClose():
+    G.ManualBackFrame.destroy()
+    G.all_frame = [x for x in G.all_frame if x !=
+                   "G.ManualBackFrame"]  # remove Frame
+
+    G.background = float(G.tkvar.background.get())

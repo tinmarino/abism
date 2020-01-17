@@ -113,6 +113,15 @@ def HtoI(color):  # hexa to int
 
 
 
+def PanedConfig(arg):
+    """Change paned window canvas..."""
+    for i in G.all_frame:
+        if not "Paned" in i: continue
+        W.log(3, "Changing", i)
+        for j in arg:
+            vars(G)[i[2:]][j] = arg[j]
+
+
 
 def Print(color="", HLS={}):
   if W.verbose > 3: print(color, HLS)

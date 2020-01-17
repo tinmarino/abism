@@ -3,10 +3,13 @@
 """
 
 from tkinter import *
+import tkinter as Tk
 
-import GuyVariables as G
 import MyGui as MG
 import InitGui as IG
+
+import GuyVariables as G
+import WorkVariables as W
 
 
 def ViewMenu(args):
@@ -124,7 +127,7 @@ def ViewMenu(args):
                                      variable=G.cu_cut, value=i[0])  # we use same value as label
 
         cut_menu.add_radiobutton(label="Manual",
-                                 command=IG.ManualCut,
+                                 command=ManualCut,
                                  variable=G.cu_cut, value="Manual")  # we use same value as label
 
         if G.scale_menu_type == "cascade":
@@ -139,3 +142,80 @@ def ViewMenu(args):
     G.scale_menu['menu'] = G.scale_menu.menu
 
     return G.scale_menu
+
+
+def ManualCut():
+    """Stupid switch"""
+    if G.manual_cut_bool:
+        ManualCutClose()
+    else:
+        ManualCutOpen()
+
+
+def ManualCutOpen():
+    # Prepare
+    G.OptionFrame.toogle(visible=True)
+    G.manual_cut_bool = not G.manual_cut_bool
+
+    # Pack main
+    G.ManualCutFrame = Tk.Frame(G.OptionFrame, bg=G.bg[0])
+    G.all_frame.append("G.ManualCutFrame")
+    G.ManualCutFrame.grid(sticky='nsew')
+
+    # Pack lave
+    Tk.Label(
+        G.ManualCutFrame, text="Cut image scale", **
+        G.frame_title_arg
+        ).pack(side=Tk.TOP, anchor="w")
+
+    G.ManualCutGridFrame = Tk.Frame(G.ManualCutFrame, bg=G.bg[0])
+    G.all_frame.append("G.ManualCutGridFrame")
+    G.ManualCutGridFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
+
+    G.ManualCutGridFrame.columnconfigure(0, weight=1)
+    G.ManualCutGridFrame.columnconfigure(1, weight=1)
+
+    def GetValue(event):
+        dic = {"min_cut": float(G.entries[1].get()),
+                "max_cut": float(G.entries[0].get())}
+        W.log(2, "ManualCut, dic called , ", dic)
+        MG.Scale(dic=dic)  # Call MyGui
+
+    lst = [["Max cut", "max_cut"], ["Min cut", "min_cut"]]
+    G.entries = []
+    r = 0
+    for i in lst:
+        G.l = Tk.Label(G.ManualCutGridFrame,
+                        text=i[0], font=G.font_param, **G.lb_arg)
+        G.l.grid(row=r, column=0, sticky="snew")  # , sticky=W)
+        v = Tk.StringVar()
+        G.e = Tk.Entry(G.ManualCutGridFrame, width=10,
+                        textvariable=v, font=G.font_param, **G.en_arg)
+        G.e.grid(row=r, column=1, sticky="nsew")  # , sticky=W)
+        G.e.bind('<Return>', GetValue)
+        v.set("%.1f" % G.scale_dic[0][i[1]])
+        G.entries.append(v)
+        r += 1
+
+    ###############
+    # CLOSE button
+    G.bu_close = Tk.Button(
+        G.ManualCutGridFrame, text=u'\u25b4 ' + 'Close',
+        background=G.bu_close_color, command=ManualCutClose, **G.bu_arg)
+    G.bu_close.grid(row=r, column=0, columnspan=2)
+    W.log(3, "Manual Cut called")
+
+
+def ManualCutClose():
+    """Stop Manual cut"""
+    # Remove frame
+    G.manual_cut_bool = not G.manual_cut_bool
+    G.ManualCutFrame.destroy()
+    G.all_frame = [x for x in G.all_frame if x !=
+                   'G.ManualCutFrame']
+
+    # Update scale
+    G.scale_dic[0]['max_cut'] = float(G.entries[0].get())
+    G.scale_dic[0]['min_cut'] = float(G.entries[1].get())
+    W.log(3, 'Cut min, max:', G.scale_dic[0]['min_cut'], G.scale_dic[0]['max_cut'])
+    MG.Scale()

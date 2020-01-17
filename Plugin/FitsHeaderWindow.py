@@ -72,7 +72,7 @@ def DisplayHeader(image_name, s_text):
     # Parent
     root = Tk()
     root.title('header('+image_name+')')
-    root.geometry("600x700+0+0")
+    root.geometry("1000x1000+0+0")
 
     # Head
     head_frame = Frame(root)
