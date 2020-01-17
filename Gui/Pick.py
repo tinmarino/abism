@@ -340,47 +340,6 @@ def RectangleClick(eclick, erelease):
     return
 
 
-# USELESS
-def ManualNoiseRectangle():
-    if G.tutorial:
-        text = "You need to read the terminal. You will be asked to make some rectangles in the sky, to get an average of the sky. Note the the sky estimated by this algorith is only a scalar variable (stocked in W.strehl['background']). "
-        MG.TutorialReturn({"title": "Manual Background estimation",
-                           "text": text,
-                           })
-        return
-    if G.bu_noise_manual["background"] == 'green':
-        G.bu_noise_manual['background'] = "blue"
-        G.rs_star.set_active(False)
-        G.remember_r = []
-        if W.verbose > 0:
-            print('Do rectangles in the background and click on manual')
-
-        G.rs_noise = matplotlib.widgets.RectangleSelector(
-            G.ax1, ManualRectangle, drawtype='box',
-            rectprops=dict(facecolor='pink', edgecolor='black', alpha=0.5, fill=True))
-    elif G.bu_noise_manual['background'] == 'grey':
-        RefreshPickColor()
-        G.bu_noise_manual['background'] = 'green'
-        if W.verbose > 0:
-            print('Select your star without background and click on Manual button')
-        G.rs_star = matplotlib.widgets.RectangleSelector(
-            G.ax1, ManualRectangle, drawtype='box',
-            rectprops=dict(facecolor='pink', edgecolor='black', alpha=0.5, fill=True))
-    elif G.bu_noise_manual['background'] == 'blue':
-        G.bu_noise_manual['background'] = 'grey'
-        for r in G.remember_r:
-            if W.verbose > 9:
-                print(
-                    '----->MyGui.py,ManualNoiseRectangle,surface : rx1,rx2,ry1,ry2 =', r)
-        W.type["noise"] = ('Manual', G.remember_r)
-        StrehlMeter(G.r)
-        G.rs_noise.set_active(False)
-        PickOne()
-        G.bu_noise_8_rects['background'] = 'green'
-        W.type["noise"] = '8Rects'
-    return
-
-
 def ManualRectangle(eclick, erelease):
     image_click = eclick.xdata, eclick.ydata
     image_release = erelease.xdata, erelease.ydata
