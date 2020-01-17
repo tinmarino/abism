@@ -34,10 +34,10 @@ def AnalysisMenu(root, parent, args):
     G.cu_fit = Tk.StringVar()
     G.cu_fit.set(W.type["fit"].replace("2D", ""))
     lst1 = [
-        ["Gaussian", "Gaussian", lambda: MG.FitType("Gaussian")],
-        ["Moffat",   "Moffat", lambda: MG.FitType("Moffat")],
-        ["Bessel1",  "Bessel1", lambda: MG.FitType("Bessel1")],
-        ["None",     "None", lambda: MG.FitType("None")],
+        ["Gaussian", "Gaussian", lambda: SetFitType("Gaussian")],
+        ["Moffat",   "Moffat", lambda: SetFitType("Moffat")],
+        ["Bessel1",  "Bessel1", lambda: SetFitType("Bessel1")],
+        ["None",     "None", lambda: SetFitType("None")],
     ]
     for i in lst1:
         fit_menu.add_radiobutton(
@@ -139,7 +139,7 @@ def MoreCreate(parent):       # Create The Frame
         G.bu_subtract_bg = Tk.Button(frame,
                                      text='SubstractBackground',
                                      background=G.bu_subtract_bg_color,
-                                     command=MG.SubstractBackground,
+                                     command=SubstractBackground,
                                      **G.bu_arg)
         return G.bu_subtract_bg
 
@@ -207,15 +207,15 @@ def MoreCreate(parent):       # Create The Frame
         # isoplanetism
         G.iso_check = Tk.Checkbutton(frame,
                                      text="Anisomorphism", variable=W.aniso_var,
-                                     command=lambda: MG.FitType(W.type["fit"]), **myargs)  # by default onvalue=1
+                                     command=lambda: SetFitType(W.type["fit"]), **myargs)  # by default onvalue=1
 
         G.same_check = Tk.Checkbutton(G.MoreGridFrame,
                                       text="Binary_same_psf", variable=W.same_psf_var,
-                                      command=lambda: MG.FitType(W.type["fit"]), **myargs)
+                                      command=lambda: SetFitType(W.type["fit"]), **myargs)
 
         G.same_center_check = Tk.Checkbutton(G.MoreGridFrame,
                                              text="Saturated_same_center", variable=W.same_center_var,
-                                             command=lambda: MG.FitType(W.type["fit"]), **myargs)
+                                             command=lambda: SetFitType(W.type["fit"]), **myargs)
 
         return G.iso_check, G.same_check, G.same_center_check
 
@@ -308,3 +308,78 @@ def ManualBackClose():
                    "G.ManualBackFrame"]  # remove Frame
 
     G.background = float(G.tkvar.background.get())
+
+
+def SubstractBackground():
+    """Subtract A background image
+    Choose a FITS image tho subtract to the current image to get read of the sky
+    value or/and the pixel response. This is a VERY basic task that is only
+    subtracting 2 images.
+    It could be improved but image reduction is not the goal of ABISM
+    """
+    from tkinter.filedialog import askopenfilename
+    from astropy.io import fits
+
+    fp_sky = askopenfilename(
+        filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
+    W.image_bg_name = fp_sky     # image_background_name
+    W.hdulist_bg = fits.open(fp_sky)
+    W.Im0_bg = W.hdulist_bg[0].data
+    if not W.Im0.shape == W.Im0_bg.shape:
+        W.Log(0, 'ERROR : Science image and Background image should have the same shape')
+    else:
+        W.Im0 -= W.Im0_bg
+        G.ImageFrame.draw_image()
+
+
+def SetFitType(name):  # strange but works
+    """Choose Fit Type
+    Different fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.
+    Why is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result
+    What should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat.
+    Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls BasicFunction.py
+    Todo : fastly analyse the situation and choose a fit type consequently
+    """
+    W.type["fit"] = name
+    G.cu_fit.set(name.replace("2D", ""))  # to change radio but, check
+    try:
+        if W.aniso_var.get() == 0:
+            W.type["fit"] = W.type["fit"].replace('2D', '')
+        elif W.aniso_var.get() == 1 and not '2D' in W.type["fit"]:
+            W.type["fit"] += '2D'
+    except BaseException:
+        if W.type["fit"].find('2D') == -1:
+            W.type["fit"] += '2D'
+    if not W.type["fit"].find('None') == -1:
+        W.type["fit"] = 'None'
+
+    # Saturated
+    if "Gaussian_hole" in W.type["fit"]:
+        try:
+            if W.same_center_var.get() == 0:
+                W.type["fit"] = W.type["fit"].replace('same_center', '')
+                W.log(0, "same_center : We asssume that the saturation",
+                      "is centered at the center of th object")
+            elif not 'same_center' in W.type["fit"]:
+                W.type["fit"] += "same_center"
+                W.log(0, "not same_center: We asssume that the saturation",
+                      "isn't centered at the center of th object")
+        except BaseException:
+            if not 'same_center' in W.type["fit"]:
+                W.type["fit"] += "same_center"
+    W.log(0, 'Fit Type = ' + W.type["fit"])
+
+    # same psf
+    if W.same_psf_var.get() == 0:
+        W.same_psf = 0
+        W.log(0, "same_psf : We will fit the binary with the same psf")
+    elif W.same_psf_var.get() == 1:
+        W.same_psf = 1
+        W.log(0, "not same_psf : We will fit each star with independant psf")
+
+    # change the labels
+    #G.fit_type_label["text"] = W.type["fit"]
+
+    return
+
+

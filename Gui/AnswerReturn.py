@@ -19,8 +19,7 @@ import Stat
 import GuyVariables as G
 import WorkVariables as W
 
-from threading import Thread
-from matplotlib import pyplot as plt
+from threading import Thread, currentThread
 
 
 def MyFormat(value, number, letter):
@@ -1054,8 +1053,7 @@ def CallContrastMap():
         x, y, tdic = IF.ContrastMap(W.Im0, (W.strehl["center_x"], W.strehl["center_y"]), interp=True, xmin=0.5, xmax=20, step=2, dic={
                                     "theta": 0, "ru": 1, "rv": 1}, background=0)  # W.strehl["my_background"])
 
-        import MyGui as MG
-        MG.FigurePlot(x, y, dic=tdic)
+        FigurePlot(x, y, dic=tdic)
 
     def Timer():
         from time import sleep
@@ -1070,3 +1068,64 @@ def CallContrastMap():
     #G.parent.wm_attributes("-topmost", 1)
     G.ContrastWindow.mainloop()
     # G.parent.focus()
+
+
+def FigurePlot(x, y, dic={}):
+    """ x and y can be simple list
+    or also its can be list of list for a multiple axes
+    dic : title:"string", logx:bol, logy:bol, xlabel:"" , ylabel:""
+    """
+    W.log(3, "MG.FigurePlotCalled")
+    from matplotlib import pyplot as plt  # necessary if we are in a sub process
+    default_dic = {"warning": 0, "title": "no-title"}
+    default_dic.update(dic)
+    dic = default_dic
+
+    def SubPlot(x, y):
+        nx, ny = 7, 5
+        if "logx" in dic:
+            ax.set_xscale("log")
+        if "logy" in dic:
+            ax.set_yscale("log")
+        if "xlabel" in dic:
+            ax.set_xlabel(dic["xlabel"])
+        if "ylabel" in dic:
+            ax.set_ylabel(dic["ylabel"])
+
+        ax.plot(x, y)
+
+        ax2 = ax.twiny()
+        ax2.set_xticks(np.arange(nx))
+        xlist = np.linspace(0, x[-1] * W.head.pixel_scale, nx)
+        xlist = [int(1000 * u) for u in xlist]
+        ax2.set_xticklabels(xlist, rotation=45)
+        ax2.set_xlabel(u"Distance [mas]")
+
+        ax3 = ax.twinx()
+        ax3.set_yticks(np.arange(ny))
+        ylist = np.linspace(0, y[0], ny)
+        ylist = [int(u) for u in ylist]
+        ax3.set_yticklabels(ylist)
+        ax3.set_ylabel(u"number count per pixel")
+        ############
+        # TWIN axes
+
+    W.log(3, 50 * '_', "\n", currentThread().getName(),
+          "Starting------------------\n")
+
+    global ax
+    G.contrast_fig.clf()
+    # tfig.canvas.set_window_title(dic["title"])
+
+    if not isinstance(x[0], list):  # otherwise multiple axes
+        W.log(3, "FigurePlot, we make a single plot")
+        ax = G.contrast_fig.add_subplot(111)
+        #from mpl_toolkits.axes_grid1 import host_subplot
+        #ax = host_subplot(111)
+        SubPlot(x, y)
+        W.log(3, "I will show ")
+        G.contrast_fig.canvas.draw()
+
+    # Over
+    W.log(3, '_' * 50 + "\n", currentThread().getName(),
+          'Exiting' + 20 * '-' + "\n")

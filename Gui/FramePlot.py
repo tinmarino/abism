@@ -2,6 +2,7 @@
     The Tkinter Frame using matplotlib
     TODO stop putting all in G
 """
+import re
 
 from tkinter import Frame, PanedWindow, Label, PhotoImage, Button, \
     StringVar, Entry, \
@@ -12,6 +13,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
     NavigationToolbar2Tk
 from numpy import sqrt, float32
 
+# Local
 from ImageFunction import PixelMax
 from DraggableColorbar import DraggableColorbar
 
@@ -135,12 +137,10 @@ class ImageFrame(PlotFrame):
 
 
         # Scale (much faster also draw_artist can help ?)
-        import re
-        from WindowRoot import Scale
         if re.match(r".*\.fits", W.image_name):
             G.current_image = W.Im0.astype(float32)
             W.log(3, "dic init", G.scale_dic[0])
-            Scale(dic=G.scale_dic[0], load=1)  # not to draw the image.
+            self.CutImageScale(dic=G.scale_dic[0], load=1)  # not to draw the image.
         else:
             G.current_image = W.Im0
 
@@ -164,7 +164,7 @@ class ImageFrame(PlotFrame):
         self._cbar = G.fig.colorbar(drawing, pad=0.02)
         # TODO not here :
         G.cbar = self._cbar
-        self._cbar = DraggableColorbar(self._cbar, drawing)
+        self._cbar = DraggableColorbar(self._cbar, drawing, self.Draw)
         self._cbar.connect()
 
         # Image levels
@@ -196,6 +196,171 @@ class ImageFrame(PlotFrame):
         if new_fits:
             G.label_bool = 0
             G.LabelFrame.update()
+
+
+    def CutImageScale(self, dic={}, load=0, run=""):
+        """Cut Image Scale
+        Change contrast and color , load if it is loaded with InitImage
+        remember that we need to update G.scael_dic in case we opne a new image,
+        but this is not really true
+
+        cmap: Image Color
+            A menu button will be displayed and in this,
+            there is waht is called some radio buttons,
+            which permits to select a color for the image.
+            And there is at the bottom a button for plotting the contours of objects.
+            You have for colors from bright to faint:\n\n"
+            ->jet: red,yellow,green,blue\n"
+            ->Black&White: White,Black\n"
+            ->spectral:red,yellow,green,blue, purple\n"
+            ->RdYlBu: blue, white, red\n"
+            ->BuPu: purple, white\n"
+            ->Contour: This will display the 3 and 5 sigma contours of the objects
+                on the image. To delete the contours that may crowd your image,
+                just click again on contour.\n"
+
+        fct: Rescale Image Function
+            A menu button with some radio button is displayed. Chose the function
+            that will transforme the image according to a function. This function
+            is apllied to the images values rescaled from 0 to 1 and then the image
+            is mutliplied again fit the true min and max cut made.\n\n"
+            Programmers, This function is trabsforming G.current_image when the
+            true image is stocked under W.Im0 \nIf you want to add some function
+            look at the InitGuy.py module, a function with some (2,3,4) thresholds
+            (=steps) could be usefull to get stars of (2,3,4) differents color,
+            nothing more, one color for each intensity range. This can be done with
+            if also.
+
+        scale_cut_type: Cut Image Scale
+            A menu button with some radio button is displayed. You need to chose
+            the cut for scaling the displaued color of the image (ie: the values of
+            the minimum and maximum color). Youhave different way of cutting :\n\n"
+            -> None, will take the true max and min values of th image to set the
+            displayed color range. Usefull for saturated objects.\n" -> Percentage,
+            set the max (min) color as the maximum (minimum) value of the central
+            percent% values. For example, 95% reject the 2.5% higher values and
+            then take the maximum of the kept values.\n" -> RMS, will take make a
+            -1,5 sigma for min and max\n" -> Manual, The power is in your hand, a
+            new frame is displayed, enter the min and max value. When satified,
+            please close the frame.\n" \n\nProgrammers, a cut setted with the
+            histogram can be nice but not so usefull.
+        """
+        W.log(2, "Scale called with:", dic)
+
+        # RUN THE Stff to change radio button for mac
+        if run != "":
+            if W.verbose > 3:
+                print("Scale, run=", run)
+            exec(run, globals())
+
+            #######
+            # INIT  WITH CURRENT IMAGE parameters.
+        # try :
+        if not load:
+            G.scale_dic[0]["cmap"] = self._cbar.mappable.get_cmap().name  # Image color
+            G.scale_dic[0]["min_cut"] = self._cbar.cbar.norm.vmin  # Image color
+            G.scale_dic[0]["max_cut"] = self._cbar.cbar.norm.vmax  # Image color
+
+        ###########
+        # CONTOURS
+        if("contour" in dic) and not isinstance(dic["contour"], bool):
+            if W.verbose > 3:
+                print("contour ? ", G.scale_dic[0]["contour"])
+            G.scale_dic[0]["contour"] = not G.scale_dic[0]["contour"]
+            if G.scale_dic[0]["contour"]:
+                if "median" not in G.scale_dic[0]:
+                    tmp = vars(W.imstat)
+                mean, rms = tmp["mean"], tmp["rms"]
+                c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
+                    rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
+                G.contour = G.ax1.contour(W.Im0, (c2, c5),
+                                        origin='lower', colors="k",
+                                        linewidths=3)
+                # extent=(-3,3,-2,2))
+                if W.verbose > 0:
+                    print(
+                        "---> Contour of 3 and 5 sigma, clik again on contour to delete its.")
+
+            else:  # include no contour  delete the contours
+                if not load:
+                    for coll in G.contour.collections:
+                        G.ax1.collections.remove(coll)
+
+        ############
+        # UPDATE UPDATE
+        if W.verbose > 2:
+            print(" MG.scale ,Scale_dic ", G.scale_dic[0])
+        dic["contour"] = G.scale_dic[0]["contour"]
+        G.scale_dic[0].update(dic)  # UPDATE DIC
+
+        ###########
+        # CUT
+        if "scale_cut_type" in dic:
+            if dic["scale_cut_type"] == "None":
+                # IG.ManualCut()
+                G.scale_dic[0]["min_cut"] = W.imstat.min
+                G.scale_dic[0]["max_cut"] = W.imstat.max
+            else:
+                import Scale  # otherwise get in conflict with Tkinter
+                dictmp = {"whole_image": "useless"}
+                dictmp.update(G.scale_dic[0])
+                tmp = Scale.MinMaxCut(W.Im0, dic=dictmp)
+                G.scale_dic[0]["min_cut"] = tmp["min_cut"]
+                G.scale_dic[0]["max_cut"] = tmp["max_cut"]
+            if W.verbose > 2:
+                "I called Scale cut "
+
+        ######
+        # SCALE FCT
+        if "stretch" not in G.scale_dic[0]:  # in case
+            G.scale_dic[0]["stretch"] = "linear"
+
+        ###############
+        #  RELOAD THE IMAGE
+        # TODO
+        if not load:
+            self.Draw()
+
+        ##########
+        # RELOAD PlotStar
+            try:
+                from AnswerReturn import PlotStar2
+                PlotStar2()
+            except BaseException:
+                pass  # in case you didn't pick the star yet
+        return
+
+
+    def Draw(self, min=None, max=None, cmap=None, norm=False, cbar=True):
+        """ Redraw image with new scale"""
+        if min is not None:
+            G.scale_dic[0]["min_cut"] = min
+            G.scale_dic[0]["max_cut"] = max
+        if cmap is not None:
+            G.scale_dic[0]["cmap"] = cmap
+
+        cmap = G.scale_dic[0]["cmap"]
+        min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
+
+        from DraggableColorbar import MyNormalize
+        mynorm = MyNormalize(
+            vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
+        G.ImageFrame._cbar.mappable.set_cmap(cmap)
+        G.ImageFrame._cbar.cbar.set_cmap(cmap=cmap)
+        G.ImageFrame._cbar.cbar.set_norm(mynorm)
+        G.ImageFrame._cbar.mappable.set_norm(mynorm)
+
+        G.ImageFrame._cbar.cbar.patch.figure.canvas.draw()
+        G.ImageFrame.get_canvas().draw()
+
+        try:
+            for i in (G.figresult_mappable1, G.figresult_mappable2):
+                i.set_norm(mynorm)
+                i.set_cmap(cmap)
+            G.figresult.canvas.draw()
+        except BaseException:
+            W.log(2, "Draw cannot draw in figresult")
+
 
 
     def RemoveCompass(self):
@@ -322,9 +487,6 @@ class ImageFrame(PlotFrame):
 
         G.cube_var.set(W.cube_num + 1)
         self.draw_image(new_fits=False)
-
-
-
 
 
 

@@ -77,7 +77,3 @@ def ScienceVariable():
         G.LabelFrame.set_image_parameters("", destroy=False)
     # LABELS
     G.LabelFrame.update()
-    # TODO, after refactoring INitGui and WindowRoot
-    from WindowRoot import FitType
-    FitType(W.type["fit"])
-

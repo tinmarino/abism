@@ -38,17 +38,16 @@ def ViewMenu(root, parent, args):
             ["BuPu", "BuPu"]
         ]
         for i in lst:
-            color_menu.add_radiobutton(label=i[0],
-                                       command=lambda i=i: MG.Scale(
-                                           dic={"cmap": i[1]}, run="G.cu_cut.set('"+i[1] + "')"),
-                                       variable=G.cu_color, value=i[1])  # we use same value as label
+            color_menu.add_radiobutton(
+                label=i[0], command=lambda i: G.ImageFrame.CutImageScale(
+                    dic={"cmap": i[1]}, run="G.cu_cut.set('"+i[1] + "')"),
+                variable=G.cu_color, value=i[1])  # we use same value as label
 
         ########
         # Contour
-        color_menu.add_command(label='Contour',
-                               command=lambda: MG.Scale(
-                                   dic={"contour": 'not a bool'})
-                               )
+        color_menu.add_command(
+            label='Contour', command=lambda: G.ImageFrame.CutImageScale(
+                dic={"contour": 'not a bool'}))
 
         #################
         # more colors
@@ -57,14 +56,14 @@ def ViewMenu(root, parent, args):
         for i in G.all_cmaps:
             num += 1
             more_color_menu.add_radiobutton(label=i,
-                                            command=lambda i=i: MG.Scale(
+                                            command=lambda i: G.ImageFrame.CutImageScale(
                                                 dic={"cmap": i}),
                                             variable=G.cu_color, value=i)  # we use same value as label
 
             if num % 30 == 0:
 
                 more_color_menu.add_radiobutton(label=i,
-                                                command=lambda i=i: MG.Scale(
+                                                command=lambda i: G.ImageFrame.CutImageScale(
                                                     dic={"cmap": i}),
                                                 variable=G.cu_color, value=i, columnbreak=1)  # we use same value as label
         color_menu.add_cascade(menu=more_color_menu,
@@ -90,7 +89,7 @@ def ViewMenu(root, parent, args):
                                                                     "square"], ["Log", "np.log(x+1)/0.69", "log"], ["Arcsinh", "", "arcsinh"]]
         for i in lst:
             scale_menu.add_radiobutton(label=i[0],
-                                       command=lambda i=i: MG.Scale(
+                                       command=lambda i: G.ImageFrame.CutImageScale(
                                            dic={"fct": i[1], "stretch": i[2]}, run="G.cu_scale.set('" + i[2] + "')"),
                                        variable=G.cu_scale, value=i[2])  # we use same value as label
 
@@ -111,17 +110,16 @@ def ViewMenu(root, parent, args):
         G.cu_cut = StringVar()
         G.cu_cut.set("RMS")
         # label , scale_cut_type, key, value
-        lst = [["RMS", "sigma_clip", "sigma", 3], ["99.95%", "percent", "percent", 99.95],
-               ["99.9%", "percent", "percent", 99.9], [
-                   "99.5%", "percent", "percent", 99.5],
-               ["99%", "percent", "percent", 99.], [
-                   "90%", "percent", "percent", 90],
+        lst = [["RMS", "sigma_clip", "sigma", 3],
+               ["99.95%", "percent", "percent", 99.95],
+               ["99.9%", "percent", "percent", 99.9],
+               ["99%", "percent", "percent", 99],
+               ["90%", "percent", "percent", 90],
                ["None", "None", "truc", "truc"],
-               # ["Manual", "manual", "truc", "truc"] ,  ]
                ]
         for i in lst:
             cut_menu.add_radiobutton(label=i[0],
-                                     command=lambda i=i: MG.Scale(
+                                     command=lambda i=i: G.ImageFrame.CutImageScale(
                                          dic={"scale_cut_type": i[1], i[2]: i[3]}, run="G.cu_cut.set('"+i[0] + "')"),
                                      variable=G.cu_cut, value=i[0])  # we use same value as label
 
@@ -178,7 +176,7 @@ def ManualCutOpen():
         dic = {"min_cut": float(G.entries[1].get()),
                 "max_cut": float(G.entries[0].get())}
         W.log(2, "ManualCut, dic called , ", dic)
-        MG.Scale(dic=dic)
+        G.ImageFrame.CutImageScale(dic=dic)
 
     lst = [["Max cut", "max_cut"], ["Min cut", "min_cut"]]
     G.entries = []
@@ -217,4 +215,6 @@ def ManualCutClose():
     G.scale_dic[0]['max_cut'] = float(G.entries[0].get())
     G.scale_dic[0]['min_cut'] = float(G.entries[1].get())
     W.log(3, 'Cut min, max:', G.scale_dic[0]['min_cut'], G.scale_dic[0]['max_cut'])
-    MG.Scale()
+    G.ImageFrame.CutImageScale()
+
+

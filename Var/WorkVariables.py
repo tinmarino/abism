@@ -40,5 +40,5 @@ def log(i, *args):
     """
     if verbose < i: return
 
-    message = str(i) + ' : ' + ' '.join([str(arg) for arg in args])
+    message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     logger.info(message)

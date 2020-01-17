@@ -18,9 +18,10 @@ import WorkVariables as W
 
 class DraggableColorbar:
     """The Scrollable colorbar"""
-    def __init__(self, cbar, mappable):
+    def __init__(self, cbar, mappable, callback):
         self.cbar = cbar  # the colorbar
         self.mappable = mappable  # the imshow
+        self.callback = callback
         self.press = None
         self.cycle = sorted([
             i for i in dir(plt.cm)
@@ -87,7 +88,7 @@ class DraggableColorbar:
                 cmap = cmap.replace("_r", "")
             else:
                 cmap = cmap + "_r"
-        Draw(cmap=cmap)
+        self.callback(cmap=cmap)
 
         G.cu_color.set(cmap)
 
@@ -109,7 +110,7 @@ class DraggableColorbar:
         elif event.button == 3:
             self.cbar.norm.vmin -= (perc*scale)*np.sign(dy)
             self.cbar.norm.vmax += (perc*scale)*np.sign(dy)
-        Draw(min=self.cbar.norm.vmin, max=self.cbar.norm.vmax)
+        self.callback(min=self.cbar.norm.vmin, max=self.cbar.norm.vmax)
 
     def on_release(self, event):
         """on release we reset the press data"""
@@ -125,36 +126,6 @@ class DraggableColorbar:
 
 ##################################################
 # For Abism
-
-
-def Draw(min=None, max=None, cmap=None, norm=False, cbar=True):
-    """ Redraw image with new scale"""
-    if min is not None:
-        G.scale_dic[0]["min_cut"] = min
-        G.scale_dic[0]["max_cut"] = max
-    if cmap is not None:
-        G.scale_dic[0]["cmap"] = cmap
-
-    cmap = G.scale_dic[0]["cmap"]
-    min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
-
-    mynorm = MyNormalize(
-        vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
-    G.ImageFrame._cbar.mappable.set_cmap(cmap)
-    G.ImageFrame._cbar.cbar.set_cmap(cmap=cmap)
-    G.ImageFrame._cbar.cbar.set_norm(mynorm)
-    G.ImageFrame._cbar.mappable.set_norm(mynorm)
-
-    G.ImageFrame._cbar.cbar.patch.figure.canvas.draw()
-    G.ImageFrame.get_canvas().draw()
-
-    try:
-        for i in (G.figresult_mappable1, G.figresult_mappable2):
-            i.set_norm(mynorm)
-            i.set_cmap(cmap)
-        G.figresult.canvas.draw()
-    except BaseException:
-        W.log(2, "Draw cannot draw in figresult")
 
 
 # The Normalize class is largely based on code provided by Sarah Graves.
@@ -363,7 +334,7 @@ class MyNormalize(Normalize):
         return vmin + val * (vmax - vmin)
 
 
-def example():
+def dragable_color_bar_example():
     """Reference: Not used"""
     np.random.seed(1111)
 
