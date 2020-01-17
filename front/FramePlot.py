@@ -18,8 +18,8 @@ from ImageFunction import PixelMax
 from DraggableColorbar import DraggableColorbar
 
 
-from util import photo_up, photo_down
 import front.util_front as G
+from front.util_front import photo_up, photo_down
 
 # TODO this should not be here
 import back.util_back as W

@@ -5,17 +5,32 @@
 # Standard
 from sys import exit as sys_exit
 from os import system
+from functools import lru_cache
 
 from tkinter import PhotoImage
 
+from util import root_path
 import back.util_back as W
 
 """
     Read globalDefiner
 """
 
+@lru_cache(1)
+def photo_up():
+    """Return path of arrow_up icon"""
+    return PhotoImage(file=root_path() + "/res/arrow_up.gif")
+
+
+@lru_cache(1)
+def photo_down():
+    """Return path of arrow_down icon"""
+    return PhotoImage(file=root_path() + "/res/arrow_down.gif")
+
+
 # Gui parent
 parent = None
+
 
 def Quit():
     """Kill process"""

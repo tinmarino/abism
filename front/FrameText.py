@@ -14,8 +14,8 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
     VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
 
-from util import photo_up, photo_down
 
+from front.util_front import photo_up, photo_down
 import front.util_front as G
 import back.util_back as W
 
