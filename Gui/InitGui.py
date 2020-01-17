@@ -45,18 +45,6 @@ def WindowInit():
     ######################
 
 
-def TitleArrow(title, var):
-    # TITEL
-    if G.in_arrow_frame is None:
-        G.arrtitle = Label(G.LeftTopArrowFrame,
-                           text=title, **G.frame_title_arg)
-        G.arrtitle.pack(side=LEFT, anchor="nw")
-        G.in_arrow_frame = var
-        return True
-    else:
-        return False
-
-
 def ManualBackground():
     if G.manual_back_bool:
         ManualBackClose()
