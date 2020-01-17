@@ -4,38 +4,25 @@
 
 
 # Standard
-import sys
-from os import system
 from os.path import isfile
 import warnings
 import threading
-from time import sleep
-import re
 
 # Tkinter
 from tkinter import *
 from tkinter.filedialog import askopenfilename
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 
 # Fancy
-import matplotlib
-import matplotlib.font_manager as fm
 from astropy.io import fits
 import numpy as np
 
 # Gui
-import InitGui as IG  # draw the GUI
-import Pick  # to connect PickOne per defautl
-import DraggableColorbar
 import NormalizeMy
-
-# Plugin
-import ReadHeader as RH
+from MenuBar import MenuBarMaker
+from Gui.FrameText import LeftFrame
+from Gui.FramePlot import RightFrame
 
 # ArrayFunction
-import Scale
-import Stat
-import ImageFunction as IF  # Function on images
 from FitsIo import OpenImage
 
 
@@ -55,8 +42,20 @@ def MyWindow():
 
     # Give title
     Title()
-    # Init main tk window
-    IG.WindowInit()
+
+    MenuBarMaker()
+
+    # ALL What is not the menu is a paned windows :
+    # I can rezie it with the mouse from left to right,
+    # This (all but not the Menu) Frame is called MainPaned
+    G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **G.paned_dic)
+    G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
+
+    # 2 LEFT
+    G.TextFrame = LeftFrame(G.MainPaned)
+
+    # 3 RIGHT
+    G.DrawPaned = RightFrame(G.MainPaned)
 
     # ######################
     # Init matplotlib figure
