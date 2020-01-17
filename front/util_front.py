@@ -109,6 +109,28 @@ def Restart():
     # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
+class Font:
+    """Font for skin"""
+    def __init__(self):
+        self.small = tk.font.Font(size=6)
+        self.answer = tk.font.Font(size=10)   # all answer in AnswerFrame
+        self.strehl = tk.font.Font(size=12)  # just strehl answer
+        self.warning = tk.font.Font(size=12)  # just strehl answer
+        self.font = tk.font.Font(size=11)  # Image parameters
+        self.big = tk.font.Font(size=16)
+
+
+class Skin():
+    """Skin to put all default apperance"""
+    def __init__(self):
+        self.font = Font()
+
+
+@lru_cache(1)
+def skin():
+    """Singleton trick"""
+    return Skin()
+
 def about_window():
     """Pop about window"""
     root = tk.Tk()

@@ -1,3 +1,7 @@
+"""
+    Helper console to run python code in the loop
+    For devloppers now (maybe one day embed jupyter kernel in main window
+"""
 import tkinter as Tk
 import threading
 import time

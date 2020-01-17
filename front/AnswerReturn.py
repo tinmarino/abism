@@ -17,6 +17,7 @@ import ReadHeader as RH  # to know witch telescope
 import Stat
 
 from util import log
+from front.util_front import skin
 import front.util_front as G
 import back.util_back as W
 
@@ -140,7 +141,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         return
     elif W.type["pick"][0] == "stat":
         PlotStat()
-    DisplayAnswer(font=G.answer_font)
+    DisplayAnswer(font=skin().font.answer)
 
     # Change sash if Answer atrofied
     place = G.parent.winfo_height() - G.TextPaned.winfo_rooty() - 300
@@ -518,7 +519,7 @@ def PlotStat():
     import Stat
     dicr = Stat.Stat(sub_array)
     myargs = G.lb_arg.copy()
-    myargs.update({"font": G.answer_font, "justify": LEFT, "anchor": "nw"})
+    myargs.update({"font": skin().font.answer, "justify": LEFT, "anchor": "nw"})
     row = 0
     lst = [
         ["DIM X*DIM Y: ", "%.1f x %.1f" %
@@ -554,7 +555,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
         if i[0] == "Strehl: ":
             myargs["fg"] = "red"
-            myargs["font"] = G.strehl_font
+            myargs["font"] = skin().font.strehl
         l1 = Label(G.AnswerFrame, text=i[0], **myargs)
         l2 = Label(G.AnswerFrame, text=i[2], **myargs)
         l1.grid(row=row, column=0, sticky="nsew")
@@ -568,7 +569,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
     if W.strehl["intensity"] > 1.0 * W.head.non_linearity_level:
         l = Label(G.AnswerFrame, bg=G.bg[0])
         l["fg"] = "red"
-        l["font"] = G.warning_font
+        l["font"] = skin().font.warning
         if W.strehl["intensity"] > 1.0 * W.head.saturation_level:
             l["text"] = "!!! SATURATED !!!  Strehl is UNRELIABLE"
         else:
@@ -580,7 +581,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
     if "sinf_pixel_scale" in vars(W.head) and (W.head.sinf_pixel_scale <= 0.01):
         l = Label(G.AnswerFrame, **G.lb_arg)
         l["fg"] = "red"
-        l["font"] = G.warning_font
+        l["font"] = skin().font.warning
         l["text"] = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
         l.grid(row=row, column=0, columnspan=2)
         row += 1
@@ -596,7 +597,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         if max_dist*15 < sep:  # means too high separation
             l = Label(G.AnswerFrame, bg=G.bg[0])
             l["fg"] = "red"
-            l["font"] = G.warning_font
+            l["font"] = skin().font.warning
             l["text"] = "Wide Binary\npick objects individually"
             l.grid(row=row, column=0, columnspan=2)
             row += 1
@@ -604,7 +605,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         if max_dist*3 > sep:  # means too high separation
             l = Label(G.AnswerFrame, bg=G.bg[0])
             l["fg"] = "red"
-            l["font"] = G.warning_font
+            l["font"] = skin().font.warning
             l["text"] = "Tight Binary\nmay be unreliable"
             l.grid(row=row, column=0, columnspan=2)
             row += 1

@@ -137,13 +137,6 @@ def GuiVar():
     G.bu_quit_color = "red"
     G.bu_restart_color = 'cyan'
 
-    # FONT
-    G.small_font = tkFont.Font(size=6)
-    G.answer_font = tkFont.Font(size=10)   # all answer in AnswerFrame
-    G.strehl_font = tkFont.Font(size=12)  # just strehl answer
-    G.warning_font = tkFont.Font(size=12)  # just strehl answer
-    G.font_param = tkFont.Font(size=11)  # Image parameters
-    G.big_font = tkFont.Font(size=16)
 
     # SCALE dic for the color and contrast
     G.scale_dic_list = [{}]
@@ -156,13 +149,10 @@ def GuiVar():
     G.scale_dic[0]["sigma"] = 3
     G.scale_dic[0]["stretch"] = "linear"
 
-    # BOOL
+    # BOOL TODO remove
     G.manual_cut_bool = 0
     G.more_bool = 0
-    G.more_info_bool = 0
-    G.cal_bool = 0                             # Is the calculator opened yet ?
-    G.tutorial = 0                             # Is the tutorial opened yet ?
-    G.tut_type = "console"                     # tutorial output
+
     G.toolbar_fit_bool = False
     G.toolbar_result_bool = False
     G.manual_back_bool = False

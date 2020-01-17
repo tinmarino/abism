@@ -89,13 +89,14 @@ def PickAnnulus(disconnect=False):
 
 
 def Profile(disconnect=False):
-    """if G.tutorial:
-             text="Draw a line on the image. Some basic statistics on the pixels cutted by your line will be displayed in the 'star frame'. And a Curve will be displayed on the 'fit frame'. A pixel is included if the distance of its center is 0.5 pixel away from the line. This is made to prevent to many pixels stacking at the same place of the line\n\n."
-             text+="Programmers, an 'improvement' can be made including pixels more distant and making a mean of the stacked pixels for each position on the line."
-             MG.TutorialReturn({"title":"Linear Profile, cutted shape of a source",
-             "text":text,
-             })
-             return
+    """Linear Profile, cutted shape of a source
+    Draw a line on the image. Some basic statistics on the pixels cutted by
+    your line will be displayed in the 'star frame'. And a Curve will be
+    displayed on the 'fit frame'. A pixel is included if the distance of its
+    center is 0.5 pixel away from the line. This is made to prevent to many
+    pixels stacking at the same place of the line\n\n." Programmers, an
+    'improvement' can be made including pixels more distant and making a mean
+    of the stacked pixels for each position on the line."
     """
     # DISCONNECT
     if disconnect and W.type.get('pick_old', '') == 'profile':
@@ -116,13 +117,22 @@ def Profile(disconnect=False):
 
 
 def PickOne(disconnect=False):
-    if G.tutorial:
-        text = "This button should be green and the zoom button of th eimage toolbar  unpressed. If it is pressed, clik again on it. You then hav eto draw a rectangle aroung the star to mesure the strehl ratio around this star. A first fit will be computed in the rectangle you 've just drawn. Then the photometry of the star will be computed according to the photometry and background measurement type you chose in 'MoreOption' in the file menu. By default, the photometry is processed in a 99% flux rectangle. And the backgorund, in 8 littel rectangels around the star. \n\n"
-        text += "The fit is necessary to get the maximum, the peak of the psf that will be compared to the diffraction pattern. You can set to assess the photometry of the object with the fit.\n\n"
-        text += "A Moffat fit type is chosen by default. but you can change it with the button FitType. I recommend you to use a Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for strehl>60%.\n\n"
-        MG.TutorialReturn({"title": "Pick One Star",
-                           "text": text,
-                           })
+    """Pick One Star
+    This button should be green and the zoom button of th eimage toolbar
+    unpressed. If it is pressed, clik again on it. You then hav eto draw a
+    rectangle aroung the star to mesure the strehl ratio around this star.  A
+    first fit will be computed in the rectangle you 've just drawn. Then the
+    photometry of the star will be computed according to the photometry and
+    background measurement type you chose in 'MoreOption' in the file menu. By
+    default, the photometry is processed in a 99% flux rectangle.  And the
+    backgorund, in 8 littel rectangels around the star.
+    The fit is necessary to get the maximum, the peak of the psf that will be
+    compared to the diffraction pattern. You can set to assess the photometry
+    of the object with the fit.  A Moffat fit type is chosen by default. but
+    you can change it with the button FitType. I recommend you to use a
+    Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for
+    strehl>60%."
+    """
 
     # DISCONNECT
     if disconnect and W.type.get('pick_old', '') == 'one':
@@ -158,12 +168,10 @@ def PickEvent(event):
 
 
 def Binary(disconnect=False):
-    if G.tutorial:
-        text = "If Binary button is green, make two click on a binary system : one on each star. A Binary fit will be processed. This is still in implementation."
-        MG.TutorialReturn({"title": "Binary System",
-                           "text": text,
-                           })
-        return
+    """Binary System
+    If Binary button is green, make two click on a binary system : one on each
+    star. A Binary fit will be processed. This is still in implementation.
+    """
 
     # DISCONNECT
     if disconnect and W.type.get('pick_old', '') == 'binary':
@@ -263,12 +271,11 @@ def TightBinary3(event):  # Here we call the math
 
 
 def PickMany(disconnect=False):
-    if G.tutorial:
-        text = "As for PickOne, you have to draw a rectangle around a star. But this time the output is shorten. After the Strehl measurment of the star you picked, you can pick an other star."
-        MG.TutorialReturn({"title": "Pick Many Stars",
-                           "text": text,
-                           })
-        return
+    """Pick Many Stars
+    As for PickOne, you have to draw a rectangle around a star. But this time
+    the output is shorten. After the Strehl measurment of the star you picked,
+    you can pick an other star
+    """
     # DISCONNECT
     if disconnect and W.type.get('pick_old', '') == 'many':
         try:
@@ -292,13 +299,9 @@ def PickMany(disconnect=False):
 
 
 def StatPick(disconnect=False):
-    if G.tutorial:
-        text = "The Stats are defined in Arrayfunction/Stat.py"
-        MG.TutorialReturn({"title": "Draw a rectangle",
-                           "text": text,
-                           })
-        return
-
+    """Draw a rectangle
+    The Stats are defined in Arrayfunction/Stat.py
+    """
     # DISCONNECT
     if disconnect and W.type.get('pick_old', '') == 'stat':
         try:
