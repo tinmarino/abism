@@ -4,7 +4,7 @@
 2. Lint
   1. Sphinx DOC
 3. Refactor(in class)
-
+4. Make PlotFrame.clear_axes() -> as (see hitopop)
 
 # UI
 
@@ -13,7 +13,4 @@
 2. Dark mode
 4. just white and dark background(one fancy if you want)
 7. Create pip package
-
-
-Change Pyfis to detect comment and not stipping last line
-put displayheader and all primitives(low level) fct in the approproate directory.
+8. Doc

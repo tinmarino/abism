@@ -247,7 +247,6 @@ class Header:
             if len(tmp) > 8:
                 self.flathead["CTYPE2"] = tmp[0:3] + tmp[len(tmp) - 8 + 3:]
 
-
             self.wcs = wcs.WCS(self.flathead)  # for coord transformation
 
             if (self.wcs.all_pix2world([[0, 0]], 0) == [[1, 1]]).all():
@@ -257,12 +256,6 @@ class Header:
             import traceback
             W.log(0, traceback.format_exc(),
                   "WARNING I dit not manage to get WCS from wcs\n\n")
-
-            class void:
-                pass
-            self.wcs = void()
-            # this will be later transformed
-            self.wcs.all_pix2world = lambda x, y: [[99, 99]] * len(x)
 
         #
         # WCS
@@ -281,10 +274,8 @@ class Header:
         #  ZPT
 
 
-#
-# NACO
 class NacoHeader(Header):
-
+    """NaOS + Conica la lleva pero se la llevaron !"""
     def __init__(self, header):
         Header.__init__(self, header)
         self.company = "ESO"
@@ -305,6 +296,7 @@ class NacoHeader(Header):
         self.Saturation()
 
     def Saturation(self):
+        """Check if non-linear or even staturated"""
         if 'HIERARCH ESO DET NCORRS NAME' in self.header:
             self.ncor = self.header['HIERARCH ESO DET NCORRS NAME']
             if 'HIERARCH ESO DET MODE NAME' in self.header:
@@ -328,10 +320,8 @@ class NacoHeader(Header):
         self.non_linearity_level = 0.6 * fullwell + bias
 
 
-#
-# SinfONI
 class SinfoniHeader(Header):
-
+    """Sinfoni Instrument"""
     def __init__(self, header):
         Header.__init__(self, header)
 

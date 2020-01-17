@@ -1,7 +1,9 @@
 import GuyVariables as G
 import MyGui as MG  # TODO remove that
 import Pick  # to connect PickOne per defautl
-import DebugConsole  # For pythonConsole
+
+from Plugin.DebugConsole import PythonConsole
+from Plugin.Histogram import Histopopo
 
 import tkinter as Tk
 
@@ -13,8 +15,8 @@ def ToolMenu(args):
     lst = [
         ["Profile", lambda: Pick.RefreshPick("profile")],
         ["Stat", lambda: Pick.RefreshPick("stat")],
-        ["Histogram", MG.Histopopo],
-        ["Python Console", DebugConsole.PythonConsole],
+        ["Histogram", Histopopo],
+        ["Python Console", PythonConsole],
     ]
     for i in lst:
         G.tool_menu.menu.add_command(label=i[0], command=i[1])
