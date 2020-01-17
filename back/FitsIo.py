@@ -5,12 +5,12 @@
 from astropy.io import fits
 from numpy import isnan
 
-from ReadHeader import CallHeaderClass
-from Stat import Stat
+from plugin.ReadHeader import CallHeaderClass
+from back.Stat import Stat
 
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 
 def OpenImage(new_fits=True):

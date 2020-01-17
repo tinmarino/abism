@@ -8,7 +8,7 @@ from os import system
 
 from tkinter import PhotoImage
 
-import WorkVariables as W
+import back.util_back as W
 
 """
     Read globalDefiner

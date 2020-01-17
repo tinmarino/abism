@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize
 
 from leastsqbound import leastsqbound
-import WorkVariables as W
+import back.util_back as W
 
 
 """

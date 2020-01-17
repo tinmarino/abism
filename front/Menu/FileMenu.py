@@ -5,8 +5,8 @@ from tkinter import Menu, Menubutton
 from tkinter.filedialog import askopenfilename
 
 
-import WorkVariables as W
-import GuyVariables as G
+import back.util_back as W
+import front.util_front as G
 
 from plugin.FitsHeaderWindow import DisplayHeader
 

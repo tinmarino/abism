@@ -7,13 +7,9 @@ import Stat
 import FitFunction as FF
 import BasicFunction as BF
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
-
-# To comment then
-import warnings
-#from matplotlib import pyplot as plt
 
 ###############
 # PICK ONE

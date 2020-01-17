@@ -36,7 +36,7 @@ import numpy as np
 
 from astropy import wcs
 
-import WorkVariables as W
+import back.util_back as W
 
 
 

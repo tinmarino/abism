@@ -6,7 +6,7 @@ import AnalysisMenu
 import ToolMenu
 import ViewMenu
 
-import GuyVariables as G
+import front.util_front as G
 
 
 def MenuBarMaker(root):

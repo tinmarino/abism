@@ -4,7 +4,7 @@
 import numpy as np
 
 import Stat
-import WorkVariables as W  # to know the stats
+import back.util_back as W  # to know the stats
 
 
 def MinMaxCut(grid, dic={}):  # From a true value renge give min_cut and max_cut

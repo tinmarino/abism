@@ -7,8 +7,8 @@ import Pick
 import ImageFunction as IF  # to give him the output
 
 
-import WorkVariables as W  # for verbose
-import GuyVariables as G  # to know if on zoom
+import back.util_back as W  # for verbose
+import front.util_front as G  # to know if on zoom
 
 
 class Annulus:  # This is actually the Annulus even, but it could be a "ellipse" event or whatever can fit in the canvas class (rectangle, polygone...) , actually I deleted the ellispe event, which can be usefull because not every body want the annulus for the background, but maybe make a super fast photometry, like knowing the instrument, you know the PSF FWHM and can auto create the aperture, you play with that and then, if its works well, you can auto detect stars and make a completely automatic ABism (ie, without opening image)  , see in Abism 0.5, 0.6

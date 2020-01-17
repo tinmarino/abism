@@ -9,8 +9,8 @@ import scipy.interpolate  # for LocalMax
 
 import Stat
 import BasicFunction as BF
-import GuyVariables as G  # check variables
-import WorkVariables as W  # for verbose
+import front.util_front as G  # check variables
+import back.util_back as W  # for verbose
 
 
 def DoNotPassBorder(grid, point2d):

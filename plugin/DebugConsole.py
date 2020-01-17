@@ -5,8 +5,8 @@ import sys
 import select
 import traceback
 
-import WorkVariables as W
-import GuyVariables as G
+import back.util_back as W
+import front.util_front as G
 
 
 """

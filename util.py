@@ -5,6 +5,7 @@
 # Standard
 import re
 from sys import argv as sys_argv
+from os.path import dirname, abspath
 
 # Package
 # from tkinter import
@@ -13,8 +14,26 @@ from tkinter import font as tkFont
 import matplotlib
 
 # Local
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
+
+
+def root_path():
+    """Return: path of this file"""
+    return dirname(abspath(__file__))
+
+def icon_path():
+    """Return path of window icon"""
+    return root_path() + '/res/bato_chico.gif'
+
+def photo_up():
+    """Return path of arrow_up icon"""
+    return PhotoImage(file=root_path() + "/res/arrow_up.gif")
+
+def photo_down():
+    """Return path of arrow_down icon"""
+    return PhotoImage(file=root_path() + "/res/arrow_down.gif")
+
 
 def MainVar():
     """Init all <- Called by WindowRoot"""
@@ -31,9 +50,6 @@ def GuiVar():
     # VERSION
     G.version = '0.900'
 
-    # Icons
-    G.photo_down = PhotoImage(file=W.path + "/res/arrow_down.gif")
-    G.photo_up = PhotoImage(file=W.path + "/res/arrow_up.gif")
 
     # BUTTON WIDTH
     G.button_width = 12  # the width of the standard buttons

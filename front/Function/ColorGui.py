@@ -1,9 +1,9 @@
 from tkinter import *
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
-import GlobalDefiner
+import util
 
 
 def BgCl(color=None, who="bg"):

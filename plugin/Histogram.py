@@ -4,8 +4,8 @@ with a dragging the vertical lines., with a binning of the image,
 this could even be in real time.
 """
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 
 def Histopopo():

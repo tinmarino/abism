@@ -21,8 +21,8 @@ import ImageFunction as IF  # Function on images
 import BasicFunction as BF  # 2D psf functions
 
 # Variables
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 # Plugin
 import ReadHeader as RH

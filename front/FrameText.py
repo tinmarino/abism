@@ -14,8 +14,10 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
     VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
 
-import GuyVariables as G
-import WorkVariables as W
+from util import photo_up, photo_down
+
+import front.util_front as G
+import back.util_back as W
 
 
 class TextFrame(Frame):
@@ -43,7 +45,7 @@ class TextFrame(Frame):
         """Place a last widget"""
         # Place button to resize
         self._arrow = Button(
-            self, command=self.toogle, image=G.photo_up, **G.bu_arg)
+            self, command=self.toogle, image=photo_up(), **G.bu_arg)
         self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
@@ -63,7 +65,7 @@ class TextFrame(Frame):
             self._arrow.configure(image=G.photo_down)
         else:
             G.TextPaned.sash_place(0, 0, self._last.winfo_y())
-            self._arrow.configure(image=G.photo_up)
+            self._arrow.configure(image=photo_up())
 
     def clear(self):
         """Destroy all children, take care !"""

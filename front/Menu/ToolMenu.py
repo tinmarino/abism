@@ -8,7 +8,7 @@ import Pick  # to connect PickOne per defautl
 from plugin.DebugConsole import PythonConsole
 from plugin.Histogram import Histopopo
 
-import GuyVariables as G
+import front.util_front as G
 
 
 def ToolMenu(root, parent, args):

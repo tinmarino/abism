@@ -7,8 +7,8 @@ import tkinter as Tk
 
 import WindowRoot as MG
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 
 def ViewMenu(root, parent, args):

@@ -8,8 +8,8 @@ import Strehl
 
 import WindowRoot as MG
 import ImageFunction as IF
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 
 def RefreshPick(label):  # This is the only callled routine

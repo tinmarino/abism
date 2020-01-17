@@ -16,8 +16,8 @@ import BasicFunction as BF
 import ReadHeader as RH  # to know witch telescope
 import Stat
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 from threading import Thread, currentThread
 

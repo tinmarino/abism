@@ -8,10 +8,8 @@
 import sys
 import os
 
-# Get current path
-path = os.path.dirname(os.path.abspath(__file__))
-
 #  Extend current path
+path = os.path.dirname(os.path.abspath(__file__))
 for root, _, _ in os.walk(path):
     sys.path.append(root)
 
@@ -19,5 +17,5 @@ for root, _, _ in os.walk(path):
 from front.WindowRoot import RootWindow
 
 # Go
-root_window = RootWindow(root_path=path)
+root_window = RootWindow()
 root_window.mainloop()

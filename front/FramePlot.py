@@ -18,10 +18,11 @@ from ImageFunction import PixelMax
 from DraggableColorbar import DraggableColorbar
 
 
-import GuyVariables as G
+from util import photo_up, photo_down
+import front.util_front as G
 
 # TODO this should not be here
-import WorkVariables as W
+import back.util_back as W
 
 class PlotFrame(Frame):
     """Base class"""
@@ -73,7 +74,7 @@ class PlotFrame(Frame):
     def init_toolbar_button(self):
         """Create toolbar button"""
         self._arrow = Button(
-            self, command=self.toogle_toolbar, image=G.photo_up, **G.bu_arg)
+            self, command=self.toogle_toolbar, image=photo_up(), **G.bu_arg)
         self._arrow.place(relx=1., rely=1., anchor="se")
         self.toogle_toolbar()
 
@@ -84,13 +85,13 @@ class PlotFrame(Frame):
         # CREATE
         if self._see_toolbar:
             W.log(3, "Showing toolbar")
-            self._arrow.configure(image=G.photo_down)
+            self._arrow.configure(image=photo_down())
             self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
 
         # DESTROY
         else:
             W.log(3, "Hidding toolbar")
-            self._arrow.configure(image=G.photo_up)
+            self._arrow.configure(image=photo_up())
             self._toolbar_frame.grid_forget()
 
     def get_figure(self):

@@ -4,8 +4,8 @@ import colorsys
 import numpy as np  # for the np.arrange to load the ultimate row befora
 
 try:
-  import GuyVariables as G
-  import WorkVariables as W
+  import front.util_front as G
+  import back.util_back as W
   imported = True
 except:
   print("Not in ABSIM, cannot load modules"  # verbose OK)

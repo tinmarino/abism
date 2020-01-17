@@ -8,8 +8,8 @@ import AnswerReturn as AR
 import StrehlImage as SI
 import scipy.ndimage
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 
 def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]

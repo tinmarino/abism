@@ -12,8 +12,8 @@ from scipy.ndimage import gaussian_filter
 import NormalizeMy
 
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 
 class DraggableColorbar:

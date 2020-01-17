@@ -14,9 +14,6 @@ import threading
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 
-# Fancy
-from astropy.io import fits
-import numpy as np
 
 # Gui
 import MenuBar
@@ -25,29 +22,29 @@ from front.FrameText import LeftFrame
 from front.FramePlot import RightFrame
 
 # ArrayFunction
-from ArrayFunction.FitsIo import OpenImage
+from back.FitsIo import OpenImage
 
 
 # Variables
-from GlobalDefiner import MainVar
-import GuyVariables as G
-import WorkVariables as W
+from util import MainVar, root_path, icon_path
+import front.util_front as G
+import back.util_back as W
 
 
 class RootWindow(Tk):
     """Main window app object
-    May one day destroy GuyVariables ...
+    May one day destroy util_front ...
     Call me like Tk:
         root_window = WindowRoot()
         root_window.mainloop()
     """
-    def __init__(self, root_path='.'):
+    def __init__(self):
         """Create main app"""
         super().__init__()
 
         # Init globals TODO dirty
         G.parent = self
-        W.path = root_path
+        W.path = root_path()
         MainVar()
 
         # Give title
@@ -98,7 +95,7 @@ class RootWindow(Tk):
 
     def set_icon(self):
         """Create OS Icon from resources"""
-        if isfile(W.path + '/res/bato_chico.gif'):
+        if isfile(icon_path()):
             bitmap = PhotoImage(file=W.path + '/res/bato_chico.gif')
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
         else:

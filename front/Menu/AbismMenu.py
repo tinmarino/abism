@@ -3,8 +3,8 @@
 """
 from tkinter import Menu, Menubutton, Tk, Label
 
-import GuyVariables as G
-import WorkVariables as W
+import front.util_front as G
+import back.util_back as W
 
 """
     TODO : make 4, 5 good appearance profiles.
