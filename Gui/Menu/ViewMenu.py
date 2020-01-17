@@ -39,7 +39,7 @@ def ViewMenu(root, parent, args):
         ]
         for i in lst:
             color_menu.add_radiobutton(
-                label=i[0], command=lambda i: G.ImageFrame.CutImageScale(
+                label=i[0], command=lambda i=i: G.ImageFrame.CutImageScale(
                     dic={"cmap": i[1]}, run="G.cu_cut.set('"+i[1] + "')"),
                 variable=G.cu_color, value=i[1])  # we use same value as label
 
@@ -55,17 +55,16 @@ def ViewMenu(root, parent, args):
         num = 0
         for i in G.all_cmaps:
             num += 1
-            more_color_menu.add_radiobutton(label=i,
-                                            command=lambda i: G.ImageFrame.CutImageScale(
-                                                dic={"cmap": i}),
-                                            variable=G.cu_color, value=i)  # we use same value as label
+            more_color_menu.add_radiobutton(
+                label=i,
+                command=lambda i=i: G.ImageFrame.CutImageScale(dic={"cmap": i}),
+                variable=G.cu_color, value=i)  # we use same value as label
 
             if num % 30 == 0:
-
-                more_color_menu.add_radiobutton(label=i,
-                                                command=lambda i: G.ImageFrame.CutImageScale(
-                                                    dic={"cmap": i}),
-                                                variable=G.cu_color, value=i, columnbreak=1)  # we use same value as label
+                more_color_menu.add_radiobutton(
+                    label=i,
+                    command=lambda i=i: G.ImageFrame.CutImageScale(dic={"cmap": i}),
+                    variable=G.cu_color, value=i, columnbreak=1)  # we use same value as label
         color_menu.add_cascade(menu=more_color_menu,
                                label="More colors", underline=0)
 
@@ -89,7 +88,7 @@ def ViewMenu(root, parent, args):
                                                                     "square"], ["Log", "np.log(x+1)/0.69", "log"], ["Arcsinh", "", "arcsinh"]]
         for i in lst:
             scale_menu.add_radiobutton(label=i[0],
-                                       command=lambda i: G.ImageFrame.CutImageScale(
+                                       command=lambda i=i: G.ImageFrame.CutImageScale(
                                            dic={"fct": i[1], "stretch": i[2]}, run="G.cu_scale.set('" + i[2] + "')"),
                                        variable=G.cu_scale, value=i[2])  # we use same value as label
 
