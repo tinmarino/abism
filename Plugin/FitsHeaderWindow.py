@@ -4,8 +4,7 @@
 
 from tkinter import Tk, Frame, Scrollbar, Text, \
     Label, Button, Entry, \
-    END, LEFT, RIGHT, BOTH, TOP, X, Y, INSERT
-
+    END, LEFT, RIGHT, BOTH, TOP, X, Y
 
 find_num = [0]
 find_list = []
@@ -87,7 +86,7 @@ def DisplayHeader(image_name, s_text):
 
     # Text
     text = Text(root, background='white', fg="black")
-    text.insert(INSERT, s_text)
+    text.insert(END, s_text)
     text.pack(side=LEFT, expand=True, fill=BOTH)
     text.configure(yscrollcommand=scroll.set)
     scroll.config(command=text.yview)

@@ -23,9 +23,11 @@ def FileMenu(args):
     G.menu.menu = Menu(G.menu, **G.submenu_args)
 
     G.menu.menu.add_command(label='Open', command=Open)
+
     G.menu.menu.add_command(
         label='Display Header',
-        command=lambda: DisplayHeader(W.image_name, W.head.flathead))
+        command=lambda: DisplayHeader(W.image_name,
+                                      W.head.header.tostring(sep="\n")))
 
     G.menu['menu'] = G.menu.menu
     return G.menu
