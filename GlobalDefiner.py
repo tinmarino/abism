@@ -32,8 +32,8 @@ def GuiVar():
     G.version = '0.900'
 
     # Icons
-    G.photo_down = PhotoImage(file=W.path + "/Icon/arrow_down.gif")
-    G.photo_up = PhotoImage(file=W.path + "/Icon/arrow_up.gif")
+    G.photo_down = PhotoImage(file=W.path + "/res/arrow_down.gif")
+    G.photo_up = PhotoImage(file=W.path + "/res/arrow_up.gif")
 
     # BUTTON WIDTH
     G.button_width = 12  # the width of the standard buttons

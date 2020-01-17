@@ -16,7 +16,7 @@ for root, _, _ in os.walk(path):
     sys.path.append(root)
 
 # Local imports
-from Gui.WindowRoot import RootWindow
+from front.WindowRoot import RootWindow
 
 # Go
 root_window = RootWindow(root_path=path)

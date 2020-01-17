@@ -21,8 +21,8 @@ import numpy as np
 # Gui
 import MenuBar
 #from Gui.Menu.MenuBar import MenuBarMaker
-from Gui.FrameText import LeftFrame
-from Gui.FramePlot import RightFrame
+from front.FrameText import LeftFrame
+from front.FramePlot import RightFrame
 
 # ArrayFunction
 from ArrayFunction.FitsIo import OpenImage
@@ -98,8 +98,8 @@ class RootWindow(Tk):
 
     def set_icon(self):
         """Create OS Icon from resources"""
-        if isfile(W.path + '/Icon/bato_chico.gif'):
-            bitmap = PhotoImage(file=W.path + '/Icon/bato_chico.gif')
+        if isfile(W.path + '/res/bato_chico.gif'):
+            bitmap = PhotoImage(file=W.path + '/res/bato_chico.gif')
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
         else:
             W.log(3, "->you have no beautiful icon "

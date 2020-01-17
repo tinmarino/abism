@@ -15,7 +15,7 @@ Notice the warning that we are reaching the non-linearity detector limit.
 We did not take time to measure the error of the measure if non linear, it is very detector dependant.
 
 
-<img  align="center" width=80% src="./Doc/abism_v0.900.png">
+<img  align="center" width=80% src="./doc/abism_v0.900.png">
 
 License: Do whatever you want with the code, code whatever you do with your thoughts !
 Julien Girard, Martin Tourneboeuf.

@@ -5,8 +5,8 @@ import tkinter as Tk
 
 import Pick  # to connect PickOne per defautl
 
-from Plugin.DebugConsole import PythonConsole
-from Plugin.Histogram import Histopopo
+from plugin.DebugConsole import PythonConsole
+from plugin.Histogram import Histopopo
 
 import GuyVariables as G
 

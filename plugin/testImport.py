@@ -2,17 +2,8 @@
 
         In this script, I test all necessary imports, to see if ABISM can run
         without troubles. I report If I find an error.
+To nest matplotlib in Tkinter
 
-
-Fit/leastsqbound.py:330:            from numpy.linalg import LinAlgError
-
-Gui/DraggableColorbar.py:8:from scipy.ndimage import gaussian_filter
-from scipy.optimize.minpack import _check_func
-
-Gui/WindowRoot.py:8:from tkFileDialog import askopenfilename
-
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
-import WorkVariables
 
 from threading import Thread
 import multiprocessing
@@ -63,4 +54,3 @@ def testAbismImports():
         if (!module_exists(i)):
             print("Warning : module " + i + " cannot be imported")
 
-    # To nest matplotlib in Tkinter

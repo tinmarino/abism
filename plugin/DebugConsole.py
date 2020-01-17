@@ -97,14 +97,11 @@ def Run(String):  # Run the string in python
     ""
     # EXECUTE
     if String == "help":
-        stg = "quit() # to disable intercative shell "
+        stg = "quit() # to disable interative shell "
         stg += "\nimport sys ; sys.exit() # to kill Abism "
     else:
         exec(String, globals())
 
-    # Keep a trace
-    out = open(W.path + "/Plugin/old_command.txt", "a")
-    out.write(String + "***************************\n")
     out.close()
 
 

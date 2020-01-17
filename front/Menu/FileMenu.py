@@ -8,7 +8,7 @@ from tkinter.filedialog import askopenfilename
 import WorkVariables as W
 import GuyVariables as G
 
-from Plugin.FitsHeaderWindow import DisplayHeader
+from plugin.FitsHeaderWindow import DisplayHeader
 
 
 def FileMenu(root, parent, args):

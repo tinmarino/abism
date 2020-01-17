@@ -10,3 +10,4 @@
   1. just white and dark background(one fancy if you want)
 3. Create pip package
 4. Doc
+5. (Hard 5h) Embed jupyter client to speak to a kernel in tk loop

@@ -49,7 +49,7 @@ def About():
 def See(pdf=""):
     """Call system see"""
     import subprocess
-    my_pdf = W.path + "/Doc/" + pdf
+    my_pdf = W.path + "/doc/" + pdf
 
     fct = None
     try:  # PARANAL acroread
