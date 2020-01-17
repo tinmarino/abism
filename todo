@@ -3,11 +3,12 @@
 1. Make PlotFrame.clear_axes() -> as (see hitopop)
 2. Find a way to get consisten version naming 0.901 soon
 3. Repair Imageparameters (colo stuff) 
-4. The sash toggle does not work properly, see in TextFrame
+5. Make more verbose pick_many, actually, how does that work
 
 # UI
 
 1. make sahs working on left pane hide
+  * The sash toggle does not work properly, see in TextFrame
 2. Dark mode
   1. just white and dark background(one fancy if you want)
 3. Create pip package
