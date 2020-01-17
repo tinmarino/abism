@@ -354,8 +354,6 @@ class ImageFrame(PlotFrame):
         mynorm = MyNormalize(
             vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
         G.ImageFrame._cbar.mappable.set_cmap(cmap)
-        G.ImageFrame._cbar.cbar.set_cmap(cmap=cmap)
-        G.ImageFrame._cbar.cbar.set_norm(mynorm)
         G.ImageFrame._cbar.mappable.set_norm(mynorm)
 
         G.ImageFrame._cbar.cbar.patch.figure.canvas.draw()

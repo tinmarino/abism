@@ -248,7 +248,7 @@ class MyNormalize(Normalize):
         if clip is None:
             clip = self.clip
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             vtype = 'array'
             val = ma.asarray(value).astype(np.float)
         else:
@@ -324,7 +324,7 @@ class MyNormalize(Normalize):
 
         # CUSTOM APLPY CODE
 
-        if cbook.iterable(value):
+        if np.iterable(value):
             val = ma.asarray(value)
         else:
             val = value
