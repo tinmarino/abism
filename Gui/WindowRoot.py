@@ -122,69 +122,6 @@ class RootWindow(Tk):
             self.bind_all(i[0], lambda i=i: vars(i[1])[i[2]]())
 
 
-def Save(first=1):
-    """Save results of Strehl logging
-    first: time you save, to print(header and staff)
-    """
-    try:
-        from os import popen
-        date = popen("date").read().split()
-        pwd = popen("pwd").read()
-
-    except BaseException:
-        date = ["day", "month", "day", "time", "pff", "year"]
-        pwd = "no_pwd"
-
-    # Archive Name
-    archive = "Abm_" + W.image_name.split('/')[-1].split('.fits')[0]
-    try:
-        archive += "_" + date[-1] + "_" + date[1]
-        archive += "_" + date[2] + "_" + date[3] + ".txt"
-    except BaseException:
-        pass
-
-    # Bufferise
-    appendBuffer = open(archive, 'a')
-    W.log(0, "Writting files in ", archive)
-    W.log(0, "in directory : " + pwd)
-
-    # Write
-    appendBuffer.write("#Abism -> data from :" + W.image_name)
-    appendBuffer.write("#######\n----->1/ Header \n still missing in abism...")
-    appendBuffer.write("#######\n----->2/ Strehl Output : \n")
-
-    try:
-        _ = W.answer_saved   # check existence
-    except BaseException:
-        W.answer_saved = W.answer
-
-    try:  # in case we just took PickOne and cannot sort
-        for key in sorted(W.answer_saved, key=lambda x: int(x.split(".")[-1])):
-            appendBuffer.write(key + " " + str(W.answer_saved[key]) + '\n')
-    except BaseException:
-        for key in W.answer_saved:
-            appendBuffer.write(key + " " + str(W.answer_saved[key]) + '\n')
-
-    #  Terminate
-    appendBuffer.write("\n \n")
-    appendBuffer.close()
-
-
-def Hide(hidden=0):
-    """Hide Pane as button callback"""
-    W.log(3, "My hidden", hidden)
-    if G.hidden_text_bool:
-        G.MainPaned.sash_place(0, G.hidden_frame_size, 0)
-        G.bu_hide["text"] = u'\u25c2'  # rigth arrow
-
-    else:
-        G.hidden_frame_size = G.MainPaned.sash_coord(
-            0)[0]  # bakcup the x position of the sash
-        G.MainPaned.sash_place(0, 10, 0)
-        G.bu_hide["text"] = u'\u25b8'  # left arrow
-    G.hidden_text_bool = not G.hidden_text_bool
-
-
 def SubstractBackground():
     """Subtract A background image
     Choose a FITS image tho subtract to the current image to get read of the sky
