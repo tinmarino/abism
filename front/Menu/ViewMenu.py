@@ -8,7 +8,7 @@ import tkinter as Tk
 import WindowRoot as MG
 
 from util import log
-from front.util_front import skin
+from front.util_front import skin, TitleLabel
 import front.util_front as G
 import back.util_back as W
 
@@ -16,12 +16,12 @@ import back.util_back as W
 def ViewMenu(root, parent, args):
     """Create the menu"""
     G.scale_menu = Menubutton(parent, **args)
-    G.scale_menu.menu = Menu(G.scale_menu, **G.submenu_args)
+    G.scale_menu.menu = Menu(G.scale_menu, **skin().fg_and_bg)
 
     def Color():
         """Color drop"""
         if G.scale_menu_type == "cascade":
-            color_menu = Menu(G.scale_menu, **G.submenu_args)
+            color_menu = Menu(G.scale_menu, **skin().fg_and_bg)
         else:
             color_menu = G.scale_menu.menu
         color_menu.add_command(label="COLOR", bg=None, state=DISABLED)
@@ -53,7 +53,7 @@ def ViewMenu(root, parent, args):
 
         #################
         # more colors
-        more_color_menu = Menu(color_menu, **G.submenu_args)
+        more_color_menu = Menu(color_menu, **skin().fg_and_bg)
         num = 0
         for i in G.all_cmaps:
             num += 1
@@ -79,7 +79,7 @@ def ViewMenu(root, parent, args):
     def Scale():
         """Scale of image drop"""
         if G.scale_menu_type == "cascade":
-            scale_menu = Menu(G.scale_menu, **G.submenu_args)
+            scale_menu = Menu(G.scale_menu, **skin().fg_and_bg)
         else:
             scale_menu = G.scale_menu.menu
         scale_menu.add_command(label="FCT", bg=None, state=DISABLED)
@@ -103,7 +103,7 @@ def ViewMenu(root, parent, args):
     def Cut():
         """Cut min max of the iamge scale"""
         if G.scale_menu_type == "cascade":
-            cut_menu = Menu(G.scale_menu, **G.submenu_args)
+            cut_menu = Menu(G.scale_menu, **skin().fg_and_bg)
         else:
             cut_menu = G.scale_menu.menu
         cut_menu.add_command(label="CUTS", bg=None, state=DISABLED)
@@ -161,10 +161,8 @@ def ManualCutOpen():
     G.ManualCutFrame.grid(sticky='nsew')
 
     # Pack lave
-    Tk.Label(
-        G.ManualCutFrame, text="Cut image scale", **
-        G.frame_title_arg
-        ).pack(side=Tk.TOP, anchor="w")
+    lt = TitleLabel(G.ManualCutFrame, text="Cut image scale")
+    lt.pack(side=Tk.TOP, anchor="w")
 
     G.ManualCutGridFrame = Tk.Frame(G.ManualCutFrame, bg=skin().color.bg)
     G.all_frame.append("G.ManualCutGridFrame")
@@ -183,14 +181,17 @@ def ManualCutOpen():
     G.entries = []
     r = 0
     for i in lst:
-        G.l = Tk.Label(G.ManualCutGridFrame,
-                        text=i[0], font=skin().font.answer, **G.lb_arg)
-        G.l.grid(row=r, column=0, sticky="snew")  # , sticky=W)
+        l = Tk.Label(
+            G.ManualCutGridFrame,
+            text=i[0], font=skin().font.answer, **skin().fg_and_bg)
+        l.grid(row=r, column=0, sticky="snew")  # , sticky=W)
+
         v = Tk.StringVar()
-        G.e = Tk.Entry(G.ManualCutGridFrame, width=10,
-                        textvariable=v, font=skin().font.answer, **G.en_arg)
-        G.e.grid(row=r, column=1, sticky="nsew")  # , sticky=W)
-        G.e.bind('<Return>', GetValue)
+        e = Tk.Entry(G.ManualCutGridFrame, width=10,
+                     textvariable=v, font=skin().font.answer,
+                     bd=0, **skin().fg_and_bg)
+        e.grid(row=r, column=1, sticky="nsew")  # , sticky=W)
+        e.bind('<Return>', GetValue)
         v.set("%.1f" % G.scale_dic[0][i[1]])
         G.entries.append(v)
         r += 1

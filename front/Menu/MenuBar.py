@@ -1,4 +1,7 @@
-from tkinter import *
+"""
+    Create Menu bar
+"""
+import tkinter as tk
 
 import FileMenu
 import AbismMenu
@@ -14,12 +17,12 @@ def MenuBarMaker(root):
     """Create the menu bar (autopack top)"""
 
     # Pack bar at top
-    menu_bar = Frame(G.parent, bg=skin().color.bg)
-    menu_bar.pack(side=TOP, expand=0, fill=X)
+    menu_bar = tk.Frame(root, bg=skin().color.bg)
+    menu_bar.pack(side=tk.TOP, expand=0, fill=tk.X)
 
     # Prepare argument dic
-    args = G.me_arg.copy()
-    args.update({"relief": FLAT, "width": G.menu_button_width})
+    args = skin().fg_and_bg.copy()
+    args.update({"relief": tk.FLAT, "width": G.menu_button_width})
 
     # For all menu button (tab)
     for col, i in enumerate([

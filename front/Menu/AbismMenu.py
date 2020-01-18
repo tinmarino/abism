@@ -4,29 +4,31 @@
 import tkinter as tk
 
 from front.util_front import system_open, about_window, quit_process, \
-    change_scheme, Scheme
-import front.util_front as G
+    change_scheme, Scheme, skin
 
 
 def AbismMenu(root, parent, args):
     # pylint: disable=unused-argument
     """Create the menu on Abism tab click"""
     menu_button = tk.Menubutton(parent, **args)
-    menu_button.menu = tk.Menu(menu_button, **G.submenu_args)
+    menu_button.menu = tk.Menu(menu_button, **skin().fg_and_bg)
 
-    lst = [
-        ["About", about_window],
-        ["Advanced Manual",
-         lambda: system_open(path="doc/advanced_manual.pdf")],
-        ["Color Dark",
-         lambda: change_scheme(root, Scheme.DARK_SOLARIZED)],
-        ["Quit", quit_process],
-    ]
-    for i in lst:
-        if "Appearance" in i[0]:
-            i[1]()
-        else:
-            menu_button.menu.add_command(label=i[0], command=i[1])
+    menu_button.menu.add_command(
+        label='About',
+        command=about_window)
+
+    menu_button.menu.add_command(
+        label='Advanced Manual',
+        command=lambda: system_open(path="doc/advanced_manual.pdf"))
+
+    menu_button.menu.add_cascade(
+        label="Color Scheme",
+        underline=0,
+        menu=get_colorscheme_cascade(root, menu_button))
+
+    menu_button.menu.add_command(
+        label='Quit',
+        command=quit_process)
 
     menu_button['menu'] = menu_button.menu
 
@@ -34,3 +36,16 @@ def AbismMenu(root, parent, args):
     return menu_button
 
 
+def get_colorscheme_cascade(root, parent):
+    """Create the submenu"""
+    menu = tk.Menu(parent)
+
+    menu.add_radiobutton(
+        label='Dark Solarized',
+        command=lambda: change_scheme(root, Scheme.DARK_SOLARIZED))
+
+    menu.add_radiobutton(
+        label='Light Solarized',
+        command=lambda: change_scheme(root, Scheme.LIGHT_SOLARIZED))
+
+    return menu

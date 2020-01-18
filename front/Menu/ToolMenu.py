@@ -8,13 +8,14 @@ import Pick  # to connect PickOne per defautl
 from plugin.DebugConsole import PythonConsole
 from plugin.Histogram import Histopopo
 
-import front.util_front as G
+from front.util_front import skin
 
 
 def ToolMenu(root, parent, args):
     """Only function"""
-    G.tool_menu = Tk.Menubutton(parent, **args)
-    G.tool_menu.menu = Tk.Menu(G.tool_menu, **G.submenu_args)
+    # pylint: disable=unused-argument
+    tool_menu = Tk.Menubutton(parent, **args)
+    tool_menu.menu = Tk.Menu(tool_menu, **skin().fg_and_bg)
 
     lst = [
         ["Profile", lambda: Pick.RefreshPick("profile")],
@@ -23,8 +24,8 @@ def ToolMenu(root, parent, args):
         ["Python Console", PythonConsole],
     ]
     for i in lst:
-        G.tool_menu.menu.add_command(label=i[0], command=i[1])
+        tool_menu.menu.add_command(label=i[0], command=i[1])
 
-    G.tool_menu['menu'] = G.tool_menu.menu
+    tool_menu['menu'] = tool_menu.menu
 
-    return G.tool_menu
+    return tool_menu

@@ -7,7 +7,7 @@ from tkinter.filedialog import askopenfilename
 
 from util import log
 import back.util_back as W
-import front.util_front as G
+from front.util_front import skin
 
 from plugin.FitsHeaderWindow import DisplayHeader
 
@@ -18,7 +18,7 @@ def FileMenu(root, parent, args):
         identical, logical, responsible, pratical
     """
     menu_button = Menubutton(parent, **args)
-    menu_button.menu = Menu(menu_button, **G.submenu_args)
+    menu_button.menu = Menu(menu_button, **skin().fg_and_bg)
 
     # Open
     initialdir = "/".join(W.image_name.split("/")[: -1])

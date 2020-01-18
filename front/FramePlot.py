@@ -18,7 +18,7 @@ from DraggableColorbar import DraggableColorbar
 
 from util import log
 import front.util_front as G
-from front.util_front import photo_up, photo_down, skin
+from front.util_front import photo_up, photo_down, skin, TitleLabel
 
 # TODO this should not be here
 import back.util_back as W
@@ -72,7 +72,7 @@ class PlotFrame(tk.Frame):
 
     def init_label(self, s_label):
         """Create label bottom left"""
-        tk.Label(self, text=s_label, **G.frame_title_arg).place(x=0, y=0)
+        TitleLabel(self, text=s_label).place(x=0, y=0)
 
     def init_toolbar_button(self):
         """Create toolbar button"""
@@ -469,7 +469,7 @@ class ImageFrame(PlotFrame):
             G.cube_var = tk.StringVar()
             G.cube_entry = tk.Entry(
                 G.CubeFrame, width=10, justify=tk.CENTER,
-                textvariable=G.cube_var, **G.en_arg)
+                textvariable=G.cube_var, bd=0, **skin().fg_and_bg)
             G.cube_var.set(W.cube_num + 1)
             G.cube_entry.bind("<Return>", lambda x: self.CubeDisplay("0"))
 
@@ -481,8 +481,8 @@ class ImageFrame(PlotFrame):
             # GRID
             for i in range(3):
                 G.CubeFrame.columnconfigure(i, weight=1)
-            tk.Label(G.CubeFrame, text="Cube Number", **
-                  G.frame_title_arg).grid(row=0, column=0, columnspan=3, sticky="w")
+            lt = TitleLabel(G.CubeFrame, text="Cube Number")
+            lt.grid(row=0, column=0, columnspan=3, sticky="w")
             G.bu_cubel.grid(row=1, column=0, sticky="nsew")
             G.cube_entry.grid(row=1, column=1, sticky="nsew")
             G.bu_cuber.grid(row=1, column=2, sticky="nsew")

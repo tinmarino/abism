@@ -1,5 +1,6 @@
 """
-    To pretty print the answer, may go to FameText
+    To pretty print the answer, may go to FrameText
+    C'est le bordel !
 """
 try:
     from Tkinter import *
@@ -121,7 +122,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         G.bu_answer_type = Button(
             G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, **skin().button_dic)
         G.lb_answer_type = Label(
-            G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **G.lb_arg)
+            G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     # 2/ CALL the corresponding PLot
     if W.type["pick"] == 'one':
@@ -240,7 +241,7 @@ def PlotEllipse():
     G.bu_answer_type = Button(
         G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, width=9)
     G.lb_answer_type = Label(
-        G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **G.lb_arg)
+        G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     ############
     # IMAGE COORD
@@ -518,7 +519,7 @@ def PlotStat():
     sub_array = W.Im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
     import Stat
     dicr = Stat.Stat(sub_array)
-    myargs = G.lb_arg.copy()
+    myargs = skin().fg_and_bg.copy()
     myargs.update({"font": skin().font.answer, "justify": LEFT, "anchor": "nw"})
     row = 0
     lst = [
@@ -551,7 +552,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
     G.bu_answer_type.grid(row=0, column=1, sticky="wnse")
     G.lb_answer_type.grid(row=0, column=0, sticky="wnse")
     for i in W.tmp.lst:
-        myargs = G.lb_arg.copy()
+        myargs = skin().fg_and_bg.copy()
         myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
         if i[0] == "Strehl: ":
             myargs["fg"] = "red"
@@ -579,7 +580,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
 
     # UNDERSAMPLED
     if "sinf_pixel_scale" in vars(W.head) and (W.head.sinf_pixel_scale <= 0.01):
-        l = Label(G.AnswerFrame, **G.lb_arg)
+        l = Label(G.AnswerFrame, **skin().fg_and_bg)
         l["fg"] = "red"
         l["font"] = skin().font.warning
         l["text"] = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
@@ -1023,14 +1024,14 @@ def CallContrastMap():
     W.strehl["contrast_max"] = W.strehl["intensity"]
 
     Label(G.ContrastButton1Frame, text="Peak Intensity",
-          **G.lb_arg).grid(row=0, column=0, sticky="snew")
+          **skin().fg_and_bg).grid(row=0, column=0, sticky="snew")
 
     G.TEXT = Text(G.ContrastButton1Frame, height=1)
     G.TEXT.bind()
 
     #G.v1= [ ]
     #v =  StringVar()
-    #G.PeakContrast1Entry = Entry(G.ContrastButton1Frame, width=10,textvariable=v,font=G.font_param )
+    #G.PeakContrast1Entry = Entry(G.ContrastButton1Frame, width=10,textvariable=v,font=skin().font.param )
     # G.PeakContrast1Entry.grid(row=0,column=1,sticky="snew")
     #G.PeakContrast1Entry.bind('<Return>',Get )
     # v.set("%.2f"%W.strehl["contrast_max"])

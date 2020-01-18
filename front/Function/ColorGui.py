@@ -73,7 +73,7 @@ def BackgroundLoop(widget, who="bg"):
         bolt = bolt or (widget.winfo_class() == "Checkbutton")
         bolt = bolt or (widget.winfo_class() == "Button")
 
-    bolt = bolt and (widget["bg"] != G.frame_title_arg["bg"])
+    bolt = bolt and (widget["bg"] != skin().label_title_dic['bg'])
     # not change title of frames
 
     if bolt:

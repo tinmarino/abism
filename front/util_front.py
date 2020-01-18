@@ -108,7 +108,7 @@ class Font:
         self.answer = tk.font.Font(size=10)   # all answer in AnswerFrame
         self.strehl = tk.font.Font(size=12)  # just strehl answer
         self.warning = tk.font.Font(size=12)  # just strehl answer
-        self.font = tk.font.Font(size=11)  # Image parameters
+        self.param = tk.font.Font(size=11)  # Image parameters
         self.big = tk.font.Font(size=16)
 
 
@@ -165,6 +165,29 @@ class FrameDic(DotDic):
         self.bg = color.bg
 
 
+class TitleLabelDic(DotDic):
+    """Label titles on top of each text_frame (left)
+    OLD:    "fg": "blue", "bg": "white", "font": tkFont.Font(size=10),
+        "padx": 3,
+        "highlightbackground": "black", "highlightcolor": "black", "highlightthickness": 1,
+        "padx": 3,
+    """
+    def __init__(self, color):
+        self.bg = color.label_title_bg
+        self.fg = color.label_title_fg
+        self.font = tk.font.Font(size=10)
+        self.padx = 3
+        self.highlightbackground = color.label_title_fg
+        self.highlightcolor = color.label_title_fg
+        self.highlightthickness = 1
+
+
+class TitleLabel(tk.Label):
+    def __init__(self, parent, **args):
+        args.update(skin().label_title_dic)
+        super().__init__(parent, **args)
+
+
 class Scheme(Enum):
     """The colorscheme available"""
     DARK_SOLARIZED = 1
@@ -179,15 +202,6 @@ class ColorScheme:
     # pylint: disable=bad-whitespace
     # pylint: disable=attribute-defined-outside-init
     def __init__(self):
-        """Default is dark
-        G.bu_manual_color = "blue"                     # Color of buttons
-        G.menu_noise_color = "grey"
-        G.bu_subtract_bg_color = "grey"
-        G.menu_phot_color = "grey"
-        G.bu_close_color = "grey"
-        G.bu_quit_color = "red"
-        G.bu_restart_color = 'cyan'
-        """
         self.set_solarized_var()
         self.init_solarized_default()
         if scheme == Scheme.DARK_SOLARIZED:
@@ -221,7 +235,7 @@ class ColorScheme:
         self.restart            = self.solarized_cyan
         self.parameter1         = self.solarized_blue
         self.parameter2         = self.solarized_green
-        self.label              = self.solarized_blue
+        self.label_title_fg     = self.solarized_blue
 
     def init_dark(self):
         """Solarized dark"""
@@ -229,6 +243,7 @@ class ColorScheme:
         self.fg                 = self.solarized_base2
         self.bu                 = self.solarized_base01
         self.bu_hi              = self.solarized_base00
+        self.label_title_bg     = self.solarized_base03
 
     def init_light(self):
         """Solarized light"""
@@ -236,6 +251,7 @@ class ColorScheme:
         self.fg                 = self.solarized_base03
         self.bu                 = self.solarized_base2
         self.bu_hi              = self.solarized_base3
+        self.label_title_bg     = self.solarized_base3
 
 
 class Skin:
@@ -243,22 +259,44 @@ class Skin:
     def __init__(self):
         self.font = Font()
         self.color = ColorScheme()
+
         self.button_dic = ButtonDic(self.color)
         self.paned_dic = PanedDic(self.color)
         self.frame_dic = FrameDic(self.color)
+        self.label_title_dic = TitleLabelDic(self.color)
+
+        self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
+        """
+        skin().fg_and_bg = {"bg": skin().color.bg, "fg": skin().color.fg}
+        # MENU
+        skin().fg_and_bg = {"bg": skin().color.bg, "fg": skin().color.fg}
+        skin().fg_and_bg = {"bg": skin().color.bg, "fg": skin().color.fg}
+        """
 
 
 def update_widget_skin(widget):
     """Update the skin of a widget"""
     from front.FramePlot import PlotFrame
+
+
     if isinstance(widget, PlotFrame):
         widget.update_skin()
     elif isinstance(widget, tk.Button):
+        # Do not change favourites buttons ...
+        if widget['bg'] in (
+                skin().color.quit,
+                skin().color.restart,
+                skin().color.parameter1,
+                skin().color.parameter2,
+                ):
+            return
         widget.configure(skin().button_dic)
     elif isinstance(widget, tk.PanedWindow):
         widget.configure(skin().paned_dic)
     elif isinstance(widget, tk.Frame):
         widget.configure(skin().frame_dic)
+    elif isinstance(widget, TitleLabel):
+        widget.configure(skin().label_title_dic)
     elif isinstance(widget, tk.Canvas):
         widget.configure(bg=skin().color.bg)
     else:

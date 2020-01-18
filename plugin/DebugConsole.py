@@ -89,7 +89,7 @@ def PythonConsole():  # The called function
 
     but_list.append(  # Clear button
         Tk.Button(bu_frame, text="Clear",
-                  command=lambda: MyText(frame), **G.submenu_args)
+                  command=lambda: MyText(frame), **skin().fg_and_bg)
     )
 
     opts.update({'background': 'red'})

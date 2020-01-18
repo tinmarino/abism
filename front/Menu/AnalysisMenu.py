@@ -3,7 +3,7 @@ import tkinter as Tk
 import Pick
 import WindowRoot as MG    # TODO must be removed
 
-from front.util_front import skin
+from front.util_front import skin, TitleLabel
 import front.util_front as G
 import back.util_back as W
 
@@ -26,7 +26,7 @@ from util import log
 def AnalysisMenu(root, parent, args):
     """Create the Menu button and its children"""
     menu_button = Tk.Menubutton(parent, **args)
-    menu_button.menu = Tk.Menu(menu_button, **G.submenu_args)
+    menu_button.menu = Tk.Menu(menu_button, **skin().fg_and_bg)
 
     ##############################
     # FitType
@@ -128,9 +128,8 @@ def MoreCreate():       # Create The Frame
     G.all_frame.append("G.MoreFrame")
     G.MoreFrame.grid(sticky='nsew')
 
-    Tk.Label(G.MoreFrame,
-             text="More Options",
-             **G.frame_title_arg).pack(side=Tk.TOP, anchor="w")
+    label_more = TitleLabel(G.MoreFrame, text="More Options")
+    label_more.pack(side=Tk.TOP, anchor="w")
 
     #
     G.MoreGridFrame = Tk.Frame(G.MoreFrame, bg=skin().color.bg)
@@ -287,11 +286,14 @@ def ManualBackOpen():
     # ENTRY
     Tk.Label(
         G.ManualBackFrame, text="Background value:",
-        font=G.font_param, **G.lb_arg
+        font=skin().font.param, **skin().fg_and_bg
         ).grid(row=0, column=0, sticky="snew")
     G.tkvar.background = Tk.StringVar()
     G.tkentry.background = Tk.Entry(
-        G.ManualBackFrame, width=10, textvariable=G.tkvar.background, font=G.font_param, **G.en_arg)
+        G.ManualBackFrame, width=10,
+        textvariable=G.tkvar.background,
+        font=skin().font.param,
+        bd=0, **skin().fg_and_bg)
     G.tkentry.background.grid(row=0, column=1, sticky="nsew")  # ,sticky=W)
     G.tkentry.background.bind('<Return>', GetValue)
     G.tkvar.background.set("0.0")

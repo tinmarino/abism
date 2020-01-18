@@ -154,11 +154,6 @@ def GuiVar():
     G.tkentry = VoidClass()
 
     from tkinter import font as tkFont
-    G.frame_title_arg = {
-        "fg": "blue", "bg": "white", "font": tkFont.Font(size=10),
-        "highlightbackground": "black", "highlightcolor": "black", "highlightthickness": 1,
-        "padx": 3,
-    }
 
     G.sub_paned_arg = {"minsize": 22, "pady": 0, "sticky": "nsew"}
 
@@ -306,11 +301,6 @@ def LinkColor():
     """Link GUI colors to global vars (bg, fg)"""
     # LABEL
     from front.util_front import skin
-    G.lb_arg = {"bg": skin().color.bg, "fg": skin().color.fg}
-    # MENU
-    G.me_arg = {"bg": skin().color.bg, "fg": skin().color.fg}
-
-    G.submenu_args = {"bg": skin().color.bg, "fg": skin().color.fg}
     # ENTRY
     G.en_arg = {"bg": "white", "fg": skin().color.fg, "bd": 0}
 

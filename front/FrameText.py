@@ -12,7 +12,8 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
 
 
 from util import log
-from front.util_front import photo_up, photo_down, quit_process, skin
+from front.util_front import photo_up, photo_down, quit_process, skin, \
+    TitleLabel
 import front.util_front as G
 import back.util_back as W
 
@@ -47,7 +48,7 @@ class TextFrame(Frame):
         self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
-        Label(self, text=self._label_text, **G.frame_title_arg).place(x=0, y=0)
+        TitleLabel(self, text=self._label_text).place(x=0, y=0)
 
         # Last widget
         if self._last is not None:
@@ -173,7 +174,7 @@ class LabelFrame(TextFrame):
         # Grid labels
         row = 0
         for i in text_and_props:
-            arg = G.lb_arg.copy()
+            arg = skin().fg_and_bg.copy()
             arg.update({"justify": CENTER})
             if isinstance(i, (list, tuple)):
                 arg.update(i[1])
@@ -242,8 +243,8 @@ class OptionFrame(TextFrame):
             G.ManualFrame.grid(sticky='nsew')
 
             # TITEL
-            Label(G.ManualFrame, text='Parameters',
-                  **G.frame_title_arg).pack(side=TOP, anchor="w")
+            tl = TitleLabel(G.ManualFrame, text='Parameters')
+            tl.pack(side=TOP, anchor="w")
             G.ManualGridFrame = Frame(G.ManualFrame)
             G.ManualGridFrame.pack(expand=0, fill=BOTH, side=TOP)
             G.ManualGridFrame.columnconfigure(0, weight=1)
@@ -254,11 +255,12 @@ class OptionFrame(TextFrame):
             row = 0
             for i in G.image_parameter_list:
                 l = Label(G.ManualGridFrame, text=i[0], font=skin().font.answer,
-                          justify=LEFT, anchor="nw", **G.lb_arg)
+                          justify=LEFT, anchor="nw", **skin().fg_and_bg)
                 l.grid(row=row, column=0, sticky="NSEW")
                 vars(G.tkvar)[i[1]] = StringVar()
                 vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
-                    G.tkvar)[i[1]], font=skin().font.answer, **G.en_arg)
+                    G.tkvar)[i[1]], font=skin().font.answer,
+                    bd=0, **skin().fg_and_bg)
                 if vars(W.head)[i[1]] == i[2]:
                     vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
                 vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
@@ -299,7 +301,7 @@ class AnswerFrame(TextFrame):
 
     def init_after(self):
         """Add fit type label"""
-        self._fit_type_label = Label(self, text=W.type["fit"], justify=CENTER, **G.lb_arg)
+        self._fit_type_label = Label(self, text=W.type["fit"], justify=CENTER, **skin().fg_and_bg)
         self._fit_type_label.grid(sticky='nsew')
         # Add also standard above
         super().init_after()
@@ -319,13 +321,13 @@ class ButtonFrame(Frame):
 
         # Create Quit
         opts.update({'background':skin().color.quit})
-        G.bu_quit = Button(
+        bu_quit = Button(
             self, text='QUIT',
             command=quit_process, **opts)
 
         # Create Restart
         opts.update({'background':skin().color.restart})
-        G.bu_restart = Button(
+        bu_restart = Button(
             self, text='RESTART',
             command=G.Restart, **opts)
 
@@ -338,8 +340,8 @@ class ButtonFrame(Frame):
         # Grid
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
-        G.bu_quit.grid(row=0, column=0, sticky="nsew")
-        G.bu_restart.grid(row=0, column=1, sticky="nsew")
+        bu_quit.grid(row=0, column=0, sticky="nsew")
+        bu_restart.grid(row=0, column=1, sticky="nsew")
         G.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
 
