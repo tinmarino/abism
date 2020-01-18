@@ -136,17 +136,7 @@ class ButtonDic(DotDic):
 
 
 class PanedDic(DotDic):
-    """
-    # DICTIONARIES
-    # The sas is the little between windows "glissiere", to resize
-    {"sashwidth": 2,
-                   "sashpad": 0,
-                   "showhandle": 0,
-                   "bg": "blue",
-                   "borderwidth": 0,
-                   "sashrelief": RAISED,
-                   }                                   # dictionnary to call PanedWindow in Tk
-    """
+    """The sas is the little between windows "glissiere", to resize"""
     def __init__(self, color):
         super().__init__()
         self.bg = color.sash
@@ -266,12 +256,6 @@ class Skin:
         self.label_title_dic = TitleLabelDic(self.color)
 
         self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
-        """
-        skin().fg_and_bg = {"bg": skin().color.bg, "fg": skin().color.fg}
-        # MENU
-        skin().fg_and_bg = {"bg": skin().color.bg, "fg": skin().color.fg}
-        skin().fg_and_bg = {"bg": skin().color.bg, "fg": skin().color.fg}
-        """
 
 
 def update_widget_skin(widget):
