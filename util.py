@@ -137,7 +137,7 @@ class AbismState:
 
 def get_version():
     """Return: version string"""
-    return '0.901'
+    return '0.902'
 
 
 def get_verbose():
