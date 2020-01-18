@@ -55,7 +55,10 @@ def ViewMenu(root, parent, args):
         # more colors
         more_color_menu = Menu(color_menu, **skin().fg_and_bg)
         num = 0
-        for i in G.all_cmaps:
+        import matplotlib
+        all_cmaps = sorted([i for i in dir(matplotlib.cm) if hasattr(
+            getattr(matplotlib.cm, i), 'N')])  # inclouding inverse
+        for i in all_cmaps:
             num += 1
             more_color_menu.add_radiobutton(
                 label=i,

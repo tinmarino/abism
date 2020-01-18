@@ -30,15 +30,6 @@ mode = "manual"  # oppsite of automatic
 image_click = (0., 0.)
 image_release = (0., 0.)
 
-# TODO no tkinter
-def init():
-    from tkinter import IntVar
-    same_center_var = IntVar()
-    same_center_var.set(1)
-    aniso_var = IntVar()
-    aniso_var.set(1)
-    same_psf_var = IntVar()
-    same_psf_var.set(1)
 
 cube_bool = 0
 cube_num = -1

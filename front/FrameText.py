@@ -29,7 +29,7 @@ class TextFrame(Frame):
         self.columnconfigure(0, weight=1)
 
         # Add to parent paned
-        parent.add(self, **G.sub_paned_arg)
+        parent.add(self, minsize=22, pady=0, sticky='nsew')
 
         self._parent = parent  # for sash positioning
         self._arrow = None  # Button

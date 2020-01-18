@@ -14,6 +14,61 @@ from util import root_path, log, get_version  # pylint: disable=no-name-in-modul
 import back.util_back as W
 
 
+
+""" SOOOO dirty"""
+
+class VoidClass:
+    """Helper container"""
+
+
+# BUTTON WIDTH
+button_width = 12  # the width of the standard buttons
+menu_button_width = 8  # Size of menu buttons
+
+# GUI FORM
+# we don't hide text frame by default, the text framme is the output frame on the left
+hidden_text_bool = 0
+scale_menu_type = "column" # can be "column" or "cascade"
+all_frame = []                        # all frames will be here to change color
+# Can be tkinter or shell , written interaction with the mainloop
+interaction_type = "tkinter"
+last_top_size = 300
+
+# GEO DIC
+geo_dic = {}                        # geometry dictionnay
+geo_dic['ResultFrame'] = 300
+
+
+# SCALE dic for the color and contrast
+scale_dic = [{}]
+scale_dic[0]["cmap"] = "jet"
+scale_dic[0]["contour"] = False
+scale_dic[0]["answer"] = "detector"
+scale_dic[0]["percent"] = 99.99
+scale_dic[0]["scale_cut_type"] = "sigma_clip"
+scale_dic[0]["sigma"] = 3
+scale_dic[0]["stretch"] = "linear"
+
+# BOOL TODO remove
+manual_cut_bool = 0
+more_bool = 0
+
+toolbar_fit_bool = False
+toolbar_result_bool = False
+manual_back_bool = False
+# the labels on the left, when open image, this is set to true
+label_bool = True
+result_bool = True                          # show the full results frame
+top_bool = True
+in_arrow_frame = None                          # no body in lefftoparrowframe
+
+# CLASS
+# (we save the tkvariables ) # it may be changed see image parameters
+tkvar = VoidClass()
+tkentry = VoidClass()
+
+
+
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""

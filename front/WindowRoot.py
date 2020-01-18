@@ -20,7 +20,7 @@ from back.FitsIo import OpenImage
 
 
 # Variables
-from util import MainVar, root_path, log, set_verbose
+from util import root_path, log, set_verbose
 from front.util_front import skin, icon_path
 import front.util_front as G
 import back.util_back as W
@@ -38,13 +38,16 @@ class RootWindow(Tk):
         super().__init__()
 
         # Init globals TODO dirty
-        G.parent = self
         W.path = root_path()
 
         # Global even more dirty
         set_verbose(5)
-        W.init()
-        MainVar()
+        W.same_center_var = IntVar()
+        W.same_center_var.set(1)
+        W.aniso_var = IntVar()
+        W.aniso_var.set(1)
+        W.same_psf_var = IntVar()
+        W.same_psf_var.set(1)
 
         # Give title
         self.set_title()
@@ -56,7 +59,7 @@ class RootWindow(Tk):
         # ALL What is not the menu is a paned windows :
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        G.MainPaned = PanedWindow(G.parent, orient=HORIZONTAL, **skin().paned_dic)
+        G.MainPaned = PanedWindow(self, orient=HORIZONTAL, **skin().paned_dic)
         G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
 
         # 2 LEFT
@@ -98,7 +101,7 @@ class RootWindow(Tk):
     def set_icon(self):
         """Create OS Icon from resources"""
         if isfile(icon_path()):
-            bitmap = PhotoImage(file=W.path + '/res/bato_chico.gif')
+            bitmap = PhotoImage(file=icon_path())
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
         else:
             log(3, "->you have no beautiful icon "
