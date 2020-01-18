@@ -148,8 +148,11 @@ def PlotAnswer(unit=None, append=True):  # CALLER
 def PlotPickOne():
     ""
     # <- CAlculate Equivalent strehl2.2 and error
-    rms = W.head.wavelength / 2/np.pi * \
-        np.sqrt(-np.log(W.strehl["strehl"]/100))
+    strehl = W.strehl["strehl"]/100
+    if strehl < 0:
+        rms = 0
+    else:
+        rms = W.head.wavelength / 2 / np.pi * np.sqrt(-np.log(strehl))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
 
     #rms =  W.head.wavelength /2/np.pi * np.sqrt(-np.log(W.strehl["err_strehl"]/100))

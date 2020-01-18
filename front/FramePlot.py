@@ -22,6 +22,8 @@ from front import Pick
 # TODO this should not be here
 from back.ImageFunction import PixelMax
 import back.util_back as W
+from front.AnswerReturn import PlotStar2
+from front.DraggableColorbar import MyNormalize
 
 from util import log
 
@@ -337,7 +339,6 @@ class ImageFrame(PlotFrame):
         ##########
         # RELOAD PlotStar
             try:
-                from AnswerReturn import PlotStar2
                 PlotStar2()
             except BaseException:
                 pass  # in case you didn't pick the star yet
@@ -355,7 +356,6 @@ class ImageFrame(PlotFrame):
         cmap = G.scale_dic[0]["cmap"]
         min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
 
-        from DraggableColorbar import MyNormalize
         mynorm = MyNormalize(
             vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
         G.ImageFrame._cbar.mappable.set_cmap(cmap)

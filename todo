@@ -20,3 +20,21 @@
 3. Create pip package
 4. Doc
 5. (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
+
+
+## Bug 
+
+if open without images: at next open:
+ABISM: 04:21:08: 0: Opening file : /home2/tourneboeuf/Software/Python/Abism_old/AA2_c3.fits
+Exception in Tkinter callback
+Traceback (most recent call last):
+File "/usr/lib/python3.7/tkinter/__init__.py", line 1705, in __call__
+return self.func(*args)
+File "/home2/tourneboeuf/Software/Python/Abism/front/Menu/FileMenu.py", line 27, in <lambda>
+command=lambda: OpenFile(root, initialdir=initialdir))
+File "/home2/tourneboeuf/Software/Python/Abism/front/Menu/FileMenu.py", line 57, in OpenFile
+root.ImageFrame.draw_image()
+File "/home2/tourneboeuf/Software/Python/Abism/front/FramePlot.py", line 165, in draw_image
+G.current_image = W.Im0
+AttributeError: module 'back.util_back' has no attribute 'Im0'
+                        

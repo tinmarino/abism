@@ -16,24 +16,27 @@ import matplotlib
 
 _verbose = 10  # Verbose level
 _parsed_args = None  # Arguments from argparse
+_image_name = None  # the current image filepath
 
 
 def parse_argument():
-    global _verbose
     parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
 
     parser.add_argument(
-        'image', metavar='image', type=str,
+        'image_name', metavar='image.fits', type=str,
+        default='no_image_name', nargs='?',
         help='image to diplay: filepath of the .fits')
 
     parser.add_argument(
         '-v', '--verbose',
         dest='verbose', action='store', type=int, default=0,
-        help='verbosity level; 1..10')
+        help='verbosity level: 0..10')
 
+    # set
+    global _verbose, _image_name
     _parsed_args = parser.parse_args()
-
     _verbose = _parsed_args.verbose
+    _image_name = _parsed_args.image_name
 
 
 def get_version():

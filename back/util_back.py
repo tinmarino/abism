@@ -3,8 +3,9 @@
 """
 
 from sys import argv as std_argv
+import util
 
-image_name = 'no_image_name'
+
 sys_argv = std_argv
 
 class VoidClass:
@@ -15,7 +16,7 @@ class VoidClass:
 tmp = VoidClass()
 
 imstat = VoidClass()
-image_name = 'Crowded.fits'
+image_name = util._image_name
 strehl_type = 'max'
 strehl = {}
 

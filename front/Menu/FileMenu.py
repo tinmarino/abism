@@ -5,7 +5,7 @@ from tkinter import Menu, Menubutton
 from tkinter.filedialog import askopenfilename
 
 
-from util import log
+from util import log, _image_name
 import back.util_back as W
 from front.util_front import skin
 
@@ -21,7 +21,7 @@ def FileMenu(root, parent, args):
     menu_button.menu = Menu(menu_button, **skin().fg_and_bg)
 
     # Open
-    initialdir = "/".join(W.image_name.split("/")[: -1])
+    initialdir = "/".join(_image_name.split("/")[: -1])
     menu_button.menu.add_command(
         label='Open',
         command=lambda: OpenFile(root, initialdir=initialdir))
@@ -30,7 +30,7 @@ def FileMenu(root, parent, args):
     menu_button.menu.add_command(
         label='Display Header',
         command=lambda: DisplayHeader(
-            W.image_name, W.head.header.tostring(sep="\n")))
+            _image_name, W.head.header.tostring(sep="\n")))
 
     menu_button['menu'] = menu_button.menu
 
@@ -52,10 +52,10 @@ def OpenFile(root, initialdir=''):
     # Stringigy && Log && Cache
     s_file = str(s_file)
     log(0, "Opening file : " + s_file)
-    W.image_name = s_file
+    _image_name = s_file
 
     root.ImageFrame.draw_image()
 
     # Change title
-    fname = W.image_name.split('/')[-1]
+    fname = _image_name.split('/')[-1]
     root.title('Abism (' + fname + ')')
