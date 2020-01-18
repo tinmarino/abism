@@ -23,7 +23,7 @@ import back.util_back as W
 from plugin import ReadHeader as RH  # to know witch telescope
 from plugin import CoordTransform as CT
 
-from util import log, get_root
+from .util import log, get_root
 
 
 

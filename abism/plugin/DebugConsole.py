@@ -9,7 +9,7 @@ import sys
 import select
 import traceback
 
-from util import log
+from .util import log
 import back.util_back as W
 import front.util_front as G
 from front.util_front import skin

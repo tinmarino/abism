@@ -5,7 +5,7 @@ from tkinter import Menu, Menubutton
 from tkinter.filedialog import askopenfilename
 
 
-from util import log
+from .util import log
 import back.util_back as W
 from front.util_front import skin
 

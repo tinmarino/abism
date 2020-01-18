@@ -6,7 +6,7 @@ from back import FitFunction as FF
 from back import BasicFunction as BF
 
 
-from util import log, get_verbose, get_root
+from .util import log, get_verbose, get_root
 import front.util_front as G
 import back.util_back as W
 

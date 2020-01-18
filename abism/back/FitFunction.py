@@ -10,7 +10,7 @@ import scipy.optimize
 
 from back.leastsqbound import leastsqbound
 
-from util import log
+from .util import log
 import back.util_back as W
 
 

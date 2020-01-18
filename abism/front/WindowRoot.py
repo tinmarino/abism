@@ -20,7 +20,7 @@ import front.util_front as G
 
 # Variables
 import back.util_back as W
-from util import root_path, log, set_verbose, \
+from .util import root_path, log, set_verbose, \
     ImageInfo, AbismState, set_root, restart
 
 # Plugin

@@ -25,7 +25,7 @@ import back.util_back as W
 from front.AnswerReturn import PlotStar2
 from front.DraggableColorbar import MyNormalize
 
-from util import log, get_root
+from .util import log, get_root
 
 class PlotFrame(tk.Frame):
     """Base class"""

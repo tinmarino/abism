@@ -6,7 +6,7 @@ import numpy as np
 from back import ImageFunction as IF
 from back import StrehlImage as SI
 
-from util import log, get_root
+from .util import log, get_root
 import back.util_back as W
 
 

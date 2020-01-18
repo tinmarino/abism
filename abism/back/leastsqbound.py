@@ -7,7 +7,7 @@ from numpy import empty_like, sqrt, cos, sin, arcsin
 from scipy.optimize.minpack import _check_func
 from scipy.optimize import _minpack, leastsq
 
-from util import log
+from .util import log
 
 def _internal2external_grad(xi, bounds):
     """

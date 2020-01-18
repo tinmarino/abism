@@ -4,7 +4,7 @@ with a dragging the vertical lines., with a binning of the image,
 this could even be in real time.
 """
 
-from util import log
+from .util import log
 import front.util_front as G
 
 

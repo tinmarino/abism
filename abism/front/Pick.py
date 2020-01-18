@@ -14,7 +14,7 @@ from back import Strehl
 from back import ImageFunction as IF
 import back.util_back as W
 
-from util import log, get_root
+from .util import log, get_root
 
 
 def RefreshPick(label):  # This is the only callled routine

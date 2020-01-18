@@ -21,7 +21,7 @@ import ImageFunction as IF  # Function on images
 import BasicFunction as BF  # 2D psf functions
 
 # Variables
-from util import log
+from .util import log
 import front.util_front as G
 import back.util_back as W
 

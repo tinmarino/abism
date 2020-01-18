@@ -8,7 +8,7 @@ from enum import Enum
 
 import tkinter as tk
 
-from util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
+from .util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
 import back.util_back as W
 
 

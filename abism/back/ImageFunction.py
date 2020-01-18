@@ -9,7 +9,7 @@ import scipy.interpolate  # for LocalMax
 from back import Stat
 from back import BasicFunction as BF
 
-from util import log
+from .util import log
 import front.util_front as G  # check variables
 import back.util_back as W  # for verbose
 

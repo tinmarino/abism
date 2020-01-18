@@ -13,7 +13,7 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
 from front.util_front import photo_up, photo_down, skin, \
     TitleLabel
 
-from util import log, get_root, quit_process, restart
+from .util import log, get_root, quit_process, restart
 
 import front.util_front as G
 import back.util_back as W

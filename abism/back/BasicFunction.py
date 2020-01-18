@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import jn
 
-from util import log
+from .util import log
 
 ##########################
 ##   BINARY   STARS      #

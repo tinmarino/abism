@@ -15,7 +15,11 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tinmarino/abism",
-    packages=setuptools.find_packages(),
+    packages=['abism',
+              'abism.front',
+              'abism.back',
+              'abism.plugin',
+              ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

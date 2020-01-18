@@ -36,7 +36,7 @@ import numpy as np
 
 from astropy import wcs
 
-from util import log
+from .util import log
 import back.util_back as W
 
 

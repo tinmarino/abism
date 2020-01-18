@@ -6,11 +6,12 @@
 """
 
 # Parse arguments
-from util import parse_argument
+from abism.util import parse_argument
+
 parse_argument()
 
 
 # Go
-from front.WindowRoot import RootWindow
+from abism.front.WindowRoot import RootWindow
 root_window = RootWindow()
 root_window.mainloop()
