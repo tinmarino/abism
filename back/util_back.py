@@ -16,7 +16,6 @@ class VoidClass:
 tmp = VoidClass()
 
 imstat = VoidClass()
-image_name = util._image_name
 strehl_type = 'max'
 strehl = {}
 
@@ -28,11 +27,7 @@ type["noise"] = 'elliptical_annulus'
 type["aperture"] = "fit"
 err_msg = []
 mode = "manual"  # oppsite of automatic
-image_click = (0., 0.)
-image_release = (0., 0.)
 
 
-cube_bool = 0
-cube_num = -1
 rect_phot_bool = 0  # for rectanglephot called by command
 same_psf = 1

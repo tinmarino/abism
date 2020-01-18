@@ -6,14 +6,15 @@ import numpy as np  # for a readind lst like an array
 
 from front import EventArtist  # draw an ellipse
 from front import AnswerReturn as AR
-from front import WindowRoot as MG
+# Warnign circular dep
+import front.Menu.AnalysisMenu as AnalysisMenu
 from front import util_front as G
 
 from back import Strehl
 from back import ImageFunction as IF
 import back.util_back as W
 
-from util import log
+from util import log, get_root
 
 
 def RefreshPick(label):  # This is the only callled routine
@@ -72,7 +73,7 @@ def PickEllipse(disconnect=False):
         return
     # CONNECT
     if W.type["pick"] == "ellipse":
-        G.ellipse = EventArtist.Ellipse(G.fig, G.ax1, array=W.Im0)
+        G.ellipse = EventArtist.Ellipse(G.fig, G.ax1, array=get_root().image.im0)
 
 
 def PickAnnulus(disconnect=False):
@@ -87,7 +88,7 @@ def PickAnnulus(disconnect=False):
         return
     # CONNECT
     if W.type["pick"] == "annulus":
-        G.annulus = EventArtist.Annulus(G.fig, G.ax1, array=W.Im0)
+        G.annulus = EventArtist.Annulus(G.fig, G.ax1, array=get_root().image.im0)
 
 
 def Profile(disconnect=False):
@@ -245,7 +246,7 @@ def TightBinary(disconnect=False):
         #  CLick on same psf and no aniso
         W.aniso_var.set(False)
         W.same_psf_var.set(True)
-        MG.FitType(W.type["fit"])
+        AnalysisMenu.SetFitType(W.type["fit"])
     return
 
 
@@ -326,14 +327,14 @@ def StatPick(disconnect=False):
 def RectangleClick(eclick, erelease):
     """return the extreme coord of the human drawn rectangle  And call StrehlMeter"""
     log(3, 'rectangle click_________________')
-    G.image_click = eclick.xdata, eclick.ydata
-    G.image_release = erelease.xdata, erelease.ydata
-    if G.image_click == G.image_release:
+    get_root().image.click = eclick.xdata, eclick.ydata
+    get_root().image.release = erelease.xdata, erelease.ydata
+    if get_root().image.click == get_root().image.release:
         log(0, "Rectangle phot aborded: you clicked and released ont the same point")
         return
-    log(3, G.image_click, G.image_release)
-    W.r = (int(G.image_click[1]), int(G.image_release[1]),
-           int(G.image_click[0]), int(G.image_release[0]))
+    log(3, get_root().image.click, get_root().image.release)
+    W.r = (int(get_root().image.click[1]), int(get_root().image.release[1]),
+           int(get_root().image.click[0]), int(get_root().image.release[0]))
 
     MultiprocessCaller()
     return
@@ -346,7 +347,7 @@ def ManualRectangle(eclick, erelease):
     r = image_click[1], image_release[1], image_click[0], image_release[0]
     r = IF.Order4(r)
     if G.rect_phot_bool:
-        log(0, IF.RectanglePhot(W.Im0, r))
+        log(0, IF.RectanglePhot(get_root().image.im0, r))
     log(9, '----> WindowRoot.py, ManualRectangle', r)
     if G.bu_noise_manual['background'] == 'green':
         G.r = r

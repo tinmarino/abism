@@ -16,7 +16,10 @@ import matplotlib
 
 _verbose = 10  # Verbose level
 _parsed_args = None  # Arguments from argparse
-_image_name = None  # the current image filepath
+
+# Keep a trace
+# this global removes others
+_root = None
 
 
 def parse_argument():
@@ -24,7 +27,7 @@ def parse_argument():
 
     parser.add_argument(
         'image_name', metavar='image.fits', type=str,
-        default='no_image_name', nargs='?',
+        default='', nargs='?',
         help='image to diplay: filepath of the .fits')
 
     parser.add_argument(
@@ -33,10 +36,51 @@ def parse_argument():
         help='verbosity level: 0..10')
 
     # set
-    global _verbose, _image_name
+    global _parsed_args, verbose
     _parsed_args = parser.parse_args()
     _verbose = _parsed_args.verbose
-    _image_name = _parsed_args.image_name
+
+
+def get_root():
+    """tricky but not that much"""
+    return _root
+
+
+def set_root(root):
+    global _root; _root = root
+
+
+class ImageInfo:
+    "Image and its info"""
+    def __init__(self):
+        """
+        image_name
+        image_click = (0., 0.)
+        image_release = (0., 0.)
+        """
+        # Current image filepath
+        self.name = _parsed_args.image_name
+        self.is_cube = False  # Cube it is not
+        self.cube_num = -1
+        self.click = (0., 0.)  # Mouse click position
+        self.release = (0., 0.)  # You guess ?
+
+        self.bpm = None  # Bad Pixel mask array
+        self.bpm_name = None  # Bad Pixel Mask filepath
+
+        # Now we speak
+        self.hdulist = None  # From fits.open
+        self.im0 = None  # np.array the image !!
+        self.sort = None  # Sorted image for cut and histograms
+
+
+class AbismState:
+    """Confiugration from user (front) to science (back)"""
+    def __init__(self):
+        """Radio button state
+        What is the user asking for ?
+        """
+        pass
 
 
 def get_version():

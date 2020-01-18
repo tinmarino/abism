@@ -19,7 +19,6 @@ from util import log
              #TODO ["Tight Binary", "tightbinary"  ,
              lambda: Pick.RefreshPick("tightbinary") ] ,
              #["Gaussian_hole" ,  "Gaussian_hole"   ,
-             lambda: MG.FitType("Gaussian_hole" )],
              #  ["InRectangle", "in_rectangle" ] ,
 
 """
@@ -328,15 +327,18 @@ def SubstractBackground():
     from tkinter.filedialog import askopenfilename
     from astropy.io import fits
 
+    # Ask for background
     fp_sky = askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
-    W.image_bg_name = fp_sky     # image_background_name
-    W.hdulist_bg = fits.open(fp_sky)
-    W.Im0_bg = W.hdulist_bg[0].data
-    if not W.Im0.shape == W.Im0_bg.shape:
+    bg_hdulist = fits.open(fp_sky)
+
+    # Substract and redraw
+    bg0 = bg_hdulist[0].data
+    if not get_root().image.im0.shape == get_root().image.im0_bg.shape:
         W.Log(0, 'ERROR : Science image and Background image should have the same shape')
+        return
     else:
-        W.Im0 -= W.Im0_bg
+        get_root().image.im0 -= bg0
         G.ImageFrame.draw_image()
 
 

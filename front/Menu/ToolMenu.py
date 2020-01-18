@@ -20,7 +20,10 @@ def ToolMenu(root, parent, args):
     lst = [
         ["Profile", lambda: Pick.RefreshPick("profile")],
         ["Stat", lambda: Pick.RefreshPick("stat")],
-        ["Histogram", Histopopo],
+        ["Histogram", lambda: Histopopo(
+            root.FitFrame.get_figure(),
+            root.image.sort,
+            fg=skin().fg_and_bg['fg'])],
         ["Python Console", PythonConsole],
     ]
     for i in lst:

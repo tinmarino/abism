@@ -2,26 +2,29 @@
     To pretty print the answer, may go to FrameText
     C'est le bordel !
 """
-try:
-    from Tkinter import *
-except:
-    from tkinter import *
+from tkinter import *
 from tkinter import font as tkFont
 import numpy as np
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
+from threading import Thread, currentThread
 
-from back import ImageFunction as IF
-from back import BasicFunction as BF
-from back import Stat
-from plugin import ReadHeader as RH  # to know witch telescope
-
-from util import log
+# Front
 from front.util_front import skin
 import front.util_front as G
+
+# Back
+from back import ImageFunction as IF
+from back import BasicFunction as BF
+from back.Stat import Stat
 import back.util_back as W
 
-from threading import Thread, currentThread
+# Plugin
+from plugin import ReadHeader as RH  # to know witch telescope
+from plugin import CoordTransform as CT
+
+from util import log, get_root
+
 
 
 def MyFormat(value, number, letter):
@@ -36,7 +39,6 @@ def MyFormat(value, number, letter):
 
 
 def SkyFormat(ra, dec):
-    import CoordTransform as CT
     if (ra == 99) or (type(ra) == str):
         x = "N/A"
     else:
@@ -387,8 +389,8 @@ def PlotBinary():
 def PlotPickMany(append=True):
     ""
     # 1/plot the arrow at eh center of the rectangel
-    center_click = ((G.image_click[0]+G.image_release[0])/2,
-                    (G.image_click[1]+G.image_release[1])/2)  # center  Of the Event
+    center_click = ((get_root().image.click[0]+get_root().image.release[0])/2,
+                    (get_root().image.click[1]+get_root().image.release[1])/2)  # center  Of the Event
     tmp = G.ax1.annotate(str(W.type["pick"][1]), xy=center_click, xycoords='data',
                          xytext=(23, 16), textcoords="offset points",
                          color="red",
@@ -514,9 +516,8 @@ def PlotPickMany(append=True):
 
 def PlotStat():
     W.r = IF.Order4(W.r)
-    sub_array = W.Im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
-    import Stat
-    dicr = Stat.Stat(sub_array)
+    sub_array = get_root().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
+    dicr = Stat(sub_array)
     myargs = skin().fg_and_bg.copy()
     myargs.update({"font": skin().font.answer, "justify": LEFT, "anchor": "nw"})
     row = 0
@@ -637,7 +638,7 @@ def PlotOneStar1D():
     G.ax2.format_coord = lambda x, y: ""  # not see x y label in the toolbar
 
     # X
-    x, y = IF.XProfile(W.Im0, center)  # we need to give the center (of course)
+    x, y = IF.XProfile(get_root().image.im0, center)  # we need to give the center (of course)
     # we get a smaller bin for the fitted curve.
     a = np.arange(min(x), max(x), 0.1)
     # RAW  DATA in X
@@ -693,11 +694,11 @@ def PlotBinaryStar1D():
     dx1 = (x1-x0) / line_len * 5 * fwhm1
     dy1 = (y1-y0) / line_len * 5 * fwhm1
 
-    extremity0 = IF.DoNotPassBorder(W.Im0, (int(x0+dx0), int(y0+dy0)))
-    extremity1 = IF.DoNotPassBorder(W.Im0, (int(x1+dx1), int(y1+dy1)))
+    extremity0 = IF.DoNotPassBorder(get_root().image.im0, (int(x0+dx0), int(y0+dy0)))
+    extremity1 = IF.DoNotPassBorder(get_root().image.im0, (int(x1+dx1), int(y1+dy1)))
 
     ab, od, points = IF.RadialLine(
-        W.Im0, (extremity0, extremity1), return_point=1)
+        get_root().image.im0, (extremity0, extremity1), return_point=1)
 
     if "Moffat" in W.type["fit"]:
         fit_type = "Moffat2pt"
@@ -737,7 +738,7 @@ def ProfileAnswer():  # 1 and 2D
 
         # DATA
         ab, od, points = IF.RadialLine(
-            W.Im0, (G.my_point1, G.my_point2), return_point=1)
+            get_root().image.im0, (G.my_point1, G.my_point2), return_point=1)
         G.ax2.plot(ab, od, '-', linewidth=1, label="Data")
 
         # FIT
@@ -749,10 +750,10 @@ def ProfileAnswer():  # 1 and 2D
         G.figfit.canvas.draw()
 
     def Data():
-        log(8, "ProfileAnswer :", zip(points, W.Im0[tuple(points)]))
+        log(8, "ProfileAnswer :", zip(points, get_root().image.im0[tuple(points)]))
         # STAT
         # like profile_stat points[0] is x and points[1] is y
-        ps = Stat.Stat(W.Im0[tuple(points)])
+        ps = Stat(get_root().image.im0[tuple(points)])
         G.figresult.clf()
         G.ax3 = G.figresult.add_subplot(111)
 
@@ -795,9 +796,9 @@ def PlotOneStar2D():
     x0, y0 = W.strehl["center_x"], W.strehl["center_y"]
     r99x, r99y = W.strehl["r99x"], W.strehl["r99y"]
     dx1, dx2 = int(max(x0-4*r99x, 0)), int(min(x0+4*r99x,
-                                               len(W.Im0) + 1))  # d like display
+                                               len(get_root().image.im0) + 1))  # d like display
     dy1, dy2 = int(max(y0-4*r99y, 0)), int(min(y0+4*r99y,
-                                               len(W.Im0) + 1))  # c like cut If borders
+                                               len(get_root().image.im0) + 1))  # c like cut If borders
     r = (dx1, dx2, dy1, dy2)  # Teh local cut applied to the image. To show it
 
     x, y = np.arange(r[0], r[1]), np.arange(r[2], r[3])
@@ -811,7 +812,7 @@ def PlotOneStar2D():
                                           vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-        #G.ax31.format_coord=lambda x,y: "%.1f"%W.Im0[r[2]+y,r[0]+x]
+        #G.ax31.format_coord=lambda x,y: "%.1f"%get_root().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
 
         # FIT
@@ -848,7 +849,7 @@ def PlotOneStar2D():
     if (W.type["noise"] == "8rects"):
         re = x0-params['r99x'], x0+params['r99x'], y0 - \
             params['r99y'], y0+params['r99y']
-        var = IF.EightRectangleNoise(W.Im0, re, return_rectangle=1)[2]
+        var = IF.EightRectangleNoise(get_root().image.im0, re, return_rectangle=1)[2]
         for p in var:
             center_tmp = (p[0][0]-r[0]-p[1]/2, p[0][1]-r[2]-p[2]/2)
             a = matplotlib.patches.Rectangle(
@@ -931,7 +932,7 @@ def PlotBinaryStar2D():
                                           vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower')
     # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-    G.ax31.format_coord = lambda x, y: "%.1f" % W.Im0[y, x]
+    G.ax31.format_coord = lambda x, y: "%.1f" % get_root().image.im0[y, x]
     G.ax31.format_coord = lambda x, y: ""
     # FIT
     if "Moffat" in W.type["fit"]:
@@ -996,7 +997,7 @@ def CallContrastMap():
 
     def Worker():
         import ImageFunction as IF
-        x, y, tdic = IF.ContrastMap(W.Im0, (W.strehl["center_x"], W.strehl["center_y"]), interp=True, xmin=0.5, xmax=20, step=2, dic={
+        x, y, tdic = IF.ContrastMap(get_root().image.im0, (W.strehl["center_x"], W.strehl["center_y"]), interp=True, xmin=0.5, xmax=20, step=2, dic={
                                     "theta": 0, "ru": 1, "rv": 1}, background=0)  # W.strehl["my_background"])
 
         FigurePlot(x, y, dic=tdic)

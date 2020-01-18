@@ -6,7 +6,7 @@ from back import FitFunction as FF
 from back import BasicFunction as BF
 
 
-from util import log, get_verbose
+from util import log, get_verbose, get_root
 import front.util_front as G
 import back.util_back as W
 
@@ -173,11 +173,11 @@ def Photometry(grid):
                                          len(grid[0])+1)  # If borders
         im_cut = grid[cx1:cx2, cy1:cy2]
 
-        bol = IF.EllipticalAperture(W.Im0, dic={
+        bol = IF.EllipticalAperture(get_root().image.im0, dic={
                                     "center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v, "theta": theta})["bol"]
         log(2, "phot len", len(bol), len(im_cut))
         log(3, "ImageFUnciton, Photometry ", r99u, r99v, theta)
-        phot = Stat.Stat(W.Im0[bol], get=["number_count", "sum"])
+        phot = Stat.Stat(get_root().image.im0[bol], get=["number_count", "sum"])
         W.strehl["sum"] = phot["sum"]
         log(2, "phot", phot)
         W.strehl["number_count"] = phot["number_count"]
@@ -253,7 +253,7 @@ def Background(grid, param={}):
             log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
             param = param.copy()
             param.update({"noise": "annulus"})
-            return Background(W.Im0, param=param)
+            return Background(get_root().image.im0, param=param)
         try:
             dic['rms'] = W.psf_fit[1]['background']
         except:
@@ -277,7 +277,7 @@ def Background(grid, param={}):
                        myrad), int(W.strehl["center_x"] + myrad)
         ay1, ay2 = int(W.strehl["center_y"] -
                        myrad), int(W.strehl["center_y"] + myrad)
-        cutted = W.Im0[ax1: ax2, ay1: ay2]
+        cutted = get_root().image.im0[ax1: ax2, ay1: ay2]
 
         bol_i = IF.EllipticalAperture(cutted, dic={
                                       "center_x": myrad, "center_y": myrad, "ru": rui, "rv": rvi, "theta": W.strehl["theta"]})["bol"]
@@ -329,7 +329,7 @@ def BinaryPsf(grid, search=False):  # slowlyer
     ry1, ry2 = int(my_center[1] - fit_range /
                    2),  int(my_center[1] + fit_range/2)
 
-    rx1, rx2, ry1, ry2 = IF.Order4((rx1, rx2, ry1, ry2), grid=W.Im0)
+    rx1, rx2, ry1, ry2 = IF.Order4((rx1, rx2, ry1, ry2), grid=get_root().image.im0)
     log(3, "----->IF.BinaryPSF :", "The fit is done between points ",
           (rx1, ry1), " and ", (rx2, ry2), "with fit", fit_type)
     X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
@@ -556,12 +556,12 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
                        'intensity0': grid[max0[0]][max0[1]], 'intensity1': grid[max1[0]][max1[1]],
                        'background': 0, "theta": 1}
 
-    cut1 = W.Im0[G.star1[0]-2:G.star1[0]+2, G.star1[1]-2:G.star1[1]+2]
+    cut1 = get_root().image.im0[G.star1[0]-2:G.star1[0]+2, G.star1[1]-2:G.star1[1]+2]
     min1 = np.median(cut1)
     max1 = np.max(cut1)
     max1 = 2*max1 - min1
 
-    cut2 = W.Im0[G.star2[0]-2:G.star2[0]+2, G.star2[1]-2:G.star2[1]+2]
+    cut2 = get_root().image.im0[G.star2[0]-2:G.star2[0]+2, G.star2[1]-2:G.star2[1]+2]
     min2 = np.median(cut2)
     max2 = np.max(cut2)
     max2 = 2*max2 - min2
@@ -720,16 +720,16 @@ def EllipseEventBack():
     rui, rvi = obj.ru, obj.rv     # inner annulus
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
-    ell_i = IF.EllipticalAperture(W.Im0, dic={
+    ell_i = IF.EllipticalAperture(get_root().image.im0, dic={
                                   "center_x": obj.x0, "center_y": obj.y0, "ru": rui, "rv": rvi, "theta": obj.theta})  # inner
 
-    ell_o = IF.EllipticalAperture(W.Im0, dic={
+    ell_o = IF.EllipticalAperture(get_root().image.im0, dic={
                                   "center_x": obj.x0, "center_y": obj.y0, "ru": ruo, "rv": rvo, "theta": obj.theta})  # outter
 
     # annulus  inside out but not inside in
     bol_a = ell_o["bol"] ^ ell_i["bol"]
 
-    sky = Stat.Sky(W.Im0[bol_a])
+    sky = Stat.Sky(get_root().image.im0[bol_a])
     W.strehl["sky"] = sky
 
     W.strehl["my_background"] = sky["mean"]
@@ -753,7 +753,7 @@ def EllipseEventMax():  # receive EllipseEvent
 
     rad = max(obj.ru, obj.rv)
     r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
-    local_max = IF.LocalMax(W.Im0, r=r)  # With bad pixel filter
+    local_max = IF.LocalMax(get_root().image.im0, r=r)  # With bad pixel filter
 
     ######
     # Update

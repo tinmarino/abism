@@ -10,7 +10,7 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
     VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
 
-from util import log
+from util import log, get_root
 from front.util_front import photo_up, photo_down, quit_process, skin, \
     TitleLabel
 import front.util_front as G
@@ -131,7 +131,7 @@ class LabelFrame(TextFrame):
             lbl = ''
 
         # Get Size : Nx * Ny * Nz
-        shape = list(W.Im0.shape[::-1])  # reverse, inverse, list order
+        shape = list(get_root().image.im0.shape[::-1])  # reverse, inverse, list order
         if "NAXIS3" in W.head.header.keys():
             shape.append(W.head.header["NAXIS3"])
             lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])

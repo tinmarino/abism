@@ -6,22 +6,29 @@ this could even be in real time.
 
 from util import log
 import front.util_front as G
-import back.util_back as W
 
 
-def Histopopo():
-    """Single (useless) method for a single (useless) functionality"""
-    G.figfit.clf()
-    G.ax2 = G.figfit.add_subplot(111)
-    G.ax2.format_coord = lambda x, y: ""  # not see x y label in the toolbar
+def Histopopo(figure, image_sorted, fg='black'):
+    """Single (useless) method for a single (useless) functionality
+    figure: matplotlib figure
+    image_sorted: 1D sorted array of pixel value
+    """
+    # Reset figure
+    figure.clf()
+    ax = figure.add_subplot(111)
+    ax.format_coord = lambda x, y: ""  # not see x y label in the toolbar
 
-    for tick in G.ax2.xaxis.get_major_ticks():
+    # Draw tick
+    for tick in ax.xaxis.get_major_ticks():
         tick.label.set_fontsize(14)
-    G.ax2.axvline(x=G.scale_dic[0]["min_cut"],
-                  color='black', linestyle='-', linewidth=2)
-    G.ax2.axvline(x=G.scale_dic[0]["max_cut"],
-                  color='black', linestyle='-', linewidth=2)
-    G.ax2.set_xticklabels(W.sort)
-    G.hist = G.ax2.hist(W.sort, 100, log=True)  # n, bin, patches
+    ax.axvline(x=G.scale_dic[0]["min_cut"],
+               color=fg, linestyle='-', linewidth=2)
+    ax.axvline(x=G.scale_dic[0]["max_cut"],
+               color=fg, linestyle='-', linewidth=2)
+    ax.set_xticklabels(image_sorted)
 
-    G.figfit.canvas.draw()
+    # Caclulate histogram
+    ax.hist(image_sorted, 100, log=True)  # n, bin, patches
+
+    # Fraw
+    figure.canvas.draw()

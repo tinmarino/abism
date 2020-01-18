@@ -25,7 +25,7 @@ import back.util_back as W
 from front.AnswerReturn import PlotStar2
 from front.DraggableColorbar import MyNormalize
 
-from util import log
+from util import log, get_root
 
 class PlotFrame(tk.Frame):
     """Base class"""
@@ -157,12 +157,12 @@ class ImageFrame(PlotFrame):
 
 
         # Scale (much faster also draw_artist can help ?)
-        if re.match(r".*\.fits", W.image_name):
-            G.current_image = W.Im0.astype(float32)
+        if re.match(r".*\.fits", get_root().image.name):
+            G.current_image = get_root().image.im0.astype(float32)
             log(3, "dic init", G.scale_dic[0])
             self.CutImageScale(dic=G.scale_dic[0], load=1)  # not to draw the image.
         else:
-            G.current_image = W.Im0
+            G.current_image = get_root().image.im0
 
         # Display
         G.ax1 = self._fig.add_subplot(111)
@@ -189,10 +189,10 @@ class ImageFrame(PlotFrame):
 
         # Image levels
         def z(x, y):
-            return W.Im0[y, x]
+            return get_root().image.im0[y, x]
 
         def z_max(x, y):
-            return PixelMax(W.Im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
+            return PixelMax(get_root().image.im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
 
         def format_coordinate(x, y):
             x, y = int(x), int(y)
@@ -246,7 +246,7 @@ class ImageFrame(PlotFrame):
             is apllied to the images values rescaled from 0 to 1 and then the image
             is mutliplied again fit the true min and max cut made.\n\n"
             Programmers, This function is trabsforming G.current_image when the
-            true image is stocked under W.Im0 \nIf you want to add some function
+            true image is stocked under get_root().image.im0 \nIf you want to add some function
             look at the InitGuy.py module, a function with some (2,3,4) thresholds
             (=steps) could be usefull to get stars of (2,3,4) differents color,
             nothing more, one color for each intensity range. This can be done with
@@ -292,7 +292,7 @@ class ImageFrame(PlotFrame):
                 mean, rms = tmp["mean"], tmp["rms"]
                 c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
                     rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
-                G.contour = G.ax1.contour(W.Im0, (c2, c5),
+                G.contour = G.ax1.contour(get_root().image.im0, (c2, c5),
                                         origin='lower', colors="k",
                                         linewidths=3)
                 # extent=(-3,3,-2,2))
@@ -320,7 +320,7 @@ class ImageFrame(PlotFrame):
             else:
                 dictmp = {"whole_image": "useless"}
                 dictmp.update(G.scale_dic[0])
-                tmp = Scale.MinMaxCut(W.Im0, dic=dictmp)
+                tmp = Scale.MinMaxCut(get_root().image.im0, dic=dictmp)
                 G.scale_dic[0]["min_cut"] = tmp["min_cut"]
                 G.scale_dic[0]["max_cut"] = tmp["max_cut"]
             log(2, "I called Scale cut ")
@@ -408,11 +408,11 @@ class ImageFrame(PlotFrame):
         # for the arrow IN the image coords can be "data" or "figure fraction"
         elif coord_type == "data":
             # in figure fraction
-            arrow_center = [0.945 * len(W.Im0), 0.1 * len(W.Im0)]
+            arrow_center = [0.945 * len(get_root().image.im0), 0.1 * len(get_root().image.im0)]
             # -  because y is upside down       think raw collumn
-            north_point = [arrow_center + north_direction / 20 * len(W.Im0),
-                           arrow_center - north_direction / 20 * len(W.Im0)]
-            east_point = [north_point[1] + east_direction / 20 * len(W.Im0),
+            north_point = [arrow_center + north_direction / 20 * len(get_root().image.im0),
+                           arrow_center - north_direction / 20 * len(get_root().image.im0)]
+            east_point = [north_point[1] + east_direction / 20 * len(get_root().image.im0),
                           north_point[1]]
         W.north_direction = north_direction
         W.east_direction = east_direction
@@ -449,11 +449,13 @@ class ImageFrame(PlotFrame):
 
     def Cube(self):
         """Prepare Cube buttons"""
-        if not W.cube_bool:
+        # Try to destroy if not a cube
+        if not get_root().image.is_cube:
             try:
                 G.CubeFrame.destroy()
             except BaseException:
                 pass
+        # Create a cube interface else
         else:
             # FRAME
             G.CubeFrame = tk.Frame(G.ButtonFrame, **skin().frame_dic)
@@ -469,7 +471,7 @@ class ImageFrame(PlotFrame):
             G.cube_entry = tk.Entry(
                 G.CubeFrame, width=10, justify=tk.CENTER,
                 textvariable=G.cube_var, bd=0, **skin().fg_and_bg)
-            G.cube_var.set(W.cube_num + 1)
+            G.cube_var.set(get_root().image.cube_num + 1)
             G.cube_entry.bind("<Return>", lambda x: self.CubeDisplay("0"))
 
             # RIGHT
@@ -490,13 +492,13 @@ class ImageFrame(PlotFrame):
     def CubeDisplay(self, stg_click):
         """Callback for cube button + -"""
         if stg_click == '+':
-            W.cube_num += 1
+            get_root().image.cube_num += 1
         elif stg_click == '-':
-            W.cube_num -= 1
+            get_root().image.cube_num -= 1
         elif stg_click == '0':
-            W.cube_num = float(G.cube_var.get())
+            get_root().image.cube_num = float(G.cube_var.get())
 
-        G.cube_var.set(W.cube_num + 1)
+        G.cube_var.set(get_root().image.cube_num + 1)
         self.draw_image(new_fits=False)
 
 
@@ -547,7 +549,7 @@ class RightFrame(tk.PanedWindow):
         self.add(G.RightBottomPaned)
 
         # Add Fit (bottom left)
-        G.FitFrame = FitFrame(G.RightBottomPaned)
+        get_root().FitFrame = FitFrame(G.RightBottomPaned)
 
         # Add Result (bottom right)
         G.ResultFrame = ResultFrame(G.RightBottomPaned)
