@@ -58,6 +58,7 @@ def OpenFile(root):
     log(0, "Opening file : " + s_file)
     root.image.name = s_file
 
+    root.open_image()
     root.ImageFrame.draw_image()
 
     # Change title
