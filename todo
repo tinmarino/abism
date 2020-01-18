@@ -4,6 +4,7 @@
 2. Find a way to get consisten version naming 0.901 soon
 3. Repair Imageparameters (colo stuff) 
 5. Make more verbose pick_many, actually, how does that work
+6. argparse
 
 # UI
 

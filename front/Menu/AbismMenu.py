@@ -3,7 +3,8 @@
 """
 import tkinter as tk
 
-from front.util_front import system_open, about_window, quit_process
+from front.util_front import system_open, about_window, quit_process, \
+    change_scheme, Scheme
 import front.util_front as G
 
 
@@ -15,7 +16,10 @@ def AbismMenu(root, parent, args):
 
     lst = [
         ["About", about_window],
-        ["Advanced Manual", lambda: system_open(path="doc/advanced_manual.pdf")],
+        ["Advanced Manual",
+         lambda: system_open(path="doc/advanced_manual.pdf")],
+        ["Color Dark",
+         lambda: change_scheme(root, Scheme.DARK_SOLARIZED)],
         ["Quit", quit_process],
     ]
     for i in lst:
@@ -28,3 +32,5 @@ def AbismMenu(root, parent, args):
 
     # Caller grid me
     return menu_button
+
+

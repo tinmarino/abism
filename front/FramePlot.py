@@ -38,6 +38,7 @@ class PlotFrame(tk.Frame):
 
         self._fig = None  # Figure
         self._arrow = None  # Button
+        # At bottom
         self._toolbar_frame = None  # Container for toolbar
         self._toolbar = None
         self._canvas = None
@@ -51,6 +52,9 @@ class PlotFrame(tk.Frame):
         Canvas requires _fig
         Toolbar requires canvas
         """
+        # Figure
+        fig.set_facecolor(skin().color.bg)
+
         self._canvas = FigureCanvas(fig, master=self)
         self._canvas.get_tk_widget()['bg'] = skin().color.bg
         # No borders: used to locate focus
@@ -107,6 +111,11 @@ class PlotFrame(tk.Frame):
         """Getter for global"""
         return self._toolbar
 
+    def update_skin(self):
+        self._fig.set_facecolor(skin().color.bg)
+        self._fig.canvas.draw()
+
+
 
 class ImageFrame(PlotFrame):
     """Frame with science image"""
@@ -116,7 +125,6 @@ class ImageFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure()
         self._fig.subplots_adjust(left=0.07, right=0.93, top=0.95, bottom=0.05)
-        self._fig.set_facecolor(skin().color.bg)
 
         # Label && Canvas
         self.init_label("Image")
@@ -502,7 +510,6 @@ class FitFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure(figsize=(5, 2.5))
         self._fig.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.2)
-        self._fig.set_facecolor(skin().color.bg)
 
         # Label && Canvas
         self.init_label("Photometric Profile")
@@ -518,7 +525,6 @@ class ResultFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure(figsize=(3, 2.5))
         self._fig.subplots_adjust(left=0.1, right=0.9, top=1.05, bottom=-0.15)
-        self._fig.set_facecolor(skin().color.bg)
 
         # Label && Canvas
         self.init_label("2D Shape")

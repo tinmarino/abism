@@ -6,6 +6,7 @@
 from sys import exit as sys_exit
 from os import system
 from functools import lru_cache
+from enum import Enum
 
 import tkinter as tk
 
@@ -164,6 +165,15 @@ class FrameDic(DotDic):
         self.bg = color.bg
 
 
+class Scheme(Enum):
+    """The colorscheme available"""
+    DARK_SOLARIZED = 1
+    LIGHT_SOLARIZED = 2
+
+# Global waiting for a better idea
+scheme = Scheme.LIGHT_SOLARIZED
+
+
 class ColorScheme:
     """Colors"""
     # pylint: disable=bad-whitespace
@@ -180,7 +190,10 @@ class ColorScheme:
         """
         self.set_solarized_var()
         self.init_solarized_default()
-        self.init_light()
+        if scheme == Scheme.DARK_SOLARIZED:
+            self.init_dark()
+        elif scheme == Scheme.LIGHT_SOLARIZED:
+            self.init_light()
 
     def set_solarized_var(self):
         """Init solarized varaibles"""
@@ -235,17 +248,47 @@ class Skin:
         self.frame_dic = FrameDic(self.color)
 
 
+def update_widget_skin(widget):
+    """Update the skin of a widget"""
+    from front.FramePlot import PlotFrame
+    if isinstance(widget, PlotFrame):
+        widget.update_skin()
+    elif isinstance(widget, tk.Button):
+        widget.configure(skin().button_dic)
+    elif isinstance(widget, tk.PanedWindow):
+        widget.configure(skin().paned_dic)
+    elif isinstance(widget, tk.Frame):
+        widget.configure(skin().frame_dic)
+    elif isinstance(widget, tk.Canvas):
+        widget.configure(bg=skin().color.bg)
+    else:
+        widget.configure(
+            bg=skin().color.bg,
+            fg=skin().color.fg
+        )
+
+
+def change_scheme(root, in_scheme):
+    """Dark skin"""
+    reset_skin(in_scheme)
+    children_do(root, update_widget_skin)
+
+
 @lru_cache(1)
 def skin():
     """Singleton trick"""
+    log(3, 'Skin requested')
     return Skin()
 
 
-def reset_skin():
+def reset_skin(in_scheme):
     """Invalidate skin cache
     Used if skin has been updated from callers (the world)
     """
+    global scheme
+    scheme = in_scheme
     skin.cache_clear()
+    skin()
 
 
 def about_window():
@@ -286,3 +329,12 @@ def system_open(path=""):
     if fct is not None:
         subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
     log(0, "ERROR pdf viewer : need to be implemented ")
+
+
+def children_do(widget, callback):
+    """Recurse and call helper
+    callback: function(widget)
+    """
+    for item in widget.winfo_children():
+        callback(item)
+        children_do(item, callback)

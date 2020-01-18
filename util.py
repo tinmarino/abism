@@ -13,7 +13,7 @@ from tkinter import RAISED, IntVar, PhotoImage
 import matplotlib
 
 
-_verbose = 5
+_verbose = 10
 
 
 def get_version():
