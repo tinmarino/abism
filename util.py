@@ -4,7 +4,6 @@
 
 # Standard
 import re
-from sys import argv as sys_argv
 from os.path import dirname, abspath
 from functools import lru_cache
 
@@ -39,12 +38,6 @@ def root_path():
 
 
 @lru_cache(1)
-def icon_path():
-    """Return path of window icon"""
-    return root_path() + '/res/bato_chico.gif'
-
-
-@lru_cache(1)
 def _get_logger():
     import logging
     # Logger
@@ -64,34 +57,23 @@ def _get_logger():
 
 
 def log(i, *args):
-    """Log utility
-    @brief: this is a log accroding to the verbose
-            very simple function, very large comment
-    @param: i is the verbose,
-    @param: **args are the strings to print,
-    @return: print in the stdout, means the calling terminal
-        nickname py  me
-        CRITICAL 50  -3
-        ERROR    40  -2
-        WARNING  30  -1
-        INFO     20  1
-        DEBUG    10  2
-        NOTSET    0  3
-    """
+    """Log utility read verbose"""
     if get_verbose() < i: return
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     _get_logger().info(message)
 
 
-# TODO remove this
+##################################################
+##################################################
+##################################################
+# TODO remove this below
 class VoidClass:
     """Helper container"""
 
 
 def MainVar():
     """Init all <- Called by WindowRoot"""
-    WorkVar()  # Initial WorkVar
     GuiVar()  # Initialt Gui vars
 
 
@@ -154,54 +136,3 @@ def GuiVar():
 
     G.sub_paned_arg = {"minsize": 22, "pady": 0, "sticky": "nsew"}
 
-    ######################
-    #   WORK Variables
-    #######################
-
-
-def WorkVar():
-    import back.util_back as W
-    import front.util_front as G
-    """Define the varaibles that we define the way the calculations should be runned.
-    This is an important function of the software.
-    """
-    # Define verbose level
-    set_verbose(5)
-
-    # Cache locally arg in
-    W.sys_argv = sys_argv
-
-    class tmp:
-        """ Placeholder of the most ugly container
-        this is for the temporary variables to pass from one function to an other.
-        Like W.tmp.lst... carrefull
-        """
-    W.tmp = tmp()
-
-    W.imstat = VoidClass()
-    W.image_name = 'no_image_name'
-    W.strehl_type = 'max'
-    W.strehl = {}
-
-    W.type = {}
-    W.type["pick"] = 'one'
-    W.type["fit"] = 'Moffat2D'                                # FIT  TYPE
-    W.type["phot"] = 'elliptical_aperture'  # PHOTOMETRY type
-    W.type["noise"] = 'elliptical_annulus'
-    W.type["aperture"] = "fit"
-    W.err_msg = []
-    W.mode = "manual"  # oppsite of automatic
-    W.image_click = (0., 0.)
-    W.image_release = (0., 0.)
-
-    W.same_center_var = IntVar()
-    W.same_center_var.set(1)
-    W.aniso_var = IntVar()
-    W.aniso_var.set(1)
-    W.same_psf_var = IntVar()
-    W.same_psf_var.set(1)
-
-    W.cube_bool = 0
-    W.cube_num = -1
-    W.rect_phot_bool = 0  # for rectanglephot called by command
-    W.same_psf = 1

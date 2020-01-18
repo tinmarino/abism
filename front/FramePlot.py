@@ -12,16 +12,15 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
 from numpy import sqrt, float32
 
 # Local
-from ImageFunction import PixelMax
-from DraggableColorbar import DraggableColorbar
-
-
-from util import log
-import front.util_front as G
+from front.DraggableColorbar import DraggableColorbar
 from front.util_front import photo_up, photo_down, skin, TitleLabel
+import front.util_front as G
 
 # TODO this should not be here
+from back.ImageFunction import PixelMax
 import back.util_back as W
+
+from util import log
 
 class PlotFrame(tk.Frame):
     """Base class"""

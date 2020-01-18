@@ -1,10 +1,12 @@
+"""
+    Menu bar to choose the fit type
+"""
 import tkinter as Tk
 
-import Pick
-import WindowRoot as MG    # TODO must be removed
-
+from front import Pick
 from front.util_front import skin, TitleLabel
 import front.util_front as G
+
 import back.util_back as W
 
 from util import log
@@ -362,6 +364,7 @@ def SetFitType(name):  # strange but works
     # Saturated
     if "Gaussian_hole" in W.type["fit"]:
         try:
+            # Global even more dirty
             if W.same_center_var.get() == 0:
                 W.type["fit"] = W.type["fit"].replace('same_center', '')
                 log(0, "same_center : We asssume that the saturation",

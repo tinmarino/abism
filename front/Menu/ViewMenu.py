@@ -5,7 +5,7 @@
 from tkinter import *
 import tkinter as Tk
 
-import WindowRoot as MG
+from front import WindowRoot as MG
 
 from util import log
 from front.util_front import skin, TitleLabel

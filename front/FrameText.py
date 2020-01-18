@@ -10,7 +10,6 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
     VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
 
-
 from util import log
 from front.util_front import photo_up, photo_down, quit_process, skin, \
     TitleLabel

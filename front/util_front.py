@@ -26,6 +26,12 @@ def photo_down():
     return tk.PhotoImage(file=root_path() + "/res/arrow_down.gif")
 
 
+@lru_cache(1)
+def icon_path():
+    """Return path of window icon"""
+    return root_path() + '/res/bato_chico.gif'
+
+
 def quit_process():
     """Kill process"""
     log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")

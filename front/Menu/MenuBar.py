@@ -3,11 +3,11 @@
 """
 import tkinter as tk
 
-import FileMenu
-import AbismMenu
-import AnalysisMenu
-import ToolMenu
-import ViewMenu
+from front.Menu import FileMenu
+from front.Menu import AbismMenu
+from front.Menu import AnalysisMenu
+from front.Menu import ToolMenu
+from front.Menu import ViewMenu
 
 from front.util_front import skin
 import front.util_front as G

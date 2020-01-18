@@ -1,17 +1,19 @@
+"""
+    Pick star and call back
+"""
 import matplotlib
 import numpy as np  # for a readind lst like an array
 
-import EventArtist  # draw an ellipse
-import AnswerReturn as AR
+from front import EventArtist  # draw an ellipse
+from front import AnswerReturn as AR
+from front import WindowRoot as MG
+from front import util_front as G
 
-import Strehl
-
-import WindowRoot as MG
-import ImageFunction as IF
+from back import Strehl
+from back import ImageFunction as IF
+import back.util_back as W
 
 from util import log
-import front.util_front as G
-import back.util_back as W
 
 
 def RefreshPick(label):  # This is the only callled routine
