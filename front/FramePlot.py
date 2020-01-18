@@ -12,10 +12,13 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
 from numpy import sqrt, float32
 
 # Local
-from front.DraggableColorbar import DraggableColorbar
+from back import  Scale  # otherwise get in conflict with Tkinter
+from front.DraggableColorbar import DraggableColorbar, zoom_fun
 from front.util_front import photo_up, photo_down, skin, TitleLabel
 import front.util_front as G
 
+# TODO must be remooved
+from front import Pick
 # TODO this should not be here
 from back.ImageFunction import PixelMax
 import back.util_back as W
@@ -132,7 +135,6 @@ class ImageFrame(PlotFrame):
 
     def set_figure_scrollable(self):
         """Enable scroll with mouse"""
-        from DraggableColorbar import zoom_fun
         def zoom_handler(event):
             zoom_fun(event, G.ax1, self._fig.canvas.draw, base_scale=1.2)
 
@@ -204,7 +206,6 @@ class ImageFrame(PlotFrame):
         ###  SOME  CLICKS #
         #####################
         # TODO move me ::
-        import Pick
         Pick.RefreshPick("one")  # assuming that the default PIck is setted yet
 
         # I don't know why I need to pu that at the end but it worls like that
@@ -315,7 +316,6 @@ class ImageFrame(PlotFrame):
                 G.scale_dic[0]["min_cut"] = W.imstat.min
                 G.scale_dic[0]["max_cut"] = W.imstat.max
             else:
-                import Scale  # otherwise get in conflict with Tkinter
                 dictmp = {"whole_image": "useless"}
                 dictmp.update(G.scale_dic[0])
                 tmp = Scale.MinMaxCut(W.Im0, dic=dictmp)

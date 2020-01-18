@@ -1,9 +1,9 @@
 import numpy as np
 
-import ImageFunction as IF
-import Stat
-import FitFunction as FF
-import BasicFunction as BF
+from back import ImageFunction as IF
+from back import Stat
+from back import FitFunction as FF
+from back import BasicFunction as BF
 
 
 from util import log, get_verbose

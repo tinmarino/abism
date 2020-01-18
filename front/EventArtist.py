@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-import Pick
-import ImageFunction as IF  # to give him the output
+from back import ImageFunction as IF  # to give him the output
 
-
+from front import  Pick
 import front.util_front as G  # to know if on zoom
 
 

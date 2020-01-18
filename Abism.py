@@ -4,18 +4,13 @@
             A Software made by
     Julien Girard and Martin Tourneboeuf
 """
-# Standard
-import sys
-import os
 
-#  Extend current path
-path = os.path.dirname(os.path.abspath(__file__))
-for root, _, _ in os.walk(path):
-    sys.path.append(root)
+# Parse arguments
+from util import parse_argument
+parse_argument()
 
-# Local imports
-from front.WindowRoot import RootWindow
 
 # Go
+from front.WindowRoot import RootWindow
 root_window = RootWindow()
 root_window.mainloop()

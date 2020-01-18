@@ -41,7 +41,6 @@ class RootWindow(Tk):
         W.path = root_path()
 
         # Global even more dirty
-        set_verbose(5)
         W.same_center_var = IntVar()
         W.same_center_var.set(1)
         W.aniso_var = IntVar()

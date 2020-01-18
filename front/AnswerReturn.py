@@ -11,11 +11,10 @@ import numpy as np
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 
-import ImageFunction as IF
-
-import BasicFunction as BF
-import ReadHeader as RH  # to know witch telescope
-import Stat
+from back import ImageFunction as IF
+from back import BasicFunction as BF
+from back import Stat
+from plugin import ReadHeader as RH  # to know witch telescope
 
 from util import log
 from front.util_front import skin

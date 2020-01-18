@@ -3,7 +3,7 @@
 """
 import numpy as np
 
-import Stat
+from back import Stat
 import back.util_back as W  # to know the stats
 
 

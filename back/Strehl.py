@@ -1,14 +1,12 @@
+"""
+    Strehl meter
+"""
 import numpy as np
-import multiprocessing
-from threading import Thread
-import scipy.ndimage
 
-import ImageFunction as IF
-import AnswerReturn as AR
-import StrehlImage as SI
+from back import ImageFunction as IF
+from back import StrehlImage as SI
 
 from util import log
-import front.util_front as G
 import back.util_back as W
 
 

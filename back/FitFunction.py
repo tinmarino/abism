@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize
 
-from leastsqbound import leastsqbound
+from back.leastsqbound import leastsqbound
 
 from util import log
 import back.util_back as W

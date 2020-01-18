@@ -9,10 +9,9 @@ Should remove abism sutff and git to it as params
 import pylab as plt
 import numpy as np
 from scipy.ndimage import gaussian_filter
-import NormalizeMy
 
-
-import front.util_front as G
+from front import NormalizeMy
+from front import util_front as G
 
 
 class DraggableColorbar:

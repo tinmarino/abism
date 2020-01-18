@@ -6,13 +6,34 @@
 import re
 from os.path import dirname, abspath
 from functools import lru_cache
+from argparse import ArgumentParser
 
 # Package
 from tkinter import RAISED, IntVar, PhotoImage
 import matplotlib
 
 
-_verbose = 10
+
+_verbose = 10  # Verbose level
+_parsed_args = None  # Arguments from argparse
+
+
+def parse_argument():
+    global _verbose
+    parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
+
+    parser.add_argument(
+        'image', metavar='image', type=str,
+        help='image to diplay: filepath of the .fits')
+
+    parser.add_argument(
+        '-v', '--verbose',
+        dest='verbose', action='store', type=int, default=0,
+        help='verbosity level; 1..10')
+
+    _parsed_args = parser.parse_args()
+
+    _verbose = _parsed_args.verbose
 
 
 def get_version():

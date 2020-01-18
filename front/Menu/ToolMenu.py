@@ -3,11 +3,11 @@
 """
 import tkinter as Tk
 
-import Pick  # to connect PickOne per defautl
 
 from plugin.DebugConsole import PythonConsole
 from plugin.Histogram import Histopopo
 
+from front import Pick  # to connect PickOne per defautl
 from front.util_front import skin
 
 

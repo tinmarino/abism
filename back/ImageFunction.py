@@ -6,8 +6,8 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-import Stat
-import BasicFunction as BF
+from back import Stat
+from back import BasicFunction as BF
 
 from util import log
 import front.util_front as G  # check variables
