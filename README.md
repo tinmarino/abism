@@ -3,7 +3,7 @@
 
 __Install:__
 ```sh
-pip install --user -U git+https://github.com/tinmarino/abism 
+pip install -U git+https://github.com/tinmarino/abism 
 ```
 
 __What:__
