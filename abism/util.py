@@ -85,10 +85,10 @@ def restart():
     # PREPARE STG command line args
     stg = 'python ' + _parsed_args.script + ' '
     arg_dic = vars(_parsed_args)
-    for key in arg_dic:
-        if key == 'script': continue
+    for key, value in arg_dic.items():
+        if key == 'script' or not value: continue
         print(key, ' ', arg_dic[key])
-        stg += '--' + key + ' ' + str(arg_dic[key]) + ' '
+        stg += '--' + key + ' ' + str(value) + ' '
     stg += '&'
     log(0, "\n\n\n" + 80 * "_" + "\n",
           "Restarting ABISM with command:\n" + stg + "\nplease wait")
@@ -154,7 +154,7 @@ def set_verbose(i_level):
 @lru_cache(1)
 def root_path():
     """Return: path of this file"""
-    return dirname(abspath(__file__))
+    return dirname(abspath(__file__)) + '/'
 
 
 @lru_cache(1)

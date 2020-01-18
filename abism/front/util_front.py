@@ -70,19 +70,19 @@ tkentry = VoidClass()
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""
-    return tk.PhotoImage(file=root_path() + "/res/arrow_up.gif")
+    return tk.PhotoImage(file=root_path() + "res/arrow_up.gif")
 
 
 @lru_cache(1)
 def photo_down():
     """Return path of arrow_down icon"""
-    return tk.PhotoImage(file=root_path() + "/res/arrow_down.gif")
+    return tk.PhotoImage(file=root_path() + "res/arrow_down.gif")
 
 
 @lru_cache(1)
 def icon_path():
     """Return path of window icon"""
-    return root_path() + '/res/bato_chico.gif'
+    return root_path() + 'res/bato_chico.gif'
 
 
 class Font:

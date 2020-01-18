@@ -19,7 +19,7 @@ import abism.back.util_back as W
 def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
     """full_answer get the photometry and the background """
     # dictionary will be used for the noise or not
-    (x0, y0), (rx1, rx2, ry1, ry2) = center, W.r
+    (x0, y0), (rx1, rx2, ry1, ry2) = center, list(map(int, W.r))
     log(3, "----->Seeingfit@ImageFunction.py -> r: ",
           rx1, rx2, ry1, ry2, 'center :', center)
     my_max = max
