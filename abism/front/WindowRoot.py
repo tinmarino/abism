@@ -38,6 +38,11 @@ class RootWindow(Tk):
         """Create main app"""
         super().__init__()
 
+        # Parse arguments
+        from abism.util import parse_argument
+        parse_argument()
+
+
         # Variables for my children
         set_root(self)
         self.image = ImageInfo()
