@@ -61,5 +61,5 @@ def OpenFile(root):
     root.ImageFrame.draw_image()
 
     # Change title
-    fname = _root.image.name.split('/')[-1]
+    fname = root.image.name.split('/')[-1]
     root.title('Abism (' + fname + ')')

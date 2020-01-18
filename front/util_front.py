@@ -3,14 +3,12 @@
 """
 
 # Standard
-from sys import exit as sys_exit
-from os import system
 from functools import lru_cache
 from enum import Enum
 
 import tkinter as tk
 
-from util import root_path, log, get_version  # pylint: disable=no-name-in-module
+from util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
 import back.util_back as W
 
 
@@ -85,81 +83,6 @@ def photo_down():
 def icon_path():
     """Return path of window icon"""
     return root_path() + '/res/bato_chico.gif'
-
-
-def quit_process():
-    """Kill process"""
-    log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
-    # parent.destroy()
-    sys_exit(1)
-
-
-def Restart():
-    """ TODO move me to Global Definer, WritePref and ReadPref
-        Pushing this button will close ABISM and restart it the same way it was launch before.
-        Programmers: this is made to reload the Software if a modification in the code were made.
-    """
-
-    #################
-    # prepare arguments
-    arg = W.sys_argv
-
-    # IMAGE_NAME
-    matching = [s for s in arg if ".fits" in s]
-    if len(matching) > 0:
-        arg[arg.index(matching[0])] = W.image_name
-    else:
-        arg.insert(1, W.image_name)
-
-    # COLOR MAP
-    try:
-        cmap = ImageFrame.cbar.cbar.get_cmap().name
-    except BaseException:
-        cmap = "jet"  # if no image loaded
-    if not isinstance(cmap, str):
-        cmap = "jet"
-    for i in [ # TODO see in util and goto util
-        # SCALE DIC
-        ["--cmap", cmap],
-        ["--scale_dic_stretch", scale_dic[0]["stretch"]],
-        ["--scale_dic_scale_cut_type", scale_dic[0]["scale_cut_type"]],
-        ["--scale_dic_percent", scale_dic[0]["percent"]],
-
-
-        # FRAME
-        ["--parent", parent.geometry()],
-        ["--TextPaned", TextPaned.winfo_width()],
-        ["--DrawPaned", DrawPaned.winfo_width()],
-        ["--LabelFrame", LabelFrame.winfo_width()],
-        ["--ResultFrame", ResultFrame.winfo_height()],
-        ["--OptionFrame", OptionFrame.winfo_height()],
-        ["--ImageFrame", ImageFrame.winfo_height()],
-        ["--RightBottomPaned", RightBottomPaned.winfo_height()],
-        ["--FitFrame", FitFrame.winfo_width()],
-        ["--AnswerFrame", AnswerFrame.winfo_width()],
-        ["--ImageName", W.image_name],
-    ]:
-        if not i[0] in arg:
-            arg.append(i[0])
-            arg.append('"' + str(i[1]) + '"')
-        else:
-            arg[arg.index(i[0]) + 1] = '"' + str(i[1]) + '"'
-
-    ###########
-    # PREPARE STG command line args
-    stg = "python "
-    for i in arg:
-        stg += " " + i
-    stg += " &"  # To keep the control of the terminal
-    log(0, "\n\n\n" + 80 * "_" + "\n",
-          "Restarting ABISM with command:\n" + stg + "\nplease wait")
-
-    ##########
-    # DESTROY AND LAUNCH
-    parent.destroy()  # I destroy Window,
-    system(stg)         # I call an other instance
-    sys_exit(1)         # I exit the current process.
-    # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
 class Font:

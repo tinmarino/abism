@@ -4,9 +4,10 @@
 
 # Standard
 import re
+import sys
+import os
 from os.path import dirname, abspath
 from functools import lru_cache
-from argparse import ArgumentParser
 
 # Package
 from tkinter import RAISED, IntVar, PhotoImage
@@ -23,22 +24,37 @@ _root = None
 
 
 def parse_argument():
+    from argparse import ArgumentParser
+    from sys import argv
     parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
 
+    # Image
     parser.add_argument(
-        'image_name', metavar='image.fits', type=str,
-        default='', nargs='?',
+        '-i', '--image', metavar='image.fits', type=str,
+        action='append',
         help='image to diplay: filepath of the .fits')
 
     parser.add_argument(
-        '-v', '--verbose',
-        dest='verbose', action='store', type=int, default=0,
+        'image', metavar='image.fits', type=str,
+        default='', nargs='?', action='append',
+        help='image to diplay: filepath of the .fits')
+
+    parser.add_argument(
+        '-v', '--verbose', type=int,
+        default=0, action='store',
         help='verbosity level: 0..10')
+
+
+    # Custom
+    parsed_args = parser.parse_args()
+    parsed_args.script = argv[0]
+    parsed_args.image = parsed_args.image[0]
 
     # set
     global _parsed_args, verbose
-    _parsed_args = parser.parse_args()
+    _parsed_args = parsed_args
     _verbose = _parsed_args.verbose
+
 
 
 def get_root():
@@ -50,6 +66,40 @@ def set_root(root):
     global _root; _root = root
 
 
+def quit_process():
+    """Kill process"""
+    log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
+    # parent.destroy()
+    sys.exit(0)
+
+
+def restart():
+    """ TODO move me to Global Definer, WritePref and ReadPref
+        Pushing this button will close ABISM and restart it the same way it was launch before.
+        Programmers: this is made to reload the Software if a modification in the code were made.
+    """
+
+    ###########
+    # PREPARE STG command line args
+    stg = 'python ' + _parsed_args.script + ' '
+    arg_dic = vars(_parsed_args)
+    for key in arg_dic:
+        if key == 'script': continue
+        print(key, ' ', arg_dic[key])
+        stg += '--' + key + ' ' + str(arg_dic[key]) + ' '
+    stg += '&'
+    log(0, "\n\n\n" + 80 * "_" + "\n",
+          "Restarting ABISM with command:\n" + stg + "\nplease wait")
+
+    ##########
+    # DESTROY AND LAUNCH
+    get_root().destroy()  # I destroy Window,
+    os.system(stg)         # I call an other instance
+    sys.exit(0)         # I exit the current process.
+    # As the loop is now opened, this may not be necessary but anyway it is safer
+
+
+
 class ImageInfo:
     "Image and its info"""
     def __init__(self):
@@ -59,7 +109,7 @@ class ImageInfo:
         image_release = (0., 0.)
         """
         # Current image filepath
-        self.name = _parsed_args.image_name
+        self.name = _parsed_args.image
         self.is_cube = False  # Cube it is not
         self.cube_num = -1
         self.click = (0., 0.)  # Mouse click position

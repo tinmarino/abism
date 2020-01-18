@@ -12,6 +12,7 @@ from astropy.io import fits
 
 # Gui
 from front.Menu.MenuBar import MenuBarMaker
+from front.Menu.FileMenu import OpenFile
 from front.FrameText import LeftFrame
 from front.FramePlot import RightFrame
 from front.util_front import skin, icon_path
@@ -20,7 +21,7 @@ import front.util_front as G
 # Variables
 import back.util_back as W
 from util import root_path, log, set_verbose, \
-    ImageInfo, AbismState, set_root
+    ImageInfo, AbismState, set_root, restart
 
 # Plugin
 from plugin.ReadHeader import CallHeaderClass  # What a name !
@@ -53,6 +54,7 @@ class RootWindow(Tk):
         # Give title
         self.set_title()
         self.set_icon()
+        self.set_shortcut()
 
         # Create menu
         MenuBarMaker(self)
@@ -89,7 +91,7 @@ class RootWindow(Tk):
         G.dpresult = G.ResultFrame.get_canvas()
 
         # Open image if can
-        if self.image.name != None:
+        if self.image.name:
             self.open_image()
             G.ImageFrame.draw_image()
 
@@ -107,23 +109,16 @@ class RootWindow(Tk):
             log(3, "->you have no beautiful icon "
                 "because you didn't set the PATH in Abism.py")
 
-    def set_shortcuts(self):
-        """TODO not working
-        Shortcut, module, function, [  args, kargs  ]
-        # Take MG and parents
-        """
+    def set_shortcut(self):
+        """Shortcuts with ctrl"""
 
-        for i in [
-                ["<Control-o>", "MG", "Open"],
-                ["<Control-q>", "G", "Quit"],
-                ["<Control-r>", "MG", "Restart"],
-                ]:
-            self.bind_all(i[0], lambda i=i: vars(i[1])[i[2]]())
+        self.bind_all(
+            "<Control-o>",
+            lambda _: OpenFile(self))
 
-    def set_global(self):
-        """Holly trick"""
-        _root = self
-
+        self.bind_all(
+            "<Control-r>",
+            lambda _: restart())
 
     def open_image(self, new_fits=True):
         """Open image from path
