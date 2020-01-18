@@ -8,10 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize
 
-from back.leastsqbound import leastsqbound
+from abism.back.leastsqbound import leastsqbound
 
-from .util import log
-import back.util_back as W
+from abism.util import log
+import abism.back.util_back as W
 
 
 """

@@ -3,14 +3,14 @@
 """
 import tkinter as tk
 
-from front.Menu import FileMenu
-from front.Menu import AbismMenu
-from front.Menu import AnalysisMenu
-from front.Menu import ToolMenu
-from front.Menu import ViewMenu
+from abism.front.Menu import FileMenu
+from abism.front.Menu import AbismMenu
+from abism.front.Menu import AnalysisMenu
+from abism.front.Menu import ToolMenu
+from abism.front.Menu import ViewMenu
 
-from front.util_front import skin
-import front.util_front as G
+from abism.front.util_front import skin
+import abism.front.util_front as G
 
 
 def MenuBarMaker(root):

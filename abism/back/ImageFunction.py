@@ -6,12 +6,12 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-from back import Stat
-from back import BasicFunction as BF
+from abism.back import Stat
+from abism.back import BasicFunction as BF
 
-from .util import log
-import front.util_front as G  # check variables
-import back.util_back as W  # for verbose
+from abism.util import log
+import abism.front.util_front as G  # check variables
+import abism.back.util_back as W  # for verbose
 
 
 def DoNotPassBorder(grid, point2d):

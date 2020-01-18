@@ -4,8 +4,8 @@ with a dragging the vertical lines., with a binning of the image,
 this could even be in real time.
 """
 
-from .util import log
-import front.util_front as G
+from abism.util import log
+import abism.front.util_front as G
 
 
 def Histopopo(figure, image_sorted, fg='black'):

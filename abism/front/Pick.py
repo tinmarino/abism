@@ -4,17 +4,17 @@
 import matplotlib
 import numpy as np  # for a readind lst like an array
 
-from front import EventArtist  # draw an ellipse
-from front import AnswerReturn as AR
+from abism.front import EventArtist  # draw an ellipse
+from abism.front import AnswerReturn as AR
 # Warnign circular dep
-import front.Menu.AnalysisMenu as AnalysisMenu
-from front import util_front as G
+import abism.front.Menu.AnalysisMenu as AnalysisMenu
+from abism.front import util_front as G
 
-from back import Strehl
-from back import ImageFunction as IF
-import back.util_back as W
+from abism.back import Strehl
+from abism.back import ImageFunction as IF
+import abism.back.util_back as W
 
-from .util import log, get_root
+from abism.util import log, get_root
 
 
 def RefreshPick(label):  # This is the only callled routine

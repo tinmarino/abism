@@ -10,13 +10,13 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
     VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
 
-from front.util_front import photo_up, photo_down, skin, \
+from abism.front.util_front import photo_up, photo_down, skin, \
     TitleLabel
 
-from .util import log, get_root, quit_process, restart
+from abism.util import log, get_root, quit_process, restart
 
-import front.util_front as G
-import back.util_back as W
+import abism.front.util_front as G
+import abism.back.util_back as W
 
 
 class TextFrame(Frame):

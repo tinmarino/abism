@@ -10,8 +10,8 @@ import pylab as plt
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
-from front import NormalizeMy
-from front import util_front as G
+from abism.front import NormalizeMy
+from abism.front import util_front as G
 
 
 class DraggableColorbar:
@@ -133,7 +133,7 @@ from matplotlib.colors import Normalize
 
 def zoom_fun(event, ax, callback=plt.draw, base_scale=2):
     """Enbale zoom on canvas"""
-    from util import log
+    from abism.util import log
     log(3, 'Scrooling called with factor', base_scale, 'on', ax)
     # get the current x and y limits
     cur_xlim = ax.get_xlim()

@@ -3,7 +3,7 @@
 """
 
 from sys import argv as std_argv
-import util
+import abism.util
 
 
 sys_argv = std_argv

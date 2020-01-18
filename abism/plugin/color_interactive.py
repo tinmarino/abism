@@ -4,10 +4,10 @@ import colorsys
 import numpy as np  # for the np.arrange to load the ultimate row befora
 
 try:
-  import front.util_front as G
-  import back.util_back as W
+  import abism.front.util_front as G
+  import abism.back.util_back as W
 
-  from util import log
+  from abism.util import log
   imported = True
 except:
   print("Not in ABSIM, cannot load modules"  # verbose OK)

@@ -1,10 +1,10 @@
 from tkinter import *
 
-from front.util_front import skin
-import front.util_front as G
-import back.util_back as W
+from abism.front.util_front import skin
+import abism.front.util_front as G
+import abism.back.util_back as W
 
-import util
+import abism.util
 
 
 def BgCl(color=None, who="bg"):

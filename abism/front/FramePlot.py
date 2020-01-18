@@ -12,20 +12,20 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
 from numpy import sqrt, float32
 
 # Local
-from back import  Scale  # otherwise get in conflict with Tkinter
-from front.DraggableColorbar import DraggableColorbar, zoom_fun
-from front.util_front import photo_up, photo_down, skin, TitleLabel
-import front.util_front as G
+from abism.back import  Scale  # otherwise get in conflict with Tkinter
+from abism.front.DraggableColorbar import DraggableColorbar, zoom_fun
+from abism.front.util_front import photo_up, photo_down, skin, TitleLabel
+import abism.front.util_front as G
 
 # TODO must be remooved
-from front import Pick
+from abism.front import Pick
 # TODO this should not be here
-from back.ImageFunction import PixelMax
-import back.util_back as W
-from front.AnswerReturn import PlotStar2
-from front.DraggableColorbar import MyNormalize
+from abism.back.ImageFunction import PixelMax
+import abism.back.util_back as W
+from abism.front.AnswerReturn import PlotStar2
+from abism.front.DraggableColorbar import MyNormalize
 
-from .util import log, get_root
+from abism.util import log, get_root
 
 class PlotFrame(tk.Frame):
     """Base class"""

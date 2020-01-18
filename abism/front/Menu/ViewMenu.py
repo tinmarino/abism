@@ -5,12 +5,12 @@
 from tkinter import *
 import tkinter as Tk
 
-from front import WindowRoot as MG
+from abism.front import WindowRoot as MG
 
-from .util import log
-from front.util_front import skin, TitleLabel
-import front.util_front as G
-import back.util_back as W
+from abism.util import log
+from abism.front.util_front import skin, TitleLabel
+import abism.front.util_front as G
+import abism.back.util_back as W
 
 
 def ViewMenu(root, parent, args):

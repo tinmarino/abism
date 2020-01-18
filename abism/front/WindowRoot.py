@@ -11,20 +11,20 @@ import numpy as np
 from astropy.io import fits
 
 # Gui
-from front.Menu.MenuBar import MenuBarMaker
-from front.Menu.FileMenu import OpenFile
-from front.FrameText import LeftFrame
-from front.FramePlot import RightFrame
-from front.util_front import skin, icon_path
-import front.util_front as G
+from abism.front.Menu.MenuBar import MenuBarMaker
+from abism.front.Menu.FileMenu import OpenFile
+from abism.front.FrameText import LeftFrame
+from abism.front.FramePlot import RightFrame
+from abism.front.util_front import skin, icon_path
+import abism.front.util_front as G
 
 # Variables
-import back.util_back as W
-from .util import root_path, log, set_verbose, \
+import abism.back.util_back as W
+from abism.util import root_path, log, set_verbose, \
     ImageInfo, AbismState, set_root, restart
 
 # Plugin
-from plugin.ReadHeader import CallHeaderClass  # What a name !
+from abism.plugin.ReadHeader import CallHeaderClass  # What a name !
 
 
 class RootWindow(Tk):
@@ -165,7 +165,7 @@ class RootWindow(Tk):
     def set_science_variable(self):
         """ Get variable, stat from image
         """
-        from back.Stat import Stat
+        from abism.back.Stat import Stat
         # BPM
         if self.image.bpm_name is not None:
             hdu = fits.open(self.image.bpm_name)

@@ -1,14 +1,14 @@
 import numpy as np
 
-from back import ImageFunction as IF
-from back import Stat
-from back import FitFunction as FF
-from back import BasicFunction as BF
+from abism.back import ImageFunction as IF
+from abism.back import Stat
+from abism.back import FitFunction as FF
+from abism.back import BasicFunction as BF
 
 
-from .util import log, get_verbose, get_root
-import front.util_front as G
-import back.util_back as W
+from abism.util import log, get_verbose, get_root
+import abism.front.util_front as G
+import abism.back.util_back as W
 
 
 ###############

@@ -5,11 +5,11 @@ from tkinter import Menu, Menubutton
 from tkinter.filedialog import askopenfilename
 
 
-from .util import log
-import back.util_back as W
-from front.util_front import skin
+from abism.util import log
+import abism.back.util_back as W
+from abism.front.util_front import skin
 
-from plugin.FitsHeaderWindow import DisplayHeader
+from abism.plugin.FitsHeaderWindow import DisplayHeader
 
 
 def FileMenu(root, parent, args):

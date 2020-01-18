@@ -3,13 +3,13 @@
 """
 import tkinter as Tk
 
-from front import Pick
-from front.util_front import skin, TitleLabel
-import front.util_front as G
+from abism.front import Pick
+from abism.front.util_front import skin, TitleLabel
+import abism.front.util_front as G
 
-import back.util_back as W
+import abism.back.util_back as W
 
-from .util import log
+from abism.util import log
 
 """
              #TODO ["Ellipse"   , "ellipse" ,

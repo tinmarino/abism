@@ -9,10 +9,10 @@ import sys
 import select
 import traceback
 
-from .util import log
-import back.util_back as W
-import front.util_front as G
-from front.util_front import skin
+from abism.util import log
+import abism.back.util_back as W
+import abism.front.util_front as G
+from abism.front.util_front import skin
 
 
 """

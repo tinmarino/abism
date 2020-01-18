@@ -8,8 +8,8 @@ from enum import Enum
 
 import tkinter as tk
 
-from .util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
-import back.util_back as W
+from abism.util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
+import abism.back.util_back as W
 
 
 
@@ -244,7 +244,7 @@ class Skin:
 
 def update_widget_skin(widget):
     """Update the skin of a widget"""
-    from front.FramePlot import PlotFrame
+    from abism.front.FramePlot import PlotFrame
 
 
     if isinstance(widget, PlotFrame):

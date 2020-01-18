@@ -3,11 +3,11 @@
 """
 import numpy as np
 
-from back import ImageFunction as IF
-from back import StrehlImage as SI
+from abism.back import ImageFunction as IF
+from abism.back import StrehlImage as SI
 
-from .util import log, get_root
-import back.util_back as W
+from abism.util import log, get_root
+import abism.back.util_back as W
 
 
 def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]

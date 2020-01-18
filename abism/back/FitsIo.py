@@ -5,11 +5,11 @@
 from astropy.io import fits
 from numpy import isnan
 
-from plugin.ReadHeader import CallHeaderClass
-from back.Stat import Stat
+from abism.plugin.ReadHeader import CallHeaderClass
+from abism.back.Stat import Stat
 
-from .util import log
+from abism.util import log
 
-import front.util_front as G
-import back.util_back as W
+import abism.front.util_front as G
+import abism.back.util_back as W
 

@@ -10,20 +10,20 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
 from threading import Thread, currentThread
 
 # Front
-from front.util_front import skin
-import front.util_front as G
+from abism.front.util_front import skin
+import abism.front.util_front as G
 
 # Back
-from back import ImageFunction as IF
-from back import BasicFunction as BF
-from back.Stat import Stat
-import back.util_back as W
+from abism.back import ImageFunction as IF
+from abism.back import BasicFunction as BF
+from abism.back.Stat import Stat
+import abism.back.util_back as W
 
 # Plugin
-from plugin import ReadHeader as RH  # to know witch telescope
-from plugin import CoordTransform as CT
+from abism.plugin import ReadHeader as RH  # to know witch telescope
+from abism.plugin import CoordTransform as CT
 
-from .util import log, get_root
+from abism.util import log, get_root
 
 
 

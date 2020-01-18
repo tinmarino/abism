@@ -36,8 +36,8 @@ import numpy as np
 
 from astropy import wcs
 
-from .util import log
-import back.util_back as W
+from abism.util import log
+import abism.back.util_back as W
 
 
 

@@ -3,10 +3,10 @@
 """
 import tkinter as tk
 
-from front.util_front import system_open, about_window, \
+from abism.front.util_front import system_open, about_window, \
     change_scheme, Scheme, skin
 
-from .util import quit_process
+from abism.util import quit_process
 
 def AbismMenu(root, parent, args):
     # pylint: disable=unused-argument

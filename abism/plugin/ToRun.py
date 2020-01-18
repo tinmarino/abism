@@ -21,9 +21,9 @@ import ImageFunction as IF  # Function on images
 import BasicFunction as BF  # 2D psf functions
 
 # Variables
-from .util import log
-import front.util_front as G
-import back.util_back as W
+from abism.util import log
+import abism.front.util_front as G
+import abism.back.util_back as W
 
 # Plugin
 import ReadHeader as RH

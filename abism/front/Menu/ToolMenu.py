@@ -4,11 +4,11 @@
 import tkinter as Tk
 
 
-from plugin.DebugConsole import PythonConsole
-from plugin.Histogram import Histopopo
+from abism.plugin.DebugConsole import PythonConsole
+from abism.plugin.Histogram import Histopopo
 
-from front import Pick  # to connect PickOne per defautl
-from front.util_front import skin
+from abism.front import Pick  # to connect PickOne per defautl
+from abism.front.util_front import skin
 
 
 def ToolMenu(root, parent, args):

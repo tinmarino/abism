@@ -3,8 +3,8 @@
 """
 import numpy as np
 
-from back import Stat
-import back.util_back as W  # to know the stats
+from abism.back import Stat
+import abism.back.util_back as W  # to know the stats
 
 
 def MinMaxCut(grid, dic={}):  # From a true value renge give min_cut and max_cut
