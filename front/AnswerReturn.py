@@ -144,10 +144,6 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         PlotStat()
     DisplayAnswer(font=skin().font.answer)
 
-    # Change sash if Answer atrofied
-    place = G.parent.winfo_height() - G.TextPaned.winfo_rooty() - 300
-    if G.TextPaned.sash_coord(1)[1] > place + 30:
-        G.TextPaned.sash_place(1, 0, place)
 
 
 def PlotPickOne():
@@ -956,50 +952,6 @@ def PlotBinaryStar2D():
     ############
 
 
-def PC():  # read W.psf_fit
-    def PCor():  # write correlation
-        stg_head = ","
-        string = ""
-        cov = W.psf_fit[4]["cov"]
-        keys = W.psf_fit[4]["fitOnly"]
-        for i in range(len(cov)):
-            stg_head += keys[i] + ","
-            string += keys[i] + ","
-            for j in range(i+1):
-                string += "%.3f" % (cov[i, j] /
-                                    np.sqrt(cov[i, i] * cov[j, j]))+","
-            string = string[:-1]+"\n"  # remove last "," and pass line
-        stg_head = stg_head[:-1]+"\n"
-        string = stg_head+string[:-2]  # remove last <newline>
-        log(0, string)
-
-        from subprocess import call
-        sh = W.path+"/print_array.sh"  # verbose
-        call("bash " + sh + " '" + string + "' ", shell=True)
-        log(0, "\n\n")
-
-    def PFit():  # write fit
-        string = "      ##########################\n"
-        string += "      #    FITTED PARAMETERS   #\n"
-        string += "      ##########################\n"
-        string += "%15s = %s \n" % ('REDUCED CHI2',
-                                    str(W.psf_fit[4]["reduced_chi2"]))
-        pfix = W.strehl["fit_dic"]
-        uncer = W.psf_fit[1]
-        for k in pfix.keys():
-            string += "%15s = %s" % (k, pfix[k])
-            if uncer[k] != 0:
-                string += ' +/- %s' % (uncer[k])
-            string += "\n"
-        log(0, string)
-    try:
-        PFit()
-    except:
-        pass
-
-    return
-
-
 def CallContrastMap():
     G.contrast_fig = matplotlib.figure.Figure()
     ax = G.contrast_fig.add_subplot(111)
@@ -1057,9 +1009,9 @@ def CallContrastMap():
     G.contrast_thread.start()
     #G.contrast_timer    = Thread(target=Timer).start()
 
-    #G.parent.wm_attributes("-topmost", 1)
+    #G.__parent.wm_attributes("-topmost", 1)
     G.ContrastWindow.mainloop()
-    # G.parent.focus()
+    # G.__parent.focus()
 
 
 def FigurePlot(x, y, dic={}):
