@@ -36,8 +36,9 @@ def parse_argument():
 
     parser.add_argument(
         'image', metavar='image.fits', type=str,
-        default='', nargs='?', action='append',
-        help='image to diplay: filepath of the .fits')
+        default='',
+        nargs='?', action='append',
+        help='image to diplay: the first one is chosen')
 
     parser.add_argument(
         '-v', '--verbose', type=int,
@@ -47,6 +48,7 @@ def parse_argument():
 
     # Custom
     parsed_args = parser.parse_args()
+    log(3, 'Parsed initially:', parsed_args)
     parsed_args.script = argv[0]
     parsed_args.image = parsed_args.image[0]
 
