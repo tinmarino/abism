@@ -1,22 +1,21 @@
 # 2020
 
-1. Make PlotFrame.clear_axes() -> as (see hitopop)
-2. Find a way to get consisten version naming 0.901 soon (DONE with print absim.__version__
-3. Repair Imageparameters (colo stuff) 
-4. Make more verbose pick_many, actually, how does that work
-
-# Gobal removal
-
-* See Restart with argument parser
-* Make util.pref
-* argparse
+* Make PlotFrame.clear_axes() -> as (see hitopop)
+* Make more verbose pick_many, actually, how does that work
 
 # UI
 
-1. make sahs working on left pane hide
+* color text of matplotlib according to scheme
+* make sahs working on left pane hide
+  * Repair Imageparameters (colo stuff) 
   * The sash toggle does not work properly, see in TextFrame
-2. Dark mode
-  1. just white and dark background(one fancy if you want)
-3. Create pip package
-4. Doc
-5. (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
+* (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
+
+
+# Always possible
+
+* Better documentation
+* More colorscheme and better interface to choose
+* Better preference saving, loading
+  * Appdir module
+  * In util, parse_argument and restart
