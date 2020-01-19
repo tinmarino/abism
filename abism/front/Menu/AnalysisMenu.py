@@ -1,7 +1,7 @@
 """
     Menu bar to choose the fit type
 """
-import tkinter as Tk
+import tkinter as tk
 
 from abism.front import Pick
 from abism.front.util_front import skin, TitleLabel
@@ -9,7 +9,7 @@ import abism.front.util_front as G
 
 import abism.back.util_back as W
 
-from abism.util import log
+from abism.util import log, get_root
 
 """
              #TODO ["Ellipse"   , "ellipse" ,
@@ -26,15 +26,15 @@ from abism.util import log
 
 def AnalysisMenu(root, parent, args):
     """Create the Menu button and its children"""
-    menu_button = Tk.Menubutton(parent, **args)
-    menu_button.menu = Tk.Menu(menu_button, **skin().fg_and_bg)
+    menu_button = tk.Menubutton(parent, **args)
+    menu_button.menu = tk.Menu(menu_button, **skin().fg_and_bg)
 
     ##############################
     # FitType
     fit_menu = menu_button.menu
-    fit_menu.add_command(label="Fit Type", bg=None, state=Tk.DISABLED)
+    fit_menu.add_command(label="Fit Type", bg=None, state=tk.DISABLED)
 
-    G.cu_fit = Tk.StringVar()
+    G.cu_fit = tk.StringVar()
     G.cu_fit.set(W.type["fit"].replace("2D", ""))
     lst1 = [
         ["Gaussian", "Gaussian", lambda: SetFitType("Gaussian")],
@@ -64,10 +64,10 @@ def AnalysisMenu(root, parent, args):
     pick_menu = menu_button.menu
     pick_menu.add_command(label="Pick Object(s)",
                             bg=None,
-                            state=Tk.DISABLED)
+                            state=tk.DISABLED)
 
     # more options
-    G.cu_pick = Tk.StringVar()
+    G.cu_pick = tk.StringVar()
     G.cu_pick.set(W.type["pick"])
     lst2 = [
         ["PickOne", "one", lambda: Pick.RefreshPick("one")],
@@ -120,28 +120,27 @@ def MoreWidget(parent):
 
 def MoreCreate():       # Create The Frame
     G.more_bool = not G.more_bool  # mean = 1
-    G.OptionFrame.toogle(visible=True)
 
     # #########""
     # FRAME
     # create the more_staff Frame
-    G.MoreFrame = Tk.Frame(G.OptionFrame, bg=skin().color.bg)
+    G.MoreFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
     G.all_frame.append("G.MoreFrame")
     G.MoreFrame.grid(sticky='nsew')
 
     label_more = TitleLabel(G.MoreFrame, text="More Options")
-    label_more.pack(side=Tk.TOP, anchor="w")
+    label_more.pack(side=tk.TOP, anchor="w")
 
     #
-    G.MoreGridFrame = Tk.Frame(G.MoreFrame, bg=skin().color.bg)
+    G.MoreGridFrame = tk.Frame(G.MoreFrame, bg=skin().color.bg)
     G.all_frame.append("G.MoreGridFrame")
-    G.MoreGridFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
+    G.MoreGridFrame.pack(side=tk.TOP, expand=0, fill=tk.X)
     G.MoreGridFrame.columnconfigure(0, weight=1)
     G.MoreGridFrame.columnconfigure(1, weight=1)
 
     def SubtractBackground(frame):
         ""
-        G.bu_subtract_bg = Tk.Button(frame,
+        G.bu_subtract_bg = tk.Button(frame,
                                      text='SubstractBackground',
                                      command=SubstractBackground,
                                      **skin().button_dic)
@@ -149,13 +148,13 @@ def MoreCreate():       # Create The Frame
 
     def NoiseType(frame):
         ""
-        G.menu_noise = Tk.Menubutton(frame,
+        G.menu_noise = tk.Menubutton(frame,
                                      text=u'\u25be '+'Background',
-                                     relief=Tk.RAISED,
+                                     relief=tk.RAISED,
                                      **skin().button_dic)
-        G.menu_noise.menu = Tk.Menu(G.menu_noise)
+        G.menu_noise.menu = tk.Menu(G.menu_noise)
 
-        G.cu_noise = Tk.StringVar()
+        G.cu_noise = tk.StringVar()
         G.cu_noise.set(W.type["noise"])
 
         lst = [
@@ -180,11 +179,11 @@ def MoreCreate():       # Create The Frame
         return G.menu_noise
 
     def PhotType(frame):
-        G.menu_phot = Tk.Menubutton(frame, text=u'\u25be '+'Photometry',
-                                    relief=Tk.RAISED, **skin().button_dic)
-        G.menu_phot.menu = Tk.Menu(G.menu_phot)
+        G.menu_phot = tk.Menubutton(frame, text=u'\u25be '+'Photometry',
+                                    relief=tk.RAISED, **skin().button_dic)
+        G.menu_phot.menu = tk.Menu(G.menu_phot)
 
-        G.cu_phot = Tk.StringVar()
+        G.cu_phot = tk.StringVar()
         G.cu_phot.set(W.type["phot"])
 
         lst = [
@@ -208,15 +207,15 @@ def MoreCreate():       # Create The Frame
                   "padx": 0, "pady": 0, "highlightthickness": 0}
         ################
         # isoplanetism
-        G.iso_check = Tk.Checkbutton(frame,
+        G.iso_check = tk.Checkbutton(frame,
                                      text="Anisomorphism", variable=W.aniso_var,
                                      command=lambda: SetFitType(W.type["fit"]), **myargs)  # by default onvalue=1
 
-        G.same_check = Tk.Checkbutton(G.MoreGridFrame,
+        G.same_check = tk.Checkbutton(G.MoreGridFrame,
                                       text="Binary_same_psf", variable=W.same_psf_var,
                                       command=lambda: SetFitType(W.type["fit"]), **myargs)
 
-        G.same_center_check = Tk.Checkbutton(G.MoreGridFrame,
+        G.same_center_check = tk.Checkbutton(G.MoreGridFrame,
                                              text="Saturated_same_center", variable=W.same_center_var,
                                              command=lambda: SetFitType(W.type["fit"]), **myargs)
 
@@ -232,11 +231,12 @@ def MoreCreate():       # Create The Frame
         i.grid(row=row, column=0, columnspan=2, sticky="nwse")
         row += 1
 
-    G.bu_close = Tk.Button(G.MoreGridFrame, text=u'\u25b4 '+'Close',
+    G.bu_close = tk.Button(G.MoreGridFrame, text=u'\u25b4 '+'Close',
                            command=MoreClose, **skin().button_dic)
     G.bu_close.grid(row=row, column=0, columnspan=2)
 
-    G.OptionFrame.init_after()
+    # Redraw
+    get_root().OptionFrame.init_will_toogle(visible=True, add_title=False)
 
     return  # From MoreCreate
 
@@ -273,9 +273,9 @@ def ManualBackground():
 def ManualBackOpen():
     W.type["noise"] = "manual"
     G.manual_back_bool = not G.manual_back_bool
-    G.ManualBackFrame = Tk.Frame(G.OptionFrame, bg=skin().color.bg)
+    G.ManualBackFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
     G.all_frame.append("G.ManualBackFrame")
-    G.ManualBackFrame.pack(side=Tk.TOP, expand=0, fill=Tk.X)
+    G.ManualBackFrame.pack(side=tk.TOP, expand=0, fill=tk.X)
 
     G.ManualBackFrame.columnconfigure(0, weight=1)
     G.ManualBackFrame.columnconfigure(1, weight=1)
@@ -285,12 +285,12 @@ def ManualBackOpen():
         log(2, "ManualBack, called , ", G.background)
 
     # ENTRY
-    Tk.Label(
+    tk.Label(
         G.ManualBackFrame, text="Background value:",
         font=skin().font.param, **skin().fg_and_bg
         ).grid(row=0, column=0, sticky="snew")
-    G.tkvar.background = Tk.StringVar()
-    G.tkentry.background = Tk.Entry(
+    G.tkvar.background = tk.StringVar()
+    G.tkentry.background = tk.Entry(
         G.ManualBackFrame, width=10,
         textvariable=G.tkvar.background,
         font=skin().font.param,
@@ -303,7 +303,7 @@ def ManualBackOpen():
 
     ###############
     # CLOSE button
-    G.bu_back_close = Tk.Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
+    G.bu_back_close = tk.Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
                                 background=G.bu_close_color, command=ManualBackClose, **skin().button_dic)
     G.bu_back_close.grid(row=1, column=0, columnspan=2)
     log(3, "Manual Back called")

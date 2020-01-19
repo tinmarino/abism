@@ -5,9 +5,8 @@
 
 # UI
 
-* color text of matplotlib according to scheme
 * make sahs working on left pane hide
-  * Repair Imageparameters (colo stuff) 
+  * Repair Imageparameters (color stuff) 
   * The sash toggle does not work properly, see in TextFrame
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * Matplotlib, get better zoom
@@ -15,9 +14,11 @@
 
 # Always possible
 
-* Clean code (especially back)
 * Better documentation
 * More colorscheme and better interface to choose
 * Better preference saving, loading
   * Appdir module
   * In util, parse_argument and restart
+* Clean code (especially backend)
+  * Beware the magic (FrameText 22, xtermTk, fontsize)
+  * Consistent naming

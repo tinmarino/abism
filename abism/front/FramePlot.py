@@ -233,7 +233,7 @@ class ImageFrame(PlotFrame):
         # # does not work it put in Science Variables
         if new_fits:
             G.label_bool = 0
-            G.LabelFrame.update()
+            G.LabelFrame.update_label()
 
         self.set_figure_scrollable()
 

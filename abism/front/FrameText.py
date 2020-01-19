@@ -4,6 +4,7 @@
     Label
     Option
     Answer
+
 """
 
 from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
@@ -41,7 +42,7 @@ class TextFrame(Frame):
         self._label_text = label_text
         self._index = index  # for sash
 
-    def init_after(self):
+    def init_after(self, add_title=True):
         """Place a last widget"""
         # Place button to resize
         self._arrow = Button(
@@ -49,7 +50,8 @@ class TextFrame(Frame):
         self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
-        TitleLabel(self, text=self._label_text).place(x=0, y=0)
+        if add_title:
+            TitleLabel(self, text=self._label_text).place(x=0, y=0)
 
         # Last widget
         if self._last is not None:
@@ -61,7 +63,7 @@ class TextFrame(Frame):
         """Toggle visibility: Hide and show"""
         # Check: not work if last
         if self._index is None:
-            W.log(3, 'Warning: cannnto hide last sash')
+            log(3, 'Warning: cannot hide last sash')
             return
 
         if visible is not None:
@@ -69,19 +71,36 @@ class TextFrame(Frame):
         else:
             self._see_me = not self._see_me
 
+        # Log before move
+        log(3, 'Toggle sash: nb=', self._index,
+            ',visible=', self._see_me,
+            ',base_y=', self.winfo_y(),
+            ',son=', self._last.winfo_y(),
+            ',more=', self._last.winfo_y() - self._last.winfo_height()
+            )
+
         # Toogle sash
+        i_height = self.winfo_y() + 22
         if self._see_me:
             self._arrow.configure(image=photo_up())
-            i_height = self.winfo_y() + self._last.winfo_y() \
-                - self._last.winfo_height()
+            i_height += max(0, self._last.winfo_y() - self._last.winfo_height())
         else:
-            i_height = self.winfo_y() + 22
             self._arrow.configure(image=photo_down())
         self._parent.sash_place(self._index, 0, i_height)
 
-        log(3, 'Toggle sash: nb=', self._index,
-              ',visible=', self._see_me,
-              ',height=', i_height)
+        # Log after
+        log(3, 'New sash pos: height=', i_height)
+
+    def init_will_toogle(self, visible=True, add_title=True):
+        """Place last and togfle later.
+        Usually called to set visible when some widget added
+        This trick is due to the fact widget will be updated at next tk loop
+        """
+        self.init_after(add_title=add_title)
+        def will_refresh():
+            self.update()
+            self.toogle(visible=visible)
+        self.after_idle(will_refresh)
 
     def clear(self):
         """Destroy all children, take care !"""
@@ -100,7 +119,7 @@ class LabelFrame(TextFrame):
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
-    def update(self):
+    def update_label(self):
         """Called later, display what I retrived from header
         warning: expand not working well
         ESO /  not ESO
@@ -199,7 +218,7 @@ class LabelFrame(TextFrame):
                 vars(G.tkentry)[i[1]]["bg"] = "#ffffff"
 
         # Show
-        self.update()
+        self.update_label()
 
 
 class OptionFrame(TextFrame):
@@ -227,12 +246,12 @@ class OptionFrame(TextFrame):
         """
         # Label, variable , default value
         G.image_parameter_list = [
-            ["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", 99.],
-            ["Pixel scale" + "*" + " [''/pix]: ", "pixel_scale", 99.],
-            ["Diameter" + "*" + " [m]:", "diameter", 99.],
-            ["Obstruction (d2/d1)*" + " [%]:", "obstruction", 99.],
-            ["Zero point [mag]: ", "zpt", 0.],
-            ["Exposure time [sec]: ", "exptime", 1.],
+            ["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", float('nan')],
+            ["Pixel scale" + "*" + " [''/pix]: ", "pixel_scale", float('nan')],
+            ["Diameter" + "*" + " [m]:", "diameter", float('nan')],
+            ["Obstruction (d2/d1)*" + " [%]:", "obstruction", float('nan')],
+            ["Zero point [mag]: ", "zpt", float('nan')],
+            ["Exposure time [sec]: ", "exptime", float('nan')],
             ]
 
         ##########
@@ -276,8 +295,7 @@ class OptionFrame(TextFrame):
             G.bu_manual['background'] =  skin().color.parameter2
             G.bu_manual['text'] = u'\u25b4 ' + 'ImageParameters'
 
-            self.init_after()
-            self.toogle(visible=True)
+            self.init_will_toogle(visible=True, add_title=False)
 
         elif G.bu_manual['background'] == skin().color.parameter2:  # destroy manualFrame  and save datas
 

@@ -195,6 +195,6 @@ class RootWindow(Tk):
             # to restore the values in the unclosed ImageParameters Frame
             G.LabelFrame.set_image_parameters("", destroy=False)
         # LABELS
-        G.LabelFrame.update()
+        G.LabelFrame.update_label()
 
 
