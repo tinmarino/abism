@@ -25,8 +25,6 @@ from abism.util import log
 import abism.front.util_front as G
 import abism.back.util_back as W
 
-# Plugin
-import ReadHeader as RH
 
 
 G.ax1.annotate("",

@@ -24,7 +24,7 @@ from abism.util import root_path, log, set_verbose, \
     ImageInfo, AbismState, set_root, restart
 
 # Plugin
-from abism.plugin.ReadHeader import CallHeaderClass  # What a name !
+from abism.plugin.ReadHeader import parse_header  # What a name !
 
 
 class RootWindow(Tk):
@@ -144,7 +144,7 @@ class RootWindow(Tk):
             self.image.im0[np.isnan(self.image.im0)] = 0
 
             # Parse header
-            CallHeaderClass(self.image.hdulist[0].header)
+            self.header = parse_header(self.image.hdulist[0].header)
 
         if len(self.image.hdulist[0].data.shape) == 3:
             if new_fits:
@@ -191,7 +191,7 @@ class RootWindow(Tk):
         # Image parameters
         if "ManualFrame" in vars(G):
             for i in G.image_parameter_list:
-                vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
+                vars(G.tkvar)[i[1]].set(vars(get_root().header)[i[1]])
             # to restore the values in the unclosed ImageParameters Frame
             G.LabelFrame.set_image_parameters("", destroy=False)
         # LABELS

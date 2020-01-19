@@ -12,10 +12,10 @@ import abism.back.util_back as W
 
 def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]
     """ and wavelgnth , pixel_scale, obstruciton, diameter """
-    bessel_integer = W.head.wavelength * \
-        10**(-6.) / np.pi / (W.head.pixel_scale/206265) / W.head.diameter
+    bessel_integer = get_root().header.wavelength * \
+        10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \
-        np.pi / (1-(W.head.obstruction/100)**2)
+        np.pi / (1-(get_root().header.obstruction/100)**2)
     Ith = W.strehl["my_photometry"] / bessel_integer  # for I theory
     strehl = W.strehl["intensity"] / Ith * 100
 

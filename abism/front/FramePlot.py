@@ -402,19 +402,19 @@ class ImageFrame(PlotFrame):
 
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
-        if not (("CD1_1" in vars(W.head)) and ("CD2_2" in vars(W.head))):
+        if not (("CD1_1" in vars(get_root().header)) and ("CD2_2" in vars(get_root().header))):
             log(0, "WARNING WCS Matrix not detected,",
                   "I don't know where the north is")
-            W.head.CD1_1 = W.head.pixel_scale * 3600
-            W.head.CD2_2 = W.head.pixel_scale * 3600
+            get_root().header.CD1_1 = get_root().header.pixel_scale * 3600
+            get_root().header.CD2_2 = get_root().header.pixel_scale * 3600
 
-        if not (("CD1_2" in vars(W.head)) and ("CD2_1" in vars(W.head))):
-            W.head.CD1_2, W.head.CD2_1 = 0, 0
+        if not (("CD1_2" in vars(get_root().header)) and ("CD2_1" in vars(get_root().header))):
+            get_root().header.CD1_2, get_root().header.CD2_1 = 0, 0
 
-        north_direction = [-W.head.CD1_2, -W.head.CD1_1] / \
-            sqrt(W.head.CD1_1**2 + W.head.CD1_2**2)
-        east_direction = [-W.head.CD2_2, -W.head.CD2_1] / \
-            sqrt(W.head.CD2_1**2 + W.head.CD2_2**2)
+        north_direction = [-get_root().header.CD1_2, -get_root().header.CD1_1] / \
+            sqrt(get_root().header.CD1_1**2 + get_root().header.CD1_2**2)
+        east_direction = [-get_root().header.CD2_2, -get_root().header.CD2_1] / \
+            sqrt(get_root().header.CD2_1**2 + get_root().header.CD2_2**2)
 
         # CALCULATE ARROW SIZE
         coord_type = "axes fraction"
@@ -440,7 +440,7 @@ class ImageFrame(PlotFrame):
 
         #################
         # 2/ DRAW        0 is the end of the arrow
-        if W.head.wcs is not None:
+        if get_root().header.wcs is not None:
             G.north = G.ax1.annotate(
                 "",
                 # we invert to get the text at the end of the arrwo

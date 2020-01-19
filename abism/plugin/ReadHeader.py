@@ -41,7 +41,7 @@ import abism.back.util_back as W
 
 
 
-def CallHeaderClass(header):
+def parse_header(header):
     """ the objects is fits.open(image)[0]"""
 
     # 0/ DETERMINE the instrument
@@ -53,15 +53,15 @@ def CallHeaderClass(header):
         instrument = header['INSTRUMENT']
     else:
         instrument = ""
-    log(0, 'Instrument:', instrument)
+    log(3, 'Header parsing got instrument:', instrument)
 
     # 1/ Call header Class According to the instrument
     if ("NAOS" in instrument) and ("CONICA" in instrument):
-        W.head = NacoHeader(header)
-    elif "SINFONI" in instrument:
-        W.head = SinfoniHeader(header)
-    else:
-        W.head = Header(header)
+        return NacoHeader(header)
+    if "SINFONI" in instrument:
+        return SinfoniHeader(header)
+
+    return Header(header)
 
 
 class Header:
@@ -241,22 +241,21 @@ class Header:
             # -> dec--tan
             # RA---TAN
             # DEC--TAN
-            tmp = self.flathead["CTYPE1"]
-            if len(tmp) > 8:
-                self.flathead["CTYPE1"] = tmp[0:3] + tmp[len(tmp) - 8 + 3:]
-            tmp = self.flathead["CTYPE2"]
-            if len(tmp) > 8:
-                self.flathead["CTYPE2"] = tmp[0:3] + tmp[len(tmp) - 8 + 3:]
+            for field in ('CTYPE1', 'CTYPE2'):
+                value = self.flathead.get('CTYPE1', '')
+                if len(value) > 8:
+                    self.flathead[field] = value[0:3] + value[len(value) - 8 + 3:]
 
             self.wcs = wcs.WCS(self.flathead)  # for coord transformation
 
+            # Warning, dirty pig, thie depends on the shape of x
             if (self.wcs.all_pix2world([[0, 0]], 0) == [[1, 1]]).all():
-                self.wcs.all_pix2world = lambda x, y: (99, 99)
+                self.wcs.all_pix2world = lambda x, y: np.array([[float('nan'), float('nan')]])
 
         except:  # includding no wcs module
             import traceback
             log(0, traceback.format_exc(),
-                  "WARNING I dit not manage to get WCS from wcs\n\n")
+                "WARNING I dit not manage to get WCS from wcs\n\n")
 
         #
         # WCS
@@ -360,7 +359,3 @@ class SinfoniHeader(Header):
             self.pixel_scale = opt1
 
         pixel_scale()
-
-        W.type["phot"] = 'fit'  # PHOTOMETRY type
-        W.type["noise"] = 'fit'
-        W.type["fit"] = "Gaussian2D"

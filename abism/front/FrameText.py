@@ -115,42 +115,42 @@ class LabelFrame(TextFrame):
         text_and_props = []
 
         # Get company
-        company = 'ESO' if W.head.company == "ESO" else 'NOT ESO'
+        company = 'ESO' if get_root().header.company == "ESO" else 'NOT ESO'
 
         # Get instrument
-        if W.head.instrument == "NAOS+CONICA":
+        if get_root().header.instrument == "NAOS+CONICA":
             instrument = "NaCo"
         else:
-            instrument = W.head.instrument
+            instrument = get_root().header.instrument
         telescope = re.sub("-U.", "",
-                           W.head.telescope.replace("ESO-", ""))
+                           get_root().header.telescope.replace("ESO-", ""))
         text_and_props.append((company + " / " + telescope + " / " + instrument, {}))
 
         # Get is_reduced
-        if "reduced_type" in vars(W.head):
-            lbl = W.head.reduced_type + ': '
+        if "reduced_type" in vars(get_root().header):
+            lbl = get_root().header.reduced_type + ': '
         else:
             lbl = ''
 
         # Get Size : Nx * Ny * Nz
         shape = list(get_root().image.im0.shape[::-1])  # reverse, inverse, list order
-        if "NAXIS3" in W.head.header.keys():
-            shape.append(W.head.header["NAXIS3"])
+        if "NAXIS3" in get_root().header.header.keys():
+            shape.append(get_root().header.header["NAXIS3"])
             lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])
         else:
             lbl += "%i x %i " % (shape[0], shape[1])
         text_and_props.append((lbl, {}))
 
         # WCS
-        if W.head.wcs is not None:
+        if get_root().header.wcs is not None:
             lbl = "WCS detected"
         else:
             lbl = "WCS NOT detected"
         text_and_props.append((lbl, {}))
 
         # Header reads Strehl variables ?
-        bolt = (W.head.diameter == 99. or W.head.wavelength == 99.)
-        bolt = bolt or (W.head.obstruction == 99. or W.head.pixel_scale == 99.)
+        bolt = (get_root().header.diameter == 99. or get_root().header.wavelength == 99.)
+        bolt = bolt or (get_root().header.obstruction == 99. or get_root().header.pixel_scale == 99.)
         if bolt:
             lbl = "WARNING: some parameters not found"
             text_and_props.append((lbl, {"fg": "red"}))
@@ -159,13 +159,13 @@ class LabelFrame(TextFrame):
             text_and_props.append((lbl, {"fg": "blue"}))
 
         # UNDERSAMPLED
-        bol1 = W.head.wavelength * 1e-6
-        bol1 /= W.head.diameter * (W.head.pixel_scale / 206265)
+        bol1 = get_root().header.wavelength * 1e-6
+        bol1 /= get_root().header.diameter * (get_root().header.pixel_scale / 206265)
         bol1 = bol1 < 2
-        bol2 = "sinf_pixel_scale" in vars(W.head)
-        # if bol2 sinf_pixel_scane is not in W.head, we dont call the next line
-        bol3 = bol2 and W.head.sinf_pixel_scale == 0.025
-        bol3 = bol3 or (bol2 and (W.head.sinf_pixel_scale == 0.01))
+        bol2 = "sinf_pixel_scale" in vars(get_root().header)
+        # if bol2 sinf_pixel_scane is not in get_root().header, we dont call the next line
+        bol3 = bol2 and get_root().header.sinf_pixel_scale == 0.025
+        bol3 = bol3 or (bol2 and (get_root().header.sinf_pixel_scale == 0.01))
 
         bolt = bol1 or bol2
         if bolt:
@@ -191,9 +191,9 @@ class LabelFrame(TextFrame):
         """Set imageparameter, labels"""
         # Parse
         for i in G.image_parameter_list:
-            vars(W.head)[i[1]] = float(vars(G.tkentry)[i[1]].get())
+            vars(get_root().header)[i[1]] = float(vars(G.tkentry)[i[1]].get())
             # COLOR
-            if vars(W.head)[i[1]] == i[2]:
+            if vars(get_root().header)[i[1]] == i[2]:
                 vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
             else:
                 vars(G.tkentry)[i[1]]["bg"] = "#ffffff"
@@ -262,14 +262,14 @@ class OptionFrame(TextFrame):
                 vars(G.tkentry)[i[1]] = Entry(G.ManualGridFrame, width=10, textvariable=vars(
                     G.tkvar)[i[1]], font=skin().font.answer,
                     bd=0, **skin().fg_and_bg)
-                if vars(W.head)[i[1]] == i[2]:
+                if vars(get_root().header)[i[1]] == i[2]:
                     vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
                 vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
                 vars(G.tkentry)[i[1]].bind('<Return>', G.LabelFrame.set_image_parameters)
-                if len(str(vars(W.head)[i[1]])) > 6:  # not to long for display
-                    vars(G.tkvar)[i[1]].set("%.5f" % float(vars(W.head)[i[1]]))
+                if len(str(vars(get_root().header)[i[1]])) > 6:  # not to long for display
+                    vars(G.tkvar)[i[1]].set("%.5f" % float(vars(get_root().header)[i[1]]))
                 else:
-                    vars(G.tkvar)[i[1]].set(vars(W.head)[i[1]])
+                    vars(G.tkvar)[i[1]].set(vars(get_root().header)[i[1]])
                 row += 1
 
             # EXPAND

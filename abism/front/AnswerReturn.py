@@ -154,10 +154,10 @@ def PlotPickOne():
     if strehl < 0:
         rms = 0
     else:
-        rms = W.head.wavelength / 2 / np.pi * np.sqrt(-np.log(strehl))
+        rms = get_root().header.wavelength / 2 / np.pi * np.sqrt(-np.log(strehl))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
 
-    #rms =  W.head.wavelength /2/np.pi * np.sqrt(-np.log(W.strehl["err_strehl"]/100))
+    #rms =  get_root().header.wavelength /2/np.pi * np.sqrt(-np.log(W.strehl["err_strehl"]/100))
     #W.strehl["strehl2_2"] = 100 *np.exp(-(rms*2*np.pi/2.17)**2)
     W.strehl["err_strehl2_2"] = W.strehl["strehl2_2"] / \
         W.strehl["strehl"]*W.strehl["err_strehl"]
@@ -198,12 +198,15 @@ def PlotPickOne():
 
         ###
         # WCS
-        my_wcs = W.head.wcs.all_pix2world(
+        # In bad mood: this return (99, 99)
+        # In good mod: array([[266.56370013, -28.83449908]])
+
+        my_wcs = get_root().header.wcs.all_pix2world(
             np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
         W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
-        pxll = W.head.pixel_scale
-        if isinstance(W.head, RH.SinfoniHeader):
-            pxll = W.head.sinf_pixel_scale
+        pxll = get_root().header.pixel_scale
+        if isinstance(get_root().header, RH.SinfoniHeader):
+            pxll = get_root().header.sinf_pixel_scale
 
         ##
         # Lst define
@@ -217,19 +220,19 @@ def PlotPickOne():
             ["FWHM a,b,e: ", (W.strehl["fwhm_x"], W.strehl["fwhm_y"]),  "%.1f" % (W.strehl["fwhm_a"]*pxll*1000) +
              ", " + "%.1f" % (W.strehl["fwhm_b"]*pxll*1000) + ", " + "%.2f" % W.strehl["eccentricity"] + "[mas]"],
             ["Photometry: ", W.strehl["my_photometry"], "%.2f" % (
-                W.head.zpt-2.5*np.log10(W.strehl["my_photometry"]/W.head.exptime)) + " [mag]"],
-            ["Background: ", W.strehl["my_background"], "%.2f" % (W.head.zpt-2.5*np.log10(
-                W.strehl["my_background"]/W.head.exptime)) + '| rms: ' + "%.2f" % (W.head.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
+                get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"],
+            ["Background: ", W.strehl["my_background"], "%.2f" % (get_root().header.zpt-2.5*np.log10(
+                W.strehl["my_background"]/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
             ["S/N: ", W.strehl["snr"], MyFormat(W.strehl["snr"], 1, "f")],
             ["Peak: ", W.strehl["intensity"],  "%.1f" % (
-                W.head.zpt-2.5*np.log10(W.strehl["intensity"]/W.head.exptime)) + " [mag]"],
+                get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
             #["Fit Type: "   , W.type["fit"]  , str(W.type["fit"]) ],
         ]  # label , variable, value as string
     return
 
 
 def PlotEllipse():
-    rms = W.head.wavelength / 2/np.pi * \
+    rms = get_root().header.wavelength / 2/np.pi * \
         np.sqrt(-np.log(W.strehl["strehl"]/100))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
     # <- CAlculate Equivalent strehl2.2
@@ -278,9 +281,9 @@ def PlotEllipse():
         # WCS
         try:
             # if len( W.hdulist[0].data.shape ) == 3: # if cube,  just cut the WCS object, see antoine
-            #   my_wcs = ProjectWcs(W.head.wcs).all_pix2world( np.array([[ W.strehl["center_y"],W.strehl["center_x"] ]]), 0 )
+            #   my_wcs = ProjectWcs(get_root().header.wcs).all_pix2world( np.array([[ W.strehl["center_y"],W.strehl["center_x"] ]]), 0 )
             # else : # not cube
-            my_wcs = W.head.wcs.all_pix2world(
+            my_wcs = get_root().header.wcs.all_pix2world(
                 np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
         except:
             import traceback
@@ -293,11 +296,11 @@ def PlotEllipse():
             ["Strehl: ", W.strehl["strehl"], "%.1f" %
                 (W.strehl["strehl"]) + " +/- "+"%.1f" % W.strehl["err_strehl"]+" %"],
             ["Intensity: ", W.strehl["intensity"],  "%.1f" % (
-                W.head.zpt-2.5*np.log10(W.strehl["intensity"]/W.head.exptime)) + " [mag]"],
-            ["Background: ", W.strehl["my_background"], "%.2f" % (W.head.zpt-2.5*np.log10(
-                W.strehl["my_background"]/W.head.exptime)) + '| rms: ' + "%.2f" % (W.head.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
+                get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
+            ["Background: ", W.strehl["my_background"], "%.2f" % (get_root().header.zpt-2.5*np.log10(
+                W.strehl["my_background"]/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
             ["Photometry: ", W.strehl["my_photometry"], "%.2f" % (
-                W.head.zpt-2.5*np.log10(W.strehl["my_photometry"]/W.head.exptime)) + " [mag]"],
+                get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"],
             #["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f")  ],
             ["Eq. SR 2.17"+u"\u03bc" + "m: ", W.strehl["strehl2_2"], "%.1f" %
                 W.strehl["strehl2_2"] + "%"],
@@ -320,10 +323,10 @@ def PlotBinary():
     # "
     # STREHL
     W.phot0, W.phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
-    bessel_integer = W.head.wavelength * \
-        10**(-6.) / np.pi / (W.head.pixel_scale/206265) / W.head.diameter
+    bessel_integer = get_root().header.wavelength * \
+        10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \
-        np.pi / (1-(W.head.obstruction/100)**2)
+        np.pi / (1-(get_root().header.obstruction/100)**2)
     Ith0, Ith1 = W.phot0/bessel_integer, W.phot1/bessel_integer
     W.strehl0 = W.strehl["intensity0"] / Ith0 * 100
     W.strehl1 = W.strehl["intensity1"] / Ith1 * 100
@@ -358,13 +361,13 @@ def PlotBinary():
 
         # "
         # WCS
-        my_wcs = W.head.wcs.all_pix2world(np.array(
+        my_wcs = get_root().header.wcs.all_pix2world(np.array(
             [[W.strehl["y0"], W.strehl["x0"]],  [W.strehl["y1"], W.strehl["x1"]]]), 0)
         my_wcs = np.array(my_wcs)
         ra, dec = my_wcs[:, 0], my_wcs[:, 1]
-        pxll = W.head.pixel_scale
-        if isinstance(W.head, RH.SinfoniHeader):
-            pxll = W.head.sinf_pixel_scale
+        pxll = get_root().header.pixel_scale
+        if isinstance(get_root().header, RH.SinfoniHeader):
+            pxll = get_root().header.sinf_pixel_scale
 
         ##########
         W.tmp.lst = [["Binary: ", W.type["fit"], W.type["fit"]],
@@ -373,11 +376,11 @@ def PlotBinary():
                      ["2 Star: ", (ra[1], dec[1]), "%s , %s" %
                       SkyFormat(ra[1], dec[1])],
                      ["Separation: ", separation, "%.1f" % (
-                         separation*W.head.pxll*1000) + "+/-" + "%.1f" % (sep_err*pxll*1000) + " [mas]"],
+                         separation*get_root().header.pxll*1000) + "+/-" + "%.1f" % (sep_err*pxll*1000) + " [mas]"],
                      ["Phot1: ", W.phot0, "%.1f" % (
-                         W.head.zpt - 2.5 * np.log10(W.phot0/W.head.exptime)) + " [mag]"],
+                         get_root().header.zpt - 2.5 * np.log10(W.phot0/get_root().header.exptime)) + " [mag]"],
                      ["Phot2: ", W.phot1, "%.1f" %
-                      (W.head.zpt - 2.5 * np.log10(W.phot1/W.head.exptime)) + " [mag]"],
+                      (get_root().header.zpt - 2.5 * np.log10(W.phot1/get_root().header.exptime)) + " [mag]"],
                      ["Flux ratio: ", (W.phot0/W.phot1), "%.1f" %
                       (W.phot0/W.phot1)],
                      ["Orientation: ", sky_angle, "%.2f" % sky_angle + u'\xb0'],
@@ -452,12 +455,12 @@ def PlotPickMany(append=True):
     # 2.2  Sky COORD
 
       # WCS
-    my_wcs = W.head.wcs.all_pix2world(
+    my_wcs = get_root().header.wcs.all_pix2world(
         np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
     W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
-    pxll = W.head.pixel_scale
-    if isinstance(W.head, RH.SinfoniHeader):
-        pxll = W.head.sinf_pixel_scale
+    pxll = get_root().header.pixel_scale
+    if isinstance(get_root().header, RH.SinfoniHeader):
+        pxll = get_root().header.sinf_pixel_scale
 
     lst = [
         # STREHL
@@ -566,11 +569,11 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
     # SATURATED ?
     if not 'intensity' in W.strehl:  # binary
         W.strehl["intensity"] = W.strehl["intensity0"] + W.strehl["intensity1"]
-    if W.strehl["intensity"] > 1.0 * W.head.non_linearity_level:
+    if W.strehl["intensity"] > 1.0 * get_root().header.non_linearity_level:
         l = Label(G.AnswerFrame, bg=skin().color.bg)
         l["fg"] = "red"
         l["font"] = skin().font.warning
-        if W.strehl["intensity"] > 1.0 * W.head.saturation_level:
+        if W.strehl["intensity"] > 1.0 * get_root().header.saturation_level:
             l["text"] = "!!! SATURATED !!!  Strehl is UNRELIABLE"
         else:
             l["text"] = "!!! NON-LINEAR Strehl may be  unreliable"
@@ -578,7 +581,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         row += 1
 
     # UNDERSAMPLED
-    if "sinf_pixel_scale" in vars(W.head) and (W.head.sinf_pixel_scale <= 0.01):
+    if "sinf_pixel_scale" in vars(get_root().header) and (get_root().header.sinf_pixel_scale <= 0.01):
         l = Label(G.AnswerFrame, **skin().fg_and_bg)
         l["fg"] = "red"
         l["font"] = skin().font.warning
@@ -660,14 +663,14 @@ def PlotOneStar1D():
         ax.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
 
     # Plot perfect diffraction pattern
-    if not W.head.wavelength*1e-6/W.head.diameter/(W.head.pixel_scale/206265) < 2:
-        params2 = {'diameter': W.head.diameter,
-                   'lambda': W.head.wavelength,
+    if not get_root().header.wavelength*1e-6/get_root().header.diameter/(get_root().header.pixel_scale/206265) < 2:
+        params2 = {'diameter': get_root().header.diameter,
+                   'lambda': get_root().header.wavelength,
                    'center_x': params['center_x'],
                    'center_y': params['center_y'],
-                   'pixelscale': W.head.pixel_scale,
+                   'pixelscale': get_root().header.pixel_scale,
                    'phot': W.strehl["my_photometry"],
-                   'obstruction': W.head.obstruction/100,
+                   'obstruction': get_root().header.obstruction/100,
                    }
         bessel = BF.DiffractionPatern((a, params['center_y']), params2)
         ax.plot(a, bessel+params['my_background'],
@@ -1050,7 +1053,7 @@ def FigurePlot(x, y, dic={}):
 
         ax2 = ax.twiny()
         ax2.set_xticks(np.arange(nx))
-        xlist = np.linspace(0, x[-1] * W.head.pixel_scale, nx)
+        xlist = np.linspace(0, x[-1] * get_root().header.pixel_scale, nx)
         xlist = [int(1000 * u) for u in xlist]
         ax2.set_xticklabels(xlist, rotation=45)
         ax2.set_xlabel(u"Distance [mas]")

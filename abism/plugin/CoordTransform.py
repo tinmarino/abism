@@ -1,70 +1,74 @@
 
 
 def decimal2hms(RADeg, delimiter):
-    """Converts decimal degrees to string in Hours:Minutes:Seconds format with 
-    user specified delimiter. 
+    """Converts decimal degrees to string in Hours:Minutes:Seconds format with
+    user specified delimiter.
 
-    @type RADeg: float 
-    @param RADeg: coordinate in decimal degrees 
-    @type delimiter: string 
-    @param delimiter: delimiter character in returned string 
-    @rtype: string 
-    @return: coordinate string in H:M:S format 
+    @type RADeg: float
+    @param RADeg: coordinate in decimal degrees
+    @type delimiter: string
+    @param delimiter: delimiter character in returned string
+    @rtype: string
+    @return: coordinate string in H:M:S format
 
     """
 
     hours = (RADeg/360.0)*24
     # if hours < 10 and hours >= 1:
     if 1 <= hours < 10:
-        sHours = "0"+str(hours)[0]
+        sHours = '0'+str(hours)[0]
     elif hours >= 10:
         sHours = str(hours)[:2]
     elif hours < 1:
-        sHours = "00"
+        sHours = '00'
+    else:
+        return 'nan'
 
-    if str(hours).find(".") == -1:
+    if str(hours).find('.') == -1:
         mins = float(hours)*60.0
     else:
-        mins = float(str(hours)[str(hours).index("."):])*60.0
+        mins = float(str(hours)[str(hours).index('.'):])*60.0
     # if mins<10 and mins>=1:
     if 1 <= mins < 10:
-        sMins = "0"+str(mins)[:1]
+        sMins = '0'+str(mins)[:1]
     elif mins >= 10:
         sMins = str(mins)[:2]
     elif mins < 1:
-        sMins = "00"
+        sMins = '00'
+    else:
+        return 'nan'
 
     secs = (hours-(float(sHours)+float(sMins)/60.0))*3600.0
     # if secs < 10 and secs>0.001:
     if 0.001 < secs < 10:
-        sSecs = "0"+str(secs)[:str(secs).find(".")+4]
+        sSecs = '0'+str(secs)[:str(secs).find('.')+4]
     elif secs < 0.0001:
-        sSecs = "00.001"
+        sSecs = '00.001'
     else:
-        sSecs = str(secs)[:str(secs).find(".")+4]
+        sSecs = str(secs)[:str(secs).find('.')+4]
     if len(sSecs) < 5:
-        sSecs = sSecs+"00"      # So all to 3dp
+        sSecs = sSecs+'00'      # So all to 3dp
 
     if float(sSecs) == 60.000:
-        sSecs = "00.00"
+        sSecs = '00.00'
         sMins = str(int(sMins)+1)
     if int(sMins) == 60:
-        sMins = "00"
+        sMins = '00'
         sDeg = str(int(sDeg)+1)
 
     return sHours+delimiter+sMins+delimiter+sSecs
 
 
 def decimal2dms(decDeg, delimiter):
-    """Converts decimal degrees to string in Degrees:Minutes:Seconds format 
-    with user specified delimiter. 
+    """Converts decimal degrees to string in Degrees:Minutes:Seconds format
+    with user specified delimiter.
 
-    @type decDeg: float 
-    @param decDeg: coordinate in decimal degrees 
-    @type delimiter: string 
-    @param delimiter: delimiter character in returned string 
-    @rtype: string 
-    @return: coordinate string in D:M:S format 
+    @type decDeg: float
+    @param decDeg: coordinate in decimal degrees
+    @type delimiter: string
+    @param delimiter: delimiter character in returned string
+    @rtype: string
+    @return: coordinate string in D:M:S format
 
     """
     # Positive
@@ -76,6 +80,8 @@ def decimal2dms(decDeg, delimiter):
             sDeg = str(decDeg)[:2]
         elif decDeg < 1:
             sDeg = "00"
+        else:
+            return 'nan'
 
         if str(decDeg).find(".") == -1:
             mins = float(decDeg)*60.0
@@ -88,6 +94,8 @@ def decimal2dms(decDeg, delimiter):
             sMins = str(mins)[:2]
         elif mins < 1:
             sMins = "00"
+        else:
+            return 'nan'
 
         secs = (decDeg-(float(sDeg)+float(sMins)/60.0))*3600.0
         # if secs<10 and secs>0:
@@ -117,6 +125,8 @@ def decimal2dms(decDeg, delimiter):
             sDeg = str(decDeg)[:3]
         elif decDeg > -1:
             sDeg = "-00"
+        else:
+            return 'nan'
 
         if str(decDeg).find(".") == -1:
             mins = float(decDeg)*-60.0
@@ -129,6 +139,8 @@ def decimal2dms(decDeg, delimiter):
             sMins = str(mins)[:2]
         elif mins < 1:
             sMins = "00"
+        else:
+            return 'nan'
 
         secs = (decDeg-(float(sDeg)-float(sMins)/60.0))*3600.0
         # if secs>-10 and secs<0:
@@ -153,15 +165,15 @@ def decimal2dms(decDeg, delimiter):
 
 
 def hms2decimal(RAString, delimiter):
-    """Converts a delimited string of Hours:Minutes:Seconds format into decimal 
-    degrees. 
+    """Converts a delimited string of Hours:Minutes:Seconds format into decimal
+    degrees.
 
-    @type RAString: string 
-    @param RAString: coordinate string in H:M:S format 
-    @type delimiter: string 
-    @param delimiter: delimiter character in RAString 
-    @rtype: float 
-    @return: coordinate in decimal degrees 
+    @type RAString: string
+    @param RAString: coordinate string in H:M:S format
+    @type delimiter: string
+    @param delimiter: delimiter character in RAString
+    @rtype: float
+    @return: coordinate in decimal degrees
 
     """
     # is it in HH:MM:SS format?
@@ -183,15 +195,15 @@ def hms2decimal(RAString, delimiter):
 
 
 def dms2decimal(decString, delimiter):
-    """Converts a delimited string of Degrees:Minutes:Seconds format into 
-    decimal degrees. 
+    """Converts a delimited string of Degrees:Minutes:Seconds format into
+    decimal degrees.
 
-    @type decString: string 
-    @param decString: coordinate string in D:M:S format 
-    @type delimiter: string 
-    @param delimiter: delimiter character in decString 
-    @rtype: float 
-    @return: coordinate in decimal degrees 
+    @type decString: string
+    @param decString: coordinate string in D:M:S format
+    @type delimiter: string
+    @param delimiter: delimiter character in decString
+    @rtype: float
+    @return: coordinate in decimal degrees
 
     """
     # is it in DD:MM:SS format?
