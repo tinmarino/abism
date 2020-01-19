@@ -1,14 +1,15 @@
 # 2020
 
 1. Make PlotFrame.clear_axes() -> as (see hitopop)
-2. Find a way to get consisten version naming 0.901 soon
+2. Find a way to get consisten version naming 0.901 soon (DONE with print absim.__version__
 3. Repair Imageparameters (colo stuff) 
 4. Make more verbose pick_many, actually, how does that work
-5. argparse
 
 # Gobal removal
 
 * See Restart with argument parser
+* Make util.pref
+* argparse
 
 # UI
 

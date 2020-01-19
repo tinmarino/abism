@@ -1,5 +1,5 @@
 import setuptools
-
+from abism import __version__
 
 
 with open("README.md", "r") as fh:
@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='abism',
-    version='0.902',
+    version=__version__,
     scripts=['abism.py'] ,
     author='Julien Girard, Martin Tourneboeuf',
     author_email='tinmarino@gmail.com',

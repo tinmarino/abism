@@ -13,6 +13,8 @@ from functools import lru_cache
 from tkinter import RAISED, IntVar, PhotoImage
 import matplotlib
 
+# Local
+from abism import __version__
 
 
 _verbose = 10  # Verbose level
@@ -137,7 +139,7 @@ class AbismState:
 
 def get_version():
     """Return: version string"""
-    return '0.902'
+    return __version__
 
 
 def get_verbose():

@@ -3,6 +3,7 @@
 """
 import numpy as np
 
+from abism.util import get_root
 from abism.back import Stat
 import abism.back.util_back as W  # to know the stats
 
@@ -29,7 +30,7 @@ def MinMaxCut(grid, dic={}):  # From a true value renge give min_cut and max_cut
     elif dic["scale_cut_type"] == "percent":
         percent = dic["percent"]
         if "whole_image" in dic:
-            sort = W.sort
+            sort = get_root().image.sort
         else:
             sort = grid.flatten()      # Sorted Flatten Image
             sort.sort()
