@@ -23,5 +23,7 @@ We did not take time to measure the error of the measure if non linear, it is ve
 
 <img  align="center" width=80% src="./abism/doc/abism_v0.900.png">
 
-License: Do whatever you want with the code, code whatever you do with your thoughts !
+
+License: Do whatever you want with the code
+
 Julien Girard, Martin Tourneboeuf.
