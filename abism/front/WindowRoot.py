@@ -67,16 +67,21 @@ class RootWindow(Tk):
         # ALL What is not the menu is a paned windows :
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        G.MainPaned = PanedWindow(self, orient=HORIZONTAL, **skin().paned_dic)
-        G.MainPaned.pack(side=TOP, fill=BOTH, expand=1)
+        main_paned = PanedWindow(self, orient=HORIZONTAL, **skin().paned_dic)
+        main_paned.pack(side=TOP, fill=BOTH, expand=1)
 
         # 2 LEFT
-        G.TextFrame = LeftFrame(G.MainPaned)
+        G.TextFrame = LeftFrame(self, main_paned)
+        G.LabelFrame = self.LabelFrame
+        G.OptionFrame = self.OptionFrame
+        G.AnswerFrame = self.AnswerFrame
 
         # 3 RIGHT
-        G.DrawPaned = RightFrame(G.MainPaned)
+        G.DrawPaned = RightFrame(self, main_paned)
         # Pire encore
-        self.ImageFrame = G.ImageFrame
+        G.ImageFrame = self.ImageFrame
+        G.FitFrame = self.FitFrame
+        G.ResultFrame = self.ResultFrame
 
 
         # ######################

@@ -344,3 +344,32 @@ def children_do(widget, callback):
     for item in widget.winfo_children():
         callback(item)
         children_do(item, callback)
+
+
+def set_figure_skin(figure, skin):
+    """Update skin, caller must redraw"""
+    fg = skin.color.fg
+    bg = skin.color.bg
+
+    # Figure
+    figure.set_facecolor(bg)
+
+    # Ax
+    for ax in figure.axes:
+        # Spine
+        ax.spines['bottom'].set_color(fg)
+        ax.spines['top'].set_color(fg)
+        ax.spines['right'].set_color(fg)
+        ax.spines['left'].set_color(fg)
+
+        # Tick
+        ax.tick_params(axis='x', colors=fg)
+        ax.tick_params(axis='y', colors=fg)
+
+        # Label
+        ax.yaxis.label.set_color(fg)
+        ax.xaxis.label.set_color(fg)
+
+        # Title
+        ax.title.set_color(fg)
+

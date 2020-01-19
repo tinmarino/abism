@@ -23,7 +23,7 @@ def ToolMenu(root, parent, args):
         ["Histogram", lambda: Histopopo(
             root.FitFrame.get_figure(),
             root.image.sort,
-            fg=skin().fg_and_bg['fg'])],
+            skin=skin())],
         ["Python Console", PythonConsole],
     ]
     for i in lst:

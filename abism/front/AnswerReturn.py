@@ -149,7 +149,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
 
 def PlotPickOne():
     ""
-    # <- CAlculate Equivalent strehl2.2 and error
+    # <- Calculate Equivalent strehl2.2 and error
     strehl = W.strehl["strehl"]/100
     if strehl < 0:
         rms = 0
@@ -623,6 +623,7 @@ def PlotStar():  # will also take W.sthrel["psf_fit"]
         PlotBinaryStar1D()
     else:  # including only one star  (ie : not binary)
         PlotOneStar1D()
+        PlotStar2()
 
 
 def PlotOneStar1D():
@@ -632,50 +633,56 @@ def PlotOneStar1D():
     params = W.strehl
     log(3, 'center=', center)
 
-    # AX
-    G.figfit.clf()
-    G.ax2 = G.figfit.add_subplot(111)
-    G.ax2.format_coord = lambda x, y: ""  # not see x y label in the toolbar
+    # Get ax
+    ax = get_root().FitFrame.reset_figure_ax(
+        xlabel='Pixel', ylabel='Intensity')
 
-    # X
-    x, y = IF.XProfile(get_root().image.im0, center)  # we need to give the center (of course)
+    # Plot x, y
+    # we need to give the center (of course)
+    x, y = IF.XProfile(get_root().image.im0, center)
     # we get a smaller bin for the fitted curve.
     a = np.arange(min(x), max(x), 0.1)
     # RAW  DATA in X
-    G.ax2.plot(x+0.5, y, color='black', drawstyle='steps', linestyle='--',
-               linewidth=1, label='Data')  # x+0.5 to recenter the bar
+    # x+0.5 to recenter the bar
+    ax.plot(x+0.5, y, color='black', drawstyle='steps', linestyle='--',
+            linewidth=1, label='Data')
 
-    # ENCIRCLED
+    # Plot encircle line
     r99 = (W.strehl['r99x']+W.strehl['r99y'])/2
     x0cut, x1cut = center[0]-r99, center[0]+r99
-    G.ax2.axvline(x=x0cut, color='black', linestyle='-.', label='99% EE')
-    G.ax2.axvline(x=x1cut, color='black', linestyle='-.')
-    G.ax2.axhline(y=W.strehl["my_background"], color='black', linestyle='-.')
+    ax.axvline(x=x0cut, color='black', linestyle='-.', label='99% EE')
+    ax.axvline(x=x1cut, color='black', linestyle='-.')
+    ax.axhline(y=W.strehl["my_background"], color='black', linestyle='-.')
 
-    # FIT
+    # Plot Fit
     if not W.type["fit"] == 'None':
         I_theory = vars(BF)[W.type["fit"]]((a, params['center_y']), params)
-        G.ax2.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
+        ax.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
 
-    # DIFRACTION PATERN
+    # Plot perfect diffraction pattern
     if not W.head.wavelength*1e-6/W.head.diameter/(W.head.pixel_scale/206265) < 2:
-        params2 = {'diameter': W.head.diameter, 'lambda': W.head.wavelength, 'center_x': params['center_x'],
-                   'center_y': params['center_y'], 'pixelscale': W.head.pixel_scale, 'phot': W.strehl["my_photometry"],
-                   'obstruction': W.head.obstruction/100}
-        MyBessel = BF.DiffractionPatern((a, params['center_y']), params2)
-        G.ax2.plot(a, MyBessel+params['my_background'],
-                   color='blue', linewidth=2, label='Ideal PSF')
-        # Legend
-    G.ax2.legend(loc=1, prop={'size': 8})
-    # Axes
+        params2 = {'diameter': W.head.diameter,
+                   'lambda': W.head.wavelength,
+                   'center_x': params['center_x'],
+                   'center_y': params['center_y'],
+                   'pixelscale': W.head.pixel_scale,
+                   'phot': W.strehl["my_photometry"],
+                   'obstruction': W.head.obstruction/100,
+                   }
+        bessel = BF.DiffractionPatern((a, params['center_y']), params2)
+        ax.plot(a, bessel+params['my_background'],
+                color='blue', linewidth=2, label='Ideal PSF')
 
-    def Percentage(y):  # y is the intensity
-        res = 100*(max(MyBessel)-W.strehl["my_background"])*y
-    G.ax2.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
-    G.ax2.set_xlabel('Pixel')
-    G.ax2.set_ylabel('Intensity')
-    G.figfit.canvas.draw()
-    PlotStar2()
+    # Draw Legend
+    ax.legend(loc=1, prop={'size': 8})
+
+   #  def Percentage(y):  # y is the intensity
+   #      res = 100*(max(MyBessel)-W.strehl["my_background"])*y
+    ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
+
+    # Update skin && Draw
+    get_root().FitFrame.update_skin()
+    get_root().FitFrame.get_canvas().draw()
 
 
 def PlotBinaryStar1D():
@@ -804,18 +811,14 @@ def PlotOneStar2D():
     x, y = np.arange(r[0], r[1]), np.arange(r[2], r[3])
     Y, X = np.meshgrid(y, x)
 
-    ###########
-    # IMAGES draw
-    # TRUE
     def Data(ax):
-        G.figresult_mappable1 = ax.imshow(G.current_image[r[0]:r[1], r[2]:r[3]],
-                                          vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
-                                          cmap=G.cbar.mappable.get_cmap().name, origin='lower')
+        G.figresult_mappable1 = ax.imshow(
+            get_root().image.im0[r[0]:r[1], r[2]:r[3]],
+            vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+            cmap=G.cbar.mappable.get_cmap().name, origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
         #G.ax31.format_coord=lambda x,y: "%.1f"%get_root().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
-
-        # FIT
 
     def Fit(ax):
         fit_type = W.type["fit"]
@@ -829,32 +832,36 @@ def PlotOneStar2D():
         #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[fit_type]((r[2]+y,r[0]+x),W.strehl)
         ax.format_coord = lambda x, y: ""
 
-    # CALL fit, data
-    G.figresult.clf()
-    G.ax31 = G.figresult.add_subplot(121)
-    Data(G.ax31)
+    # Get && Reset figure
+    figure = get_root().ResultFrame.get_figure()
+    figure.clf()
+    ax1 = figure.add_subplot(121)
+    ax2 = figure.add_subplot(122)
+    get_root().ResultFrame.update_skin()
 
-    G.ax32 = G.figresult.add_subplot(122)
+    # Plot first image (data)
+    Data(ax1)
+
+    # Plot second image (fit)
     if W.type["fit"] != "None":
-        Fit(G.ax32)
+        Fit(ax2)
     else:
-        Data(G.ax32)
+        Data(ax2)
 
-    # "
     # APERTTURES
     params = W.strehl
     #   s   (te center of the rect is in fact the bottm left corner)
 
     # NOISE 8 RECT
     if (W.type["noise"] == "8rects"):
-        re = x0-params['r99x'], x0+params['r99x'], y0 - \
-            params['r99y'], y0+params['r99y']
-        var = IF.EightRectangleNoise(get_root().image.im0, re, return_rectangle=1)[2]
+        rect = (x0 - params['r99x'], x0 + params['r99x'],
+                y0 - params['r99y'], y0 + params['r99y'])
+        var = IF.EightRectangleNoise(get_root().image.im0, rect, return_rectangle=1)[2]
         for p in var:
             center_tmp = (p[0][0]-r[0]-p[1]/2, p[0][1]-r[2]-p[2]/2)
             a = matplotlib.patches.Rectangle(
                 (center_tmp[1], center_tmp[0]), p[2], p[1], facecolor='orange', edgecolor='black')
-            G.ax32.add_patch(a)
+            ax2.add_patch(a)
         center = x0 - r[0], y0-r[2]
 
     # NOISE ANNULUS
@@ -871,7 +878,7 @@ def PlotOneStar2D():
             y = params["center_x"] - r[0]
             a = matplotlib.patches.Ellipse(
                 (x, y), width, height, angle, fc="none", ec="yellow", linestyle="solid", alpha=0.6)
-            G.ax32.add_patch(a)
+            ax2.add_patch(a)
 
     # PHOT RECT
     if W.type["phot"] == "encircled_energy":
@@ -879,7 +886,7 @@ def PlotOneStar2D():
         ty = params["center_y"] - r[2]
         a = matplotlib.patches.Rectangle(
             (ty-params['r99y'], tx-params['r99x']), 2*params['r99y'], 2*params['r99x'], facecolor='none', edgecolor='black')
-        G.ax32.add_patch(a)
+        ax2.add_patch(a)
 
     # PHOT ELL
     elif W.type["phot"] == "elliptical_aperture":
@@ -890,21 +897,21 @@ def PlotOneStar2D():
         y = params["center_x"] - r[0]
         a = matplotlib.patches.Ellipse(
             (x, y), width, height, angle, fc="none", ec="black")
-        G.ax32.add_patch(a)
+        ax2.add_patch(a)
 
     #####
     # LABEL
-    G.ax31.set_title("True Image")
-    G.ax32.set_title("Fit")
+    ax1.set_title("True Image")
+    ax2.set_title("Fit")
 
-    G.ax32.set_yticks((0, r[1]-r[0]))
-    G.ax32.set_yticklabels((str(int(r[0])), str(int(r[1]))))
-    G.ax32.set_xticks((0, r[3]-r[2]))
-    G.ax32.set_xticklabels((str(int(r[2])), str(int(r[3]))))
+    ax2.set_yticks((0, r[1]-r[0]))
+    ax2.set_yticklabels((str(int(r[0])), str(int(r[1]))))
+    ax2.set_xticks((0, r[3]-r[2]))
+    ax2.set_xticklabels((str(int(r[2])), str(int(r[3]))))
     #plt.xticks( (r[0],r[1] ) )
     #plt.xticks( (r[2],r[3] ) )
-    G.ax31.set_xticks(())
-    G.ax31.set_yticks(())
+    ax1.set_xticks(())
+    ax1.set_yticks(())
 
     G.figresult.canvas.draw()
     return
@@ -927,26 +934,26 @@ def PlotBinaryStar2D():
     # IMAGES draw
     # TRUE
     G.figresult.clf()
-    G.ax31 = G.figresult.add_subplot(121)
-    G.figresult_mappable1 = G.ax31.imshow(G.current_image[r[0]:r[1], r[2]:r[3]],
+    ax1 = G.figresult.add_subplot(121)
+    G.figresult_mappable1 = ax1.imshow(G.current_image[r[0]:r[1], r[2]:r[3]],
                                           vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower')
     # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-    G.ax31.format_coord = lambda x, y: "%.1f" % get_root().image.im0[y, x]
-    G.ax31.format_coord = lambda x, y: ""
+    ax1.format_coord = lambda x, y: "%.1f" % get_root().image.im0[y, x]
+    ax1.format_coord = lambda x, y: ""
     # FIT
     if "Moffat" in W.type["fit"]:
         stg = "Moffat2pt"
     elif "Gaussian" in W.type["fit"]:
         stg = "Gaussian2pt"
-    G.ax32 = G.figresult.add_subplot(122)
-    G.figresult_mappable2 = G.ax32.imshow(vars(BF)[stg]((X, Y), W.strehl),
+    ax2 = G.figresult.add_subplot(122)
+    G.figresult_mappable2 = ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),
                                           vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
                                           )  # need to comment the extent other wise too crowded and need to change rect positio
-    #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
-    G.ax32.format_coord = lambda x, y: ""
+    #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
+    ax2.format_coord = lambda x, y: ""
     G.figresult.canvas.draw()
     return
 

@@ -14,7 +14,8 @@ from numpy import sqrt, float32
 # Local
 from abism.back import  Scale  # otherwise get in conflict with Tkinter
 from abism.front.DraggableColorbar import DraggableColorbar, zoom_fun
-from abism.front.util_front import photo_up, photo_down, skin, TitleLabel
+from abism.front.util_front import photo_up, photo_down, skin, TitleLabel, \
+    set_figure_skin
 import abism.front.util_front as G
 
 # TODO must be remooved
@@ -28,7 +29,7 @@ from abism.front.DraggableColorbar import MyNormalize
 from abism.util import log, get_root
 
 class PlotFrame(tk.Frame):
-    """Base class"""
+    """Frame with a mpl figure"""
     def __init__(self, parent):
         super().__init__(parent, skin().frame_dic)
 
@@ -116,9 +117,27 @@ class PlotFrame(tk.Frame):
         return self._toolbar
 
     def update_skin(self):
-        self._fig.set_facecolor(skin().color.bg)
+        """Update skin, appearance"""
+        # Update parameters
+        set_figure_skin(self._fig, skin())
+
+        # Redraw
         self._fig.canvas.draw()
 
+    def reset_figure_ax(
+            self,
+            format_coord=lambda x, y: '',
+            xlabel='', ylabel='',
+    ):
+        """Reset figure, return ax
+        format_coord: fct x,y -> format
+        """
+        self._fig.clf()
+        ax = self._fig.add_subplot(111)
+        ax.format_coord = format_coord
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        return ax
 
 
 class ImageFrame(PlotFrame):
@@ -158,16 +177,16 @@ class ImageFrame(PlotFrame):
 
         # Scale (much faster also draw_artist can help ?)
         if re.match(r".*\.fits", get_root().image.name):
-            G.current_image = get_root().image.im0.astype(float32)
+            im0 = get_root().image.im0.astype(float32)
             log(3, "dic init", G.scale_dic[0])
             self.CutImageScale(dic=G.scale_dic[0], load=1)  # not to draw the image.
         else:
-            G.current_image = get_root().image.im0
+            im0 = get_root().image.im0
 
         # Display
         G.ax1 = self._fig.add_subplot(111)
         drawing = G.ax1.imshow(
-            G.current_image,
+            im0,
             vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
             # orgin=lower to get low y down
             cmap=G.scale_dic[0]["cmap"], origin='lower')
@@ -502,7 +521,6 @@ class ImageFrame(PlotFrame):
         self.draw_image(new_fits=False)
 
 
-
 class FitFrame(PlotFrame):
     """Frame with the curve of the fit (1d)"""
     def __init__(self, parent):
@@ -535,13 +553,13 @@ class ResultFrame(PlotFrame):
 
 class RightFrame(tk.PanedWindow):
     """Full Container"""
-    def __init__(self, parent):
+    def __init__(self, root, parent):
         # Append self, vertically splited
         super().__init__(parent, orient=tk.VERTICAL, **skin().paned_dic)
         parent.add(self)
 
         # Add science image frame
-        G.ImageFrame = ImageFrame(self)
+        root.ImageFrame = ImageFrame(self)
 
         # Append bottom, horizontally splitted container of 2 frames
         G.RightBottomPaned = tk.PanedWindow(
@@ -549,7 +567,7 @@ class RightFrame(tk.PanedWindow):
         self.add(G.RightBottomPaned)
 
         # Add Fit (bottom left)
-        get_root().FitFrame = FitFrame(G.RightBottomPaned)
+        root.FitFrame = FitFrame(G.RightBottomPaned)
 
         # Add Result (bottom right)
-        G.ResultFrame = ResultFrame(G.RightBottomPaned)
+        root.ResultFrame = ResultFrame(G.RightBottomPaned)

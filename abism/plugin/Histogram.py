@@ -5,10 +5,11 @@ this could even be in real time.
 """
 
 from abism.util import log
+from abism.front.util_front import set_figure_skin
 import abism.front.util_front as G
 
 
-def Histopopo(figure, image_sorted, fg='black'):
+def Histopopo(figure, image_sorted, skin=None):
     """Single (useless) method for a single (useless) functionality
     figure: matplotlib figure
     image_sorted: 1D sorted array of pixel value
@@ -16,19 +17,24 @@ def Histopopo(figure, image_sorted, fg='black'):
     # Reset figure
     figure.clf()
     ax = figure.add_subplot(111)
-    ax.format_coord = lambda x, y: ""  # not see x y label in the toolbar
+    # Hide x, y label in toolbar
+    ax.format_coord = lambda x, y: ''
 
     # Draw tick
     for tick in ax.xaxis.get_major_ticks():
         tick.label.set_fontsize(14)
     ax.axvline(x=G.scale_dic[0]["min_cut"],
-               color=fg, linestyle='-', linewidth=2)
+               linestyle='-', linewidth=2)
     ax.axvline(x=G.scale_dic[0]["max_cut"],
-               color=fg, linestyle='-', linewidth=2)
+               linestyle='-', linewidth=2)
     ax.set_xticklabels(image_sorted)
 
     # Caclulate histogram
     ax.hist(image_sorted, 100, log=True)  # n, bin, patches
+
+    # Set skin
+    if skin:
+        set_figure_skin(figure, skin)
 
     # Fraw
     figure.canvas.draw()

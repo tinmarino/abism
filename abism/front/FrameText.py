@@ -336,7 +336,7 @@ class ButtonFrame(Frame):
         opts.update({'background':skin().color.parameter1})
         G.bu_manual = Button(
             self, text=u'\u25be ' + 'ImageParameters',
-            command=G.OptionFrame.ask_image_parameters, **opts)
+            command=get_root().OptionFrame.ask_image_parameters, **opts)
 
         # Grid
         self.columnconfigure(0, weight=1)
@@ -348,25 +348,25 @@ class ButtonFrame(Frame):
 
 class LeftFrame(Frame):
     """Full Container"""
-    def __init__(self, parent):
+    def __init__(self, root, parent):
         # Append self -> parent
         super().__init__(parent, **skin().frame_dic)
         parent.add(self)
 
         # Create Paned
-        G.TextPaned = PanedWindow(self, orient=VERTICAL, **skin().paned_dic)
+        text_paned = PanedWindow(self, orient=VERTICAL, **skin().paned_dic)
 
         # Add LabelFrame
-        G.LabelFrame = LabelFrame(G.TextPaned, index=0, label_text='Info')
+        root.LabelFrame = LabelFrame(text_paned, index=0, label_text='Info')
 
         # Add LabelFrame
-        G.OptionFrame = OptionFrame(G.TextPaned, index=1, label_text='Option')
+        root.OptionFrame = OptionFrame(text_paned, index=1, label_text='Option')
 
         # Add AnswerFrame
-        G.AnswerFrame = AnswerFrame(G.TextPaned, label_text='Result')
+        root.AnswerFrame = AnswerFrame(text_paned, label_text='Result')
         # Create Buttons with callback to preceding
         button_frame = ButtonFrame(self)
 
         # Pack buttons and pane
         button_frame.pack(side=TOP, expand=0, fill=X)
-        G.TextPaned.pack(side=TOP, expand=1, fill=BOTH)
+        text_paned.pack(side=TOP, expand=1, fill=BOTH)

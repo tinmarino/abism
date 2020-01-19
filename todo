@@ -10,10 +10,12 @@
   * Repair Imageparameters (colo stuff) 
   * The sash toggle does not work properly, see in TextFrame
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
+* Matplotlib, get better zoom
 
 
 # Always possible
 
+* Clean code (especially back)
 * Better documentation
 * More colorscheme and better interface to choose
 * Better preference saving, loading
