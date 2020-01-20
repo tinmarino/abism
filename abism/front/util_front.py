@@ -246,6 +246,7 @@ def update_widget_skin(widget):
     """Update the skin of a widget"""
     from abism.front.FramePlot import PlotFrame
 
+    log(3, 'Updating:', widget.__class__.__name__)
 
     if isinstance(widget, PlotFrame):
         widget.update_skin()
@@ -265,7 +266,8 @@ def update_widget_skin(widget):
         widget.configure(skin().frame_dic)
     elif isinstance(widget, TitleLabel):
         widget.configure(skin().label_title_dic)
-    elif isinstance(widget, tk.Canvas):
+    # Scrollbar and Canvas have no fg
+    elif isinstance(widget, (tk.Canvas, tk.Scrollbar)):
         widget.configure(bg=skin().color.bg)
     else:
         widget.configure(
@@ -277,7 +279,8 @@ def update_widget_skin(widget):
 def change_scheme(root, in_scheme):
     """Dark skin"""
     reset_skin(in_scheme)
-    children_do(root, update_widget_skin)
+    for widget in (root, *root.saved_children):
+        children_do(widget, update_widget_skin)
 
 
 @lru_cache(1)
@@ -297,15 +300,18 @@ def reset_skin(in_scheme):
     skin()
 
 
-def about_window():
-    """Pop about window"""
+def about_window(save=None):
+    """Pop about window
+    Append it to (to)
+    """
     root = tk.Tk()
+    if save is not None: save.append(root)
     root.title("About Abism")
     txt = ("Adaptive Background Interactive Strehl Meter\n"
            "ABISM version " + get_version() + " (2013 -- 2020) \n"
            "Authors: Girard Julien, Tourneboeuf Martin\n"
            "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
-    tk.Label(root, text=txt).pack()
+    tk.Label(root, text=txt, **skin().fg_and_bg).pack()
     root.mainloop()
 
 

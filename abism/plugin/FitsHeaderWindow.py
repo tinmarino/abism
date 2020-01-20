@@ -2,9 +2,9 @@
     Show fits header
 """
 
-from tkinter import Tk, Frame, Scrollbar, Text, \
-    Label, Button, Entry, \
-    END, LEFT, RIGHT, BOTH, TOP, X, Y
+import tkinter as tk
+
+from abism.front.util_front import skin
 
 find_num = [0]
 find_list = []
@@ -13,11 +13,11 @@ s_old = ''
 
 def _find(text, edit):
     """Find string in header
-    text Frame with text
-    edit Entry
+    text tk.Frame with text
+    edit tk.Entry
     """
     global s_old  # pylint: disable=global-statement
-    text.tag_remove('found', '1.0', END)
+    text.tag_remove('found', '1.0', tk.END)
     s_to_find = edit.get()
     if s_to_find:
         if s_to_find != s_old:  # reset
@@ -25,7 +25,7 @@ def _find(text, edit):
             s_old = s_to_find
         idx = '1.0'
         while 1:
-            idx = text.search(s_to_find, idx, nocase=1, stopindex=END)
+            idx = text.search(s_to_find, idx, nocase=1, stopindex=tk.END)
             if not idx:
                 break
             lastidx = '%s+%dc' % (idx, len(s_to_find))
@@ -57,7 +57,7 @@ def Scroll(text, edit, side):
     idx = '%s+%dc' % (lastidx, len(s_to_find))
     text.see(lastidx)
     try:
-        text.tag_remove('on', '1.0', END)
+        text.tag_remove('on', '1.0', tk.END)
     except:
         pass
     text.tag_add("on", lastidx, idx)
@@ -67,50 +67,53 @@ def Scroll(text, edit, side):
     return
 
 
-def DisplayHeader(image_name, s_text):
-    """Pop Window to display the header (helper)"""
+def DisplayHeader(image_name, s_text, save=None):
+    """Pop Window to display the header (helper) """
+
     # Parent
-    root = Tk()
+    root = tk.Tk()
+    if save is not None: save.append(root)
     root.title('header('+image_name+')')
     root.geometry("1000x1000+0+0")
 
     # Head
-    head_frame = Frame(root)
-    head_frame.pack(side=TOP, fill=X)
+    head_frame = tk.Frame(root, **skin().frame_dic)
+    head_frame.pack(side=tk.TOP, fill=tk.X)
     for i in range(4):
         head_frame.columnconfigure(i, weight=1)
 
-    # Scrollbar
-    scroll = Scrollbar(root)
-    scroll.pack(side=RIGHT, fill=Y)
+    # tk.Scrollbar
+    scroll = tk.Scrollbar(root, bg=skin().color.bu)
+    scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
-    # Text
-    text = Text(root, background='white', fg="black")
-    text.insert(END, s_text)
-    text.pack(side=LEFT, expand=True, fill=BOTH)
+    # tk.Text
+    text = tk.Text(root, **skin().fg_and_bg)
+    text.insert(tk.END, s_text)
+    text.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
     text.configure(yscrollcommand=scroll.set)
     scroll.config(command=text.yview)
 
-    # Label Find
-    Label(head_frame, text='Find expression: ', bg="grey",
-          fg="black").grid(row=0, column=0, sticky="nsew")
+    # tk.Label Find
+    label_find = tk.Label(
+        head_frame, text='Find expression: ', **skin().fg_and_bg)
+    label_find.grid(row=0, column=0, sticky='nsew')
 
-    # TextEntry search
-    edit = Entry(head_frame, bg="white", fg="black")
+    # tk.Texttk.Entry search
+    edit = tk.Entry(head_frame, **skin().fg_and_bg)
     edit.bind("<Return>", lambda event: Scroll(text, exit, "+"))
     edit.grid(row=0, column=1, sticky="nsew")
     edit.focus_set()
 
     # - Previous
-    Button(
-        head_frame, text='<-', bg="grey",
-        fg="black", command=lambda: Scroll(text, edit, "-")
+    tk.Button(
+        head_frame, text='<-', **skin().button_dic,
+        command=lambda: Scroll(text, edit, "-")
         ).grid(row=0, column=2, sticky="nsew")
 
     # + Next
-    Button(
-        head_frame, text='->', bg="grey",
-        fg="black", command=lambda: Scroll(text, edit, "+")
+    tk.Button(
+        head_frame, text='->', **skin().button_dic,
+        command=lambda: Scroll(text, edit, "+")
         ).grid(row=0, column=3, sticky="nsew")
 
 

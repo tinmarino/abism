@@ -6,7 +6,7 @@
 from os.path import isfile
 
 # Tkinter
-from tkinter import *
+import tkinter as tk
 import numpy as np
 from astropy.io import fits
 
@@ -27,7 +27,7 @@ from abism.util import root_path, log, set_verbose, \
 from abism.plugin.ReadHeader import parse_header  # What a name !
 
 
-class RootWindow(Tk):
+class RootWindow(tk.Tk):
     """Main window app object
     May one day destroy util_front ...
     Call me like Tk:
@@ -45,15 +45,18 @@ class RootWindow(Tk):
 
         # Variables for my children
         set_root(self)
+
+        # Save spawned children
+        self.saved_children = []
         self.image = ImageInfo()
         self.state = AbismState()
 
         # Global even more dirty
-        W.same_center_var = IntVar()
+        W.same_center_var = tk.IntVar()
         W.same_center_var.set(1)
-        W.aniso_var = IntVar()
+        W.aniso_var = tk.IntVar()
         W.aniso_var.set(1)
-        W.same_psf_var = IntVar()
+        W.same_psf_var = tk.IntVar()
         W.same_psf_var.set(1)
 
         # Give title
@@ -67,8 +70,8 @@ class RootWindow(Tk):
         # ALL What is not the menu is a paned windows :
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        main_paned = PanedWindow(self, orient=HORIZONTAL, **skin().paned_dic)
-        main_paned.pack(side=TOP, fill=BOTH, expand=1)
+        main_paned = tk.PanedWindow(self, orient=tk.HORIZONTAL, **skin().paned_dic)
+        main_paned.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
         # 2 LEFT
         G.TextFrame = LeftFrame(self, main_paned)
@@ -113,7 +116,7 @@ class RootWindow(Tk):
     def set_icon(self):
         """Create OS Icon from resources"""
         if isfile(icon_path()):
-            bitmap = PhotoImage(file=icon_path())
+            bitmap = tk.PhotoImage(file=icon_path())
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
         else:
             log(3, "->you have no beautiful icon "
@@ -191,10 +194,8 @@ class RootWindow(Tk):
         # Image parameters
         if "ManualFrame" in vars(G):
             for i in G.image_parameter_list:
-                vars(G.tkvar)[i[1]].set(vars(get_root().header)[i[1]])
+                vars(G.tkvar)[i[1]].set(vars(self.header)[i[1]])
             # to restore the values in the unclosed ImageParameters Frame
             G.LabelFrame.set_image_parameters("", destroy=False)
         # LABELS
         G.LabelFrame.update_label()
-
-

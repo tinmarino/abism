@@ -6,7 +6,6 @@ from tkinter.filedialog import askopenfilename
 
 
 from abism.util import log
-import abism.back.util_back as W
 from abism.front.util_front import skin
 
 from abism.plugin.FitsHeaderWindow import DisplayHeader
@@ -29,7 +28,10 @@ def FileMenu(root, parent, args):
     menu_button.menu.add_command(
         label='Display Header',
         command=lambda: DisplayHeader(
-            root.image.name, root.header.header.tostring(sep="\n")))
+            root.image.name,
+            root.header.header.tostring(sep="\n"),
+            save=root.saved_children,
+        ))
 
     menu_button['menu'] = menu_button.menu
 
