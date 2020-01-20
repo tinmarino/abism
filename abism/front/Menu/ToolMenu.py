@@ -5,6 +5,7 @@ import tkinter as Tk
 
 
 from abism.plugin.DebugConsole import PythonConsole
+from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.Histogram import Histopopo
 
 from abism.front import Pick  # to connect PickOne per defautl
@@ -24,7 +25,8 @@ def ToolMenu(root, parent, args):
             root.FitFrame.get_figure(),
             root.image.sort,
             skin=skin())],
-        ["Python Console", PythonConsole],
+        ["Legacy Console", PythonConsole],
+        ["Jupyter Console", jupyter_window],
     ]
     for i in lst:
         tool_menu.menu.add_command(label=i[0], command=i[1])

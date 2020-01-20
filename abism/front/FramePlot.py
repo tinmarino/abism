@@ -155,12 +155,14 @@ class ImageFrame(PlotFrame):
         self.init_canvas(self._fig)
 
 
-    def set_figure_scrollable(self):
+    def extend_matplotlib(self):
         """Enable scroll with mouse"""
-        def zoom_handler(event):
-            zoom_handler(event, G.ax1, self._fig.canvas.draw, base_scale=1.2)
+        # Scroll
+        def zoom_handler_wrapper(event):
+            zoom_handler(event, self._fig.axes[0],
+                         self._fig.canvas.draw, base_scale=1.2)
 
-        self._fig.canvas.mpl_connect('scroll_event', zoom_handler)
+        self._fig.canvas.mpl_connect('scroll_event', zoom_handler_wrapper)
 
 
     def draw_image(self, new_fits=True):
@@ -236,7 +238,7 @@ class ImageFrame(PlotFrame):
             G.label_bool = 0
             G.LabelFrame.update_label()
 
-        self.set_figure_scrollable()
+        self.extend_matplotlib()
 
 
     def CutImageScale(self, dic={}, load=0, run=""):
@@ -391,7 +393,6 @@ class ImageFrame(PlotFrame):
             G.figresult.canvas.draw()
         except BaseException:
             log(2, "Draw cannot draw in figresult")
-
 
 
     def RemoveCompass(self):

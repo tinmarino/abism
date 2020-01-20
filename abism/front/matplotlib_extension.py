@@ -324,33 +324,63 @@ class MyNormalize(Normalize):
         return vmin + val * (vmax - vmin)
 
 
-def zoom_handler(event, ax, callback=plt.draw, base_scale=2):
+def get_center_and_radius(event, ax):
+    """Return center, radius, both are (x, y) tuples"""
+    # Get the current x and y limits
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+
+    # Mesure radius
+    rx = (xlim[1] - xlim[0]) * .5
+    ry = (ylim[1] - ylim[0]) * .5
+
+    # Mesure center
+    cx = xlim[0] + rx
+    cy = ylim[0] + ry
+
+    return (cx, cy), (rx, ry)
+
+
+def zoom_handler(event, ax, callback=plt.draw, base_scale=1.2):
     """Zoom on canvas on event
     Then call callback (to redraw)
     """
-    from abism.util import log
-    log(3, 'Scrooling called with factor', base_scale, 'on', ax)
-    # get the current x and y limits
-    cur_xlim = ax.get_xlim()
-    cur_ylim = ax.get_ylim()
-    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-    xdata = event.xdata # get event x location
-    ydata = event.ydata # get event y location
+    # Get image center and radius
+    center, radius = get_center_and_radius(event, ax)
+
+    # Discriminate in / out
     if event.button == 'up':
         # deal with zoom in
-        scale_factor = 1/base_scale
+        scale_factor = 1 / base_scale
     elif event.button == 'down':
         # deal with zoom out
         scale_factor = base_scale
     else:
         # deal with something that should never happen
         scale_factor = 1
-    # set new limits
-    ax.set_xlim([xdata - cur_xrange*scale_factor,
-                 xdata + cur_xrange*scale_factor])
-    ax.set_ylim([ydata - cur_yrange*scale_factor,
-                 ydata + cur_yrange*scale_factor])
+
+    # Set new limits
+    ax.set_xlim([center[0] - radius[0] * scale_factor,
+                 center[0] + radius[0] * scale_factor])
+    ax.set_ylim([center[1] - radius[1] * scale_factor,
+                 center[1] + radius[1] * scale_factor])
+
+    # Redraw
+    callback()
+
+
+def center_handler(event, ax, callback=plt.draw):
+    # Get image center and radius
+    center, radius = get_center_and_radius(event, ax)
+    click = (event.xdata, event.ydata)
+
+    # Set new limits
+    ax.set_xlim([click[0] - radius[0],
+                 click[0] + radius[0]])
+    ax.set_ylim([click[1] - radius[1],
+                 click[1] + radius[1]])
+
+    # Redraw
     callback()
 
 

@@ -8,6 +8,7 @@ from abism.front import EventArtist  # draw an ellipse
 from abism.front import AnswerReturn as AR
 # Warnign circular dep
 import abism.front.Menu.AnalysisMenu as AnalysisMenu
+from abism.front.matplotlib_extension import center_handler
 from abism.front import util_front as G
 
 from abism.back import Strehl
@@ -160,13 +161,29 @@ def PickOne(disconnect=False):
 
 
 def PickEvent(event):
-    if event.button != 3 or not event.inaxes:
+    """For  mouse click"""
+    # Left click -> avoid shadowing rectangle selection
+    if not event.inaxes or event.button == 1:
         return
-    elif G.toolbar._active == "PAN" or G.toolbar._active == "ZOOM":
-        log(3 ,
-                "WARNING: Zoom or Pan actif, please unselect its before picking your object")
+
+    # Right click -> center
+    if event.button == 3:
+        log(5, 'Centering <- right click:' , event)
+        center_handler(
+            event,
+            G.fig.axes[0],
+            callback=get_root().ImageFrame.get_canvas().draw)
         return
-    W.r = [event.ydata-15, event.ydata+15, event.xdata-15, event.xdata+15]
+
+    if G.toolbar._active == 'PAN' or G.toolbar._active == 'ZOOM':
+        log(0 ,
+                'WARNING: Zoom or Pan actif, please unselect its before picking your object')
+        return
+
+    # Save bounds <- click +/- 15
+    W.r = [event.ydata - 15, event.ydata + 15,
+           event.xdata - 15, event.xdata + 15]
+
     MultiprocessCaller()
 
 

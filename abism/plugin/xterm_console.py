@@ -11,8 +11,10 @@ from re import match
 from threading import Thread
 from queue import Queue
 
+from abism.util import log
 
-def main():
+
+def create_console_window():
     # Init
     root = tk.Tk()
     queue = Queue()
@@ -35,12 +37,12 @@ def main():
         """-e /bin/bash -c "ps -o tt=;bash" """
         r'| tee'
     )
-    print('Launching:', cmd)
+    log(2,'Launching:', cmd)
 
     # Spawn Xterm
     process = sp.Popen(
         cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    print('Xterm pid:', process.pid)
+    log(2,'Xterm pid:', process.pid)
 
     # Get pts
     thread = Thread(target=lambda: get_xterm_pts(termf, process, queue))
@@ -57,13 +59,13 @@ def on_resize(event, queue):
     """On resize: send escape sequence to pts"""
     # Magic && Check
     magic_x, magic_y = 6.1, 13
-    print('Resize (w, h):', event.width, event.height)
+    log(2,'Resize (w, h):', event.width, event.height)
     if not queue.queue: return
 
     # Calculate
     width = int(event.width / magic_x)
     height = int(event.height / magic_y)
-    print('To (lin,col):', height, width)
+    log(2,'To (lin,col):', height, width)
     ctl = f"\u001b[8;{height};{width}t"
 
     # Send to pts
@@ -75,12 +77,12 @@ def get_xterm_pts(parent, process, queue):
     """Retrieve pts(`process`) -> `queue`"""
     while True:
         out = process.stdout.readline().decode()
-        print('Xterm out' + out)
+        log(2,'Xterm out' + out)
 
         match_pts = match(r'pts/\d+', out)
         if match_pts:
             pts = '/dev/' + match_pts.group(0)
-            print('-----------> pts:', pts)
+            log(2,'-----------> pts:', pts)
             queue.put(pts)
             break
 
@@ -94,5 +96,31 @@ def get_xterm_pts(parent, process, queue):
     on_resize(fake_event, queue)
 
 
+def launch_kernel():
+    """Launch a kernel (ipy, jupyter)
+    The kernel is in a other thread
+    that is why we need (200 lines) background-zmd-ipython
+    """
+    # Import
+    try:
+        from background_zmq_ipython import init_ipython_kernel
+    except ImportError(e):
+        log(0, "Error: cannot import background_zmq_ipython,\n"
+            "install: background_zmq_ipython and xterm\n"
+            "and try again", e)
+        return
+
+    def kernel_thread():
+        init_ipython_kernel(user_ns=globals())
+
+    thread = Thread(target=kernel_thread)
+    thread.start()
+
+
+def jupyter_window():
+    launch_kernel()
+    create_console_window()
+
+
 if __name__ == '__main__':
-    main()
+    create_console_window()
