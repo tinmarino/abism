@@ -5,11 +5,13 @@
 
 # UI
 
-* make sahs working on left pane hide
-  * Repair Imageparameters (color stuff) 
-  * The sash toggle does not work properly, see in TextFrame
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * Matplotlib, get better zoom
+* make sahs of left pane, better move when adding or removeing frames
+* profile broken
+* More options, test mey stuff
+* Header change skine (also in callback)
+* AnswerFrame: Give the ability to copy paste
 
 
 # Always possible

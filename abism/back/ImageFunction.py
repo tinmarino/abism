@@ -13,6 +13,8 @@ from abism.util import log
 import abism.front.util_front as G  # check variables
 import abism.back.util_back as W  # for verbose
 
+from abism.front.AnswerReturn import ProfileAnswer
+
 
 def DoNotPassBorder(grid, point2d):
     """Ensure point is in image
@@ -786,8 +788,7 @@ def ProfileEvent(obj):  # Called by Gui/EventArtist.py
     # not  invert, always in array coord, Event is inverting its x and y for me :)
     G.my_point2 = [obj.point2[0], obj.point2[1]]
     G.my_point1 = [obj.point1[0], obj.point1[1]]
-    import AnswerReturn as AR
-    AR.ProfileAnswer()
+    ProfileAnswer()
 
 
 def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object

@@ -29,7 +29,7 @@ def FileMenu(root, parent, args):
     menu_button.menu.add_command(
         label='Display Header',
         command=lambda: DisplayHeader(
-            root.image.name, root.image.head.header.tostring(sep="\n")))
+            root.image.name, root.header.header.tostring(sep="\n")))
 
     menu_button['menu'] = menu_button.menu
 
