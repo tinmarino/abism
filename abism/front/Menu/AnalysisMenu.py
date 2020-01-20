@@ -146,6 +146,12 @@ def MoreCreate():       # Create The Frame
                                      **skin().button_dic)
         return G.bu_subtract_bg
 
+    def set_noise(i):
+        W.type['noise'] = i
+
+    def set_phot(i):
+        W.type['phot'] = i
+
     def NoiseType(frame):
         ""
         G.menu_noise = tk.Menubutton(frame,
@@ -170,9 +176,8 @@ def MoreCreate():       # Create The Frame
                     label=i[0], command=ManualBackground,
                     variable=G.cu_noise, value=i[1])
             else:
-                def set_noise(i): W.type['noise'] = i[1]
                 G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=set_noise,
+                    label=i[0], command=lambda : set_noise(i[1]),
                     variable=G.cu_noise, value=i[1])
 
         G.menu_noise['menu'] = G.menu_noise.menu
@@ -194,9 +199,8 @@ def MoreCreate():       # Create The Frame
         ]
 
         for i in lst:
-            def set_phot(i): W.type['phot'] = i[1]
             G.menu_phot.menu.add_radiobutton(
-                label=i[0], command=set_phot,
+                label=i[0], command = lambda: set_phot(i[1]),
                 variable=G.cu_phot, value=i[1])
 
         G.menu_phot['menu'] = G.menu_phot.menu
