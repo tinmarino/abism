@@ -1,7 +1,13 @@
-""" this module is imported from this web site :
+"""
+Dragable
+this module is imported from this web site :
 http://www.ster.kuleuven.be/~pieterd/python/html/plotting/interactive_colorbar.html
 it aims to create a colorbar with some events and connecxions,
 if you have some troubles to digest that, just take some laxative
+
+Normalize
+# The Normalize class is largely based on code provided by Sarah Graves.
+if you want to add a scaling fct, like arctan, you need to add it in "call" and in "inverse"
 
 Should remove abism sutff and git to it as params
 """
@@ -9,8 +15,8 @@ Should remove abism sutff and git to it as params
 import pylab as plt
 import numpy as np
 from scipy.ndimage import gaussian_filter
+from matplotlib.colors import Normalize
 
-from abism.front import NormalizeMy
 from abism.front import util_front as G
 
 
@@ -121,50 +127,6 @@ class DraggableColorbar:
         self.cbar.patch.figure.canvas.mpl_disconnect(self.cidmotion)
 
 
-
-
-# The Normalize class is largely based on code provided by Sarah Graves.
-""" if you want to add a scaling fct, like arctan, you need to add it in "call" and in "inverse" """
-import numpy as np
-import numpy.ma as ma
-
-import matplotlib.cbook as cbook
-from matplotlib.colors import Normalize
-
-def zoom_fun(event, ax, callback=plt.draw, base_scale=2):
-    """Enbale zoom on canvas"""
-    from abism.util import log
-    log(3, 'Scrooling called with factor', base_scale, 'on', ax)
-    # get the current x and y limits
-    cur_xlim = ax.get_xlim()
-    cur_ylim = ax.get_ylim()
-    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-    xdata = event.xdata # get event x location
-    ydata = event.ydata # get event y location
-    if event.button == 'up':
-        # deal with zoom in
-        scale_factor = 1/base_scale
-    elif event.button == 'down':
-        # deal with zoom out
-        scale_factor = base_scale
-    else:
-        # deal with something that should never happen
-        scale_factor = 1
-    # set new limits
-    ax.set_xlim([xdata - cur_xrange*scale_factor,
-                    xdata + cur_xrange*scale_factor])
-    ax.set_ylim([ydata - cur_yrange*scale_factor,
-                    ydata + cur_yrange*scale_factor])
-    callback()
-
-
-def example_call_zoom(ax):
-    fig = ax.get_figure() # get the figure of interest
-    # attach the call back
-    fig.canvas.mpl_connect('scroll_event', lambda event, ax=ax:zoom_fun(event, ax))
-
-
 class MyNormalize(Normalize):
     '''
     A Normalize class for imshow that allows different stretching functions
@@ -249,10 +211,10 @@ class MyNormalize(Normalize):
 
         if np.iterable(value):
             vtype = 'array'
-            val = ma.asarray(value).astype(np.float)
+            val = np.ma.asarray(value).astype(np.float)
         else:
             vtype = 'scalar'
-            val = ma.array([value]).astype(np.float)
+            val = np.ma.array([value]).astype(np.float)
 
         self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
@@ -262,8 +224,8 @@ class MyNormalize(Normalize):
             return 0.0 * val
         else:
             if clip:
-                mask = ma.getmask(val)
-                val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
+                mask = np.ma.getmask(val)
+                val = np.ma.array(np.clip(val.filled(vmax), vmin, vmax),
                                mask=mask)
             result = (val - vmin) * (1.0 / (vmax - vmin))
 
@@ -278,12 +240,12 @@ class MyNormalize(Normalize):
 
             elif self.stretch == 'log':
 
-                result = ma.log10(result * (self.midpoint - 1.) + 1.) \
-                    / ma.log10(self.midpoint)
+                result = np.ma.log10(result * (self.midpoint - 1.) + 1.) \
+                    / np.ma.log10(self.midpoint)
 
             elif self.stretch == 'sqrt':
 
-                result = ma.sqrt(result)
+                result = np.ma.sqrt(result)
 
             elif self.stretch == 'square':
 
@@ -291,12 +253,12 @@ class MyNormalize(Normalize):
 
             elif self.stretch == 'arcsinh':
 
-                result = ma.arcsinh(result / self.midpoint) \
-                    / ma.arcsinh(1. / self.midpoint)
+                result = np.ma.arcsinh(result / self.midpoint) \
+                    / np.ma.arcsinh(1. / self.midpoint)
 
             elif self.stretch == 'power':
 
-                result = ma.power(result, exponent)
+                result = np.ma.power(result, exponent)
 
             else:
 
@@ -324,7 +286,7 @@ class MyNormalize(Normalize):
         # CUSTOM APLPY CODE
 
         if np.iterable(value):
-            val = ma.asarray(value)
+            val = np.ma.asarray(value)
         else:
             val = value
 
@@ -334,7 +296,7 @@ class MyNormalize(Normalize):
 
         elif self.stretch == 'log':
 
-            val = (ma.power(10., val * ma.log10(self.midpoint)) - 1.) / \
+            val = (np.ma.power(10., val * ma.log10(self.midpoint)) - 1.) / \
                 (self.midpoint - 1.)
 
         elif self.stretch == 'sqrt':
@@ -344,15 +306,15 @@ class MyNormalize(Normalize):
         elif self.stretch == 'arcsinh':
 
             val = self.midpoint * \
-                ma.sinh(val * ma.arcsinh(1. / self.midpoint))
+                np.ma.sinh(val * ma.arcsinh(1. / self.midpoint))
 
         elif self.stretch == 'square':
 
-            val = ma.power(val, (1. / 2))
+            val = np.ma.power(val, (1. / 2))
 
         elif self.stretch == 'power':
 
-            val = ma.power(val, (1. / self.exponent))
+            val = np.ma.power(val, (1. / self.exponent))
 
         else:
 
@@ -362,7 +324,43 @@ class MyNormalize(Normalize):
         return vmin + val * (vmax - vmin)
 
 
-def dragable_color_bar_example():
+def zoom_handler(event, ax, callback=plt.draw, base_scale=2):
+    """Zoom on canvas on event
+    Then call callback (to redraw)
+    """
+    from abism.util import log
+    log(3, 'Scrooling called with factor', base_scale, 'on', ax)
+    # get the current x and y limits
+    cur_xlim = ax.get_xlim()
+    cur_ylim = ax.get_ylim()
+    cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
+    cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
+    xdata = event.xdata # get event x location
+    ydata = event.ydata # get event y location
+    if event.button == 'up':
+        # deal with zoom in
+        scale_factor = 1/base_scale
+    elif event.button == 'down':
+        # deal with zoom out
+        scale_factor = base_scale
+    else:
+        # deal with something that should never happen
+        scale_factor = 1
+    # set new limits
+    ax.set_xlim([xdata - cur_xrange*scale_factor,
+                 xdata + cur_xrange*scale_factor])
+    ax.set_ylim([ydata - cur_yrange*scale_factor,
+                 ydata + cur_yrange*scale_factor])
+    callback()
+
+
+def example_call_zoom(ax):
+    fig = ax.get_figure() # get the figure of interest
+    # attach the call back
+    fig.canvas.mpl_connect('scroll_event', lambda event, ax=ax:zoom_fun(event, ax))
+
+
+def example_dragable_color_bar():
     """Reference: Not used"""
     np.random.seed(1111)
 

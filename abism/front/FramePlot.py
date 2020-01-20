@@ -4,27 +4,28 @@
 """
 import re
 
+# Module
 import tkinter as tk
-
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, \
     NavigationToolbar2Tk
 from numpy import sqrt, float32
 
-# Local
-from abism.back import  Scale  # otherwise get in conflict with Tkinter
-from abism.front.DraggableColorbar import DraggableColorbar, zoom_fun
+# Front
+from abism.front.matplotlib_extension import DraggableColorbar, MyNormalize, zoom_handler
 from abism.front.util_front import photo_up, photo_down, skin, TitleLabel, \
     set_figure_skin
 import abism.front.util_front as G
 
 # TODO must be remooved
 from abism.front import Pick
+from abism.front.AnswerReturn import PlotStar2
 # TODO this should not be here
+
+# Back
+from abism.back import  Scale  # otherwise get in conflict with Tkinter
 from abism.back.ImageFunction import PixelMax
 import abism.back.util_back as W
-from abism.front.AnswerReturn import PlotStar2
-from abism.front.DraggableColorbar import MyNormalize
 
 from abism.util import log, get_root
 
@@ -157,7 +158,7 @@ class ImageFrame(PlotFrame):
     def set_figure_scrollable(self):
         """Enable scroll with mouse"""
         def zoom_handler(event):
-            zoom_fun(event, G.ax1, self._fig.canvas.draw, base_scale=1.2)
+            zoom_handler(event, G.ax1, self._fig.canvas.draw, base_scale=1.2)
 
         self._fig.canvas.mpl_connect('scroll_event', zoom_handler)
 
