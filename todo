@@ -9,7 +9,8 @@
 * Skin: create entry and checkbutton (see readheader and analysis check button, l122)
 * make sahs of left pane, better move when adding or removeing frames
 * More options, test my stuff
-* AnswerFrame: Give the ability to copy paste
+* PLotStat dans AnswerReturn 520, make it in answer frame and not plot
+* AnswerFrame: Give the ability to cop y paste
   * Must transofrm them as Text: https://stackoverflow.com/questions/1602106/in-pythons-tkinter-how-can-i-make-a-label-such-that-you-can-select-the-text-wi
   * AbismState is the Namespace
 

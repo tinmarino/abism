@@ -116,13 +116,13 @@ class PlotFrame(tk.Frame):
         """Getter for global"""
         return self._toolbar
 
+    def redraw(self):
+        self._fig.canvas.draw()
+
     def update_skin(self):
         """Update skin, appearance"""
         # Update parameters
         set_figure_skin(self._fig, skin())
-
-        # Redraw
-        self._fig.canvas.draw()
 
     def reset_figure_ax(
             self,
@@ -390,7 +390,7 @@ class ImageFrame(PlotFrame):
             for i in (G.figresult_mappable1, G.figresult_mappable2):
                 i.set_norm(mynorm)
                 i.set_cmap(cmap)
-            G.figresult.canvas.draw()
+            get_root().FrameResult.redraw()
         except BaseException:
             log(2, "Draw cannot draw in figresult")
 

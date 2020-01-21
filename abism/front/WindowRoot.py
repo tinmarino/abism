@@ -52,7 +52,7 @@ class RootWindow(tk.Tk):
         self.set_icon()
         self.set_shortcut()
 
-        # Create menu
+        # 1 Menu: Pack
         MenuBarMaker(self)
 
         # ALL What is not the menu is a paned windows :
@@ -61,34 +61,15 @@ class RootWindow(tk.Tk):
         main_paned = tk.PanedWindow(self, orient=tk.HORIZONTAL, **skin().paned_dic)
         main_paned.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        # 2 LEFT
-        G.TextFrame = LeftFrame(self, main_paned)
-        G.LabelFrame = self.LabelFrame
-        G.OptionFrame = self.OptionFrame
-        G.AnswerFrame = self.AnswerFrame
+        # 2 Left: Add
+        LeftFrame(self, main_paned)
 
-        # 3 RIGHT
-        G.DrawPaned = RightFrame(self, main_paned)
-        # Pire encore
-        G.ImageFrame = self.ImageFrame
-        G.FitFrame = self.FitFrame
-        G.ResultFrame = self.ResultFrame
+        # 3 Right: Add
+        RightFrame(self, main_paned)
 
-        # ######################
-        # Init matplotlib figure
-        # TODO this should be done as getter
-        # Create Image
         G.fig = G.ImageFrame.get_figure()
         G.ImageCanvas = G.ImageFrame.get_canvas()
         G.toolbar = G.ImageFrame.get_toolbar()
-
-        # Create Fit
-        G.figfit = self.FitFrame.get_figure()
-        G.dpfit = self.FitFrame.get_canvas()
-
-        # Create Result
-        G.figresult = G.ResultFrame.get_figure()
-        G.dpresult = G.ResultFrame.get_canvas()
 
         # Init image
         self.set_image(util._parsed_args.image)

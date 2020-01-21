@@ -537,17 +537,16 @@ def PlotStat():
         ["RMS: ", "%.1f" % dicr["rms"]],
     ]
 
-    G.figresult.clf()
-    G.ax3 = G.figresult.add_subplot(111)
+    ax = get_root().ResultFrame.reset_figure_ax()
     num = 0
     for i in lst:
         print(i[0] + i[1])
-        G.ax3.text(0.3, 1.0-float(num)/(len(lst)+1),
-                   i[0]+i[1], transform=G.ax3.transAxes)
+        ax.text(0.3, 1.0-float(num)/(len(lst)+1),
+                i[0]+i[1], transform=G.ax3.transAxes)
         #G.ax3.text(0.5,0.5, i[0]+i[1],transform = G.ax3.transAxes )
         num += 1
 
-    G.figresult.canvas.draw()
+    ax = get_root().ResultFrame.redraw()
 
 
 def DisplayAnswer(row=1, font=""):  # buttons at 0
@@ -723,7 +722,7 @@ def PlotBinaryStar1D():
     ab_th = np.arange(ab_range[0], ab_range[1], 0.1)
     x_theory = np.interp(ab_th, ab_range, x_range)
     y_theory = np.interp(ab_th, ab_range, y_range)
-    if get_state().fit_type != None:
+    if get_state().fit_type is not None:
         I_theory = vars(BF)[fit_type](
             (x_theory, y_theory), W.strehl["fit_dic"])
     else:
@@ -731,43 +730,43 @@ def PlotBinaryStar1D():
 
     ################
     # PLOT
-    G.figfit.clf()
-    G.ax2 = G.figfit.add_subplot(111)
-    G.ax2.plot(ab_th+0.5, I_theory, color='purple',
-               linewidth=2, label='Fitted PSF')
+    ax = get_root().FitFrame.reset_figure_ax()
+    ax.plot(ab_th+0.5, I_theory, color='purple',
+            linewidth=2, label='Fitted PSF')
     #G.ax2.plot(ab_th,I_theory,color='purple',linewidth=2,label='Fitted PSF')
-    G.ax2.plot(ab, od, color='black', linestyle='steps', linewidth=1,
-               label='Real Profile')  # x+0.5 to recenter the bar
-    G.ax2.legend(loc=1, prop={'size': 8})      # Legend
-    G.figfit.canvas.draw()
+    ax.plot(ab, od, color='black', linestyle='steps', linewidth=1,
+            label='Real Profile')  # x+0.5 to recenter the bar
+    ax.legend(loc=1, prop={'size': 8})      # Legend
+    get_root().FitFrame.redraw()
+
 
 
 def ProfileAnswer():  # 1 and 2D
     def Curve():
         global points  # for the stat
-        G.figfit.clf()                                           # PLOT
-        G.ax2 = G.figfit.add_subplot(111)
+
+        ax = get_root().FitFrame.reset_figure_ax()
 
         # DATA
         ab, od, points = IF.RadialLine(
             get_root().image.im0, (G.my_point1, G.my_point2), return_point=1)
-        G.ax2.plot(ab, od, '-', linewidth=1, label="Data")
+        ax.plot(ab, od, '-', linewidth=1, label="Data")
 
         # FIT
         # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
         #  I_theory = vars(BF) [get_state().fit_type ](points,W.strehl["fit_dic"],get_state().fit_type)
         #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
 
-        G.ax2.legend(loc=1, prop={'size': 8})      # Legend
-        G.figfit.canvas.draw()
+        ax.legend(loc=1, prop={'size': 8})      # Legend
+        get_root().FitFrame.redraw()
 
     def Data():
         log(8, "ProfileAnswer :", zip(points, get_root().image.im0[tuple(points)]))
         # STAT
         # like profile_stat points[0] is x and points[1] is y
-        ps = Stat(get_root().image.im0[tuple(points)])
-        G.figresult.clf()
-        G.ax3 = G.figresult.add_subplot(111)
+        ps = get_array_stat(get_root().image.im0[tuple(points)])
+
+        ax = get_root().ResultFrame.reset_figure_ax()
 
         # LEN
         tmp1 = G.my_profile.point1
@@ -783,10 +782,10 @@ def ProfileAnswer():  # 1 and 2D
         ]
         num = 1.
         for i in lst:
-            G.ax3.text(0.3, 1.0-num/(len(lst)+1), i[0]+"%.1f" % i[1])
+            ax.text(0.3, 1.0-num/(len(lst)+1), i[0]+"%.1f" % i[1])
             num += 1
 
-        G.figresult.canvas.draw()
+        get_root().ResultFrame.redraw()
 
     Curve()
     Data()
@@ -918,7 +917,7 @@ def PlotOneStar2D():
     ax1.set_xticks(())
     ax1.set_yticks(())
 
-    G.figresult.canvas.draw()
+    get_root().ResultFrame.redraw()
     return
 
 
@@ -938,8 +937,8 @@ def PlotBinaryStar2D():
     ###########
     # IMAGES draw
     # TRUE
-    G.figresult.clf()
-    ax1 = G.figresult.add_subplot(121)
+    get_root().ResultFrame.get_figure().clf()
+    ax1 = get_root().ResultFrame.get_figure().add_subplot(121)
     G.figresult_mappable1 = ax1.imshow(
         get_root().image.im0[r[0]:r[1], r[2]:r[3]],
         vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
@@ -953,7 +952,7 @@ def PlotBinaryStar2D():
         stg = "Moffat2pt"
     elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
-    ax2 = G.figresult.add_subplot(122)
+    ax2 = get_root().ResultFrame.get_figure().add_subplot(122)
     G.figresult_mappable2 = ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),
                                           vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower',
@@ -961,7 +960,7 @@ def PlotBinaryStar2D():
                                           )  # need to comment the extent other wise too crowded and need to change rect positio
     #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
     ax2.format_coord = lambda x, y: ""
-    G.figresult.canvas.draw()
+    get_root().ResultFrame.redraw()
     return
 
     ############
