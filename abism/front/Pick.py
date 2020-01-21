@@ -31,28 +31,24 @@ def RefreshPick(label):  # This is the only callled routine
         ["Annulus", "annulus", "PickAnnulus"],
         ["Ellipse", "ellipse", "PickEllipse"],
         ["No Pick", "nopick", "NoPick"],
-    ])  # Label@Menu , W.type["pick"], fct to call
+    ])  # Label@Menu , get_state().pick_type, fct to call
 
-    try:
-        W.type["pick_old"] = W.type["pick"]
-    except:
-        pass
+    get_state().pick_old = get_state().pick_type
     index = list(lst[:, 1]).index(label)   # or G.connect_var.get()
-    W.type["pick"] = label
+    get_state().pick_type = label
     # because they are in tools, and it disable the connection, I don't know why
     if label != "stat" or label != "profile":
         G.cu_pick.set(label)
 
       # THE dicconnect
-    if 'pick_old' in W.type:
-        if type(W.type["pick_old"]) is list:  # for pick many
-            index_old = list(lst[:, 1]).index(
-                W.type["pick_old"][0])   # or G.connect_var.get()
-        else:
-            index_old = list(lst[:, 1]).index(
-                W.type["pick_old"])   # or G.connect_var.get()
-        # This staff with disconnect is to avoid twice a call, in case pick_old = pick  it is not necessary but more pretty
-        globals()[lst[index_old, 2]](disconnect=True)
+    if type(get_state().pick_old) is list:  # for pick many
+        index_old = list(lst[:, 1]).index(
+            get_state().pick_old[0])   # or G.connect_var.get()
+    else:
+        index_old = list(lst[:, 1]).index(
+            get_state().pick_old)   # or G.connect_var.get()
+    # This staff with disconnect is to avoid twice a call, in case pick_old = pick  it is not necessary but more pretty
+    globals()[lst[index_old, 2]](disconnect=True)
 
       # THE CALLL
     globals()[lst[index, 2]]()
@@ -64,7 +60,7 @@ def NoPick(disconnect=False):  # to check if all pick types are disconnect
 
 def PickEllipse(disconnect=False):
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'ellipse':
+    if disconnect and get_state().pick_old == 'ellipse':
         try:
             G.ellipse.Disconnect()
             G.ellipse.RemoveArtist()
@@ -73,13 +69,13 @@ def PickEllipse(disconnect=False):
             pass
         return
     # CONNECT
-    if W.type["pick"] == "ellipse":
+    if get_state().pick_type == "ellipse":
         G.ellipse = EventArtist.Ellipse(G.fig, G.ax1, array=get_root().image.im0)
 
 
 def PickAnnulus(disconnect=False):
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'annulus':
+    if disconnect and get_state().pick_old == 'annulus':
         try:
             G.annulus.Disconnect()
             G.annulus.RemoveArtist()
@@ -88,7 +84,7 @@ def PickAnnulus(disconnect=False):
             pass
         return
     # CONNECT
-    if W.type["pick"] == "annulus":
+    if get_state().pick_type == "annulus":
         G.annulus = EventArtist.Annulus(G.fig, G.ax1, array=get_root().image.im0)
 
 
@@ -103,7 +99,7 @@ def Profile(disconnect=False):
     of the stacked pixels for each position on the line."
     """
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'profile':
+    if disconnect and get_state().pick_old == 'profile':
         try:
             G.my_profile.Disconnect()
         except:
@@ -114,9 +110,9 @@ def Profile(disconnect=False):
         except:
             log(3, "Pick.Profile , cannot remove artist profile ")
         return
-        # if W.type["pick"] == "profile" : return # in order not to cal twice at the begining
+        # if get_state().pick_type == "profile" : return # in order not to cal twice at the begining
     # CONNECT
-    if W.type["pick"] == "profile":
+    if get_state().pick_type == "profile":
         G.my_profile = EventArtist.Profile(G.fig, G.ax1)
 
 
@@ -139,7 +135,7 @@ def PickOne(disconnect=False):
     """
 
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'one':
+    if disconnect and get_state().pick_old == 'one':
         if "rs_one" in vars(G):
             G.rs_one.set_active(False)
         if "cid_left" in vars(G):
@@ -147,7 +143,7 @@ def PickOne(disconnect=False):
         return
 
     # CONNECT
-    if W.type["pick"] == "one":
+    if get_state().pick_type == "one":
         log(0, " \n\n\n________________________________\n|Pick One|:\n"
             "    1/Draw a rectangle around your star with left button\n"
             "    2/Click on star 'center' with right button")
@@ -194,7 +190,7 @@ def Binary(disconnect=False):
     """
 
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'binary':
+    if disconnect and get_state().pick_old == 'binary':
         try:
             G.fig.canvas.mpl_disconnect(G.pt1)
         except:
@@ -207,7 +203,7 @@ def Binary(disconnect=False):
         return
 
     # CONNECT
-    if W.type["pick"] == "binary":
+    if get_state().pick_type == "binary":
         log(0, "\n\n\n______________________________________\n"
             "|Binary| : Make 2 clicks, one per star-------------------")
         G.pt1 = G.fig.canvas.mpl_connect('button_press_event', Binary2)
@@ -241,7 +237,7 @@ def Binary3(event):  # Here we call the math
 
 def TightBinary(disconnect=False):
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'tightbinary':
+    if disconnect and get_state().pick_old == 'tightbinary':
         try:
             G.fig.canvas.mpl_disconnect(G.pt1)
         except:
@@ -254,7 +250,7 @@ def TightBinary(disconnect=False):
         return
 
     # CONNECT
-    if W.type["pick"] == "tightbinary":
+    if get_state().pick_type == "tightbinary":
         log(0, "\n\n\n______________________________________\n"
             "|TightBinary| : Make 2 clicks, one per star, be precise, "
             "the parameters will be more constrained-------------------")
@@ -297,7 +293,7 @@ def PickMany(disconnect=False):
     you can pick an other star
     """
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'many':
+    if disconnect and get_state().pick_old == 'many':
         try:
             G.rs_many.set_active(False)
         except:
@@ -305,13 +301,13 @@ def PickMany(disconnect=False):
         return
 
     # CONNECT
-    if W.type["pick"] == "many":
+    if get_state().pick_type == "many":
         G.arrows, G.answer_saved = [], {}
         log(0, "\n\n\n______________________________\n"
             "|Pick Many| : draw rectangles around your stars-----------------------")
         # G.pick count the index of the picked star
-        W.type["pick"] = ['many', 1]
-        log(9, 'pick,G.pick', W.type["pick"])
+        get_state().pick_type = ['many', 1]
+        log(9, 'pick,G.pick', get_state().pick_type)
         G.rs_many = matplotlib.widgets.RectangleSelector(
             G.ax1, RectangleClick, drawtype='box',
             rectprops=dict(facecolor='blue', edgecolor='black', alpha=0.5, fill=True))
@@ -322,7 +318,7 @@ def StatPick(disconnect=False):
     """Draw a rectangle
     """
     # DISCONNECT
-    if disconnect and W.type.get('pick_old', '') == 'stat':
+    if disconnect and get_state().pick_old == 'stat':
         try:
             G.rs_stat.set_active(False)  # rs rectangle selector
         except:
@@ -330,11 +326,11 @@ def StatPick(disconnect=False):
         return
 
     # CONNECT
-    if W.type["pick"] == "stat":
+    if get_state().pick_type == "stat":
         log(0, "\n\n\n________________________________\n"
             "|Pick Stat| : draw a rectangle around a region and ABISM "
             "will give you some statistical informationcomputed in the region-------------------")
-        W.type["pick"] = 'stat'
+        get_state().pick_type = 'stat'
         G.rs_stat = matplotlib.widgets.RectangleSelector(
             G.ax1, RectangleClick, drawtype='box',
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
@@ -386,25 +382,25 @@ def MultiprocessCaller():
 def PickWorker():
     import time
     start = time.time()
-    if W.type["pick"] == "binary":
+    if get_state().pick_type == "binary":
         log(3, "I call binary math")
         Strehl.BinaryStrehl()
         AR.PlotAnswer()
         AR.PlotStar2()
         AR.PlotStar()
-    if W.type["pick"] == "tightbinary":
+    if get_state().pick_type == "tightbinary":
         log(3, "I call binary math")
         Strehl.TightBinaryStrehl()
         AR.PlotAnswer()
         AR.PlotStar2()
         AR.PlotStar()
-    elif W.type["pick"] == "stat":
+    elif get_state().pick_type == "stat":
         AR.PlotStat()
-    elif W.type["pick"] == "ellipse":
+    elif get_state().pick_type == "ellipse":
         Strehl.EllipseEventStrehl()
         AR.PlotAnswer()
 
-    elif W.type["pick"] == "one" or W.type["pick"] == "many":  # including "one" or "many"
+    elif get_state().pick_type == "one" or get_state().pick_type == "many":  # including "one" or "many"
         Strehl.StrehlMeter()
         AR.PlotAnswer()
         # we transport star center, because if it is bad, it is good to know, this star center was det by iterative grav center  the fit image is a W.psf_fit[0][3]

@@ -107,7 +107,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
 
     ##################
     # 1/  Destroy  answer frame, remove arrows
-    if ((not type(W.type["pick"]) is list) or (W.type["pick"][0] == 'many' and W.type["pick"][1] == 1)) or (not append):
+    if ((not type(get_state().pick_type) is list) or (get_state().pick_type[0] == 'many' and get_state().pick_type[1] == 1)) or (not append):
 
         if append and ("arrows" in vars(G)):  # and ( len(G.arrows) !=0)   :
             try:  # if load new image while being on pick many
@@ -128,22 +128,22 @@ def PlotAnswer(unit=None, append=True):  # CALLER
             G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     # 2/ CALL the corresponding PLot
-    if W.type["pick"] == 'one':
+    if get_state().pick_type == 'one':
         PlotPickOne()
-    elif (W.type["pick"] == 'binary') or (W.type["pick"] == 'tightbinary'):
+    elif (get_state().pick_type == 'binary') or (get_state().pick_type == 'tightbinary'):
         PlotBinary()
-    elif W.type["pick"] == 'ellipse':
+    elif get_state().pick_type == 'ellipse':
         PlotEllipse()
-    elif W.type["pick"][0] == "many":
+    elif get_state().pick_type[0] == "many":
         PlotPickMany(append=append)
         if append:
-            DisplayAnswer(row=(W.type["pick"][1] - 1) * 3 + 1,  # because 3 lines
+            DisplayAnswer(row=(get_state().pick_type[1] - 1) * 3 + 1,  # because 3 lines
                           font=tkFont.Font(size=6))
         else:
             DisplayAnswer(row=1,
                           font=tkFont.Font(size=6))
         return
-    elif W.type["pick"][0] == "stat":
+    elif get_state().pick_type[0] == "stat":
         PlotStat()
     DisplayAnswer(font=skin().font.answer)
 
@@ -396,7 +396,7 @@ def PlotPickMany(append=True):
     # 1/plot the arrow at eh center of the rectangel
     center_click = ((get_root().image.click[0]+get_root().image.release[0])/2,
                     (get_root().image.click[1]+get_root().image.release[1])/2)  # center  Of the Event
-    tmp = G.ax1.annotate(str(W.type["pick"][1]), xy=center_click, xycoords='data',
+    tmp = G.ax1.annotate(str(get_state().pick_type[1]), xy=center_click, xycoords='data',
                          xytext=(23, 16), textcoords="offset points",
                          color="red",
                          arrowprops=dict(arrowstyle="->",
@@ -406,7 +406,7 @@ def PlotPickMany(append=True):
     G.fig.canvas.draw()
 
     # 1bis/ CAlculate Separation
-    if W.type["pick"][1] == 1:
+    if get_state().pick_type[1] == 1:
         W.pick_many_det_lst = []
         W.pick_many_sky_lst = []
         sep = 0
@@ -431,13 +431,13 @@ def PlotPickMany(append=True):
 
     if not append:
         # To index well the strehl, after I increase it  see later
-        W.type["pick"][1] -= 1
+        get_state().pick_type[1] -= 1
     # 2/ answer list :
     ##############
     # 2.1 IMAGE COORD
     lst = [
         # STREHL
-        [str(W.type["pick"][1]) + " Strehl: ", W.strehl["strehl"], "%.1f " %
+        [str(get_state().pick_type[1]) + " Strehl: ", W.strehl["strehl"], "%.1f " %
          W.strehl["strehl"] + u"\u00b1" + " %.1f" % W.strehl["err_strehl"]],
 
         # CENTER
@@ -451,7 +451,7 @@ def PlotPickMany(append=True):
     if append:
         W.pick_many_det_lst.append(lst)
     else:
-        W.pick_many_det_lst[W.type["pick"][1]-1] = lst
+        W.pick_many_det_lst[get_state().pick_type[1]-1] = lst
 
     ##############
     # 2.2  Sky COORD
@@ -466,7 +466,7 @@ def PlotPickMany(append=True):
 
     lst = [
         # STREHL
-        [str(W.type["pick"][1]) + " Strehl: ", W.strehl["strehl"], "%.1f " %
+        [str(get_state().pick_type[1]) + " Strehl: ", W.strehl["strehl"], "%.1f " %
          W.strehl["strehl"] + u"\u00b1" + " %.1f" % W.strehl["err_strehl"]],
 
         # CENTER
@@ -480,10 +480,10 @@ def PlotPickMany(append=True):
     if append:
         W.pick_many_sky_lst.append(lst)
     else:
-        W.pick_many_sky_lst[W.type["pick"][1]-1] = lst
+        W.pick_many_sky_lst[get_state().pick_type[1]-1] = lst
 
     if not append:
-        W.type["pick"][1] += 1  # To index well the strehl, I decreased it before, if you don't do, each push on button "to sky" leads to an increase in the indexation of the objet in the label but not in the arrows
+        get_state().pick_type[1] += 1  # To index well the strehl, I decreased it before, if you don't do, each push on button "to sky" leads to an increase in the indexation of the objet in the label but not in the arrows
 
     # 3/  prepare button,
     if G.scale_dic[0]["answer"] == "detector":
@@ -513,7 +513,7 @@ def PlotPickMany(append=True):
 
     # 5/increment pick and save
     if append:
-        W.type["pick"][1] += 1
+        get_state().pick_type[1] += 1
         W.dx0_old, W.dy0_old = W.psf_fit[1]["center_x"], W.psf_fit[1]["center_y"]
 
     return
@@ -592,7 +592,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         row += 1
 
     # BINARY TOO FAR ?
-    if W.type["pick"] == "binary":
+    if get_state().pick_type == "binary":
         max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
                        W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
         sep = (W.strehl["x0"] - W.strehl["x1"])**2
@@ -624,7 +624,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
 
 def PlotStar():  # will also take W.sthrel["psf_fit"]
     # BINARY  draw radial Profile
-    if (W.type["pick"] == "binary") or (W.type["pick"] == "tightbinary"):
+    if (get_state().pick_type == "binary") or (get_state().pick_type == "tightbinary"):
         PlotBinaryStar1D()
     else:  # including only one star  (ie : not binary)
         PlotOneStar1D()
@@ -798,9 +798,9 @@ def ProfileAnswer():  # 1 and 2D
 
 
 def PlotStar2():   # the two images colormesh
-    if (W.type["pick"] == "one") or (W.type["pick"][0] == "many"):
+    if (get_state().pick_type == "one") or (get_state().pick_type[0] == "many"):
         PlotOneStar2D()
-    elif W.type["pick"] == "binary":
+    elif get_state().pick_type == "binary":
         PlotBinaryStar2D()
 
 
@@ -858,7 +858,7 @@ def PlotOneStar2D():
     #   s   (te center of the rect is in fact the bottm left corner)
 
     # NOISE 8 RECT
-    if (W.type["noise"] == "8rects"):
+    if (get_state().noise_type == "8rects"):
         rect = (x0 - params['r99x'], x0 + params['r99x'],
                 y0 - params['r99y'], y0 + params['r99y'])
         var = IF.EightRectangleNoise(get_root().image.im0, rect, return_rectangle=1)[2]
@@ -870,7 +870,7 @@ def PlotOneStar2D():
         center = x0 - r[0], y0-r[2]
 
     # NOISE ANNULUS
-    elif (W.type["noise"] == "elliptical_annulus"):
+    elif (get_state().noise_type == "elliptical_annulus"):
         # INNER
         tmpmin, tmpmax = W.ell_inner_ratio,  W.ell_outer_ratio
         tmpstep = (tmpmax-tmpmin)/3
@@ -886,7 +886,7 @@ def PlotOneStar2D():
             ax2.add_patch(a)
 
     # PHOT RECT
-    if W.type["phot"] == "encircled_energy":
+    if get_state().phot_type == "encircled_energy":
         tx = params["center_x"] - r[0]
         ty = params["center_y"] - r[2]
         a = matplotlib.patches.Rectangle(
@@ -894,7 +894,7 @@ def PlotOneStar2D():
         ax2.add_patch(a)
 
     # PHOT ELL
-    elif W.type["phot"] == "elliptical_aperture":
+    elif get_state().phot_type == "elliptical_aperture":
         width = 2*params["r99v"]
         height = 2*params["r99u"]
         angle = params["theta"] * 180./np.pi

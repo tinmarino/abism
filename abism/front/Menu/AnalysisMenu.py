@@ -67,7 +67,7 @@ def AnalysisMenu(root, parent, args):
 
     # more options
     G.cu_pick = tk.StringVar()
-    G.cu_pick.set(W.type["pick"])
+    G.cu_pick.set(get_state().pick_type)
     lst2 = [
         ["PickOne", "one", lambda: Pick.RefreshPick("one")],
         ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
@@ -141,10 +141,10 @@ def MoreCreate():
 
 
     def set_noise(i):
-        W.type['noise'] = i
+        get_state().noise_type = i
 
     def set_phot(i):
-        W.type['phot'] = i
+        get_state().phot_type = i
 
     def PhotType(frame):
         G.menu_phot = tk.Menubutton(frame, text=u'\u25be '+'Photometry',
@@ -152,7 +152,7 @@ def MoreCreate():
         G.menu_phot.menu = tk.Menu(G.menu_phot)
 
         G.cu_phot = tk.StringVar()
-        G.cu_phot.set(W.type["phot"])
+        G.cu_phot.set(get_state().phot_type)
 
         lst = [
             ['Elliptical Aperture', 'elliptical_aperture'],
@@ -203,7 +203,7 @@ def MoreCreate():
         G.menu_noise.menu = tk.Menu(G.menu_noise)
 
         G.cu_noise = tk.StringVar()
-        G.cu_noise.set(W.type["noise"])
+        G.cu_noise.set(get_state().noise_type)
 
         lst = [
             ["Annulus", "elliptical_annulus"],
@@ -273,7 +273,7 @@ def ManualBackground():
 
 
 def ManualBackOpen():
-    W.type["noise"] = "manual"
+    get_state().noise_type = "manual"
     G.manual_back_bool = not G.manual_back_bool
     G.ManualBackFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
     G.all_frame.append("G.ManualBackFrame")

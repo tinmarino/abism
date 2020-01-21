@@ -19,14 +19,6 @@ imstat = VoidClass()
 strehl_type = 'max'
 strehl = {}
 
-state = get_state()
-state.fit_type = 'Moffat2D'
-
-type = {}
-type["pick"] = 'one'
-type["phot"] = 'elliptical_aperture'  # PHOTOMETRY type
-type["noise"] = 'elliptical_annulus'
-type["aperture"] = "fit"
 err_msg = []
 mode = "manual"  # oppsite of automatic
 

@@ -62,10 +62,15 @@ class AbismState:
         """Radio button state
         What is the user asking for ?
         """
-        self.see_more = False  # See more frame ?
-        self.fit_type = None  # Fit type , Gaussian, Moffat
-        pass
+        # Type
+        self.fit_type = 'Moffat2D'
+        self.pick_type = 'one'
+        self.phot_type = 'elliptical_aperture'
+        self.noise_type = 'elliptical_annulus'
+        self.aperture_type = 'fit'
+        self.pick_old = ''
 
+        self.see_more = False  # See more frame ?
 
 @lru_cache(1)
 def get_state():

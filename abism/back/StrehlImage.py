@@ -34,7 +34,7 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
 
     # FIRST Geuss
     doNotFit = []
-    if W.type["noise"] == 'None' or W.type["noise"] == 'manual':
+    if get_state().noise_type == 'None' or get_state().noise_type == 'manual':
         doNotFit.append('background')
 
     local_median = np.median(grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
@@ -149,7 +149,7 @@ def Photometry(grid):
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
     # RECT AP
-    if W.type["phot"] == 'encircled_energy':  # change photometry
+    if get_state().phot_type == 'encircled_energy':  # change photometry
         W.strehl["sum"] = np.sum(grid[ax1:ax2, ay1:ay2])
         W.strehl["number_count"] = 4 * r99x * r99y
         W.strehl["my_photometry"] = W.strehl["sum"] - \
@@ -158,7 +158,7 @@ def Photometry(grid):
               W.strehl["sum"], "between :", ax1, ax2, ay1, ay2,)
 
     # ELL AP
-    elif W.type["phot"] == "elliptical_aperture":
+    elif get_state().phot_type == "elliptical_aperture":
         """ we take the int of everything """
         ####
         # cut image
@@ -185,7 +185,7 @@ def Photometry(grid):
             phot["number_count"] * W.strehl["my_background"]
 
     # MANUAL
-    elif W.type["phot"] == 'manual':
+    elif get_state().phot_type == 'manual':
         # tmp = pStat.RectanglePhot(grid,r,  W.strehl={"get":["number_count","rms"]} )
         tmp = get_root().image.RectanglePhot(W.r)
         photometry = tmp["sum"]
@@ -195,7 +195,7 @@ def Photometry(grid):
         log(3, "doing manual phot in ImageFunction.py ")
 
     # FIT
-    elif W.type["phot"] == 'fit':
+    elif get_state().phot_type == 'fit':
         W.strehl["my_photometry"] = W.strehl["photometry_fit"]
         log(3, "doing fit  phot in ImageFunction.py ")
 
@@ -215,17 +215,14 @@ def Photometry(grid):
     return W.strehl
 
 
-def Background(grid, param={}):
-    ""
-    if param == {}:
-        param = W.type.copy()
-    # "
+def Background(grid):
+
     # BAckground and rms
     dic = W.strehl
     r = W.r
 
     # IN RECT
-    if param["noise"] == 'in_rectangle':                            # change noise  from fit
+    if get_state().noise_type == 'in_rectangle':                            # change noise  from fit
         dic['my_background'] = back/back_count
         rms = 0.
         for i in listrms:
@@ -234,7 +231,7 @@ def Background(grid, param={}):
         dic['rms'] = rms
 
     # 8 RECTS
-    elif param["noise"] == '8rects':
+    elif get_state().noise_type == '8rects':
         xtmp, ytmp = dic['center_x'], dic['center_y']
         r99x, r99y = dic["r99x"], dic["r99y"]
         restmp = IF.EightRectangleNoise(
@@ -243,13 +240,13 @@ def Background(grid, param={}):
         log(3, " ImageFunction.py : Background, I am in 8 rects ")
 
     # MANUAL
-    elif param["noise"] == "manual":
+    elif get_state().noise_type == "manual":
         dic["my_background"] = G.background
         dic["rms"] = 0
 
     # FIT
-    elif param["noise"] == 'fit':
-        if param["fit"] == "None":
+    elif get_state().noise_type == 'fit':
+        if get_state().fit_type == "None":
             log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
             param = param.copy()
             param.update({"noise": "annulus"})
@@ -261,12 +258,12 @@ def Background(grid, param={}):
         dic['my_background'] = dic["background"]
 
     # NONE
-    elif param["noise"] == 'None':
+    elif get_state().noise_type == 'None':
         dic['my_background'] = 0
         dic['background'] = dic['my_background']
 
     # ELLIPTICAL ANNULUS
-    elif param["noise"] == "elliptical_annulus":
+    elif get_state().noise_type == "elliptical_annulus":
         W.ell_inner_ratio, W.ell_outer_ratio = 1.3, 1.6
         rui, rvi = 1.3 * W.strehl["r99u"], 1.3 * W.strehl["r99v"]
         ruo, rvo = 1.6 * W.strehl["r99u"], 1.6 * W.strehl["r99v"]

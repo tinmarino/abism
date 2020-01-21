@@ -35,12 +35,12 @@ def StrehlError():  # after strehl , number count , background, center_x, and ce
     # PHOTOMETRY
     dPhot = dBack * np.sqrt(W.strehl["number_count"])
 
-    if W.type["pick"] != "ellipse":
-        W.type["aperture"] = "fit"
+    if get_state().pick_type != "ellipse":
+        get_state().aperture_type = "fit"
         log(3, "\n\n WARNING: StrehlError changed the aperture type "
               "to fit because not ellipse pick it shouldn't matter ")
     # INTENSITY
-    if W.type["aperture"] and get_state().fit_type != "None":
+    if get_state().aperture_type and get_state().fit_type != "None":
         dI = W.psf_fit[1]["intensity"]
     else:
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
@@ -80,7 +80,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     #  FIT   the PSF            (the most important of the software)
     import time
     start_time = time.time()
-    dictionary = {'NoiseType': W.type["noise"], 'PhotType': W.type["phot"],
+    dictionary = {'NoiseType': get_state().noise_type, 'PhotType': get_state().phot_type,
                   'FitType': get_state().fit_type, "bpm": get_root().image.bpm}
 
     # @timeout(15)
@@ -114,7 +114,7 @@ def TightBinaryStrehl():
 
 def EllipseEventStrehl():
     W.strehl = {}
-    if W.type["aperture"] == "fit":
+    if get_state().aperture_type == "fit":
         return
 
     else:  # including aperture = ellipse you've drawn
