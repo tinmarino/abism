@@ -1,7 +1,6 @@
 """
     Helper to make a 2D function (i.e Gaussian) fit an array
 """
-from time import asctime
 from functools import reduce
 
 import numpy as np
@@ -11,7 +10,6 @@ import scipy.optimize
 from abism.back.leastsqbound import leastsqbound
 
 from abism.util import log
-import abism.back.util_back as W
 
 
 """

@@ -9,7 +9,7 @@ import abism.front.util_front as G
 
 import abism.back.util_back as W
 
-from abism.util import log, get_root
+from abism.util import log, get_root, get_state
 
 """
              #TODO ["Ellipse"   , "ellipse" ,
@@ -35,7 +35,7 @@ def AnalysisMenu(root, parent, args):
     fit_menu.add_command(label="Fit Type", bg=None, state=tk.DISABLED)
 
     G.cu_fit = tk.StringVar()
-    G.cu_fit.set(W.type["fit"].replace("2D", ""))
+    G.cu_fit.set(get_state().fit_type.replace("2D", ""))
     lst1 = [
         ["Gaussian", "Gaussian", lambda: SetFitType("Gaussian")],
         ["Moffat",   "Moffat", lambda: SetFitType("Moffat")],
@@ -62,9 +62,8 @@ def AnalysisMenu(root, parent, args):
     ###############################
     # Pick type
     pick_menu = menu_button.menu
-    pick_menu.add_command(label="Pick Object(s)",
-                            bg=None,
-                            state=tk.DISABLED)
+    pick_menu.add_command(
+        label="Pick Object(s)", bg=None, state=tk.DISABLED)
 
     # more options
     G.cu_pick = tk.StringVar()
@@ -89,6 +88,9 @@ def AnalysisMenu(root, parent, args):
 
 
 parent_more = None
+
+
+
 
 def MoreWidget(parent):
     """More photometry options frame"""
@@ -115,10 +117,9 @@ def MoreWidget(parent):
     else:  # CREATE
         MoreCreate()
 
-    return
 
-
-def MoreCreate():       # Create The Frame
+def MoreCreate():
+    """Create More Frame"""
     G.more_bool = not G.more_bool  # mean = 1
 
     # #########""
@@ -132,56 +133,18 @@ def MoreCreate():       # Create The Frame
     label_more.pack(side=tk.TOP, anchor="w")
 
     #
-    G.MoreGridFrame = tk.Frame(G.MoreFrame, bg=skin().color.bg)
-    G.all_frame.append("G.MoreGridFrame")
-    G.MoreGridFrame.pack(side=tk.TOP, expand=0, fill=tk.X)
-    G.MoreGridFrame.columnconfigure(0, weight=1)
-    G.MoreGridFrame.columnconfigure(1, weight=1)
+    frame_more_grid = tk.Frame(G.MoreFrame, bg=skin().color.bg)
+    G.all_frame.append("frame_more_grid")
+    frame_more_grid.pack(side=tk.TOP, expand=0, fill=tk.X)
+    frame_more_grid.columnconfigure(0, weight=1)
+    frame_more_grid.columnconfigure(1, weight=1)
 
-    def SubtractBackground(frame):
-        ""
-        G.bu_subtract_bg = tk.Button(frame,
-                                     text='SubstractBackground',
-                                     command=SubstractBackground,
-                                     **skin().button_dic)
-        return G.bu_subtract_bg
 
     def set_noise(i):
         W.type['noise'] = i
 
     def set_phot(i):
         W.type['phot'] = i
-
-    def NoiseType(frame):
-        ""
-        G.menu_noise = tk.Menubutton(frame,
-                                     text=u'\u25be '+'Background',
-                                     relief=tk.RAISED,
-                                     **skin().button_dic)
-        G.menu_noise.menu = tk.Menu(G.menu_noise)
-
-        G.cu_noise = tk.StringVar()
-        G.cu_noise.set(W.type["noise"])
-
-        lst = [
-            ["Annulus", "elliptical_annulus"],
-            ['Fit', 'fit'],
-            ["8Rects", "8rects"],
-            ['Manual', "manual"],
-            ["None", "None"],
-        ]
-        for i in lst:
-            if i[0] == "Manual":
-                G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=ManualBackground,
-                    variable=G.cu_noise, value=i[1])
-            else:
-                G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=lambda : set_noise(i[1]),
-                    variable=G.cu_noise, value=i[1])
-
-        G.menu_noise['menu'] = G.menu_noise.menu
-        return G.menu_noise
 
     def PhotType(frame):
         G.menu_phot = tk.Menubutton(frame, text=u'\u25be '+'Photometry',
@@ -213,31 +176,66 @@ def MoreCreate():       # Create The Frame
         # isoplanetism
         G.iso_check = tk.Checkbutton(frame,
                                      text="Anisomorphism", variable=W.aniso_var,
-                                     command=lambda: SetFitType(W.type["fit"]), **myargs)  # by default onvalue=1
+                                     command=lambda: SetFitType(get_state().fit_type), **myargs)  # by default onvalue=1
 
-        G.same_check = tk.Checkbutton(G.MoreGridFrame,
+        G.same_check = tk.Checkbutton(frame_more_grid,
                                       text="Binary_same_psf", variable=W.same_psf_var,
-                                      command=lambda: SetFitType(W.type["fit"]), **myargs)
+                                      command=lambda: SetFitType(get_state().fit_type), **myargs)
 
-        G.same_center_check = tk.Checkbutton(G.MoreGridFrame,
+        G.same_center_check = tk.Checkbutton(frame_more_grid,
                                              text="Saturated_same_center", variable=W.same_center_var,
-                                             command=lambda: SetFitType(W.type["fit"]), **myargs)
+                                             command=lambda: SetFitType(get_state().fit_type), **myargs)
 
         return G.iso_check, G.same_check, G.same_center_check
 
-    SubtractBackground(G.MoreGridFrame).grid(row=0, column=0,
-                                             columnspan=2, sticky="nswe")
-    NoiseType(G.MoreGridFrame).grid(row=1, column=0, sticky="nswe")
-    PhotType(G.MoreGridFrame).grid(row=1, column=1, sticky="nswe")
+    # Substract background
+    bu_subtract_bg = tk.Button(
+        frame_more_grid, text='SubstractBackground',
+        command=SubstractBackground, **skin().button_dic)
+    bu_subtract_bg.grid(row=0, column=0, columnspan=2, sticky="nswe")
+
+    # Noise type
+    def NoiseType(frame):
+        G.menu_noise = tk.Menubutton(frame,
+                                     text=u'\u25be '+'Background',
+                                     relief=tk.RAISED,
+                                     **skin().button_dic)
+        G.menu_noise.menu = tk.Menu(G.menu_noise)
+
+        G.cu_noise = tk.StringVar()
+        G.cu_noise.set(W.type["noise"])
+
+        lst = [
+            ["Annulus", "elliptical_annulus"],
+            ['Fit', 'fit'],
+            ["8Rects", "8rects"],
+            ['Manual', "manual"],
+            ["None", "None"],
+        ]
+        for i in lst:
+            if i[0] == "Manual":
+                G.menu_noise.menu.add_radiobutton(
+                    label=i[0], command=ManualBackground,
+                    variable=G.cu_noise, value=i[1])
+            else:
+                G.menu_noise.menu.add_radiobutton(
+                    label=i[0], command=lambda : set_noise(i[1]),
+                    variable=G.cu_noise, value=i[1])
+
+        G.menu_noise['menu'] = G.menu_noise.menu
+        return G.menu_noise
+
+    NoiseType(frame_more_grid).grid(row=1, column=0, sticky="nswe")
+    PhotType(frame_more_grid).grid(row=1, column=1, sticky="nswe")
 
     row = 2
-    for i in Check(G.MoreGridFrame):
+    for i in Check(frame_more_grid):
         i.grid(row=row, column=0, columnspan=2, sticky="nwse")
         row += 1
 
-    G.bu_close = tk.Button(G.MoreGridFrame, text=u'\u25b4 '+'Close',
-                           command=MoreClose, **skin().button_dic)
-    G.bu_close.grid(row=row, column=0, columnspan=2)
+    bu_close = tk.Button(frame_more_grid, text=u'\u25b4 '+'Close',
+                         command=MoreClose, **skin().button_dic)
+    bu_close.grid(row=row, column=0, columnspan=2)
 
     # Redraw
     get_root().OptionFrame.init_will_toogle(visible=True, add_title=False)
@@ -344,38 +342,38 @@ def SetFitType(name):  # strange but works
     Different fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.
     Why is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result
     What should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat.
-    Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls BasicFunction.py
+    Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls fit_template_function.py
     Todo : fastly analyse the situation and choose a fit type consequently
     """
-    W.type["fit"] = name
+    get_state().fit_type = name
     G.cu_fit.set(name.replace("2D", ""))  # to change radio but, check
     try:
         if W.aniso_var.get() == 0:
-            W.type["fit"] = W.type["fit"].replace('2D', '')
-        elif W.aniso_var.get() == 1 and not '2D' in W.type["fit"]:
-            W.type["fit"] += '2D'
+            get_state().fit_type = get_state().fit_type.replace('2D', '')
+        elif W.aniso_var.get() == 1 and not '2D' in get_state().fit_type:
+            get_state().fit_type += '2D'
     except BaseException:
-        if W.type["fit"].find('2D') == -1:
-            W.type["fit"] += '2D'
-    if not W.type["fit"].find('None') == -1:
-        W.type["fit"] = 'None'
+        if get_state().fit_type.find('2D') == -1:
+            get_state().fit_type += '2D'
+    if not get_state().fit_type.find('None') == -1:
+        get_state().fit_type = 'None'
 
     # Saturated
-    if "Gaussian_hole" in W.type["fit"]:
+    if "Gaussian_hole" in get_state().fit_type:
         try:
             # Global even more dirty
             if W.same_center_var.get() == 0:
-                W.type["fit"] = W.type["fit"].replace('same_center', '')
+                get_state().fit_type = get_state().fit_type.replace('same_center', '')
                 log(0, "same_center : We asssume that the saturation",
                       "is centered at the center of th object")
-            elif not 'same_center' in W.type["fit"]:
-                W.type["fit"] += "same_center"
+            elif not 'same_center' in get_state().fit_type:
+                get_state().fit_type += "same_center"
                 log(0, "not same_center: We asssume that the saturation",
                       "isn't centered at the center of th object")
         except BaseException:
-            if not 'same_center' in W.type["fit"]:
-                W.type["fit"] += "same_center"
-    log(0, 'Fit Type = ' + W.type["fit"])
+            if not 'same_center' in get_state().fit_type:
+                get_state().fit_type += "same_center"
+    log(0, 'Fit Type = ' + get_state().fit_type)
 
     # same psf
     if W.same_psf_var.get() == 0:
@@ -386,7 +384,7 @@ def SetFitType(name):  # strange but works
         log(0, "not same_psf : We will fit each star with independant psf")
 
     # change the labels
-    #G.fit_type_label["text"] = W.type["fit"]
+    #G.fit_type_label["text"] = get_state().fit_type
 
     return
 

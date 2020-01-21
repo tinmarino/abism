@@ -6,7 +6,7 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root
+from abism.util import log, get_root, get_state
 import abism.back.util_back as W
 
 
@@ -40,7 +40,7 @@ def StrehlError():  # after strehl , number count , background, center_x, and ce
         log(3, "\n\n WARNING: StrehlError changed the aperture type "
               "to fit because not ellipse pick it shouldn't matter ")
     # INTENSITY
-    if W.type["aperture"] and W.type["fit"] != "None":
+    if W.type["aperture"] and get_state().fit_type != "None":
         dI = W.psf_fit[1]["intensity"]
     else:
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
@@ -61,7 +61,7 @@ def StrehlError():  # after strehl , number count , background, center_x, and ce
 
 def StrehlMeter():  # receive W.r, means a cut of the image
     """ Note : this should just be a caller
-       this is the first written, strehlMeter for pick one,
+        this is the first written, strehlMeter for pick one,
         I putted more for ellipse and binary
     """
     W.strehl = {"theta": 99}
@@ -81,7 +81,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     import time
     start_time = time.time()
     dictionary = {'NoiseType': W.type["noise"], 'PhotType': W.type["phot"],
-                  'FitType': W.type["fit"], "bpm": get_root().image.bpm}
+                  'FitType': get_state().fit_type, "bpm": get_root().image.bpm}
 
     # @timeout(15)
     def FIT():

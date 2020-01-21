@@ -2,12 +2,14 @@
     To pretty print the answer, may go to FrameText
     C'est le bordel !
 """
+
+from threading import Thread, currentThread
+
 from tkinter import *
 from tkinter import font as tkFont
 import numpy as np
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
-from threading import Thread, currentThread
 
 # Front
 from abism.front.util_front import skin
@@ -15,15 +17,15 @@ import abism.front.util_front as G
 
 # Back
 from abism.back import ImageFunction as IF
-from abism.back import BasicFunction as BF
-from abism.back.image import ImageInfo, get_array_stat
+import abism.back.fit_template_function as BF
+from abism.back.image import get_array_stat
 import abism.back.util_back as W
 
 # Plugin
 from abism.plugin import ReadHeader as RH  # to know witch telescope
 from abism.plugin import CoordTransform as CT
 
-from abism.util import log, get_root
+from abism.util import log, get_root, get_state
 
 
 
@@ -100,7 +102,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         G.scale_dic[0]["answer"] = unit
 
     # FIT TYPE
-    G.AnswerFrame.set_fit_type_text(W.type['fit'])
+    G.AnswerFrame.set_fit_type_text(get_state().fit_type)
     G.AnswerFrame.clear()
 
     ##################
@@ -185,7 +187,7 @@ def PlotPickOne():
             ["S/N: ", W.strehl["snr"], MyFormat(W.strehl["snr"], 1, "f")],
             ["Peak: ", W.strehl["intensity"], MyFormat(
                 W.strehl["intensity"], 1, "f") + " [adu]"],
-            #["Fit Type: "   , W.type["fit"]  , str(W.type["fit"]) ],
+            #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
         ]
 
     ##################
@@ -226,7 +228,7 @@ def PlotPickOne():
             ["S/N: ", W.strehl["snr"], MyFormat(W.strehl["snr"], 1, "f")],
             ["Peak: ", W.strehl["intensity"],  "%.1f" % (
                 get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
-            #["Fit Type: "   , W.type["fit"]  , str(W.type["fit"]) ],
+            #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
         ]  # label , variable, value as string
     return
 
@@ -338,7 +340,7 @@ def PlotBinary():
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
 
-        W.tmp.lst = [["Binary: ", W.type["fit"], W.type["fit"]],
+        W.tmp.lst = [["Binary: ", get_state().fit_type, get_state().fit_type],
                      ["1 Star: ", (y0, x0),  "%.1f , %.1f" % (y0, x0)],
                      ["2 Star: ", (y1, x1),  "%.1f , %.1f" % (y1, x1)],
                      ["Separation: ", separation, "%.2f" %
@@ -370,7 +372,7 @@ def PlotBinary():
             pxll = get_root().header.sinf_pixel_scale
 
         ##########
-        W.tmp.lst = [["Binary: ", W.type["fit"], W.type["fit"]],
+        W.tmp.lst = [["Binary: ", get_state().fit_type, get_state().fit_type],
                      ["1 Star: ", (ra[0], dec[0]), "%s , %s" %
                       SkyFormat(ra[0], dec[0])],
                      ["2 Star: ", (ra[1], dec[1]), "%s , %s" %
@@ -658,8 +660,8 @@ def PlotOneStar1D():
     ax.axhline(y=W.strehl["my_background"], color='black', linestyle='-.')
 
     # Plot Fit
-    if not W.type["fit"] == 'None':
-        I_theory = vars(BF)[W.type["fit"]]((a, params['center_y']), params)
+    if not get_state().fit_type == 'None':
+        I_theory = vars(BF)[get_state().fit_type]((a, params['center_y']), params)
         ax.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
 
     # Plot perfect diffraction pattern
@@ -710,7 +712,7 @@ def PlotBinaryStar1D():
     ab, od, points = IF.RadialLine(
         get_root().image.im0, (extremity0, extremity1), return_point=1)
 
-    if "Moffat" in W.type["fit"]:
+    if "Moffat" in get_state().fit_type:
         fit_type = "Moffat2pt"
     else:
         fit_type = "Gaussian2pt"
@@ -721,7 +723,7 @@ def PlotBinaryStar1D():
     ab_th = np.arange(ab_range[0], ab_range[1], 0.1)
     x_theory = np.interp(ab_th, ab_range, x_range)
     y_theory = np.interp(ab_th, ab_range, y_range)
-    if W.type["fit"] != None:
+    if get_state().fit_type != None:
         I_theory = vars(BF)[fit_type](
             (x_theory, y_theory), W.strehl["fit_dic"])
     else:
@@ -752,8 +754,8 @@ def ProfileAnswer():  # 1 and 2D
         G.ax2.plot(ab, od, '-', linewidth=1, label="Data")
 
         # FIT
-        # if ( W.type["fit"] != "None" ) & ( "strehl" in vars(W) ):
-        #  I_theory = vars(BF) [W.type["fit"] ](points,W.strehl["fit_dic"],W.type["fit"])
+        # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
+        #  I_theory = vars(BF) [get_state().fit_type ](points,W.strehl["fit_dic"],get_state().fit_type)
         #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
 
         G.ax2.legend(loc=1, prop={'size': 8})      # Legend
@@ -824,7 +826,7 @@ def PlotOneStar2D():
         ax.format_coord = lambda x, y: ""
 
     def Fit(ax):
-        fit_type = W.type["fit"]
+        fit_type = get_state().fit_type
         if "Gaussian_hole" in fit_type:
             fit_type = "Gaussian_hole"
         G.figresult_mappable2 = ax.imshow(vars(BF)[fit_type]((X, Y), W.strehl),
@@ -846,7 +848,7 @@ def PlotOneStar2D():
     Data(ax1)
 
     # Plot second image (fit)
-    if W.type["fit"] != "None":
+    if get_state().fit_type != "None":
         Fit(ax2)
     else:
         Data(ax2)
@@ -945,9 +947,9 @@ def PlotBinaryStar2D():
     ax1.format_coord = lambda x, y: "%.1f" % get_root().image.im0[y, x]
     ax1.format_coord = lambda x, y: ""
     # FIT
-    if "Moffat" in W.type["fit"]:
+    if "Moffat" in get_state().fit_type:
         stg = "Moffat2pt"
-    elif "Gaussian" in W.type["fit"]:
+    elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
     ax2 = G.figresult.add_subplot(122)
     G.figresult_mappable2 = ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),

@@ -56,8 +56,23 @@ def parse_argument():
     _verbose = _parsed_args.verbose
 
 
+class AbismState:
+    """Confiugration from user (front) to science (back)"""
+    def __init__(self):
+        """Radio button state
+        What is the user asking for ?
+        """
+        self.see_more = False  # See more frame ?
+        self.fit_type = None  # Fit type , Gaussian, Moffat
+        pass
+
+
+@lru_cache(1)
+def get_state():
+    return AbismState()
+
+
 def get_root():
-    """tricky but not that much"""
     return _root
 
 
@@ -96,15 +111,6 @@ def restart():
     os.system(stg)         # I call an other instance
     sys.exit(0)         # I exit the current process.
     # As the loop is now opened, this may not be necessary but anyway it is safer
-
-
-class AbismState:
-    """Confiugration from user (front) to science (back)"""
-    def __init__(self):
-        """Radio button state
-        What is the user asking for ?
-        """
-        pass
 
 
 def get_version():

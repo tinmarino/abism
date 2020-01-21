@@ -15,7 +15,7 @@ from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
 from abism.front.util_front import photo_up, photo_down, skin, \
     TitleLabel
 
-from abism.util import log, get_root, quit_process, restart
+from abism.util import log, get_root, quit_process, restart, get_state
 
 import abism.front.util_front as G
 import abism.back.util_back as W
@@ -327,7 +327,7 @@ class AnswerFrame(TextFrame):
 
     def init_after(self):
         """Add fit type label"""
-        self._fit_type_label = Label(self, text=W.type["fit"], justify=CENTER, **skin().fg_and_bg)
+        self._fit_type_label = Label(self, text=get_state().fit_type, justify=CENTER, **skin().fg_and_bg)
         self._fit_type_label.grid(sticky='nsew')
         # Add also standard above
         super().init_after()

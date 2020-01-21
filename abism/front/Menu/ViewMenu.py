@@ -197,10 +197,10 @@ def ManualCutOpen():
 
     ###############
     # CLOSE button
-    G.bu_close = tk.Button(
+    bu_close = tk.Button(
         G.ManualCutGridFrame, text=u'\u25b4 ' + 'Close',
         command=ManualCutClose, **skin().button_dic)
-    G.bu_close.grid(row=r, column=0, columnspan=2)
+    bu_close.grid(row=r, column=0, columnspan=2)
     log(3, "Manual Cut called")
 
     # Redraw

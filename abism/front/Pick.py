@@ -15,7 +15,7 @@ from abism.back import Strehl
 from abism.back import ImageFunction as IF
 import abism.back.util_back as W
 
-from abism.util import log, get_root
+from abism.util import log, get_root, get_state
 
 
 def RefreshPick(label):  # This is the only callled routine
@@ -263,7 +263,7 @@ def TightBinary(disconnect=False):
         #  CLick on same psf and no aniso
         W.aniso_var.set(False)
         W.same_psf_var.set(True)
-        AnalysisMenu.SetFitType(W.type["fit"])
+        AnalysisMenu.SetFitType(get_state().fit_type)
     return
 
 

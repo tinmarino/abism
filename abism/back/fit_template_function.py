@@ -1,8 +1,6 @@
 import numpy as np
-from matplotlib import pyplot as plt
 from scipy.special import jn
 
-from abism.util import log
 
 ##########################
 ##   BINARY   STARS      #
@@ -84,14 +82,14 @@ def Moffat2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
             res += I1 * (1 + (x1p**2/a1x**2 + y1p**2/a1y**2))**(-b1)+bck
     return res
 
-    ####################
-    ## PSF SINGLE STAR #
-    # "
+
+####################
+## PSF SINGLE STAR #
+####################
+
 
 ##########
 # GAUSSIAN
-
-
 def Gaussian(points, params):  # param contains   center, spread, amplitude, background
     ""
 # max = I(+cst) ; integral = pi I alpha**2  (sure)
@@ -214,7 +212,6 @@ def Bessel12D(xy, params):
 
 
 def DiffractionPatern(points, params):
-    from scipy.special import jn
     x0 = params['center_x']
     y0 = params['center_y']
     l = params['lambda']*10**(-6)  # wavelength
