@@ -89,7 +89,7 @@ class Font:
     """Font for skin"""
     def __init__(self):
         self.small = tk.font.Font(size=6)
-        self.answer = tk.font.Font(size=10)   # all answer in AnswerFrame
+        self.answer = tk.font.Font(size=12)   # all answer in AnswerFrame
         self.strehl = tk.font.Font(size=12)  # just strehl answer
         self.warning = tk.font.Font(size=12)  # just strehl answer
         self.param = tk.font.Font(size=11)  # Image parameters
@@ -139,7 +139,22 @@ class FrameDic(DotDic):
         self.bg = color.bg
 
 
-class TitleLabelDic(DotDic):
+class TextDic(DotDic):
+    def __init__(self, color):
+        super().__init__()
+        self.background = color.bg
+        self.foreground = color.fg
+
+        self.font = tk.font.Font(size=12)
+        self.padx = 12
+        self.pady = 12
+
+        self.highlightthickness = 0
+        self.borderwidth = 0
+        self.relief = tk.FLAT
+
+
+class LabelTitleDic(DotDic):
     """Label titles on top of each text_frame (left)
     OLD:    "fg": "blue", "bg": "white", "font": tkFont.Font(size=10),
         "padx": 3,
@@ -237,7 +252,8 @@ class Skin:
         self.button_dic = ButtonDic(self.color)
         self.paned_dic = PanedDic(self.color)
         self.frame_dic = FrameDic(self.color)
-        self.label_title_dic = TitleLabelDic(self.color)
+        self.label_title_dic = LabelTitleDic(self.color)
+        self.text_dic = TextDic(self.color)
 
         self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
 

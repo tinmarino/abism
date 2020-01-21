@@ -28,9 +28,39 @@ from abism.plugin import CoordTransform as CT
 from abism.util import log, get_root, get_state
 
 
+class AnswerLine():
+    """A Line in the answer"""
+    def __init__(self, s_variable, o_value, s_image, s_sky):
+        """label, variable,
+        value as string on image,
+        value as string in sky referencial <- '' returns s_image
+        """
+        self.s_variable = s_variable
+        self.o_value = o_value
+        self.s_image = s_image
+        self.s_sky = s_sky
+
+    def insert_in_tk_text(self, text):
+        """Should be the other way.
+                    But many things should be the other way
+                    !!! It is a wild world !!!
+        Hopefully you created a tag-left and tag-right
+        And you readed me .....
+        """
+        tag_std = []
+        if self.s_variable == "Strehl: ":
+            tag_std += ['tag-important']
+        #tags = ['tag-left'] + tag_std
+        text.insert(END, self.s_variable + "\t", tag_std)
+        #tags = ['tag-right'] + tag_std
+        text.insert(END, self.s_image, tag_std)
+        text.insert(END, "\n")
+
 
 def MyFormat(value, number, letter):
-    """ This is just to put a "," between the 1,000 for more readability"""
+    """This is just to put a "," between the 1,000 for more readability
+    MyFormat(var, 1, 'f') -> "%.1f" % var
+    """
     try:
         float(value)  # in case
     except:
@@ -97,7 +127,10 @@ def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
 
 
 def PlotAnswer(unit=None, append=True):  # CALLER
-    """ append False when pick many click on To sky button """
+    """Append False when pick many click on To sky button
+    # TODO ?
+    #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
+    """
     if unit != None:
         G.scale_dic[0]["answer"] = unit
 
@@ -137,15 +170,15 @@ def PlotAnswer(unit=None, append=True):  # CALLER
     elif get_state().pick_type[0] == "many":
         PlotPickMany(append=append)
         if append:
-            DisplayAnswer(row=(get_state().pick_type[1] - 1) * 3 + 1,  # because 3 lines
-                          font=tkFont.Font(size=6))
+            DisplayAnswer()
+
         else:
-            DisplayAnswer(row=1,
-                          font=tkFont.Font(size=6))
+            DisplayAnswer()
+
         return
     elif get_state().pick_type[0] == "stat":
         PlotStat()
-    DisplayAnswer(font=skin().font.answer)
+    DisplayAnswer()
 
 
 
@@ -162,7 +195,100 @@ def PlotPickOne():
     #rms =  get_root().header.wavelength /2/np.pi * np.sqrt(-np.log(W.strehl["err_strehl"]/100))
     #W.strehl["strehl2_2"] = 100 *np.exp(-(rms*2*np.pi/2.17)**2)
     W.strehl["err_strehl2_2"] = W.strehl["strehl2_2"] / \
-        W.strehl["strehl"]*W.strehl["err_strehl"]
+    W.strehl["strehl"]*W.strehl["err_strehl"]
+
+    ###
+    # WCS
+    # In bad mood: this return (99, 99)
+    # In good mod: array([[266.56370013, -28.83449908]])
+
+    my_wcs = get_root().header.wcs.all_pix2world(
+        np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
+    W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
+    pxll = get_root().header.pixel_scale
+    if isinstance(get_root().header, RH.SinfoniHeader):
+        pxll = get_root().header.sinf_pixel_scale
+
+    W.tmp.lst = []
+
+    # Strehl
+    line = AnswerLine(
+        "Strehl: ",
+        W.strehl["strehl"],
+        MyFormat(W.strehl["strehl"], 1, "f") + " +/- " + \
+            MyFormat(W.strehl["err_strehl"], 1, "f") + " %",
+        ''
+        )
+    W.tmp.lst.append(line)
+
+    # Equivalent Strehl Ratio
+    line = AnswerLine(
+        "Eq. SR(2.17" + u"\u03bc" + "m): ",
+        W.strehl["strehl2_2"],
+        MyFormat(W.strehl["strehl2_2"], 1, "f") + " +/- " + \
+            MyFormat(W.strehl["err_strehl2_2"], 1, "f") + " %",
+        ''
+        )
+    W.tmp.lst.append(line)
+
+    # Center (need to inverse)
+    line = AnswerLine(
+        "Center x,y: ",
+        (W.strehl["center_y"], W.strehl["center_x"]),
+        MyFormat(W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f"),
+        "%s , %s" % (SkyFormat(W.strehl['center_ra'], W.strehl['center_dec']))
+        )
+    W.tmp.lst.append(line)
+
+    # FWHM
+    line = AnswerLine(
+        "FWHM a,b,e: ",
+        (W.strehl["fwhm_x"], W.strehl["fwhm_y"]),
+        MyFormat(W.strehl["fwhm_a"], 1, "f") + ", " + \
+            MyFormat(W.strehl["fwhm_b"], 1, "f") + ", " + \
+            MyFormat(W.strehl["eccentricity"], 2, "f") + "[pxl]",
+        "%.1f" % (W.strehl["fwhm_a"]*pxll*1000) + ", " + \
+            "%.1f" % (W.strehl["fwhm_b"]*pxll*1000) + ", " + \
+            "%.2f" % W.strehl["eccentricity"] + "[mas]"
+        )
+    W.tmp.lst.append(line)
+
+    # Photometry
+    line = AnswerLine(
+        "Photometry: ",
+        W.strehl["my_photometry"],
+        MyFormat(W.strehl["my_photometry"], 1, "f") + " [adu]",
+        "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"
+        )
+    W.tmp.lst.append(line)
+
+    # Background
+    line = AnswerLine(
+        "Background: ",
+        W.strehl["my_background"],
+        MyFormat(W.strehl["my_background"], 1, "f") + \
+            '| rms: ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]",
+        "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl["my_background"]/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"
+        )
+    W.tmp.lst.append(line)
+
+    # Signal / Noise ratio
+    line = AnswerLine(
+        "S/N: ",
+        W.strehl["snr"],
+        MyFormat(W.strehl["snr"], 1, "f"),
+        ''
+        )
+    W.tmp.lst.append(line)
+
+    # Peak of detection
+    line = AnswerLine(
+        "Peak: ",
+        W.strehl["intensity"],
+        MyFormat(W.strehl["intensity"], 1, "f") + " [adu]",
+        "%.1f" % (get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"
+        )
+    W.tmp.lst.append(line)
 
     ############
     # IMAGE COORD
@@ -170,25 +296,6 @@ def PlotPickOne():
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
-
-        W.tmp.lst = [
-            ["Strehl: ", W.strehl["strehl"], MyFormat(
-                W.strehl["strehl"], 1, "f") + " +/- " + MyFormat(W.strehl["err_strehl"], 1, "f") + " %"],
-            ["Eq. SR(2.17" + u"\u03bc" + "m): ", W.strehl["strehl2_2"], MyFormat(W.strehl["strehl2_2"],
-                                                                                 1, "f") + " +/- " + MyFormat(W.strehl["err_strehl2_2"], 1, "f") + " %"],
-            ["Center x,y: ", (W.strehl["center_y"], W.strehl["center_x"]), MyFormat(
-                W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f")],  # need to inverse
-            ["FWHM a,b,e: ", (W.strehl["fwhm_x"], W.strehl["fwhm_y"]), MyFormat(W.strehl["fwhm_a"], 1, "f") + ", " + \
-             MyFormat(W.strehl["fwhm_b"], 1, "f") + ", " + MyFormat(W.strehl["eccentricity"], 2, "f") + "[pxl]"],
-            ["Photometry: ", W.strehl["my_photometry"], MyFormat(
-                W.strehl["my_photometry"], 1, "f") + " [adu]"],
-            ["Background: ", W.strehl["my_background"], MyFormat(
-                W.strehl["my_background"], 1, "f") + '| rms: ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]"],
-            ["S/N: ", W.strehl["snr"], MyFormat(W.strehl["snr"], 1, "f")],
-            ["Peak: ", W.strehl["intensity"], MyFormat(
-                W.strehl["intensity"], 1, "f") + " [adu]"],
-            #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
-        ]
 
     ##################
     # SKY COORD
@@ -198,42 +305,11 @@ def PlotPickOne():
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
         G.lb_answer_type["text"] = "In sky units"
 
-        ###
-        # WCS
-        # In bad mood: this return (99, 99)
-        # In good mod: array([[266.56370013, -28.83449908]])
-
-        my_wcs = get_root().header.wcs.all_pix2world(
-            np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
-        W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
-        pxll = get_root().header.pixel_scale
-        if isinstance(get_root().header, RH.SinfoniHeader):
-            pxll = get_root().header.sinf_pixel_scale
-
-        ##
-        # Lst define
-        W.tmp.lst = [
-            ["Strehl: ", W.strehl["strehl"], "%.1f" %
-                (W.strehl["strehl"]) + " +/- "+"%.1f" % W.strehl["err_strehl"]+" %"],
-            ["Eq. SR(2.17"+u"\u03bc" + "m): ", W.strehl["strehl2_2"], "%.1f" %
-             W.strehl["strehl2_2"] + " +/- " + MyFormat(W.strehl["err_strehl2_2"], 1, "f") + "%"],
-            ["Center RA,Dec: ", (W.strehl["center_ra"], W.strehl["center_dec"]),  "%s , %s" % (
-                SkyFormat(W.strehl['center_ra'],  W.strehl['center_dec']))],
-            ["FWHM a,b,e: ", (W.strehl["fwhm_x"], W.strehl["fwhm_y"]),  "%.1f" % (W.strehl["fwhm_a"]*pxll*1000) +
-             ", " + "%.1f" % (W.strehl["fwhm_b"]*pxll*1000) + ", " + "%.2f" % W.strehl["eccentricity"] + "[mas]"],
-            ["Photometry: ", W.strehl["my_photometry"], "%.2f" % (
-                get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"],
-            ["Background: ", W.strehl["my_background"], "%.2f" % (get_root().header.zpt-2.5*np.log10(
-                W.strehl["my_background"]/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
-            ["S/N: ", W.strehl["snr"], MyFormat(W.strehl["snr"], 1, "f")],
-            ["Peak: ", W.strehl["intensity"],  "%.1f" % (
-                get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
-            #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
-        ]  # label , variable, value as string
     return
 
 
 def PlotEllipse():
+    """TODO clean + not working anymore due to W.tmp.lst"""
     rms = get_root().header.wavelength / 2/np.pi * \
         np.sqrt(-np.log(W.strehl["strehl"]/100))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
@@ -392,7 +468,7 @@ def PlotBinary():
 
 
 def PlotPickMany(append=True):
-    ""
+    """Obsolete"""
     # 1/plot the arrow at eh center of the rectangel
     center_click = ((get_root().image.click[0]+get_root().image.release[0])/2,
                     (get_root().image.click[1]+get_root().image.release[1])/2)  # center  Of the Event
@@ -550,24 +626,50 @@ def PlotStat():
     ax = get_root().ResultFrame.redraw()
 
 
-def DisplayAnswer(row=1, font=""):  # buttons at 0
+def grid_tuple_obsolete(i):
+    log(0, "WARNING for dev, this is obsolete fct, use the AnswerLine class\n\n\n")
+    myargs = skin().fg_and_bg.copy()
+    myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
+    if i[0] == "Strehl: ":
+        myargs["fg"] = "red"
+        myargs["font"] = skin().font.strehl
+    l1 = Label(get_root().AnswerFrame, text=i[0], **myargs)
+    l2 = Label(get_root().AnswerFrame, text=i[2], **myargs)
+    l1.grid(column=0, sticky="nsew")
+    l2.grid(column=1, sticky="nsew")
+
+
+def on_resize_text(event):
+    log(5, 'Answer, Resize text:', event)
+    event.widget.configure(tabs=(event.width/2, LEFT))
+
+
+def DisplayAnswer():
     """ row can be higher if pick many , and font smaller"""
+    # Grid Buttons
+    G.bu_answer_type.grid(column=1, sticky="wnse")
+    G.lb_answer_type.grid(column=0, sticky="wnse")
 
-    G.bu_answer_type.grid(row=0, column=1, sticky="wnse")
-    G.lb_answer_type.grid(row=0, column=0, sticky="wnse")
+
+    # Create text
+    text = Text(get_root().AnswerFrame, **skin().text_dic)
+
+    # Configure Text
+    text.bind("<Configure>", on_resize_text)
+    text.tag_configure('tag-important', foreground='red')
+
+    # Fill text
     for i in W.tmp.lst:
-        myargs = skin().fg_and_bg.copy()
-        myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
-        if i[0] == "Strehl: ":
-            myargs["fg"] = "red"
-            myargs["font"] = skin().font.strehl
-        l1 = Label(get_root().AnswerFrame, text=i[0], **myargs)
-        l2 = Label(get_root().AnswerFrame, text=i[2], **myargs)
-        l1.grid(row=row, column=0, sticky="nsew")
-        l2.grid(row=row, column=1, sticky="nsew")
-        row += 1
-    max_size1, max_size2 = 200, 200
+        if isinstance(i, (tuple, list)):
+            grid_tuple_obsolete(i)
+        else:
+            i.insert_in_tk_text(text)
 
+    # Grid text
+    text.grid(columnspan=2, sticky='nsew')
+
+
+    max_size1, max_size2 = 200, 200
     # SATURATED ?
     if not 'intensity' in W.strehl:  # binary
         W.strehl["intensity"] = W.strehl["intensity0"] + W.strehl["intensity1"]
@@ -579,8 +681,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
             l["text"] = "!!! SATURATED !!!  Strehl is UNRELIABLE"
         else:
             l["text"] = "!!! NON-LINEAR Strehl may be  unreliable"
-        l.grid(row=row, column=0, columnspan=2)
-        row += 1
+        l.grid(column=0, columnspan=2)
 
     # UNDERSAMPLED
     if "sinf_pixel_scale" in vars(get_root().header) and (get_root().header.sinf_pixel_scale <= 0.01):
@@ -588,8 +689,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         l["fg"] = "red"
         l["font"] = skin().font.warning
         l["text"] = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
-        l.grid(row=row, column=0, columnspan=2)
-        row += 1
+        l.grid(column=0, columnspan=2)
 
     # BINARY TOO FAR ?
     if get_state().pick_type == "binary":
@@ -604,16 +704,14 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
             l["fg"] = "red"
             l["font"] = skin().font.warning
             l["text"] = "Wide Binary\npick objects individually"
-            l.grid(row=row, column=0, columnspan=2)
-            row += 1
+            l.grid(column=0, columnspan=2)
 
         if max_dist*3 > sep:  # means too high separation
             l = Label(get_root().AnswerFrame, bg=skin().color.bg)
             l["fg"] = "red"
             l["font"] = skin().font.warning
             l["text"] = "Tight Binary\nmay be unreliable"
-            l.grid(row=row, column=0, columnspan=2)
-            row += 1
+            l.grid(column=0, columnspan=2)
 
     return
 

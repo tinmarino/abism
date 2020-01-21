@@ -402,4 +402,4 @@ def get_array_stat(grid):
     """Helper for readability
     Get statistic dicitonary from a grid
     """
-    return  ImageInfo.from_array(grid).get_stat_as_dic()
+    return ImageInfo.from_array(grid).get_stat_as_dic()
