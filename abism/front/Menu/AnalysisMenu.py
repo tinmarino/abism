@@ -248,7 +248,7 @@ def MoreCreate():
                     variable=G.cu_noise, value=i[1])
             else:
                 G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=lambda : set_noise(i[1]),
+                    label=i[0], command=lambda i=i: set_noise(i[1]),
                     variable=G.cu_noise, value=i[1])
 
         G.menu_noise['menu'] = G.menu_noise.menu
@@ -289,7 +289,7 @@ def MoreClose():
 
 def ManualBackground():
     """Create manual background frame"""
-    if G.manual_back_bool:
+    if get_state().b_see_manual_background:
         ManualBackClose()
     else:
         ManualBackOpen()
@@ -298,11 +298,9 @@ def ManualBackground():
 
 def ManualBackOpen():
     get_state().noise_type = "manual"
-    G.manual_back_bool = not G.manual_back_bool
     G.ManualBackFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
     G.all_frame.append("G.ManualBackFrame")
-    G.ManualBackFrame.pack(side=tk.TOP, expand=0, fill=tk.X)
-
+    G.ManualBackFrame.grid(sticky='nsew')
     G.ManualBackFrame.columnconfigure(0, weight=1)
     G.ManualBackFrame.columnconfigure(1, weight=1)
 
@@ -329,8 +327,9 @@ def ManualBackOpen():
 
     ###############
     # CLOSE button
-    G.bu_back_close = tk.Button(G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
-                                background=G.bu_close_color, command=ManualBackClose, **skin().button_dic)
+    G.bu_back_close = tk.Button(
+        G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
+        command=ManualBackClose, **skin().button_dic)
     G.bu_back_close.grid(row=1, column=0, columnspan=2)
     log(3, "Manual Back called")
 

@@ -216,6 +216,7 @@ def Photometry(grid):
 
 
 def Background(grid):
+    log(3, 'Getting Background with type', get_state().noise_type)
 
     # BAckground and rms
     dic = W.strehl
@@ -237,7 +238,7 @@ def Background(grid):
         restmp = IF.EightRectangleNoise(
             grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
         dic['my_background'], dic['rms'] = restmp["background"], restmp['rms']
-        log(3, " ImageFunction.py : Background, I am in 8 rects ")
+        log(3, "ImageFunction.py : Background, I am in 8 rects ")
 
     # MANUAL
     elif get_state().noise_type == "manual":
@@ -259,8 +260,7 @@ def Background(grid):
 
     # NONE
     elif get_state().noise_type == 'None':
-        dic['my_background'] = 0
-        dic['background'] = dic['my_background']
+        dic['my_background'] = dic['my_background'] = dic['rms'] = 0
 
     # ELLIPTICAL ANNULUS
     elif get_state().noise_type == "elliptical_annulus":

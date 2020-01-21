@@ -246,10 +246,11 @@ def update_widget_skin(widget):
     """Update the skin of a widget"""
     from abism.front.FramePlot import PlotFrame
 
-    log(3, 'Updating:', widget.__class__.__name__)
+    log(9, 'Updating:', widget.__class__.__name__)
 
     if isinstance(widget, PlotFrame):
         widget.update_skin()
+        log(9, 'And is instance of PlotFrame ------------')
     elif isinstance(widget, tk.Button):
         # Do not change favourites buttons ...
         if widget['bg'] in (
@@ -352,10 +353,10 @@ def children_do(widget, callback):
         children_do(item, callback)
 
 
-def set_figure_skin(figure, skin):
+def set_figure_skin(figure, in_skin):
     """Update skin, caller must redraw"""
-    fg = skin.color.fg
-    bg = skin.color.bg
+    fg = in_skin.color.fg
+    bg = in_skin.color.bg
 
     # Figure
     figure.set_facecolor(bg)

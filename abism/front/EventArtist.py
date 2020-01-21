@@ -3,13 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
+from abism.front import Pick
+
 from abism.back import ImageFunction as IF  # to give him the output
 
-from abism.front import  Pick
-import abism.front.util_front as G  # to know if on zoom
+from abism.util import log
 
 
-class Annulus:  # This is actually the Annulus even, but it could be a "ellipse" event or whatever can fit in the canvas class (rectangle, polygone...) , actually I deleted the ellispe event, which can be usefull because not every body want the annulus for the background, but maybe make a super fast photometry, like knowing the instrument, you know the PSF FWHM and can auto create the aperture, you play with that and then, if its works well, you can auto detect stars and make a completely automatic ABism (ie, without opening image)  , see in Abism 0.5, 0.6
+class Annulus:
+    """This is actually the Annulus even, but it could be a "ellipse" event or whatever can fit in the canvas class (rectangle, polygone...) , actually I deleted the ellispe event, which can be usefull because not every body want the annulus for the background, but maybe make a super fast photometry, like knowing the instrument, you know the PSF FWHM and can auto create the aperture, you play with that and then, if its works well, you can auto detect stars and make a completely automatic ABism (ie, without opening image)  , see in Abism 0.5, 0.6"""
     def __init__(self, figure, ax, array=None):  # array is the array called by imshow
         self.fig = figure
         self.ax = ax
@@ -432,7 +434,8 @@ class Profile:
     def on_press(self, event):
         if not event.inaxes:
             return
-        elif get_root().ImageFrame.is_toolbar_active():
+        toolbar = event.inaxes.figure.canvas.toolbar
+        if toolbar._active in ('PAN', 'ZOOM'):
             log(3, "WARNING: Zoom or Pan actif, "
                 "please unselect its before picking your object")
             return

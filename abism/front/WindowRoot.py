@@ -12,7 +12,7 @@ import tkinter as tk
 from abism.front.Menu.MenuBar import MenuBarMaker
 from abism.front.FrameText import LeftFrame
 from abism.front.FramePlot import RightFrame
-from abism.front.util_front import skin, icon_path
+from abism.front.util_front import skin, icon_path, open_file
 
 # Variables
 from abism.back.image import ImageInfo
@@ -102,7 +102,7 @@ class RootWindow(tk.Tk):
 
         self.bind_all(
             "<Control-o>",
-            lambda _: open_file(self))
+            lambda _: open_file())
 
         self.bind_all(
             "<Control-r>",

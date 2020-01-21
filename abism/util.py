@@ -77,6 +77,7 @@ class AbismState:
 
         # UI
         self.b_see_more = False  # See more frame ?
+        self.b_see_manual_background = False  # See manual background
 
 @lru_cache(1)
 def get_state():

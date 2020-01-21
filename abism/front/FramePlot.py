@@ -126,6 +126,7 @@ class PlotFrame(tk.Frame):
         """Update skin, appearance"""
         # Update parameters
         set_figure_skin(self._fig, skin())
+        self.redraw()
 
     def reset_figure_ax(
             self,

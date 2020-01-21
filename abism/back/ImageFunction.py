@@ -11,7 +11,6 @@ from abism.back.fit_template_function import Moffat2D
 
 from abism.util import log
 import abism.front.util_front as G  # check variables
-import abism.back.util_back as W  # for verbose
 
 from abism.front.AnswerReturn import ProfileAnswer
 
@@ -496,9 +495,10 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
         # tmp=Stat.RectanglePhot(grid,(ax1,ax2,ay1,ay2),dic={"get":["number_count","sum","rms"]})  # bad pixels
         # background.append((tmp["sum"]/tmp["number_count"]))   #rectangle phot return the sum and the number_count # bite bad pixel
 
-        background.append(np.mean(grid[ax1: ax2+1, ay1: ay2+1]))
-        log(3, "One background :", background[-1], '\n\n\n\n')
-        rms.append(np.std(grid[ax1: ax2+1, ay1: ay2+1]))
+        image_cut = grid[int(ax1): int(ax2+1), int(ay1): int(ay2+1)]
+        background.append(np.mean(image_cut))
+        rms.append(np.std(image_cut))
+        log(3, "8rects: Background, rms :", background[-1], rms[-1])
         if return_rectangle:  # we draw the rectangles
             center, width, height = (
                 ((ax1+ax2)/2, (ay1+ay2)/2), (ax2-ax1), (ay2-ay1))
