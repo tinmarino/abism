@@ -131,6 +131,12 @@ class ImageInfo():
         return image
 
 
+    def get_stat_as_dic(self):
+        """Helper: readability counts
+        Used for Sky, Background, Photometry, Object detection
+        """
+        return vars(self.stat.init_all())
+
     def set_science_variable(self):
         """ Get variable, stat from image
         TODO refactor full with ImageInfo lib
@@ -146,8 +152,6 @@ class ImageInfo():
         self.sort = self.im0.flatten()
         self.sort.sort()
         self.stat.init_all()
-
-
 
 
     def substract_sky(self, fp_sky):
@@ -244,9 +248,7 @@ class ImageInfo():
                 if "whole_image" in dic:
                     dic.update(vars(get_root().image.stat))
                 else:
-                    image_new = ImageInfo.from_array(grid)
-                    # Just need dic
-                    image_new.stat.init_all()
+                    dic.update(get_array_stat(grid))
 
             mean, rms = dic["mean"], dic["rms"]
             s_min, s_max = dic["sigma_min"], dic["sigma_max"]
@@ -334,8 +336,10 @@ class ImageInfo():
         # Sigma clip
         rms_old = dic["rms"]
         bol1 = abs(self.im0 - dic["mean"]) < abs(dic["sigma"] * dic["rms"])
-        grid1 = self.im0[bol1]
-        dic.update(vars(ImageStat(grid1)))
+        stat = get_array_stat(self.im0[bol1])
+        dic.update(stat)
+        log(5, 'Sky cut: ', dic)
+
 
         # Check if finished
         bolt = dic["rms"] > (1. - dic["error"]) * rms_old
@@ -357,7 +361,10 @@ class ImageInfo():
         # exact is for the taking the percentage of the cutted pixel or not
         # median is a median filter of 3 pixel square and 2 sigma clipping
         # in_border is examining if r is in the grid, otherwise, cannot calculate.
+
+        Take in pixels, no division of a pixel
         """
+        log(5, 'Rectangle phot on:', r)
 
         # INPUT DIC default
         default_dic = {'median_filter': (3, 4), "exact": 0, "get": ["sum"]}
@@ -372,9 +379,8 @@ class ImageInfo():
         if r is None:
             rx1, rx2, ry1, ry2 = 0, len(self.im0)-1, 0, len(self.im0[0])-1
         else:
-            rx1, rx2, ry1, ry2 = r[0], r[1], r[2], r[3]
+            rx1, rx2, ry1, ry2 = list(map(int, r))
 
-        # Take in pixels, no division of a pixel
         if not dic["exact"]:
             cutted = self.im0[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
 
@@ -387,12 +393,13 @@ class ImageInfo():
                     median[np.abs(cutted-median) > (med_size[1]-1)*median]
 
         # Just need get
-        image_cut = ImageInfo.from_array(cutted)
-        res = vars(image_cut.stat)
+        res = get_array_stat(cutted)
         res["number_count"] = (ry2 - ry1) * (rx2 - rx1)
         return res
 
 
 def get_array_stat(grid):
-    """Get statistic dicitonary frmo a grid"""
-    return  vars(ImageInfo.from_array(grid).stat.init_all())
+    """Helper for readability
+    Get statistic dicitonary from a grid
+    """
+    return  ImageInfo.from_array(grid).get_stat_as_dic()

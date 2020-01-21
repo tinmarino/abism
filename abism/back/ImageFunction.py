@@ -6,7 +6,7 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-from abism.back.image import ImageInfo
+from abism.back.image import ImageInfo, get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
 from abism.util import log
@@ -654,9 +654,9 @@ def ThetaProfile(grid, center, radius, theta):
 
 
 # photomtery, return bol or dic
-def EllipticalAperture(grid, dic={}, interp=False, full_answer=False, xy_answer=True):
+def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=True):
     """ rdic = ru rv theta x0 y0
-    return a dic,
+    Returns a dic,
         dic[bol] = are you in aperture
         dic[coord_x] = X[bol]
         dic[coord_y] = are you in aperture
@@ -669,11 +669,14 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=False, xy_answer=
            centers in pixels from the begining of the array x = row, y = column
     if full answer return dic : number_count, sum, bol,bol2, interp_grid,
     """
+    # Check in
     if dic == {}:
         return 0*grid
     res = {}
 
-    x0, y0, ru, rv, theta = dic["center_x"], dic["center_y"], dic["ru"], dic["rv"], dic["theta"],
+    # Unpack in
+    x0, y0 = dic["center_x"], dic["center_y"]
+    ru, rv, theta = dic["ru"], dic["rv"], dic["theta"],
     cos = np.cos(theta)
     sin = np.sin(theta)
 
@@ -690,11 +693,11 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=False, xy_answer=
 
         bol = a*X**2 + b*Y**2 + c*X*Y < 1
         if full_answer:
-            image_cut = ImageInfo.from_array(grid[bol])
             # just need: "sum", "number_count", "rms"
-            image.stat.init_all()
-            res.update(vars(image.stat))
+            grid_cut = grid[bol]
+            res.update(get_array_stat(grid_cut))
             res["bol"] = bol
+            log(5, 'Elliptical aperture returns', res)
             return res
         else:  # no full_answer
             res["bol"] = bol
@@ -708,7 +711,7 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=False, xy_answer=
         yy = np.arange(-y0, len(grid[0])-y0, binn)
         XX, YY = np.meshgrid(xx, yy)  # need to be in this order , tested
 
-        interp_fct = interpolate.interp2d(x, y, grid, kind="cubic")
+        interp_fct = scipy.interpolate.interp2d(x, y, grid, kind="cubic")
         interp_grid = interp_fct(xx, yy)
         bol2 = a*XX**2 + b*YY**2 + c*XX*YY < 1
 

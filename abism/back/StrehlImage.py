@@ -3,7 +3,7 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back.fit_helper import leastsqFit
 import abism.back.fit_template_function as BF
-from abism.back.image import ImageInfo
+from abism.back.image import ImageInfo, get_array_stat
 
 
 from abism.util import log, get_verbose, get_root, get_state
@@ -167,17 +167,21 @@ def Photometry(grid):
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
 
         log(2, "size of the myrad, of the phot", myrad)
-        cx1, cx2 = max(x0-myrad, 0), min(x0+myrad,
-                                         len(grid)+1)  # c like cut If borders
-        cy1, cy2 = max(y0-myrad, 0), min(y0+myrad,
-                                         len(grid[0])+1)  # If borders
-        im_cut = grid[cx1:cx2, cy1:cy2]
+        # c like cut If borders
+        cx1, cx2 = max(x0-myrad, 0), min(x0+myrad, len(grid)+1)
+        cy1, cy2 = max(y0-myrad, 0), min(y0+myrad, len(grid[0])+1)
+        image_cut = grid[cx1:cx2, cy1:cy2]
 
-        bol = IF.EllipticalAperture(get_root().image.im0, dic={
-                                    "center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v, "theta": theta})["bol"]
-        log(2, "phot len", len(bol), len(im_cut))
-        log(3, "ImageFUnciton, Photometry ", r99u, r99v, theta)
-        phot = vars(get_root().image.stat)
+        bol = IF.EllipticalAperture(
+            grid,
+            dic={"center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v,
+                 "theta": theta})["bol"]
+        image_elliptic = grid[bol]
+
+        log(2, "phot len", image_elliptic.shape)
+        log(3, "ImageFunciton, Photometry ", r99u, r99v, theta)
+        # Just need sum and number count
+        phot = get_array_stat(image_elliptic)
         W.strehl["sum"] = phot["sum"]
         log(2, "phot", phot)
         W.strehl["number_count"] = phot["number_count"]
@@ -271,21 +275,25 @@ def Background(grid):
 
         # CUT
         myrad = max(ruo, rvo) + 2  # In case
-        ax1, ax2 = int(W.strehl["center_x"] -
-                       myrad), int(W.strehl["center_x"] + myrad)
-        ay1, ay2 = int(W.strehl["center_y"] -
-                       myrad), int(W.strehl["center_y"] + myrad)
-        cutted = get_root().image.im0[ax1: ax2, ay1: ay2]
+        ax1 = int(W.strehl["center_x"] - myrad)
+        ax2 = int(W.strehl["center_x"] + myrad)
+        ay1 = int(W.strehl["center_y"] - myrad)
+        ay2 = int(W.strehl["center_y"] + myrad)
+        image_cut = get_root().image.im0[ax1: ax2, ay1: ay2]
 
-        bol_i = IF.EllipticalAperture(cutted, dic={
-                                      "center_x": myrad, "center_y": myrad, "ru": rui, "rv": rvi, "theta": W.strehl["theta"]})["bol"]
-        bol_o = IF.EllipticalAperture(cutted, dic={
-                                      "center_x": myrad, "center_y": myrad, "ru": ruo, "rv": rvo, "theta": W.strehl["theta"]})["bol"]
+        bol_i = IF.EllipticalAperture(
+            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
+                            "rv": rvi, "theta": W.strehl["theta"]})["bol"]
+
+        bol_o = IF.EllipticalAperture(
+            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
+                            "rv": rvo, "theta": W.strehl["theta"]})["bol"]
+
         bol_a = bol_o ^ bol_i
 
-        cutted_image = ImageInfo.from_array(cutted[bol_a])
-        cutted_image.stat.init_all()
-        tmp = cutted_image.sky()
+        iminfo_cut = ImageInfo.from_array(image_cut[bol_a])
+        iminfo_cut.stat.init_all()
+        tmp = iminfo_cut.sky()
         dic['rms'] = tmp["rms"]
         dic['my_background'] = tmp["mean"]
 
@@ -731,9 +739,8 @@ def EllipseEventBack():
     # annulus  inside out but not inside in
     bol_a = ell_o["bol"] ^ ell_i["bol"]
 
-    image_cut = ImageInfo.from_array(get_root().im0[bol_a])
-    sky = image_cut.stat.init_all()
-    W.strehl["sky"] = sky
+    image_cut = get_root().im0[bol_a]
+    W.strehl["sky"] = get_array_stat(image_cut)
 
     W.strehl["my_background"] = sky["mean"]
 
@@ -802,9 +809,9 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     back, number_back = np.sum(obj.array[bol_a]), len(obj.array[bol_a])
 
     # PHOT and back
-    image_cut = ImageInfo.from_array(obj.array[bol_a])
-    image_cut.stat.init_all()
-    res["background_dic"] = image_cut.sky()
+    iminfo_cut = ImageInfo.from_array(obj.array[bol_a])
+    iminfo_cut.stat.init_all()
+    res["background_dic"] = iminfo_cut.sky()
     res["my_background"] = res["background_dic"]["mean"]
     res["phot"] = np.sum(obj.array[bol_e])
     res["my_photometry"] = res["phot"] - \
