@@ -186,30 +186,8 @@ class ViewMenu(ButtonMenu):
         ########
         # Contour
         color_menu.add_command(
-            label='Contour', command=lambda: get_root().ImageFrame.CutImageScale(
-                dic={"contour": 'not a bool'}))
-
-        #################
-        # more colors TODO remove that shit
-        more_color_menu = tk.Menu(color_menu, **skin().fg_and_bg)
-        num = 0
-        import matplotlib
-        all_cmaps = sorted([i for i in dir(matplotlib.cm) if hasattr(
-            getattr(matplotlib.cm, i), 'N')])  # inclouding inverse
-        for i in all_cmaps:
-            num += 1
-            more_color_menu.add_radiobutton(
-                label=i,
-                command=lambda i=i: get_root().ImageFrame.CutImageScale(dic={"cmap": i}),
-                variable=G.cu_color, value=i)  # we use same value as label
-
-            if num % 30 == 0:
-                more_color_menu.add_radiobutton(
-                    label=i,
-                    command=lambda i=i: get_root().ImageFrame.CutImageScale(dic={"cmap": i}),
-                    variable=G.cu_color, value=i, columnbreak=1)  # we use same value as label
-        color_menu.add_cascade(menu=more_color_menu,
-                            label="More colors", underline=0)
+            label='Contour',
+            command=lambda: get_root().ImageFrame.CutImageScale(dic=dic))
 
         if self.style == "cascade":
             self.menu.add_cascade(
