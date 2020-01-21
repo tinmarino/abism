@@ -15,6 +15,7 @@
   * AbismState is the Namespace
 
 * Image : from_file, check if file exist
+* Stat: optimize, lazey and max one calculation (but image may have changed with background removal
 
 
 # Always possible

@@ -281,7 +281,7 @@ class OptionFrame(TextFrame):
             # THE ENTRIES (it is before the main dish )
             row = 0
             for i in G.image_parameter_list:
-                l = Label(G.ManualGridFrame, text=i[0], font=skin().font.answer,
+                l = Label(frame_manual, text=i[0], font=skin().font.answer,
                           justify=LEFT, anchor="nw", **skin().fg_and_bg)
                 l.grid(row=row, column=0, sticky="NSEW")
                 vars(G.tkvar)[i[1]] = StringVar()

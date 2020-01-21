@@ -106,7 +106,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
 
     # 1st MAX
     coord1 = np.unravel_index(cut1.argmax(), cut1.shape)
-    coord1 = (coord1[0] + r[0],  coord1[1] + r[2])
+    coord1 = (coord1[0] + r[0], coord1[1] + r[2])
     log(3, "LocalMax coord", coord1, r)
 
     # INTERPOLATE

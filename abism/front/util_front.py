@@ -391,14 +391,18 @@ def open_file():
     """
     import os
 
+    # Get rootdirecotyr of search
     initialdir = "/".join(get_root().image.name.split("/")[: -1])
     initialdir = initialdir or os.getcwd()
 
-    # Pop window to ak for a file
-    s_file = askopenfilename(title="Open a FITS image", filetypes=[(
-        "fitsfiles", "*.fits"), ("allfiles", "*")], initialdir=initialdir)
+    # Pop window to ask for a file
+    s_file = askopenfilename(
+        title="Open a FITS image",
+        filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")],
+        initialdir=initialdir)
+    if not s_file: return
 
-    # Stringigy && Log && Cache
+    # Stringify && Log && Cache
     s_file = str(s_file)
     log(0, "Opening file : " + s_file)
     get_root().set_image(s_file)

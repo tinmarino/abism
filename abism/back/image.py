@@ -86,27 +86,41 @@ class ImageInfo():
         """Builder"""
         image = ImageInfo()
 
+        # Remove nan -> they cause errors
+        # TODO pretty mask
+        grid[np.isnan(grid)] = 0
+
         # Save im0
         image.im0 = grid
-        # self.im0[np.isnan(self.im0)] = 0
+
 
         return image
 
 
     @staticmethod
-    def from_file(filename, new_fits=True):
+    def from_file(filename):
         """Builder"""
         """Open image from path
         new_fits if a new file, and not cube scrolling
         I know this is not front but so central ...
         """
+        # Create
         image = ImageInfo()
+
+        # Check in
         if not filename:
+            return image
+
+        # Check open
+        try:
+            hdulist = fits.open(filename)
+        except FileNotFoundError:
             return image
 
         # Get <- Io
         image.name = filename
-        image.hdulist = fits.open(filename)
+        image.hdulist = hdulist
+
         image.im0 = image.hdulist[0].data
 
         # Parse header
@@ -356,14 +370,13 @@ class ImageInfo():
 
         # INPUT r  DEFAULT
         if r is None:
-            rx1, rx2, ry1, ry2 = 0, len(grid)-1, 0, len(grid[0])-1
-
+            rx1, rx2, ry1, ry2 = 0, len(self.im0)-1, 0, len(self.im0[0])-1
         else:
             rx1, rx2, ry1, ry2 = r[0], r[1], r[2], r[3]
 
         # Take in pixels, no division of a pixel
         if not dic["exact"]:
-            cutted = grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
+            cutted = self.im0[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
 
             # MEDIAN FILETRING
             med_size = dic["median_filter"]
