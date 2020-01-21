@@ -70,7 +70,13 @@ class AbismState:
         self.aperture_type = 'fit'
         self.pick_old = ''
 
-        self.see_more = False  # See more frame ?
+        # More
+        self.b_aniso = True
+        self.b_same_psf = True
+        self.b_same_center = True
+
+        # UI
+        self.b_see_more = False  # See more frame ?
 
 @lru_cache(1)
 def get_state():

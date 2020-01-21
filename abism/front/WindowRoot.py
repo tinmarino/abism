@@ -47,15 +47,6 @@ class RootWindow(tk.Tk):
 
         # Save spawned children
         self.saved_children = []
-        self.state = AbismState()
-
-        # Global even more dirty
-        W.same_center_var = tk.IntVar()
-        W.same_center_var.set(1)
-        W.aniso_var = tk.IntVar()
-        W.aniso_var.set(1)
-        W.same_psf_var = tk.IntVar()
-        W.same_psf_var.set(1)
 
         # Set icon && shortcut
         self.set_icon()

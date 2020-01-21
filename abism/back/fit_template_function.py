@@ -230,9 +230,9 @@ def DiffractionPatern(points, params):
     res *= I/(1-e**2)**2
     return res
 
-    ##########
-    # USELESS STAFF
-    ###########
+##########
+# USELESS STAFF
+###########
 
 
 ##########

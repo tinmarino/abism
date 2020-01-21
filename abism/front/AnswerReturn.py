@@ -940,9 +940,11 @@ def PlotBinaryStar2D():
     # TRUE
     G.figresult.clf()
     ax1 = G.figresult.add_subplot(121)
-    G.figresult_mappable1 = ax1.imshow(G.current_image[r[0]:r[1], r[2]:r[3]],
-                                          vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
-                                          cmap=G.cbar.mappable.get_cmap().name, origin='lower')
+    G.figresult_mappable1 = ax1.imshow(
+        get_root().image.im0[r[0]:r[1], r[2]:r[3]],
+        vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+        cmap=G.cbar.mappable.get_cmap().name, origin='lower')
+
     # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
     ax1.format_coord = lambda x, y: "%.1f" % get_root().image.im0[y, x]
     ax1.format_coord = lambda x, y: ""

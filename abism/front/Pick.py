@@ -256,9 +256,9 @@ def TightBinary(disconnect=False):
             "the parameters will be more constrained-------------------")
         G.pt1 = G.fig.canvas.mpl_connect('button_press_event', TightBinary2)
         G.ImageCanvas.get_tk_widget()["cursor"] = "target"
-        #  CLick on same psf and no aniso
-        W.aniso_var.set(False)
-        W.same_psf_var.set(True)
+
+        get_state().aniso = False
+        get_state().same_psf_var = True
         AnalysisMenu.SetFitType(get_state().fit_type)
     return
 

@@ -118,6 +118,55 @@ def MoreWidget(parent):
         MoreCreate()
 
 
+def grid_more_checkbuttons(frame):
+    myargs = {"anchor": "w", "bg": skin().color.bg, "fg": skin().color.fg,
+              "padx": 0, "pady": 0, "highlightthickness": 0}
+
+    # Define callback
+    def on_change_aniso(int_var):
+        get_state().b_aniso = int_var.get()
+        # Aniso
+        if get_state().b_aniso:
+            msg = "Anisomorphism: angular dimension are fitted separately"
+        else:
+            msg = "Isomorphism: angular dimension are fitted together"
+        log(0, msg)
+
+    def on_change_psf(int_var):
+        get_state().b_same_psf = int_var.get()
+        if get_state().b_same_psf:
+            msg = "Not same psf: Each star is fitted with independant psf"
+        else:
+            msg = "Same psf: Both stars are fitted with same psf"
+        log(0, msg)
+
+    def on_change_center(int_var):
+        get_state().b_same_center = int_var.get()
+        if get_state().b_same_center:
+            msg = ("Same center: Assuming the saturation "
+                   "is centered at the center of the object")
+        else:
+            msg = ("Not same center: Assuming the saturation"
+                   "isn't centered at the center of th object")
+        log(0, msg)
+
+
+    # Declare label and associated variable
+    text_n_var_n_fct = (
+        ('Anisomorphism', get_state().b_aniso, on_change_aniso),
+        ('Binary_same_psf', get_state().b_same_psf, on_change_psf),
+        ('Saturated_same_center', get_state().b_same_center, on_change_center),
+    )
+
+    # Create && Grid all
+    for (text, var, fct) in text_n_var_n_fct:
+        int_var = tk.IntVar(value=var)
+        check = tk.Checkbutton(
+            frame, text=text, variable=int_var,
+            command=lambda fct=fct, int_var=int_var: fct(int_var), **myargs)
+        check.grid(column=0, columnspan=2, sticky='nwse')
+
+
 def MoreCreate():
     """Create More Frame"""
     G.more_bool = not G.more_bool  # mean = 1
@@ -169,25 +218,6 @@ def MoreCreate():
         G.menu_phot['menu'] = G.menu_phot.menu
         return G.menu_phot
 
-    def Check(frame):
-        myargs = {"anchor": "w", "bg": skin().color.bg, "fg": skin().color.fg,
-                  "padx": 0, "pady": 0, "highlightthickness": 0}
-        ################
-        # isoplanetism
-        G.iso_check = tk.Checkbutton(frame,
-                                     text="Anisomorphism", variable=W.aniso_var,
-                                     command=lambda: SetFitType(get_state().fit_type), **myargs)  # by default onvalue=1
-
-        G.same_check = tk.Checkbutton(frame_more_grid,
-                                      text="Binary_same_psf", variable=W.same_psf_var,
-                                      command=lambda: SetFitType(get_state().fit_type), **myargs)
-
-        G.same_center_check = tk.Checkbutton(frame_more_grid,
-                                             text="Saturated_same_center", variable=W.same_center_var,
-                                             command=lambda: SetFitType(get_state().fit_type), **myargs)
-
-        return G.iso_check, G.same_check, G.same_center_check
-
     # Substract background
     bu_subtract_bg = tk.Button(
         frame_more_grid, text='SubstractBackground',
@@ -196,10 +226,9 @@ def MoreCreate():
 
     # Noise type
     def NoiseType(frame):
-        G.menu_noise = tk.Menubutton(frame,
-                                     text=u'\u25be '+'Background',
-                                     relief=tk.RAISED,
-                                     **skin().button_dic)
+        G.menu_noise = tk.Menubutton(
+            frame, text=u'\u25be '+'Background',
+            relief=tk.RAISED, **skin().button_dic)
         G.menu_noise.menu = tk.Menu(G.menu_noise)
 
         G.cu_noise = tk.StringVar()
@@ -227,20 +256,15 @@ def MoreCreate():
 
     NoiseType(frame_more_grid).grid(row=1, column=0, sticky="nswe")
     PhotType(frame_more_grid).grid(row=1, column=1, sticky="nswe")
+    grid_more_checkbuttons(frame_more_grid)
 
-    row = 2
-    for i in Check(frame_more_grid):
-        i.grid(row=row, column=0, columnspan=2, sticky="nwse")
-        row += 1
 
     bu_close = tk.Button(frame_more_grid, text=u'\u25b4 '+'Close',
                          command=MoreClose, **skin().button_dic)
-    bu_close.grid(row=row, column=0, columnspan=2)
+    bu_close.grid(column=0, columnspan=2)
 
     # Redraw
     get_root().OptionFrame.init_will_toogle(visible=True, add_title=False)
-
-    return  # From MoreCreate
 
 
 def MoreClose():
@@ -319,7 +343,7 @@ def ManualBackClose():
     G.background = float(G.tkvar.background.get())
 
 
-def Substractbackground():
+def SubstractBackground():
     """Subtract A background image
     Choose a FITS image tho subtract to the current image to get read of the sky
     value or/and the pixel response. This is a VERY basic task that is only
@@ -345,13 +369,15 @@ def SetFitType(name):  # strange but works
     Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls fit_template_function.py
     Todo : fastly analyse the situation and choose a fit type consequently
     """
+    LogFitType()
+
     get_state().fit_type = name
     G.cu_fit.set(name.replace("2D", ""))  # to change radio but, check
     try:
-        if W.aniso_var.get() == 0:
-            get_state().fit_type = get_state().fit_type.replace('2D', '')
-        elif W.aniso_var.get() == 1 and not '2D' in get_state().fit_type:
+        if get_state().b_aniso and not '2D' in get_state().fit_type:
             get_state().fit_type += '2D'
+        elif not get_state().b_aniso:
+            get_state().fit_type = get_state().fit_type.replace('2D', '')
     except BaseException:
         if get_state().fit_type.find('2D') == -1:
             get_state().fit_type += '2D'
@@ -362,30 +388,16 @@ def SetFitType(name):  # strange but works
     if "Gaussian_hole" in get_state().fit_type:
         try:
             # Global even more dirty
-            if W.same_center_var.get() == 0:
+            if not get_state().same_center:
                 get_state().fit_type = get_state().fit_type.replace('same_center', '')
-                log(0, "same_center : We asssume that the saturation",
-                      "is centered at the center of th object")
             elif not 'same_center' in get_state().fit_type:
                 get_state().fit_type += "same_center"
-                log(0, "not same_center: We asssume that the saturation",
-                      "isn't centered at the center of th object")
         except BaseException:
             if not 'same_center' in get_state().fit_type:
                 get_state().fit_type += "same_center"
     log(0, 'Fit Type = ' + get_state().fit_type)
 
-    # same psf
-    if W.same_psf_var.get() == 0:
-        W.same_psf = 0
-        log(0, "same_psf : We will fit the binary with the same psf")
-    elif W.same_psf_var.get() == 1:
-        W.same_psf = 1
-        log(0, "not same_psf : We will fit each star with independant psf")
-
     # change the labels
     #G.fit_type_label["text"] = get_state().fit_type
 
     return
-
-

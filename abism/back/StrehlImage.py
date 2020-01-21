@@ -380,11 +380,12 @@ def BinaryPsf(grid, search=False):  # slowlyer
         James['b1'] = (1, 10)
 
     doNotFit = []
-    dic_for_fit = {"same_psf": W.same_psf, "aniso": 0}
-    if "2D" in fit_type:
-        dic_for_fit["aniso"] = 1
+    dic_for_fit = {
+        "same_psf": get_state().b_same_psf,
+        "aniso": get_state().b_aniso,
+    }
 
-    if W.same_psf:
+    if get_state().b_same_psf:
         doNotFit.append("spread_x1")
         doNotFit.append("spread_y1")
         if not "2D" in fit_type:
@@ -423,7 +424,7 @@ def BinaryPsf(grid, search=False):  # slowlyer
         list[1][to_change] = list[1][reference]
         return list
 
-    if W.same_psf:
+    if get_state().b_same_psf:
         res = Restore(res, "spread_x1", "spread_x0")
         res = Restore(res, "spread_y1", "spread_y0")
         if not "2D" in fit_type:
@@ -591,11 +592,11 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
         James['b1'] = (1, 3)
 
     doNotFit = []
-    dic_for_fit = {"same_psf": W.same_psf, "aniso": 0}
+    dic_for_fit = {"same_psf": get_state().b_same_psf, "aniso": 0}
     if "2D" in get_state().fit_type:
         dic_for_fit["aniso"] = 1
 
-    if W.same_psf:
+    if get_state().b_same_psf:
         doNotFit.append("spread_x1")
         doNotFit.append("spread_y1")
         if not "2D" in get_state().fit_type:
@@ -634,7 +635,7 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
         list[1][to_change] = list[1][reference]
         return list
 
-    if W.same_psf:
+    if get_state().b_same_psf:
         res = Restore(res, "spread_x1", "spread_x0")
         res = Restore(res, "spread_y1", "spread_y0")
         if not "2D" in get_state().fit_type:

@@ -6,6 +6,7 @@
 # UI
 
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
+* Skin: create entry and checkbutton (see readheader and analysis check button, l122)
 * make sahs of left pane, better move when adding or removeing frames
 * More options, test my stuff
 * AnswerFrame: Give the ability to copy paste
