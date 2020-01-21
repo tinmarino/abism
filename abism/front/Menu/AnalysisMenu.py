@@ -71,7 +71,7 @@ def AnalysisMenu(root, parent, args):
     lst2 = [
         ["PickOne", "one", lambda: Pick.RefreshPick("one")],
         ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
-        ["PickMany", "many", lambda: Pick.RefreshPick("many")],
+        # ["PickMany", "many", lambda: Pick.RefreshPick("many")],
         ["No Pick", "nopick", lambda: Pick.RefreshPick("nopick")],
     ]
 
