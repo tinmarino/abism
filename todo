@@ -1,14 +1,10 @@
 # AnwerFrame
 
-* AnswerFrame: Give the ability to copy paste
-  * Must transofrm them as Text: https://stackoverflow.com/questions/1602106/in-pythons-tkinter-how-can-i-make-a-label-such-that-you-can-select-the-text-wi
-  * AbismState is the Namespace
+* Add other info to Text
 
-* Color
 * Get Ellipse in legacy
   * First create legacy button
-* Change important foreground red to a skin color
-* Add other info to Text
+* Repair toSky -> toDetector
 
 
 # UI

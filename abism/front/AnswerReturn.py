@@ -24,7 +24,7 @@ import abism.back.util_back as W
 
 # Plugin
 from abism.plugin import ReadHeader as RH  # to know witch telescope
-from abism.plugin import CoordTransform as CT
+from abism.plugin.CoordTransform import format_sky
 
 from abism.util import log, get_root, get_state
 
@@ -86,18 +86,6 @@ def MyFormat(value, number, letter):
     stg = "{:,"
     stg += "." + str(number) + letter + "}"
     return stg.format(value).replace(",", " ")
-
-
-def SkyFormat(ra, dec):
-    if (ra == 99) or (type(ra) == str):
-        x = "N/A"
-    else:
-        x = CT.decimal2hms(ra, ":")
-    if (dec == 99) or (type(dec) == str):
-        y = "N/A"
-    else:
-        y = CT.decimal2dms(dec, ":")
-    return x, y
 
 
 def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
@@ -255,7 +243,7 @@ def PlotPickOne():
         "Center x,y: ",
         (W.strehl["center_y"], W.strehl["center_x"]),
         MyFormat(W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f"),
-        "%s , %s" % (SkyFormat(W.strehl['center_ra'], W.strehl['center_dec']))
+        "%s , %s" % (format_sky(W.strehl['center_ra'], W.strehl['center_dec']))
         )
     W.tmp.lst.append(line)
 
@@ -273,21 +261,26 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Photometry
+    phot_mag = W.strehl["my_photometry"] / get_root().header.exptime
+    phot_mag = get_root().header.zpt - 2.5 * np.log10(phot_mag)
     line = AnswerImageSky(
         "Photometry: ",
         W.strehl["my_photometry"],
         MyFormat(W.strehl["my_photometry"], 1, "f") + " [adu]",
-        "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"
+        "%.2f" % phot_mag + " [mag]"
         )
     W.tmp.lst.append(line)
 
     # Background
+    back_mag = W.strehl["my_background"] / get_root().header.exptime
+    back_mag = get_root().header.zpt - 2.5 * np.log10(back_mag)
+    rms_mag = get_root().header.zpt - 2.5 * np.log10(W.strehl['rms'])
     line = AnswerImageSky(
         "Background: ",
         W.strehl["my_background"],
         MyFormat(W.strehl["my_background"], 1, "f") + \
             '| rms: ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]",
-        "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl["my_background"]/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"
+        "%.2f" % back_mag + '| rms: ' + "%.2f" % rms_mag + " [mag]"
         )
     W.tmp.lst.append(line)
 
@@ -301,16 +294,18 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Peak of detection
+    peak_mag = W.strehl["intensity"] / get_root().header.exptime
+    peak_mag = get_root().header.zpt - 2.5 * np.log10(peak_mag)
     line = AnswerImageSky(
         "Peak: ",
         W.strehl["intensity"],
         MyFormat(W.strehl["intensity"], 1, "f") + " [adu]",
-        "%.1f" % (get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"
+        "%.1f" % peak_mag + " [mag]"
         )
     W.tmp.lst.append(line)
 
     # Saturated
-    if not 'intensity' in W.strehl:  # binary
+    if 'intensity' not in W.strehl:  # binary
         intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
     else:
         intensity = W.strehl["intensity"]
@@ -324,7 +319,9 @@ def PlotPickOne():
         W.tmp.lst.append(line)
 
     # Undersampled
-    if "sinf_pixel_scale" in vars(get_root().header) and (get_root().header.sinf_pixel_scale <= 0.01):
+    is_undersampled = "sinf_pixel_scale" in vars(get_root().header)
+    is_undersampled = is_undersampled and get_root().header.sinf_pixel_scale <= 0.01
+    if is_undersampled:
         text = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
         line = AnswerText(text, tags=['tag-important', 'tag-center'])
         W.tmp.lst.append(line)
@@ -356,8 +353,6 @@ def PlotPickOne():
         G.bu_answer_type["text"] = u"\u21aa"+'To detector'
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
         G.lb_answer_type["text"] = "In sky units"
-
-    return
 
 
 def PlotEllipse():
@@ -502,9 +497,9 @@ def PlotBinary():
         ##########
         W.tmp.lst = [["Binary: ", get_state().fit_type, get_state().fit_type],
                      ["1 Star: ", (ra[0], dec[0]), "%s , %s" %
-                      SkyFormat(ra[0], dec[0])],
+                      format_sky(ra[0], dec[0])],
                      ["2 Star: ", (ra[1], dec[1]), "%s , %s" %
-                      SkyFormat(ra[1], dec[1])],
+                      format_sky(ra[1], dec[1])],
                      ["Separation: ", separation, "%.1f" % (
                          separation*get_root().header.pxll*1000) + "+/-" + "%.1f" % (sep_err*pxll*1000) + " [mas]"],
                      ["Phot1: ", W.phot0, "%.1f" % (
@@ -600,7 +595,7 @@ def PlotPickMany(append=True):
 
         # CENTER
         ["Center: ", (W.strehl["center_ra"], W.strehl["center_dec"]), "%s , %s" %
-         SkyFormat(W.strehl['center_ra'],  W.strehl['center_dec'])],
+         format_sky(W.strehl['center_ra'],  W.strehl['center_dec'])],
 
         # SEPARATION
         ["Separation: ", sep, MyFormat(sep * pxll * 1000, 1, "f") + u"\u00b1" + MyFormat(
@@ -1122,19 +1117,12 @@ def CallContrastMap():
 
         FigurePlot(x, y, dic=tdic)
 
-    def Timer():
-        from time import sleep
-        sleep(0.3)
-        # G.contrast_thread.E
 
     G.contrast_thread = Thread(target=Worker)
     G.contrast_thread.daemon = True  # can close the program without closing this thread
     G.contrast_thread.start()
-    #G.contrast_timer    = Thread(target=Timer).start()
 
-    #G.__parent.wm_attributes("-topmost", 1)
     G.ContrastWindow.mainloop()
-    # G.__parent.focus()
 
 
 def FigurePlot(x, y, dic={}):
@@ -1143,7 +1131,6 @@ def FigurePlot(x, y, dic={}):
     dic : title:"string", logx:bol, logy:bol, xlabel:"" , ylabel:""
     """
     log(3, "MG.FigurePlotCalled")
-    from matplotlib import pyplot as plt  # necessary if we are in a sub process
     default_dic = {"warning": 0, "title": "no-title"}
     default_dic.update(dic)
     dic = default_dic
@@ -1178,7 +1165,7 @@ def FigurePlot(x, y, dic={}):
         # TWIN axes
 
     log(3, 50 * '_', "\n", currentThread().getName(),
-          "Starting------------------\n")
+        "Starting------------------\n")
 
     global ax
     G.contrast_fig.clf()
@@ -1195,4 +1182,4 @@ def FigurePlot(x, y, dic={}):
 
     # Over
     log(3, '_' * 50 + "\n", currentThread().getName(),
-          'Exiting' + 20 * '-' + "\n")
+        'Exiting' + 20 * '-' + "\n")

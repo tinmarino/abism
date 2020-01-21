@@ -227,3 +227,15 @@ def dms2decimal(decString, delimiter):
         decDeg = float(decString)
 
     return decDeg
+
+
+def format_sky(ra, dec):
+    if (ra == 99) or (type(ra) == str):
+        x = "N/A"
+    else:
+        x = decimal2hms(ra, ":")
+    if (dec == 99) or (type(dec) == str):
+        y = "N/A"
+    else:
+        y = decimal2dms(dec, ":")
+    return x, y
