@@ -692,11 +692,12 @@ def on_resize_text(event):
 
 
 def DisplayAnswer():
-    """ row can be higher if pick many , and font smaller"""
+    """Row can be higher if pick many , and font smaller
+    Nobody can edit text, when it is disabled
+    """
     # Grid Buttons
     G.bu_answer_type.grid(column=1, sticky="wnse")
     G.lb_answer_type.grid(column=0, sticky="wnse")
-
 
     # Create text
     text = Text(get_root().AnswerFrame, **skin().text_dic)
@@ -709,9 +710,12 @@ def DisplayAnswer():
     # Fill text
     for obj in W.tmp.lst:
         if isinstance(obj, (tuple, list)):
-            grid_tuple_obsolete(i)
+            grid_tuple_obsolete(obj)
         else:
             obj.insert_in_tk_text(text)
+
+    # Disable edit
+    text.configure(state=DISABLED)
 
     # Grid text
     text.grid(columnspan=2, sticky='nsew')

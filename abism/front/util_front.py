@@ -25,7 +25,6 @@ button_width = 12  # the width of the standard buttons
 # GUI FORM
 # we don't hide text frame by default, the text framme is the output frame on the left
 hidden_text_bool = 0
-scale_menu_type = "column" # can be "column" or "cascade"
 all_frame = []                        # all frames will be here to change color
 # Can be tkinter or shell , written interaction with the mainloop
 interaction_type = "tkinter"
@@ -272,7 +271,7 @@ class Skin:
 
 def update_widget_skin(widget):
     """Update the skin of a widget"""
-    from abism.front.FramePlot import PlotFrame
+    from abism.front.frame_plot import PlotFrame
 
     log(9, 'Updating:', widget.__class__.__name__)
 
