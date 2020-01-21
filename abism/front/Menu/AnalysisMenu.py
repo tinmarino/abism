@@ -24,9 +24,10 @@ from abism.util import log, get_root, get_state
 """
 
 
-def AnalysisMenu(parent, **args):
+def AnalysisMenu(parent):
     """Create the Menu button and its children"""
-    menu_button = tk.Menubutton(parent, **{**args, **skin().fg_and_bg})
+    args = {**skin().menu_dic, 'text': u"\u25be Analysis"}
+    menu_button = tk.Menubutton(parent, **args)
     menu_button.menu = tk.Menu(menu_button, **skin().fg_and_bg)
     menu_button['menu'] = menu_button.menu
 

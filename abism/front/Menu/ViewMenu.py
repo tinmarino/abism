@@ -9,9 +9,10 @@ import abism.front.util_front as G
 
 from abism.util import log, get_root
 
-def ViewMenu(parent, **args):
+def ViewMenu(parent):
     """Create the menu"""
-    G.scale_menu = tk.Menubutton(parent, **{**args, **skin().fg_and_bg})
+    args = {**skin().menu_dic, 'text': u"\u25be View"}
+    G.scale_menu = tk.Menubutton(parent, **args)
     G.scale_menu.menu = tk.Menu(G.scale_menu, **skin().fg_and_bg)
     G.scale_menu['menu'] = G.scale_menu.menu
 

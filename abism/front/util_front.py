@@ -21,7 +21,6 @@ class VoidClass:
 
 # BUTTON WIDTH
 button_width = 12  # the width of the standard buttons
-menu_button_width = 8  # Size of menu buttons
 
 # GUI FORM
 # we don't hide text frame by default, the text framme is the output frame on the left
@@ -140,6 +139,7 @@ class FrameDic(DotDic):
 
 
 class TextDic(DotDic):
+    """For tk Text widgets"""
     def __init__(self, color):
         super().__init__()
         self.background = color.bg
@@ -151,6 +151,16 @@ class TextDic(DotDic):
 
         self.highlightthickness = 0
         self.borderwidth = 0
+        self.relief = tk.FLAT
+
+
+class MenuDic(DotDic):
+    def __init__(self, color):
+        super().__init__()
+        self.background = color.bg
+        self.foreground = color.fg
+
+        self.width = 8
         self.relief = tk.FLAT
 
 
@@ -255,6 +265,7 @@ class Skin:
         self.frame_dic = FrameDic(self.color)
         self.label_title_dic = LabelTitleDic(self.color)
         self.text_dic = TextDic(self.color)
+        self.menu_dic = MenuDic(self.color)
 
         self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
 

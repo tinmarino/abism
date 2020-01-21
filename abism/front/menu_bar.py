@@ -37,29 +37,28 @@ def MenuBarMaker(root):
     menu_bar = tk.Frame(root, bg=skin().color.bg)
     menu_bar.pack(side=tk.TOP, expand=0, fill=tk.X)
 
-    args = {"relief": tk.FLAT, "width": G.menu_button_width}
+    # {**args, "text": u'\u25be '+'Analysis'}],
     # For all menu button (tab)
-    for col, i in enumerate([
-            [AbismMenu, args],
-            [FileMenu, args],
-            [AnalysisMenu.AnalysisMenu, {**args, "text": u'\u25be '+'Analysis'}],
-            [ViewMenu.ViewMenu, {**args, "text": u'\u25be '+'View'}],
-            [ToolMenu, {}],
+    for col, callback in enumerate([
+            AbismMenu,
+            FileMenu,
+            AnalysisMenu.AnalysisMenu,
+            ViewMenu.ViewMenu,
+            ToolMenu
                 ]):
         # Same weight
         menu_bar.columnconfigure(col, weight=1)
         # Create
-        button = i[0](menu_bar, **i[1])
+        button = callback(menu_bar)
         # Grid it
         button.grid(row=0, column=col, sticky="nsew")
 
+
 class ButtonMenu(tk.Menubutton):
     """Base class for a top menu button (with a dropdown)"""
-    def __init__(self, parent, **args):
+    def __init__(self, parent):
         # Prepare argument dic
-        l_args = skin().fg_and_bg.copy()
-        l_args.update({'text': u"\u25be" + self.get_text()})
-        l_args.update(args)
+        l_args = {**skin().menu_dic, 'text': u"\u25be" + self.get_text()}
 
         # Init
         super().__init__(parent, **l_args)
@@ -80,8 +79,8 @@ class ButtonMenu(tk.Menubutton):
 
 class AbismMenu(ButtonMenu):
     """ABISM"""
-    def __init__(self, parent, **args):
-        super().__init__(parent, **args)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.menu.add_command(
             label='About',
             command=about_window)
@@ -121,12 +120,12 @@ class AbismMenu(ButtonMenu):
 
 class FileMenu(ButtonMenu):
     """Open new file"""
-    def __init__(self, parent, **args):
+    def __init__(self, parent):
         """Menu, open_image, header
             args is a dictionnary containing the arguments to make all menuENtry
             identical, logical, responsible, pratical
         """
-        super().__init__(parent, **args)
+        super().__init__(parent)
 
         # Open
         self.menu.add_command(
@@ -149,12 +148,12 @@ class FileMenu(ButtonMenu):
 
 class ToolMenu(ButtonMenu):
     """Generic awesome tool. Usually in plugin"""
-    def __init__(self, parent, **args):
+    def __init__(self, parent):
         """Menu, open_image, header
             args is a dictionnary containing the arguments to make all menuENtry
             identical, logical, responsible, pratical
         """
-        super().__init__(parent, **args)
+        super().__init__(parent)
 
         lst = [
             ["Profile", lambda: Pick.RefreshPick("profile")],
