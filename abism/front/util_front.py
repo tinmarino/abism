@@ -221,6 +221,7 @@ class ColorScheme:
         """Dark and light"""
         self.sash               = self.solarized_blue
         self.quit               = self.solarized_red
+        self.important          = self.solarized_red
         self.restart            = self.solarized_cyan
         self.parameter1         = self.solarized_blue
         self.parameter2         = self.solarized_green

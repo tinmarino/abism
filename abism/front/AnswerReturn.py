@@ -4,6 +4,7 @@
 """
 
 from threading import Thread, currentThread
+from abc import ABC, abstractmethod
 
 from tkinter import *
 from tkinter import font as tkFont
@@ -28,9 +29,18 @@ from abism.plugin import CoordTransform as CT
 from abism.util import log, get_root, get_state
 
 
-class AnswerLine():
+class AnswerLine(ABC):
+    """A line to append to a text widget"""
+    def __init__(self):
+        pass
+
+    @abstractmethod
+    def insert_in_tk_text(self, text):
+        pass
+
+class AnswerImageSky(AnswerLine):
     """A Line in the answer"""
-    def __init__(self, s_variable, o_value, s_image, s_sky):
+    def __init__(self, s_variable, o_value, s_image, s_sky, tags=[]):
         """label, variable,
         value as string on image,
         value as string in sky referencial <- '' returns s_image
@@ -39,6 +49,7 @@ class AnswerLine():
         self.o_value = o_value
         self.s_image = s_image
         self.s_sky = s_sky
+        self.tags = tags
 
     def insert_in_tk_text(self, text):
         """Should be the other way.
@@ -47,14 +58,21 @@ class AnswerLine():
         Hopefully you created a tag-left and tag-right
         And you readed me .....
         """
-        tag_std = []
-        if self.s_variable == "Strehl: ":
-            tag_std += ['tag-important']
         #tags = ['tag-left'] + tag_std
-        text.insert(END, self.s_variable + "\t", tag_std)
+        text.insert(END, self.s_variable + "\t", self.tags)
         #tags = ['tag-right'] + tag_std
-        text.insert(END, self.s_image, tag_std)
+        text.insert(END, self.s_image, self.tags)
         text.insert(END, "\n")
+
+
+class AnswerText(AnswerLine):
+    def __init__(self, obj, tags=[]):
+        self.s_text = str(obj) + "\n"
+        self.tags = tags
+
+    def insert_in_tk_text(self, text):
+        text.insert(END, self.s_text, self.tags)
+
 
 
 def MyFormat(value, number, letter):
@@ -212,17 +230,18 @@ def PlotPickOne():
     W.tmp.lst = []
 
     # Strehl
-    line = AnswerLine(
+    line = AnswerImageSky(
         "Strehl: ",
         W.strehl["strehl"],
         MyFormat(W.strehl["strehl"], 1, "f") + " +/- " + \
             MyFormat(W.strehl["err_strehl"], 1, "f") + " %",
-        ''
+        '',
+        tags=['tag-important']
         )
     W.tmp.lst.append(line)
 
     # Equivalent Strehl Ratio
-    line = AnswerLine(
+    line = AnswerImageSky(
         "Eq. SR(2.17" + u"\u03bc" + "m): ",
         W.strehl["strehl2_2"],
         MyFormat(W.strehl["strehl2_2"], 1, "f") + " +/- " + \
@@ -232,7 +251,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Center (need to inverse)
-    line = AnswerLine(
+    line = AnswerImageSky(
         "Center x,y: ",
         (W.strehl["center_y"], W.strehl["center_x"]),
         MyFormat(W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f"),
@@ -241,7 +260,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # FWHM
-    line = AnswerLine(
+    line = AnswerImageSky(
         "FWHM a,b,e: ",
         (W.strehl["fwhm_x"], W.strehl["fwhm_y"]),
         MyFormat(W.strehl["fwhm_a"], 1, "f") + ", " + \
@@ -254,7 +273,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Photometry
-    line = AnswerLine(
+    line = AnswerImageSky(
         "Photometry: ",
         W.strehl["my_photometry"],
         MyFormat(W.strehl["my_photometry"], 1, "f") + " [adu]",
@@ -263,7 +282,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Background
-    line = AnswerLine(
+    line = AnswerImageSky(
         "Background: ",
         W.strehl["my_background"],
         MyFormat(W.strehl["my_background"], 1, "f") + \
@@ -273,7 +292,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Signal / Noise ratio
-    line = AnswerLine(
+    line = AnswerImageSky(
         "S/N: ",
         W.strehl["snr"],
         MyFormat(W.strehl["snr"], 1, "f"),
@@ -282,7 +301,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Peak of detection
-    line = AnswerLine(
+    line = AnswerImageSky(
         "Peak: ",
         W.strehl["intensity"],
         MyFormat(W.strehl["intensity"], 1, "f") + " [adu]",
@@ -290,16 +309,49 @@ def PlotPickOne():
         )
     W.tmp.lst.append(line)
 
-    ############
-    # IMAGE COORD
+    # Saturated
+    if not 'intensity' in W.strehl:  # binary
+        intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
+    else:
+        intensity = W.strehl["intensity"]
+
+    if intensity > get_root().header.non_linearity_level:
+        if intensity > 1.0 * get_root().header.saturation_level:
+            text = "!!! SATURATED !!!  Strehl is UNRELIABLE"
+        else:
+            text = "!!! NON-LINEAR Strehl may be  unreliable"
+        line = AnswerText(text, tags=['tag-important', 'tag-center'])
+        W.tmp.lst.append(line)
+
+    # Undersampled
+    if "sinf_pixel_scale" in vars(get_root().header) and (get_root().header.sinf_pixel_scale <= 0.01):
+        text = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
+        line = AnswerText(text, tags=['tag-important', 'tag-center'])
+        W.tmp.lst.append(line)
+
+    # Binary too far
+    if get_state().pick_type == "binary":
+        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
+                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
+        sep = (W.strehl["x0"] - W.strehl["x1"])**2
+        sep += (W.strehl["y0"] - W.strehl["y1"])**2
+        sep = np.sqrt(sep)
+
+        if max_dist*15 < sep:  # means too high separation
+            text = "Wide Binary\npick objects individually"
+            line = AnswerText(text, tags=['tag-important', 'tag-center'])
+            W.tmp.lst.append(line)
+
+        if max_dist*3 > sep:  # means too high separation
+            text = "Tight Binary\nmay be unreliable"
+            line = AnswerText(text, tags=['tag-important', 'tag-center'])
+            W.tmp.lst.append(line)
+
+    # Button chanfe coord
     if G.scale_dic[0]["answer"] == "detector":
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
-
-    ##################
-    # SKY COORD
-    # including unit = sky :    not =  detector  G.scale_dic[0]["answer"]=="sky":
     else:
         G.bu_answer_type["text"] = u"\u21aa"+'To detector'
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
@@ -656,68 +708,24 @@ def DisplayAnswer():
 
     # Configure Text
     text.bind("<Configure>", on_resize_text)
-    text.tag_configure('tag-important', foreground='red')
+    text.tag_configure('tag-important', foreground=skin().color.important)
+    text.tag_configure('tag-center', justify=CENTER)
 
     # Fill text
-    for i in W.tmp.lst:
-        if isinstance(i, (tuple, list)):
+    for obj in W.tmp.lst:
+        if isinstance(obj, (tuple, list)):
             grid_tuple_obsolete(i)
         else:
-            i.insert_in_tk_text(text)
+            obj.insert_in_tk_text(text)
 
     # Grid text
     text.grid(columnspan=2, sticky='nsew')
 
 
-    max_size1, max_size2 = 200, 200
-    # SATURATED ?
-    if not 'intensity' in W.strehl:  # binary
-        W.strehl["intensity"] = W.strehl["intensity0"] + W.strehl["intensity1"]
-    if W.strehl["intensity"] > 1.0 * get_root().header.non_linearity_level:
-        l = Label(get_root().AnswerFrame, bg=skin().color.bg)
-        l["fg"] = "red"
-        l["font"] = skin().font.warning
-        if W.strehl["intensity"] > 1.0 * get_root().header.saturation_level:
-            l["text"] = "!!! SATURATED !!!  Strehl is UNRELIABLE"
-        else:
-            l["text"] = "!!! NON-LINEAR Strehl may be  unreliable"
-        l.grid(column=0, columnspan=2)
 
-    # UNDERSAMPLED
-    if "sinf_pixel_scale" in vars(get_root().header) and (get_root().header.sinf_pixel_scale <= 0.01):
-        l = Label(get_root().AnswerFrame, **skin().fg_and_bg)
-        l["fg"] = "red"
-        l["font"] = skin().font.warning
-        l["text"] = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
-        l.grid(column=0, columnspan=2)
-
-    # BINARY TOO FAR ?
-    if get_state().pick_type == "binary":
-        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
-                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
-        sep = (W.strehl["x0"] - W.strehl["x1"])**2
-        sep += (W.strehl["y0"] - W.strehl["y1"])**2
-        sep = np.sqrt(sep)
-
-        if max_dist*15 < sep:  # means too high separation
-            l = Label(get_root().AnswerFrame, bg=skin().color.bg)
-            l["fg"] = "red"
-            l["font"] = skin().font.warning
-            l["text"] = "Wide Binary\npick objects individually"
-            l.grid(column=0, columnspan=2)
-
-        if max_dist*3 > sep:  # means too high separation
-            l = Label(get_root().AnswerFrame, bg=skin().color.bg)
-            l["fg"] = "red"
-            l["font"] = skin().font.warning
-            l["text"] = "Tight Binary\nmay be unreliable"
-            l.grid(column=0, columnspan=2)
-
-    return
-
-    # "
-    #   1D 1D 1D
-    ###############
+# "
+#   1D 1D 1D
+###############
 
 
 def PlotStar():  # will also take W.sthrel["psf_fit"]
