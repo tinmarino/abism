@@ -113,7 +113,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
             try:  # if load new image while being on pick many
                 for i in range(len(G.arrows)):
                     G.arrows.pop().remove()   # remove from G.arrows and from ax1.texts
-                G.fig.canvas.draw()
+                get_root().ImageFrame.redraw()
             except:
                 import traceback
                 log(3, traceback.format_exc() + "\nWarning: cannot remove arrows")
@@ -396,14 +396,15 @@ def PlotPickMany(append=True):
     # 1/plot the arrow at eh center of the rectangel
     center_click = ((get_root().image.click[0]+get_root().image.release[0])/2,
                     (get_root().image.click[1]+get_root().image.release[1])/2)  # center  Of the Event
-    tmp = G.ax1.annotate(str(get_state().pick_type[1]), xy=center_click, xycoords='data',
-                         xytext=(23, 16), textcoords="offset points",
-                         color="red",
-                         arrowprops=dict(arrowstyle="->",
-                                         connectionstyle="arc,angleA=0,armA=15,rad=5")
-                         )  # accept "data", "figure fraction", see help
+    tmp = get_root().get_figure().axes[0].annotate(
+        str(get_state().pick_type[1]), xy=center_click, xycoords='data',
+        xytext=(23, 16), textcoords="offset points",
+        color="red",
+        arrowprops=dict(arrowstyle="->",
+                        connectionstyle="arc,angleA=0,armA=15,rad=5")
+                       )  # accept "data", "figure fraction", see help
     G.arrows.append(tmp)
-    G.fig.canvas.draw()
+    get_root().ImageFrame.redraw()
 
     # 1bis/ CAlculate Separation
     if get_state().pick_type[1] == 1:

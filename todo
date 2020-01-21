@@ -1,7 +1,7 @@
 # 2020
 
-* Make PlotFrame.clear_axes() -> as (see hitopop)
 * Make more verbose pick_many, actually, how does that work
+
 
 # UI
 
@@ -15,6 +15,7 @@
   * AbismState is the Namespace
 
 * Image : from_file, check if file exist
+
 
 # Always possible
 

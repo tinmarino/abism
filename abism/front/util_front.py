@@ -7,9 +7,9 @@ from functools import lru_cache
 from enum import Enum
 
 import tkinter as tk
+from tkinter.filedialog import askopenfilename
 
 from abism.util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
-import abism.back.util_back as W
 
 
 
@@ -379,3 +379,31 @@ def set_figure_skin(figure, skin):
         # Title
         ax.title.set_color(fg)
 
+
+def open_file():
+    """Open an image file
+    A click on this button will open a window.
+    You need to select a FITS image to load with Abism.
+    This is an other way to load an image, the first one is to load it
+    directly in the script by bash Abism.sh [-i] image.fits.
+    Used: MenuFile or bind with o
+    """
+    import os
+
+    initialdir = "/".join(get_root().image.name.split("/")[: -1])
+    initialdir = initialdir or os.getcwd()
+
+    # Pop window to ak for a file
+    s_file = askopenfilename(title="Open a FITS image", filetypes=[(
+        "fitsfiles", "*.fits"), ("allfiles", "*")], initialdir=initialdir)
+
+    # Stringigy && Log && Cache
+    s_file = str(s_file)
+    log(0, "Opening file : " + s_file)
+    get_root().set_image(s_file)
+
+    get_root().ImageFrame.draw_image()
+
+    # Change title
+    fname = get_root().image.name.split('/')[-1]
+    get_root().title('Abism (' + fname + ')')

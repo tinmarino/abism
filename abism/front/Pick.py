@@ -70,7 +70,11 @@ def PickEllipse(disconnect=False):
         return
     # CONNECT
     if get_state().pick_type == "ellipse":
-        G.ellipse = EventArtist.Ellipse(G.fig, G.ax1, array=get_root().image.im0)
+        G.ellipse = EventArtist.Ellipse(
+            get_root().ImageFrame.get_figure(),
+            get_root().ImageFrame.get_figure().axes[0],
+            array=get_root().image.im0
+        )
 
 
 def PickAnnulus(disconnect=False):
@@ -85,7 +89,11 @@ def PickAnnulus(disconnect=False):
         return
     # CONNECT
     if get_state().pick_type == "annulus":
-        G.annulus = EventArtist.Annulus(G.fig, G.ax1, array=get_root().image.im0)
+        G.annulus = EventArtist.Annulus(
+            get_root().ImageFrame.get_figure(),
+            get_root().ImageFrame.get_figure().axes[0],
+            array=get_root().image.im0
+        )
 
 
 def Profile(disconnect=False):
@@ -113,7 +121,10 @@ def Profile(disconnect=False):
         # if get_state().pick_type == "profile" : return # in order not to cal twice at the begining
     # CONNECT
     if get_state().pick_type == "profile":
-        G.my_profile = EventArtist.Profile(G.fig, G.ax1)
+        G.my_profile = EventArtist.Profile(
+            get_root().ImageFrame.get_figure(),
+            get_root().ImageFrame.get_figure().axes[0],
+        )
 
 
 def PickOne(disconnect=False):
@@ -139,7 +150,7 @@ def PickOne(disconnect=False):
         if "rs_one" in vars(G):
             G.rs_one.set_active(False)
         if "cid_left" in vars(G):
-            G.fig.canvas.mpl_disconnect(G.cid_left)
+            get_root().ImageFrame.get_canvas().mpl_disconnect(G.cid_left)
         return
 
     # CONNECT
@@ -148,12 +159,12 @@ def PickOne(disconnect=False):
             "    1/Draw a rectangle around your star with left button\n"
             "    2/Click on star 'center' with right button")
         G.rs_one = matplotlib.widgets.RectangleSelector(
-            G.ax1, RectangleClick, drawtype='box',
+            get_root().ImageFrame.get_figure().axes[0], RectangleClick, drawtype='box',
             rectprops=dict(facecolor='green', edgecolor='black',
                            alpha=0.5, fill=True),
             button=[1],  # 1/left, 2/center , 3/right
         )
-        G.cid_left = G.fig.canvas.mpl_connect('button_press_event', PickEvent)
+        G.cid_left = get_root().ImageFrame.get_canvas().mpl_connect('button_press_event', PickEvent)
 
 
 def PickEvent(event):
@@ -164,16 +175,16 @@ def PickEvent(event):
 
     # Right click -> center
     if event.button == 3:
-        log(5, 'Centering <- right click:' , event)
+        log(5, 'Centering <- right click:', event)
         center_handler(
             event,
-            G.fig.axes[0],
+            get_root().ImageFrame.get_figure().axes[0],
             callback=get_root().ImageFrame.get_canvas().draw)
         return
 
-    if G.toolbar._active == 'PAN' or G.toolbar._active == 'ZOOM':
-        log(0 ,
-                'WARNING: Zoom or Pan actif, please unselect its before picking your object')
+    if get_root().ImageFrame.is_toolbar_active():
+        log(0, 'WARNING: Zoom or Pan actif, '
+            'please unselect its before picking your object')
         return
 
     # Save bounds <- click +/- 15
@@ -192,22 +203,22 @@ def Binary(disconnect=False):
     # DISCONNECT
     if disconnect and get_state().pick_old == 'binary':
         try:
-            G.fig.canvas.mpl_disconnect(G.pt1)
+            get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt1)
         except:
             pass
         try:
-            G.fig.canvas.mpl_disconnect(G.pt2)
+            get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt2)
         except:
             pass
-        G.ImageCanvas.get_tk_widget()["cursor"] = ""
+        get_root().ImageFrame.get_canvas().get_tk_widget()["cursor"] = ""
         return
 
     # CONNECT
     if get_state().pick_type == "binary":
         log(0, "\n\n\n______________________________________\n"
             "|Binary| : Make 2 clicks, one per star-------------------")
-        G.pt1 = G.fig.canvas.mpl_connect('button_press_event', Binary2)
-        G.ImageCanvas.get_tk_widget()["cursor"] = "target"
+        G.pt1 = get_root().ImageFrame.get_canvas().mpl_connect('button_press_event', Binary2)
+        get_root().ImageFrame.get_canvas().get_tk_widget()["cursor"] = "target"
         return
     return
 
@@ -218,8 +229,8 @@ def Binary2(event):
     log(0, "1st point : ", event.xdata, event.ydata)
     G.star1 = [event.ydata, event.xdata]
     # we need to inverse, always the same issue ..
-    G.fig.canvas.mpl_disconnect(G.pt1)
-    G.pt2 = G.fig.canvas.mpl_connect('button_press_event', Binary3)
+    get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt1)
+    G.pt2 = get_root().ImageFrame.get_canvas().mpl_connect('button_press_event', Binary3)
     return
 
 
@@ -228,9 +239,9 @@ def Binary3(event):  # Here we call the math
         return
     log(0, "2nd point : ", event.xdata, event.ydata)
     G.star2 = [event.ydata, event.xdata]
-    G.fig.canvas.mpl_disconnect(G.pt2)
+    get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt2)
 
-    G.ImageCanvas.get_tk_widget()["cursor"] = ""
+    get_root().ImageFrame.get_canvas().get_tk_widget()["cursor"] = ""
     MultiprocessCaller()
     Binary()
 
@@ -239,14 +250,14 @@ def TightBinary(disconnect=False):
     # DISCONNECT
     if disconnect and get_state().pick_old == 'tightbinary':
         try:
-            G.fig.canvas.mpl_disconnect(G.pt1)
+            get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt1)
         except:
             pass
         try:
-            G.fig.canvas.mpl_disconnect(G.pt2)
+            get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt2)
         except:
             pass
-        G.ImageCanvas.get_tk_widget()["cursor"] = ""
+        get_root().ImageFrame.get_canvas().get_tk_widget()["cursor"] = ""
         return
 
     # CONNECT
@@ -254,8 +265,8 @@ def TightBinary(disconnect=False):
         log(0, "\n\n\n______________________________________\n"
             "|TightBinary| : Make 2 clicks, one per star, be precise, "
             "the parameters will be more constrained-------------------")
-        G.pt1 = G.fig.canvas.mpl_connect('button_press_event', TightBinary2)
-        G.ImageCanvas.get_tk_widget()["cursor"] = "target"
+        G.pt1 = get_root().ImageFrame.get_canvas().mpl_connect('button_press_event', TightBinary2)
+        get_root().ImageFrame.get_canvas().get_tk_widget()["cursor"] = "target"
 
         get_state().aniso = False
         get_state().same_psf_var = True
@@ -269,8 +280,8 @@ def TightBinary2(event):
     log(0, "1st point : ", event.xdata, event.ydata)
     G.star1 = [event.ydata, event.xdata]
     # we need to inverse, always the same issue ..
-    G.fig.canvas.mpl_disconnect(G.pt1)
-    G.pt2 = G.fig.canvas.mpl_connect('button_press_event', Binary3)
+    get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt1)
+    G.pt2 = get_root().ImageFrame.get_canvas().mpl_connect('button_press_event', Binary3)
     return
 
 
@@ -279,9 +290,9 @@ def TightBinary3(event):  # Here we call the math
         return
     log(0, "2nd point : ", event.xdata, event.ydata)
     G.star2 = [event.ydata, event.xdata]
-    G.fig.canvas.mpl_disconnect(G.pt2)
+    get_root().ImageFrame.get_canvas().mpl_disconnect(G.pt2)
 
-    G.ImageCanvas.get_tk_widget()["cursor"] = ""
+    get_root().ImageFrame.get_canvas().get_tk_widget()["cursor"] = ""
     MultiprocessCaller()
     TightBinary()
 
@@ -309,7 +320,7 @@ def PickMany(disconnect=False):
         get_state().pick_type = ['many', 1]
         log(9, 'pick,G.pick', get_state().pick_type)
         G.rs_many = matplotlib.widgets.RectangleSelector(
-            G.ax1, RectangleClick, drawtype='box',
+            get_root().ImageFrame.get_figure().axes[0], RectangleClick, drawtype='box',
             rectprops=dict(facecolor='blue', edgecolor='black', alpha=0.5, fill=True))
         return
 
@@ -332,7 +343,7 @@ def StatPick(disconnect=False):
             "will give you some statistical informationcomputed in the region-------------------")
         get_state().pick_type = 'stat'
         G.rs_stat = matplotlib.widgets.RectangleSelector(
-            G.ax1, RectangleClick, drawtype='box',
+            get_root().ImageFrame.get_figure().axes[0], RectangleClick, drawtype='box',
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
 

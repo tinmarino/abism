@@ -433,7 +433,7 @@ def FwhmFromFit(param, fit_type):  # and phot  all explicit  return fwhm_x, fwhm
             y = np.arange(int(param["center_y"]-50),
                           int(param["center_y"]+50+1))
             Y, X = np.meshgrid(x, y)
-            cut = BF.Moffat2D((X, Y), param)
+            cut = Moffat2D((X, Y), param)
             photometry = np.sum(cut)
 
         fwhm_x = 2 * abs(param['spread_x']) * \

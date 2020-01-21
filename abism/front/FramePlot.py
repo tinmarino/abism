@@ -116,6 +116,9 @@ class PlotFrame(tk.Frame):
         """Getter for global"""
         return self._toolbar
 
+    def is_toolbar_active(self):
+        return self._toolbar._active in ('PAN', 'ZOOM')
+
     def redraw(self):
         self._fig.canvas.draw()
 
@@ -187,8 +190,8 @@ class ImageFrame(PlotFrame):
             log(3, 'Warning could not init scale dic, is this a fits ?')
 
         # Display
-        G.ax1 = self._fig.add_subplot(111)
-        drawing = G.ax1.imshow(
+        ax = self._fig.add_subplot(111)
+        drawing = ax.imshow(
             im0,
             vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
             # orgin=lower to get low y down
@@ -203,7 +206,7 @@ class ImageFrame(PlotFrame):
 
         # ColorBar && TooBar
         self._toolbar.update()
-        self._cbar = G.fig.colorbar(drawing, pad=0.02)
+        self._cbar = self._fig.colorbar(drawing, pad=0.02)
         # TODO not here :
         G.cbar = self._cbar
         self._cbar = DraggableColorbar(self._cbar, drawing, self.Draw)
@@ -221,7 +224,7 @@ class ImageFrame(PlotFrame):
             return "zmax=%5d, z=%5d, x=%4d, y=%4d" % (z_max(x, y), z(x, y), x, y)
 
         # Head up display
-        G.ax1.format_coord = format_coordinate
+        ax.format_coord = format_coordinate
 
         # Draw
         self._fig.canvas.draw()
@@ -314,7 +317,9 @@ class ImageFrame(PlotFrame):
                 mean, rms = tmp["mean"], tmp["rms"]
                 c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
                     rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
-                G.contour = G.ax1.contour(get_root().image.im0, (c2, c5),
+
+                ax = self._fig.axes[0]
+                G.contour = ax.contour(get_root().image.im0, (c2, c5),
                                         origin='lower', colors="k",
                                         linewidths=3)
                 # extent=(-3,3,-2,2))
@@ -324,7 +329,7 @@ class ImageFrame(PlotFrame):
             else:  # include no contour  delete the contours
                 if not load:
                     for coll in G.contour.collections:
-                        G.ax1.collections.remove(coll)
+                        ax.collections.remove(coll)
 
         ############
         # UPDATE UPDATE
@@ -395,15 +400,17 @@ class ImageFrame(PlotFrame):
             log(2, "Draw cannot draw in figresult")
 
 
-    def RemoveCompass(self):
-        G.ax1.texts.remove(G.north)
-        G.ax1.texts.remove(G.east)
-        G.ax1.texts.remove(G.north_text)
-        G.ax1.texts.remove(G.east_text)
+    def Remove1Compass(self):
+        ax = self._fig.axes[0]
+        ax.texts.remove(G.north)
+        ax.texts.remove(G.east)
+        ax.texts.remove(G.north_text)
+        ax.texts.remove(G.east_text)
 
 
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
+        ax = self._fig.axes[0]
         if not (("CD1_1" in vars(get_root().header)) and ("CD2_2" in vars(get_root().header))):
             log(0, "WARNING WCS Matrix not detected,",
                   "I don't know where the north is")
@@ -443,7 +450,7 @@ class ImageFrame(PlotFrame):
         #################
         # 2/ DRAW        0 is the end of the arrow
         if get_root().header.wcs is not None:
-            G.north = G.ax1.annotate(
+            G.north = ax.annotate(
                 "",
                 # we invert to get the text at the end of the arrwo
                 xy=arrow_center, xycoords=coord_type,
@@ -452,7 +459,7 @@ class ImageFrame(PlotFrame):
                     arrowstyle="<-", facecolor="purple", edgecolor="purple"),
                 # connectionstyle="arc3"),
                 )
-            G.east = G.ax1.annotate(
+            G.east = ax.annotate(
                 "",
                 xy=arrow_center, xycoords=coord_type,
                 xytext=east_point, textcoords=coord_type, color="red",
@@ -460,10 +467,10 @@ class ImageFrame(PlotFrame):
                     arrowstyle="<-", facecolor='red', edgecolor='red'),
                 # connectionstyle="arc3"),
                 )
-            G.north_text = G.ax1.annotate(
+            G.north_text = ax.annotate(
                 'N', xytext=north_point,
                 xy=north_point, textcoords=coord_type, color='purple')
-            G.east_text = G.ax1.annotate(
+            G.east_text = ax.annotate(
                 'E', xytext=east_point,
                 xy=east_point, textcoords=coord_type, color='red')
 

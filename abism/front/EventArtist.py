@@ -236,9 +236,10 @@ class Annulus:  # This is actually the Annulus even, but it could be a "ellipse"
 
 
 class Ellipse:
-    def __init__(self, figure, ax, array=None):  # array is the array called by imshow
-        self.fig = figure   # G.fig
-        self.ax = ax        # G.ax1
+    def __init__(self, figure, ax, array=None):
+        """array is the array called by imshow"""
+        self.fig = figure
+        self.ax = ax
         self.array = array
         self.artist = ""
         self.num_key = ""    # number of key operation to make like if you press   5r, the r operation is done 5 times we put 0 to concatenate
@@ -431,7 +432,7 @@ class Profile:
     def on_press(self, event):
         if not event.inaxes:
             return
-        elif G.toolbar._active == "PAN" or G.toolbar._active == "ZOOM":
+        elif get_root().ImageFrame.is_toolbar_active():
             log(3, "WARNING: Zoom or Pan actif, "
                 "please unselect its before picking your object")
             return

@@ -7,22 +7,18 @@ from os.path import isfile
 
 # Tkinter
 import tkinter as tk
-import numpy as np
 
 # Gui
 from abism.front.Menu.MenuBar import MenuBarMaker
-from abism.front.Menu.FileMenu import OpenFile
 from abism.front.FrameText import LeftFrame
 from abism.front.FramePlot import RightFrame
 from abism.front.util_front import skin, icon_path
-import abism.front.util_front as G
 
 # Variables
-import abism.back.util_back as W
 from abism.back.image import ImageInfo
 
 
-from abism.util import log, AbismState, set_root, restart
+from abism.util import log, set_root, restart
 import abism.util as util
 
 
@@ -67,17 +63,13 @@ class RootWindow(tk.Tk):
         # 3 Right: Add
         RightFrame(self, main_paned)
 
-        G.fig = get_root().ImageFrame.get_figure()
-        G.ImageCanvas = get_root().ImageFrame.get_canvas()
-        G.toolbar = get_root().ImageFrame.get_toolbar()
-
         # Init image
         self.set_image(util._parsed_args.image)
 
 
     def set_image(self, filepath):
         # Craft ImageInfo
-        self.image = ImageInfo.from_file(util._parsed_args.image)
+        self.image = ImageInfo.from_file(filepath)
         self.image.stat.init_all()
 
         self.set_title()
@@ -110,7 +102,7 @@ class RootWindow(tk.Tk):
 
         self.bind_all(
             "<Control-o>",
-            lambda _: OpenFile(self))
+            lambda _: open_file(self))
 
         self.bind_all(
             "<Control-r>",
