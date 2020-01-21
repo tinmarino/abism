@@ -16,7 +16,7 @@ import abism.front.util_front as G
 # Back
 from abism.back import ImageFunction as IF
 from abism.back import BasicFunction as BF
-from abism.back.Stat import Stat
+from abism.back.image import ImageInfo, get_array_stat
 import abism.back.util_back as W
 
 # Plugin
@@ -520,7 +520,7 @@ def PlotPickMany(append=True):
 def PlotStat():
     W.r = IF.Order4(W.r)
     sub_array = get_root().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
-    dicr = Stat(sub_array)
+    dicr = get_array_stat(sub_array)
     myargs = skin().fg_and_bg.copy()
     myargs.update({"font": skin().font.answer, "justify": LEFT, "anchor": "nw"})
     row = 0

@@ -1,9 +1,9 @@
 import numpy as np
 
 from abism.back import ImageFunction as IF
-from abism.back import Stat
 from abism.back import FitFunction as FF
 from abism.back import BasicFunction as BF
+from abism.back.image import ImageInfo
 
 
 from abism.util import log, get_verbose, get_root
@@ -177,7 +177,7 @@ def Photometry(grid):
                                     "center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v, "theta": theta})["bol"]
         log(2, "phot len", len(bol), len(im_cut))
         log(3, "ImageFUnciton, Photometry ", r99u, r99v, theta)
-        phot = Stat.Stat(get_root().image.im0[bol], get=["number_count", "sum"])
+        phot = vars(get_root().image.stat)
         W.strehl["sum"] = phot["sum"]
         log(2, "phot", phot)
         W.strehl["number_count"] = phot["number_count"]
@@ -187,7 +187,7 @@ def Photometry(grid):
     # MANUAL
     elif W.type["phot"] == 'manual':
         # tmp = pStat.RectanglePhot(grid,r,  W.strehl={"get":["number_count","rms"]} )
-        tmp = Stat.RectanglePhot(grid, W.r)
+        tmp = get_root().image.RectanglePhot(W.r)
         photometry = tmp["sum"]
         W.strehl["number_count"] = tmp["number_count"]
         W.strehl["my_photometry"] = photometry - \
@@ -284,7 +284,10 @@ def Background(grid, param={}):
         bol_o = IF.EllipticalAperture(cutted, dic={
                                       "center_x": myrad, "center_y": myrad, "ru": ruo, "rv": rvo, "theta": W.strehl["theta"]})["bol"]
         bol_a = bol_o ^ bol_i
-        tmp = Stat.Sky(cutted[bol_a])
+
+        cutted_image = ImageInfo.from_array(cutted[bol_a])
+        cutted_image.stat.init_all()
+        tmp = cutted_image.sky()
         dic['rms'] = tmp["rms"]
         dic['my_background'] = tmp["mean"]
 
@@ -729,7 +732,8 @@ def EllipseEventBack():
     # annulus  inside out but not inside in
     bol_a = ell_o["bol"] ^ ell_i["bol"]
 
-    sky = Stat.Sky(get_root().image.im0[bol_a])
+    image_cut = ImageInfo.from_array(get_root().im0[bol_a])
+    sky = image_cut.stat.init_all()
     W.strehl["sky"] = sky
 
     W.strehl["my_background"] = sky["mean"]
@@ -799,7 +803,9 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     back, number_back = np.sum(obj.array[bol_a]), len(obj.array[bol_a])
 
     # PHOT and back
-    res["background_dic"] = Stat.Sky(obj.array[bol_a])
+    image_cut = ImageInfo.from_array(obj.array[bol_a])
+    image_cut.stat.init_all()
+    res["background_dic"] = image_cut.sky()
     res["my_background"] = res["background_dic"]["mean"]
     res["phot"] = np.sum(obj.array[bol_e])
     res["my_photometry"] = res["phot"] - \

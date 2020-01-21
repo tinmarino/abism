@@ -58,9 +58,8 @@ def OpenFile(root):
     # Stringigy && Log && Cache
     s_file = str(s_file)
     log(0, "Opening file : " + s_file)
-    root.image.name = s_file
+    root.set_image(s_file)
 
-    root.open_image()
     root.ImageFrame.draw_image()
 
     # Change title

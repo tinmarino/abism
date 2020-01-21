@@ -320,7 +320,6 @@ def PickMany(disconnect=False):
 
 def StatPick(disconnect=False):
     """Draw a rectangle
-    The Stats are defined in Arrayfunction/Stat.py
     """
     # DISCONNECT
     if disconnect and W.type.get('pick_old', '') == 'stat':

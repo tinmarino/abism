@@ -3,15 +3,11 @@
 """
 
 # Standard
-import re
 import sys
 import os
 from os.path import dirname, abspath
 from functools import lru_cache
 
-# Package
-from tkinter import RAISED, IntVar, PhotoImage
-import matplotlib
 
 # Local
 from abism import __version__
@@ -60,7 +56,6 @@ def parse_argument():
     _verbose = _parsed_args.verbose
 
 
-
 def get_root():
     """tricky but not that much"""
     return _root
@@ -93,7 +88,7 @@ def restart():
         stg += '--' + key + ' ' + str(value) + ' '
     stg += '&'
     log(0, "\n\n\n" + 80 * "_" + "\n",
-          "Restarting ABISM with command:\n" + stg + "\nplease wait")
+        "Restarting ABISM with command:\n" + stg + "\nplease wait")
 
     ##########
     # DESTROY AND LAUNCH
@@ -101,31 +96,6 @@ def restart():
     os.system(stg)         # I call an other instance
     sys.exit(0)         # I exit the current process.
     # As the loop is now opened, this may not be necessary but anyway it is safer
-
-
-
-class ImageInfo:
-    "Image and its info"""
-    def __init__(self):
-        """
-        image_name
-        image_click = (0., 0.)
-        image_release = (0., 0.)
-        """
-        # Current image filepath
-        self.name = _parsed_args.image
-        self.is_cube = False  # Cube it is not
-        self.cube_num = -1
-        self.click = (0., 0.)  # Mouse click position
-        self.release = (0., 0.)  # You guess ?
-
-        self.bpm = None  # Bad Pixel mask array
-        self.bpm_name = None  # Bad Pixel Mask filepath
-
-        # Now we speak
-        self.hdulist = None  # From fits.open
-        self.im0 = None  # np.array the image !!
-        self.sort = None  # Sorted image for cut and histograms
 
 
 class AbismState:

@@ -23,7 +23,6 @@ from abism.front.AnswerReturn import PlotStar2
 # TODO this should not be here
 
 # Back
-from abism.back import  Scale  # otherwise get in conflict with Tkinter
 from abism.back.ImageFunction import PixelMax
 import abism.back.util_back as W
 
@@ -179,12 +178,13 @@ class ImageFrame(PlotFrame):
 
 
         # Scale (much faster also draw_artist can help ?)
-        if re.match(r".*\.fits", get_root().image.name):
+        if re.search(r'\.fits', get_root().image.name):
             im0 = get_root().image.im0.astype(float32)
-            log(3, "dic init", G.scale_dic[0])
+            log(3, 'Init scale dic', G.scale_dic[0])
             self.CutImageScale(dic=G.scale_dic[0], load=1)  # not to draw the image.
         else:
             im0 = get_root().image.im0
+            log(3, 'Warning could not init scale dic, is this a fits ?')
 
         # Display
         G.ax1 = self._fig.add_subplot(111)
@@ -342,7 +342,7 @@ class ImageFrame(PlotFrame):
             else:
                 dictmp = {"whole_image": "useless"}
                 dictmp.update(G.scale_dic[0])
-                tmp = Scale.MinMaxCut(get_root().image.im0, dic=dictmp)
+                tmp = get_root().image.MinMaxCut(dic=dictmp)
                 G.scale_dic[0]["min_cut"] = tmp["min_cut"]
                 G.scale_dic[0]["max_cut"] = tmp["max_cut"]
             log(2, "I called Scale cut ")

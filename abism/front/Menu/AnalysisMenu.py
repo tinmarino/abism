@@ -321,7 +321,7 @@ def ManualBackClose():
     G.background = float(G.tkvar.background.get())
 
 
-def SubstractBackground():
+def Substractbackground():
     """Subtract A background image
     Choose a FITS image tho subtract to the current image to get read of the sky
     value or/and the pixel response. This is a VERY basic task that is only
@@ -329,21 +329,14 @@ def SubstractBackground():
     It could be improved but image reduction is not the goal of ABISM
     """
     from tkinter.filedialog import askopenfilename
-    from astropy.io import fits
 
     # Ask for background
     fp_sky = askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
-    bg_hdulist = fits.open(fp_sky)
 
-    # Substract and redraw
-    bg0 = bg_hdulist[0].data
-    if not get_root().image.im0.shape == get_root().image.im0_bg.shape:
-        W.Log(0, 'ERROR : Science image and Background image should have the same shape')
-        return
-    else:
-        get_root().image.im0 -= bg0
-        G.ImageFrame.draw_image()
+    # Substract and Redraw
+    if get_root().image.substract_sky(fp_sky):
+        get_root().ImageFrame.draw_image()
 
 
 def SetFitType(name):  # strange but works

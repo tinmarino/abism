@@ -6,7 +6,7 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-from abism.back import Stat
+from abism.back.image import ImageInfo
 from abism.back import BasicFunction as BF
 
 from abism.util import log
@@ -690,8 +690,10 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=False, xy_answer=
 
         bol = a*X**2 + b*Y**2 + c*X*Y < 1
         if full_answer:
-            res.update(Stat.Stat(grid[bol], get=[
-                       "sum", "number_count", "rms"]))
+            image_cut = ImageInfo.from_array(grid[bol])
+            # just need: "sum", "number_count", "rms"
+            image.stat.init_all()
+            res.update(vars(image.stat))
             res["bol"] = bol
             return res
         else:  # no full_answer
@@ -710,7 +712,8 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=False, xy_answer=
         interp_grid = interp_fct(xx, yy)
         bol2 = a*XX**2 + b*YY**2 + c*XX*YY < 1
 
-        stats = Stat.Stat(interp_grid[bol], get=["sum", "number_count"])
+        # stats = Stat.Stat(interp_grid[bol], get=["sum", "number_count"])
+        stats = get_array_stat(interp_grid[bol])
         res = {"interp_grid": interp_grid, "bol2": bol2, "bol": bol}
         res["sum"] = stats["sum"]*binn**2
         res["number_count"] = stats["number_count"] * binn**2

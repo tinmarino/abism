@@ -9,3 +9,4 @@ abism.egg-info/
 *.swp
 .*.swp
 .ropeproject
+.vimsession*

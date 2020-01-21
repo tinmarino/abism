@@ -6,6 +6,7 @@
     Answer
 
 """
+import re
 
 from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
     PhotoImage, \
@@ -128,7 +129,13 @@ class LabelFrame(TextFrame):
         Nx x Ny x Nz
         WCS detected or not
         """
-        import re
+
+        # Image parameters
+        if "ManualFrame" in vars(G):
+            for i in G.image_parameter_list:
+                vars(G.tkvar)[i[1]].set(vars(get_root().image.header)[i[1]])
+            # to restore the values in the unclosed ImageParameters Frame
+            self.set_image_parameters("", destroy=False)
 
         # Declare list of label (text, properties)
         text_and_props = []

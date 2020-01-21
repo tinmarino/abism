@@ -7,10 +7,12 @@
 
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * make sahs of left pane, better move when adding or removeing frames
-* More options, test mey stuff
+* More options, test my stuff
 * AnswerFrame: Give the ability to copy paste
   * Must transofrm them as Text: https://stackoverflow.com/questions/1602106/in-pythons-tkinter-how-can-i-make-a-label-such-that-you-can-select-the-text-wi
+  * AbismState is the Namespace
 
+* Image : from_file, check if file exist
 
 # Always possible
 

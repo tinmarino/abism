@@ -33,11 +33,9 @@
 """
 
 import numpy as np
-
 from astropy import wcs
 
 from abism.util import log
-import abism.back.util_back as W
 
 
 
