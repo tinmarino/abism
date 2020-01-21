@@ -291,7 +291,7 @@ class OptionFrame(TextFrame):
                 if vars(get_root().header)[i[1]] == i[2]:
                     vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
                 vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
-                vars(G.tkentry)[i[1]].bind('<Return>', G.LabelFrame.set_image_parameters)
+                vars(G.tkentry)[i[1]].bind('<Return>', get_root().LabelFrame.set_image_parameters)
                 if len(str(vars(get_root().header)[i[1]])) > 6:  # not to long for display
                     vars(G.tkvar)[i[1]].set("%.5f" % float(vars(get_root().header)[i[1]]))
                 else:

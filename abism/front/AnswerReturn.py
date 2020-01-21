@@ -102,8 +102,8 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         G.scale_dic[0]["answer"] = unit
 
     # FIT TYPE
-    G.AnswerFrame.set_fit_type_text(get_state().fit_type)
-    G.AnswerFrame.clear()
+    get_root().AnswerFrame.set_fit_type_text(get_state().fit_type)
+    get_root().AnswerFrame.clear()
 
     ##################
     # 1/  Destroy  answer frame, remove arrows
@@ -123,9 +123,9 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         # 1.3 ANd put the button sky o detector units
         # to fill th ecolumn on th epossible space
         G.bu_answer_type = Button(
-            G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, **skin().button_dic)
+            get_root().AnswerFrame, text='useless', background='Khaki', borderwidth=1, **skin().button_dic)
         G.lb_answer_type = Label(
-            G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
+            get_root().AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     # 2/ CALL the corresponding PLot
     if get_state().pick_type == 'one':
@@ -242,11 +242,11 @@ def PlotEllipse():
     ########
     # BUTTON
     # to fill th ecolumn on th epossible space
-    G.AnswerFrame.columnconfigure(0, weight=1)
+    get_root().AnswerFrame.columnconfigure(0, weight=1)
     G.bu_answer_type = Button(
-        G.AnswerFrame, text='useless', background='Khaki', borderwidth=1, width=9)
+        get_root().AnswerFrame, text='useless', background='Khaki', borderwidth=1, width=9)
     G.lb_answer_type = Label(
-        G.AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
+        get_root().AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     ############
     # IMAGE COORD
@@ -560,8 +560,8 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         if i[0] == "Strehl: ":
             myargs["fg"] = "red"
             myargs["font"] = skin().font.strehl
-        l1 = Label(G.AnswerFrame, text=i[0], **myargs)
-        l2 = Label(G.AnswerFrame, text=i[2], **myargs)
+        l1 = Label(get_root().AnswerFrame, text=i[0], **myargs)
+        l2 = Label(get_root().AnswerFrame, text=i[2], **myargs)
         l1.grid(row=row, column=0, sticky="nsew")
         l2.grid(row=row, column=1, sticky="nsew")
         row += 1
@@ -571,7 +571,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
     if not 'intensity' in W.strehl:  # binary
         W.strehl["intensity"] = W.strehl["intensity0"] + W.strehl["intensity1"]
     if W.strehl["intensity"] > 1.0 * get_root().header.non_linearity_level:
-        l = Label(G.AnswerFrame, bg=skin().color.bg)
+        l = Label(get_root().AnswerFrame, bg=skin().color.bg)
         l["fg"] = "red"
         l["font"] = skin().font.warning
         if W.strehl["intensity"] > 1.0 * get_root().header.saturation_level:
@@ -583,7 +583,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
 
     # UNDERSAMPLED
     if "sinf_pixel_scale" in vars(get_root().header) and (get_root().header.sinf_pixel_scale <= 0.01):
-        l = Label(G.AnswerFrame, **skin().fg_and_bg)
+        l = Label(get_root().AnswerFrame, **skin().fg_and_bg)
         l["fg"] = "red"
         l["font"] = skin().font.warning
         l["text"] = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
@@ -599,7 +599,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
         sep = np.sqrt(sep)
 
         if max_dist*15 < sep:  # means too high separation
-            l = Label(G.AnswerFrame, bg=skin().color.bg)
+            l = Label(get_root().AnswerFrame, bg=skin().color.bg)
             l["fg"] = "red"
             l["font"] = skin().font.warning
             l["text"] = "Wide Binary\npick objects individually"
@@ -607,7 +607,7 @@ def DisplayAnswer(row=1, font=""):  # buttons at 0
             row += 1
 
         if max_dist*3 > sep:  # means too high separation
-            l = Label(G.AnswerFrame, bg=skin().color.bg)
+            l = Label(get_root().AnswerFrame, bg=skin().color.bg)
             l["fg"] = "red"
             l["font"] = skin().font.warning
             l["text"] = "Tight Binary\nmay be unreliable"

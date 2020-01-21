@@ -236,7 +236,7 @@ class ImageFrame(PlotFrame):
         # # does not work it put in Science Variables
         if new_fits:
             G.label_bool = 0
-            G.LabelFrame.update_label()
+            get_root().LabelFrame.update_label()
 
         self.extend_matplotlib()
 
@@ -380,11 +380,11 @@ class ImageFrame(PlotFrame):
 
         mynorm = MyNormalize(
             vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
-        G.ImageFrame._cbar.mappable.set_cmap(cmap)
-        G.ImageFrame._cbar.mappable.set_norm(mynorm)
+        get_root().ImageFrame._cbar.mappable.set_cmap(cmap)
+        get_root().ImageFrame._cbar.mappable.set_norm(mynorm)
 
-        G.ImageFrame._cbar.cbar.patch.figure.canvas.draw()
-        G.ImageFrame.get_canvas().draw()
+        get_root().ImageFrame._cbar.cbar.patch.figure.canvas.draw()
+        get_root().ImageFrame.get_canvas().draw()
 
         try:
             for i in (G.figresult_mappable1, G.figresult_mappable2):

@@ -67,9 +67,9 @@ class RootWindow(tk.Tk):
         # 3 Right: Add
         RightFrame(self, main_paned)
 
-        G.fig = G.ImageFrame.get_figure()
-        G.ImageCanvas = G.ImageFrame.get_canvas()
-        G.toolbar = G.ImageFrame.get_toolbar()
+        G.fig = get_root().ImageFrame.get_figure()
+        G.ImageCanvas = get_root().ImageFrame.get_canvas()
+        G.toolbar = get_root().ImageFrame.get_toolbar()
 
         # Init image
         self.set_image(util._parsed_args.image)
