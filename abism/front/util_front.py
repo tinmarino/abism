@@ -301,6 +301,10 @@ def change_scheme(root, in_scheme):
         children_do(widget, update_widget_skin)
 
 
+def change_root_scheme(in_scheme):
+    change_scheme(get_root(), in_scheme)
+
+
 @lru_cache(1)
 def skin():
     """Singleton trick"""

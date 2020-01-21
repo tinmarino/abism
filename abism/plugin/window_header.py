@@ -67,8 +67,8 @@ def Scroll(text, edit, side):
     return
 
 
-def DisplayHeader(image_name, s_text, save=None):
-    """Pop Window to display the header (helper) """
+def spawn_header_window(image_name, s_text, save=None):
+    """Pop Window to display the header (helper)"""
 
     # Parent
     root = tk.Tk()

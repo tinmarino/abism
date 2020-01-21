@@ -24,10 +24,11 @@ from abism.util import log, get_root, get_state
 """
 
 
-def AnalysisMenu(root, parent, args):
+def AnalysisMenu(parent, **args):
     """Create the Menu button and its children"""
-    menu_button = tk.Menubutton(parent, **args)
+    menu_button = tk.Menubutton(parent, **{**args, **skin().fg_and_bg})
     menu_button.menu = tk.Menu(menu_button, **skin().fg_and_bg)
+    menu_button['menu'] = menu_button.menu
 
     ##############################
     # FitType
@@ -79,9 +80,6 @@ def AnalysisMenu(root, parent, args):
         pick_menu.add_radiobutton(
             label=i[0], command=i[2],
             variable=G.cu_pick, value=i[1])  # we use same value as label
-
-
-    menu_button['menu'] = menu_button.menu
 
     # Caller grid me
     return menu_button

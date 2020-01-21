@@ -9,10 +9,11 @@ import abism.front.util_front as G
 
 from abism.util import log, get_root
 
-def ViewMenu(root, parent, args):
+def ViewMenu(parent, **args):
     """Create the menu"""
-    G.scale_menu = tk.Menubutton(parent, **args)
+    G.scale_menu = tk.Menubutton(parent, **{**args, **skin().fg_and_bg})
     G.scale_menu.menu = tk.Menu(G.scale_menu, **skin().fg_and_bg)
+    G.scale_menu['menu'] = G.scale_menu.menu
 
     def Color():
         """Color drop"""
@@ -137,8 +138,8 @@ def ViewMenu(root, parent, args):
     Color()
     Scale()
     Cut()
-    G.scale_menu['menu'] = G.scale_menu.menu
 
+    # Caller grid me
     return G.scale_menu
 
 

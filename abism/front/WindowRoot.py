@@ -9,7 +9,7 @@ from os.path import isfile
 import tkinter as tk
 
 # Gui
-from abism.front.Menu.MenuBar import MenuBarMaker
+from abism.front.menu_bar import MenuBarMaker
 from abism.front.frame_text import LeftFrame
 from abism.front.frame_plot import RightFrame
 from abism.front.util_front import skin, icon_path, open_file
