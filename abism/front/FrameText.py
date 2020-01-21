@@ -272,20 +272,20 @@ class OptionFrame(TextFrame):
             # TITEL
             tl = TitleLabel(G.ManualFrame, text='Parameters')
             tl.pack(side=TOP, anchor="w")
-            frame_manual = Frame(G.ManualFrame)
-            frame_manual.pack(expand=0, fill=BOTH, side=TOP)
-            frame_manual.columnconfigure(0, weight=1)
-            frame_manual.columnconfigure(1, weight=1)
+            frame_manual_grid = Frame(G.ManualFrame)
+            frame_manual_grid.pack(expand=0, fill=BOTH, side=TOP)
+            frame_manual_grid.columnconfigure(0, weight=1)
+            frame_manual_grid.columnconfigure(1, weight=1)
 
             ###################
             # THE ENTRIES (it is before the main dish )
             row = 0
             for i in G.image_parameter_list:
-                l = Label(frame_manual, text=i[0], font=skin().font.answer,
+                l = Label(frame_manual_grid, text=i[0], font=skin().font.answer,
                           justify=LEFT, anchor="nw", **skin().fg_and_bg)
                 l.grid(row=row, column=0, sticky="NSEW")
                 vars(G.tkvar)[i[1]] = StringVar()
-                vars(G.tkentry)[i[1]] = Entry(frame_manual, width=10, textvariable=vars(
+                vars(G.tkentry)[i[1]] = Entry(frame_manual_grid, width=10, textvariable=vars(
                     G.tkvar)[i[1]], font=skin().font.answer,
                     bd=0, **skin().fg_and_bg)
                 if vars(get_root().header)[i[1]] == i[2]:

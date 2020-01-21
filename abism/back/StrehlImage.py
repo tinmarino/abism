@@ -260,7 +260,8 @@ def Background(grid):
 
     # NONE
     elif get_state().noise_type == 'None':
-        dic['my_background'] = dic['my_background'] = dic['rms'] = 0
+        dic['my_background'] = dic['my_background'] = 0
+        # dic['rms'] = 0
 
     # ELLIPTICAL ANNULUS
     elif get_state().noise_type == "elliptical_annulus":
