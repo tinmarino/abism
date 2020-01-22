@@ -24,9 +24,8 @@ import abism.back.util_back as W
 
 # Plugin
 from abism.plugin import ReadHeader as RH  # to know witch telescope
-from abism.plugin.CoordTransform import format_sky
 
-from abism.util import log, get_root, get_state
+from abism.util import log, get_root, get_state, EA
 
 
 class AnswerLine(ABC):
@@ -188,11 +187,10 @@ def PlotAnswer(unit=None, append=True):  # CALLER
     DisplayAnswer()
 
 
-
 def PlotPickOne():
-    ""
+    """get_state().add_answer(AnswerNum, EA.STREHL, strehl)"""
     # <- Calculate Equivalent strehl2.2 and error
-    strehl = W.strehl["strehl"]/100
+    strehl = get_state().answers[EA.STREHL].value / 100
     if strehl < 0:
         rms = 0
     else:
@@ -202,7 +200,7 @@ def PlotPickOne():
     #rms =  get_root().header.wavelength /2/np.pi * np.sqrt(-np.log(W.strehl["err_strehl"]/100))
     #W.strehl["strehl2_2"] = 100 *np.exp(-(rms*2*np.pi/2.17)**2)
     W.strehl["err_strehl2_2"] = W.strehl["strehl2_2"] / \
-    W.strehl["strehl"]*W.strehl["err_strehl"]
+    get_state().answers[EA.STREHL].value*W.strehl["err_strehl"]
 
     ###
     # WCS
@@ -216,13 +214,14 @@ def PlotPickOne():
     if isinstance(get_root().header, RH.SinfoniHeader):
         pxll = get_root().header.sinf_pixel_scale
 
+    # answers = get_state().reset_answers()
     W.tmp.lst = []
 
     # Strehl
     line = AnswerImageSky(
         "Strehl: ",
-        W.strehl["strehl"],
-        MyFormat(W.strehl["strehl"], 1, "f") + " +/- " + \
+        get_state().answers[EA.STREHL].value,
+        MyFormat(get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + \
             MyFormat(W.strehl["err_strehl"], 1, "f") + " %",
         '',
         tags=['tag-important']
@@ -231,7 +230,7 @@ def PlotPickOne():
 
     # Equivalent Strehl Ratio
     line = AnswerImageSky(
-        "Eq. SR(2.17" + u"\u03bc" + "m): ",
+        "Eq. SR(2.17\u03bcm): ",
         W.strehl["strehl2_2"],
         MyFormat(W.strehl["strehl2_2"], 1, "f") + " +/- " + \
             MyFormat(W.strehl["err_strehl2_2"], 1, "f") + " %",
@@ -239,14 +238,14 @@ def PlotPickOne():
         )
     W.tmp.lst.append(line)
 
-    # Center (need to inverse)
-    line = AnswerImageSky(
-        "Center x,y: ",
-        (W.strehl["center_y"], W.strehl["center_x"]),
-        MyFormat(W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f"),
-        "%s , %s" % (format_sky(W.strehl['center_ra'], W.strehl['center_dec']))
-        )
-    W.tmp.lst.append(line)
+    # # Center (need to inverse)
+    # line = AnswerImageSky(
+    #     "Center x,y: ",
+    #     (W.strehl["center_y"], W.strehl["center_x"]),
+    #     MyFormat(W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f"),
+    #     "%s , %s" % (format_sky(W.strehl['center_ra'], W.strehl['center_dec']))
+    #     )
+    # W.tmp.lst.append(line)
 
     # FWHM
     line = AnswerImageSky(
@@ -359,7 +358,7 @@ def PlotPickOne():
 def PlotEllipse():
     """TODO clean + not working anymore due to W.tmp.lst"""
     rms = get_root().header.wavelength / 2/np.pi * \
-        np.sqrt(-np.log(W.strehl["strehl"]/100))
+        np.sqrt(-np.log(get_state().answers[EA.STREHL].value/100))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
     # <- CAlculate Equivalent strehl2.2
 
@@ -380,8 +379,8 @@ def PlotEllipse():
         G.lb_answer_type["text"] = "In detector units"
 
         W.tmp.lst = [
-            ["Strehl: ", W.strehl["strehl"], MyFormat(
-                W.strehl["strehl"], 1, "f") + " +/- " + MyFormat(W.strehl["err_strehl"], 1, "f") + " %"],
+            ["Strehl: ", get_state().answers[EA.STREHL].value, MyFormat(
+                get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + MyFormat(W.strehl["err_strehl"], 1, "f") + " %"],
             ["Intensity: ", W.strehl["intensity"], MyFormat(
                 W.strehl["intensity"], 1, "f") + " [adu]"],
             ["Background: ", W.strehl["my_background"], MyFormat(
@@ -419,8 +418,8 @@ def PlotEllipse():
         W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0, 0], my_wcs[0, 1]
 
         W.tmp.lst = [
-            ["Strehl: ", W.strehl["strehl"], "%.1f" %
-                (W.strehl["strehl"]) + " +/- "+"%.1f" % W.strehl["err_strehl"]+" %"],
+            ["Strehl: ", get_state().answers[EA.STREHL].value, "%.1f" %
+                (get_state().answers[EA.STREHL].value) + " +/- "+"%.1f" % W.strehl["err_strehl"]+" %"],
             ["Intensity: ", W.strehl["intensity"],  "%.1f" % (
                 get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
             ["Background: ", W.strehl["my_background"], "%.2f" % (get_root().header.zpt-2.5*np.log10(
@@ -497,10 +496,10 @@ def PlotBinary():
 
         ##########
         W.tmp.lst = [["Binary: ", get_state().fit_type, get_state().fit_type],
-                     ["1 Star: ", (ra[0], dec[0]), "%s , %s" %
-                      format_sky(ra[0], dec[0])],
-                     ["2 Star: ", (ra[1], dec[1]), "%s , %s" %
-                      format_sky(ra[1], dec[1])],
+                     #["1 Star: ", (ra[0], dec[0]), "%s , %s" %
+                     # format_sky(ra[0], dec[0])],
+                     # ["2 Star: ", (ra[1], dec[1]), "%s , %s" %
+                     #  format_sky(ra[1], dec[1])],
                      ["Separation: ", separation, "%.1f" % (
                          separation*get_root().header.pxll*1000) + "+/-" + "%.1f" % (sep_err*pxll*1000) + " [mas]"],
                      ["Phot1: ", W.phot0, "%.1f" % (
@@ -769,9 +768,10 @@ def ProfileAnswer():  # 1 and 2D
     Data()
     return
 
-    ####################
-    #   2D 2D 2D
-    ####################
+
+####################
+#   2D 2D 2D
+####################
 
 
 def PlotStar2():   # the two images colormesh

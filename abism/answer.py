@@ -1,6 +1,81 @@
+"""
+    The answer object the backend is sharing
+class Answer(metaclass=ABCMeta):
+    # Base class for an answser
+    # Printable with a value
+    def __init__(self, text, obj):
+        self.text = text
+        self.value = obj
+
+    def __str__(self):
+        pass
+
+
+
+"""
+
+from abc import ABC, abstractmethod
+
+import numpy as np
+
+
+class Answer(ABC):
+    """Base class for an answser
+    text and value
+    """
+    def __init__(self, text, value):
+        self.text = text
+        self.value = value
+
+    @abstractmethod
+    def __str__(self):
+        return str(self.value)
+
+
+class AnswerNum(Answer):
+    """A number"""
+    def __init__(self, text, number):
+        super().__init__(text, float(number))
+
+    def __str__(self):
+        return f'{self.value:,.1f}'.replace(',', ' ')
+
+
+class AnswerPosition(Answer):
+    """A position on image: x, y or ra/dec
+    Stored as x, y and a ref to wcs
+    """
+    def __init__(self, text, xy, converter=None):
+        super().__init__(text, xy)
+        self.converter = converter
+
+    def __str__(self):
+        return self.str_detector()
+
+    def str_sky(self):
+        """
+        my_wcs = wcs.all_pix2world(
+        np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
+            W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
+        """
+        if self.converter is None: return self.str_detector()
+        ra, dec = self.converter(np.array([self.value]), 0)
+        s_ra, s_dec = format_sky(ra, dec)
+        return s_ra + ' , ' + s_dec
+
+    def str_detector(self):
+        x, y = self.value
+        s_x = f'{x:,.3f}'.replace(',', ' ')
+        s_y = f'{y:,.3f}'.replace(',', ' ')
+        return s_x + ' , ' + s_y
+
+
+
+# Helpers to transform coordinate
 
 
 def decimal2hms(RADeg, delimiter):
+    # pylint: disable = W, R, C
     """Converts decimal degrees to string in Hours:Minutes:Seconds format with
     user specified delimiter.
 
@@ -60,6 +135,7 @@ def decimal2hms(RADeg, delimiter):
 
 
 def decimal2dms(decDeg, delimiter):
+    # pylint: disable = W, R, C
     """Converts decimal degrees to string in Degrees:Minutes:Seconds format
     with user specified delimiter.
 
@@ -230,12 +306,13 @@ def dms2decimal(decString, delimiter):
 
 
 def format_sky(ra, dec):
-    if (ra == 99) or (type(ra) == str):
+    if (ra == 99) or isinstance(ra, str):
         x = "N/A"
     else:
         x = decimal2hms(ra, ":")
-    if (dec == 99) or (type(dec) == str):
+    if (dec == 99) or isinstance(dec, str):
         y = "N/A"
     else:
         y = decimal2dms(dec, ":")
     return x, y
+

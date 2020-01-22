@@ -6,7 +6,7 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root, get_state
+from abism.util import log, get_root, get_state, AnswerNum, EA
 import abism.back.util_back as W
 
 
@@ -19,15 +19,19 @@ def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]
     Ith = W.strehl["my_photometry"] / bessel_integer  # for I theory
     strehl = W.strehl["intensity"] / Ith * 100
 
-    # SAve
-    W.strehl["strehl"] = strehl
+    # Save
+    get_state().add_answer(AnswerNum, EA.STREHL, strehl)
     W.strehl["Ith"] = Ith  # used for error
     W.strehl["bessel_integer"] = bessel_integer   # used for error
 
 
-def StrehlError():  # after strehl , number count , background, center_x, and center_y
+def StrehlError():
+    """after strehl , number count , background, center_x, and center_y"""
     dics = W.strehl
-    Ith, Sr, bessel_integer = dics["Ith"],  dics['strehl'], dics['bessel_integer']
+    # Get in
+    # TODO refactor
+    Sr = get_state().answers[EA.STREHL].value
+    Ith, bessel_integer = dics["Ith"], dics['bessel_integer']
 
     # BACKGROUND
     dBack = W.strehl["rms"]

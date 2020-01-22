@@ -7,11 +7,16 @@ import sys
 import os
 from os.path import dirname, abspath
 from functools import lru_cache
-
+from enum import Enum
 
 # Local
 from abism import __version__
 
+# Impersonate answser
+import abism.answer
+for truc in dir(abism.answer):
+    # pylint: disable = exec-used
+    exec(truc + ' = ' + 'abism.answer.' + truc)
 
 _verbose = 10  # Verbose level
 _parsed_args = None  # Arguments from argparse
@@ -21,7 +26,13 @@ _parsed_args = None  # Arguments from argparse
 _root = None
 
 
+
+
+
 def parse_argument():
+    # pylint: disable=global-statement
+    global _parsed_args, _verbose
+
     from argparse import ArgumentParser
     from sys import argv
     parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
@@ -51,7 +62,6 @@ def parse_argument():
     parsed_args.image = parsed_args.image[0]
 
     # set
-    global _parsed_args, verbose
     _parsed_args = parsed_args
     _verbose = _parsed_args.verbose
 
@@ -107,10 +117,25 @@ def get_fit_list():
     return ["Gaussian", "Moffat", "Bessel1", "None"]
 
 
+class EA(Enum):
+    """Enum of Answer names"""
+    STREHL = 'Strehl'
+    SR = u'Eq. SR(2.17\u03bcm)'
+    CENTER = 'Center'
+    FWHM_ABE = 'FWHM'
+    PHOTOMETRY = 'Photometry'
+    BACKGROUND = 'Background'
+    R99 = 'R99'
+    INTENSITY = 'Peak'
+    SN = 'S/N'
+
 
 class AbismState:
     """Confiugration from user (front) to science (back)"""
     def __init__(self):
+        # The returns dictionary: EAnswer -> Answser Object
+        self.answers = {}
+
         # Type
         self.fit_type = get_fit_list()[1]
         self.pick_type = 'one'
@@ -125,7 +150,6 @@ class AbismState:
         # The value of the manually added sky level (rarely used)
         self.i_background = 0
 
-
         # UI
         self.s_answer_unit = 'detector'  # detector or 'sky'
         self.s_image_color_map = get_colormap_list()[0][1]
@@ -136,6 +160,21 @@ class AbismState:
         self.i_image_max_cut = 0
         self.b_image_contour = False
         self.b_image_reverse = False
+
+    def reset_answers(self):
+        self.answers = {}
+        return self.answers
+
+    def add_answer(self, class_answer, enum_answer, value, *arg, **args):
+        # Check if overwork
+        if enum_answer in self.answers:
+            log(0, 'Warning the', enum_answer, 'has already been calculated')
+
+        # Craft anwser
+        answer = class_answer(enum_answer, value, *arg, **args)
+
+        # Save answer
+        self.answers[enum_answer] = answer
 
 
 @lru_cache(1)
@@ -148,6 +187,7 @@ def get_root():
 
 
 def set_root(root):
+    # pylint: disable=global-statement
     global _root; _root = root
 
 
