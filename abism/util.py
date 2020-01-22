@@ -113,15 +113,14 @@ class AbismState:
         self.aperture_type = 'fit'
         self.pick_old = ''
 
+        # The value of the manually added sky level (rarely used)
+        self.i_background = 0
+
         # More
         self.b_aniso = True
         self.b_same_psf = True
         self.b_same_center = True
         self.s_answer_unit = 'detector'  # detector or 'sky'
-
-        # UI
-        self.b_see_more = False
-        self.b_see_manual_background = False
 
         # Cut
         self.s_image_color_map = get_colormap_list()[0][1]

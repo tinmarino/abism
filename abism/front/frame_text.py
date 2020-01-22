@@ -17,7 +17,6 @@ from abism.util import log, get_root, quit_process, restart, get_state
 
 # TODO remove
 import abism.front.util_front as G
-from abism.front.menu_bar import ManualBackground
 
 
 class LeftFrame(tk.Frame):
@@ -160,7 +159,7 @@ class LabelFrame(TextFrame):
             for i in G.image_parameter_list:
                 vars(G.tkvar)[i[1]].set(vars(get_root().image.header)[i[1]])
             # to restore the values in the unclosed ImageParameters Frame
-            self.set_image_parameters("", destroy=False)
+            self.set_image_parameters()
 
         # Declare list of label (text, properties)
         text_and_props = []
@@ -200,8 +199,11 @@ class LabelFrame(TextFrame):
         text_and_props.append((lbl, {}))
 
         # Header reads Strehl variables ?
-        bolt = (get_root().header.diameter == 99. or get_root().header.wavelength == 99.)
-        bolt = bolt or (get_root().header.obstruction == 99. or get_root().header.pixel_scale == 99.)
+        bolt = get_root().header.diameter == 99.
+        bolt = bolt or get_root().header.wavelength == 99.
+        bolt = bolt or get_root().header.obstruction == 99.
+        bolt = bolt or get_root().header.pixel_scale == 99.
+
         if bolt:
             lbl = "WARNING: some parameters not found"
             text_and_props.append((lbl, {"fg": "red"}))
@@ -238,7 +240,7 @@ class LabelFrame(TextFrame):
         # Create what it takes
         self.init_after()
 
-    def set_image_parameters(self, event, destroy=True):
+    def set_image_parameters(self):
         """Set imageparameter, labels"""
         # Parse
         for i in G.image_parameter_list:
@@ -265,6 +267,10 @@ class OptionFrame(TextFrame):
         self.see_more_analysis = False
         self.frame_more_analysis = None
         self.parent_more_analysis = None
+
+        # Manual Bacground
+        self.see_manual_background = False
+        self.frame_manual_background = None
 
         self.init_after()
 
@@ -325,7 +331,9 @@ class OptionFrame(TextFrame):
                 if vars(get_root().header)[i[1]] == i[2]:
                     vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
                 vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
-                vars(G.tkentry)[i[1]].bind('<Return>', get_root().LabelFrame.set_image_parameters)
+                vars(G.tkentry)[i[1]].bind(
+                    '<Return>',
+                    lambda _: get_root().LabelFrame.set_image_parameters)
                 if len(str(vars(get_root().header)[i[1]])) > 6:  # not to long for display
                     vars(G.tkvar)[i[1]].set("%.5f" % float(vars(get_root().header)[i[1]]))
                 else:
@@ -420,17 +428,22 @@ class OptionFrame(TextFrame):
         self.init_will_toogle(visible=True, add_title=False)
 
 
-    def toogle_more_analysis(self, parent):
+    def toogle_more_analysis(self, parent=None):
         self.see_more_analysis = not self.see_more_analysis
 
         # Keep ref to change label
-        self.parent_more_analysis = parent
+        if parent is not None:
+            self.parent_more_analysis = parent
+
+        # Toogle menu
+        self.parent_more_analysis.toogle_more_options()
 
         # Discriminate show / hide
         if self.see_more_analysis:
             self.open_more_analysis()
         else:
             self.close_more_analysis()
+
 
 
     @staticmethod
@@ -457,10 +470,10 @@ class OptionFrame(TextFrame):
             get_state().b_same_center = int_var.get()
             if get_state().b_same_center:
                 msg = ("Same center: Assuming the saturation "
-                    "is centered at the center of the object")
+                       "is centered at the center of the object")
             else:
                 msg = ("Not same center: Assuming the saturation"
-                    "isn't centered at the center of th object")
+                       "isn't centered at the center of th object")
             log(0, msg)
 
 
@@ -560,7 +573,7 @@ class OptionFrame(TextFrame):
             for text, tag in lst:
                 if text == "Manual":
                     menu.menu.add_radiobutton(
-                        label=text, command=ManualBackground,
+                        label=text, command=self.toogle_manual_background,
                         variable=string_var, value=tag)
                 else:
                     menu.menu.add_radiobutton(
@@ -577,7 +590,7 @@ class OptionFrame(TextFrame):
 
         bu_close = tk.Button(
             frame_more_grid, text=u'\u25b4 '+'Close',
-            command=self.close_more_analysis, **skin().button_dic)
+            command=self.toogle_more_analysis, **skin().button_dic)
         bu_close.grid(column=0, columnspan=2)
 
         # Redraw
@@ -593,8 +606,63 @@ class OptionFrame(TextFrame):
             G.arrtitle.destroy()
         G.in_arrow_frame = None
 
-        # Change help menu label
-        self.parent_more_analysis.toogle_more_options()
+
+    def is_more_analysis_visible(self):
+        return self.see_more_analysis
+
+
+    def toogle_manual_background(self):
+        """Create manual background frame"""
+        self.see_manual_background = not self.see_manual_background
+        if self.see_manual_background:
+            self.open_manual_background()
+        else:
+            self.close_manual_background()
+
+
+    def open_manual_background(self):
+        get_state().noise_type = "manual"
+
+        # Grid root
+        self.frame_manual_background = tk.Frame(
+            get_root().OptionFrame, bg=skin().color.bg)
+        self.frame_manual_background.grid(sticky='nsew')
+        self.frame_manual_background.columnconfigure(0, weight=1)
+        self.frame_manual_background.columnconfigure(1, weight=1)
+
+        def on_enter(string_var):
+            i_in = float(string_var.get())
+            get_state().i_manual_background = i_in
+            log(0, "ManualBackground setted to:", i_in)
+
+        # Grid label
+        label = tk.Label(
+            self.frame_manual_background,
+            font=skin().font.param, **skin().fg_and_bg,
+            text="Background value:")
+        label.grid(row=0, column=0, sticky="snew")
+
+        # Grid entry
+        string_var = tk.StringVar()
+        string_var.set(get_state().i_background)
+        entry = tk.Entry(
+            self.frame_manual_background,
+            font=skin().font.param, width=10, bd=0, **skin().fg_and_bg,
+            textvariable=string_var)
+        entry.grid(row=0, column=1, sticky="nsew")
+        entry.bind('<Return>', lambda event: on_enter(string_var))
+
+        # Grid close button
+        button = tk.Button(
+            self.frame_manual_background, **skin().button_dic,
+            text=u'\u25b4 ' + 'Close',
+            command=self.close_manual_background)
+        button.grid(row=1, column=0, columnspan=2)
+
+
+    def close_manual_background(self):
+        self.frame_manual_background.destroy()
+
 
 
 class AnswerFrame(TextFrame):
@@ -604,12 +672,14 @@ class AnswerFrame(TextFrame):
 
         self.init_after()
 
-    def init_after(self):
+    def init_after(self, add_title=False):
         """Add fit type label"""
-        self._fit_type_label = tk.Label(self, text=get_state().fit_type, justify=tk.CENTER, **skin().fg_and_bg)
+        self._fit_type_label = tk.Label(
+            self, justify=tk.CENTER, **skin().fg_and_bg,
+            text=get_state().fit_type)
         self._fit_type_label.grid(sticky='nsew')
         # Add also standard above
-        super().init_after()
+        super().init_after(add_title=add_title)
 
     def set_fit_type_text(self, s_text):
         """Change fit type label text"""

@@ -274,7 +274,6 @@ class AnalysisMenu(ButtonMenu):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.see_more = False
         self.index_more = 0
 
         self.add_fit_menu()
@@ -301,8 +300,7 @@ class AnalysisMenu(ButtonMenu):
                 variable=string_var, value=tag)
 
         def on_more():
-            self.toogle_more_options()
-            get_root().OptionFrame.toogle_more_analysis(self)
+            get_root().OptionFrame.toogle_more_analysis(parent=self)
 
         # Add button more options
         self.menu.add_command(
@@ -335,8 +333,7 @@ class AnalysisMenu(ButtonMenu):
 
     def toogle_more_options(self):
         """More photometry options frame"""
-        self.see_more = not self.see_more
-        if self.see_more:
+        if get_root().OptionFrame.is_more_analysis_visible():
             self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
         else:
             self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
@@ -374,57 +371,6 @@ class ToolMenu(ButtonMenu):
 
 
 
-
-
-def ManualBackground():
-    """Create manual background frame"""
-    if get_state().b_see_manual_background:
-        ManualBackClose()
-    else:
-        ManualBackOpen()
-    G.manual_back_bool = not G.manual_back_bool
-
-
-def ManualBackOpen():
-    get_state().noise_type = "manual"
-    G.ManualBackFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
-    G.ManualBackFrame.grid(sticky='nsew')
-    G.ManualBackFrame.columnconfigure(0, weight=1)
-    G.ManualBackFrame.columnconfigure(1, weight=1)
-
-    def GetValue(event):
-        G.background = float(G.tkvar.background.get())
-        log(2, "ManualBack, called , ", G.background)
-
-    # ENTRY
-    tk.Label(
-        G.ManualBackFrame, text="Background value:",
-        font=skin().font.param, **skin().fg_and_bg
-        ).grid(row=0, column=0, sticky="snew")
-    G.tkvar.background = tk.StringVar()
-    G.tkentry.background = tk.Entry(
-        G.ManualBackFrame, width=10,
-        textvariable=G.tkvar.background,
-        font=skin().font.param,
-        bd=0, **skin().fg_and_bg)
-    G.tkentry.background.grid(row=0, column=1, sticky="nsew")  # ,sticky=W)
-    G.tkentry.background.bind('<Return>', GetValue)
-    G.tkvar.background.set("0.0")
-    if "background" in vars(G):
-        G.tkvar.background.set(str(G.background))
-
-    ###############
-    # CLOSE button
-    G.bu_back_close = tk.Button(
-        G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
-        command=ManualBackClose, **skin().button_dic)
-    G.bu_back_close.grid(row=1, column=0, columnspan=2)
-    log(3, "Manual Back called")
-
-
-def ManualBackClose():
-    G.ManualBackFrame.destroy()
-    G.background = float(G.tkvar.background.get())
 
 
 def SetFitType(name):  # strange but works

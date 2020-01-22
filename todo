@@ -12,7 +12,7 @@ Fix: cut than is really cutting the image !!!
 
 # UI
 
-* Skin: create entry and checkbutton (see readheader and analysis check button, l122)
+* Skin: create entrybutton
 * make sahs of left pane, better move when adding or removeing frames
 * ImageFrame: clean : remove old parameters and replce what nee by self
   * Make cube work again (with some self.variable in (frame plot .py)
