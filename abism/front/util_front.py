@@ -332,18 +332,24 @@ def reset_skin(in_scheme):
     skin()
 
 
-def about_window(save=None):
+def about_window():
     """Pop about window
     Append it to (to)
     """
+    # Init
     root = tk.Tk()
-    if save is not None: save.append(root)
+    get_root().saved_children.append(root)
+
+    # Conf
     root.title("About Abism")
     txt = ("Adaptive Background Interactive Strehl Meter\n"
            "ABISM version " + get_version() + " (2013 -- 2020) \n"
            "Authors: Girard Julien, Tourneboeuf Martin\n"
            "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
-    tk.Label(root, text=txt, **skin().fg_and_bg).pack()
+    label = tk.Label(root, text=txt, **skin().fg_and_bg)
+    label.pack(expand=True, fill=tk.BOTH)
+
+    # Go
     root.mainloop()
 
 

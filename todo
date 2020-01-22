@@ -1,4 +1,5 @@
 MenuBarShould be a class
+Cmap chioose must get an invert color
 
 # AnwerFrame
 
@@ -13,6 +14,7 @@ MenuBarShould be a class
 
 * Skin: create entry and checkbutton (see readheader and analysis check button, l122)
 * Stat: optimize, lazy and max one calculation (but image may have changed with background removal
+* Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * make sahs of left pane, better move when adding or removeing frames
 * More options, test my stuff

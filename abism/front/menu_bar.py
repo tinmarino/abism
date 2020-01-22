@@ -14,7 +14,8 @@ import abism.front.util_front as G
 
 from abism.plugin.window_header import spawn_header_window
 
-from abism.util import get_root, quit_process
+from abism.util import get_root, get_state, quit_process, \
+    get_colormap_list
 
 # For tool
 from abism.plugin.DebugConsole import PythonConsole
@@ -156,35 +157,39 @@ class ViewMenu(ButtonMenu):
         return 'View'
 
 
+    @staticmethod
+    def on_change_cmap(string_var):
+        cmap = string_var.get()
+
+        # Save
+        get_state().s_image_color_map = cmap
+
+        # Redraw
+        get_root().ImageFrame.CutImageScale(dic={'cmap': cmap})
+
+
     def add_color_column(self):
         """Color drop"""
         if self.style == "cascade":
             color_menu = tk.Menu(self, **skin().fg_and_bg)
         else:
+            # if we don't want cascade, we just add in the menu
             color_menu = self.menu
         color_menu.add_command(label="COLOR", bg=None, state=tk.DISABLED)
-        # if we don't want cascade, we just add in the menu
 
-        G.cu_color = tk.StringVar()
-        G.cu_color.set(G.scale_dic[0]["cmap"])  # because image not loaded yet
+        # Create tk var
+        string_var = tk.StringVar()
+        string_var.set(get_state().s_image_color_map)
 
-        # "
-        # My colors
-        lst = [
-            ["Jet", "jet"],
-            ['Black&White', 'bone'],
-            ['Spectral', 'spectral'],
-            ["RdYlBu", "RdYlBu"],
-            ["BuPu", "BuPu"]
-        ]
-        for i in lst:
+        # Add my favorite colors
+        for i in get_colormap_list():
             color_menu.add_radiobutton(
-                label=i[0], command=lambda i=i: get_root().ImageFrame.CutImageScale(
-                    dic={"cmap": i[1]}, run="G.cu_cut.set('"+i[1] + "')"),
-                variable=G.cu_color, value=i[1])  # we use same value as label
+                label=i[0],
+                command=lambda: ViewMenu.on_change_cmap(string_var),
+                variable=string_var, value=i[1])
 
-        ########
-        # Contour
+        # Add contour
+        dic = {"contour": 'not a bool'}
         color_menu.add_command(
             label='Contour',
             command=lambda: get_root().ImageFrame.CutImageScale(dic=dic))

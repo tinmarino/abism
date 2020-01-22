@@ -56,6 +56,46 @@ def parse_argument():
     _verbose = _parsed_args.verbose
 
 
+def get_colormap_list():
+    """Favorite colormap of Tinmarino (me)
+    Link: https://matplotlib.org/examples/color/colormaps_reference.html
+    Perceptually Uniform Sequential:
+        magma       <- the (3) others have a high too yellow (
+    Diverging:
+        RdYlBlu     <- high contrast (need one), more than Spectral
+        PrGn        <- diffrent: 2 colors: no blue, rew, black, white
+    Miscellanous:
+        cubehelix   <- enhanced B&W (with some pink, greeny blue) awesome!
+
+    """
+    import matplotlib as mpl
+
+    # Register solarized
+    cmap_solarized = mpl.colors.LinearSegmentedColormap.from_list(
+        'solarized',
+        ['#6c71c4',
+         '#268bd2',
+         '#859900',
+         '#b58900',
+         '#cb4b16',
+         '#dc322f'])
+    mpl.cm.register_cmap(name='solarized', cmap=cmap_solarized)
+
+    return [
+        ['Black&White', 'bone'],
+        ['Solarized', 'solarized'],
+        ['Spectral-r', 'Spectral_r'],
+        ['Magma', 'magma'],
+        ['Cubehelix', 'cubehelix'],
+        ['RdYlBu_r', 'RdYlBu_r'],
+        ['PRGn', 'PRGn'],
+        ]
+
+
+
+
+
+
 class AbismState:
     """Confiugration from user (front) to science (back)"""
     def __init__(self):
@@ -78,6 +118,7 @@ class AbismState:
         # UI
         self.b_see_more = False  # See more frame ?
         self.b_see_manual_background = False  # See manual background
+        self.s_image_color_map = 'bone'
 
 @lru_cache(1)
 def get_state():
