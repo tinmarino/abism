@@ -42,7 +42,7 @@ def StrehlError():
     if get_state().pick_type != "ellipse":
         get_state().aperture_type = "fit"
         log(3, "\n\n WARNING: StrehlError changed the aperture type "
-              "to fit because not ellipse pick it shouldn't matter ")
+               "to fit because not ellipse pick it shouldn't matter ")
     # INTENSITY
     if get_state().aperture_type and get_state().fit_type != "None":
         dI = W.psf_fit[1]["intensity"]
@@ -58,9 +58,10 @@ def StrehlError():
     dSr /= Ith
     dSr *= 100
 
-    W.strehl["err_strehl"] = dSr * 3  # because I calculated the best error
-    # "for  i in locals() :
-    return
+    # Save
+    # TODO move me in caller
+    res = dSr * 3  # because I calculated the best error
+    get_state().add_answer(AnswerNum, EA.ERR_STREHL, res)
 
 
 def StrehlMeter():  # receive W.r, means a cut of the image

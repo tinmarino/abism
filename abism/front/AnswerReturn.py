@@ -65,24 +65,44 @@ class AnswerImageSky(AnswerLine):
             text.insert(END, self.s_sky, self.tags)
         text.insert(END, "\n")
 
-    @staticmethod
-    def from_answer(answer, tags=[]):
-        # Get sky and detector
-        if isinstance(answer, AnswerSky):
-            s_sky = answer.str_sky()
-            s_detector = answer.str_detector()
-        else:
-            s_sky = s_detector = str(answer)
 
-        # Return crafted object
-        return AnswerImageSky(
-            str(answer.text),
-            answer.value,
-            s_detector,
-            s_sky,
-            tags=tags
-            )
+def values_from_answer(answer):
+    """Proxy to ensure skyable
+    TODO remove because all are skyable
+    """
+    # Get sky and detector
+    if isinstance(answer, AnswerSky):
+        s_sky = answer.str_sky()
+        s_detector = answer.str_detector()
+    else:
+        s_sky = s_detector = str(answer)
 
+    return s_sky, s_detector
+
+
+def tkable_from_answer(answer, error=None, tags=[]):
+    # Str answser
+    s_sky, s_detector = values_from_answer(answer)
+
+    # Str error
+    if error is None:
+        s_error_sky = s_error_detector = ''
+    else:
+        s_error_sky, s_error_detector = values_from_answer(error)
+        s_error_sky = ' +/- ' + s_error_sky
+        s_error_detector = ' +/- ' + s_error_detector
+
+    s_sky += s_error_sky
+    s_detector += s_error_detector
+
+    # Return crafted object
+    return AnswerImageSky(
+        answer.text.value,
+        answer.value,
+        s_detector,
+        s_sky,
+        tags=tags
+        )
 
 
 class AnswerText(AnswerLine):
@@ -217,10 +237,10 @@ def PlotPickOne():
         rms = get_root().header.wavelength / 2 / np.pi * np.sqrt(-np.log(strehl))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
 
-    #rms =  get_root().header.wavelength /2/np.pi * np.sqrt(-np.log(W.strehl["err_strehl"]/100))
+    #rms =  get_root().header.wavelength /2/np.pi * np.sqrt(-np.log(get_state().answers[EA.ERR_STREHL].value/100))
     #W.strehl["strehl2_2"] = 100 *np.exp(-(rms*2*np.pi/2.17)**2)
     W.strehl["err_strehl2_2"] = W.strehl["strehl2_2"] / \
-    get_state().answers[EA.STREHL].value*W.strehl["err_strehl"]
+    get_state().answers[EA.STREHL].value*get_state().answers[EA.ERR_STREHL].value
 
     ###
     # WCS
@@ -238,8 +258,10 @@ def PlotPickOne():
     W.tmp.lst = []
 
     # Strehl
-    line = AnswerImageSky.from_answer(
-        get_state().answers[EA.STREHL], tags=['tag-important'])
+    line = tkable_from_answer(
+        get_state().answers[EA.STREHL],
+        error=get_state().answers[EA.ERR_STREHL],
+        tags=['tag-important'])
     W.tmp.lst.append(line)
 
     # Equivalent Strehl Ratio
@@ -394,7 +416,7 @@ def PlotEllipse():
 
         W.tmp.lst = [
             ["Strehl: ", get_state().answers[EA.STREHL].value, MyFormat(
-                get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + MyFormat(W.strehl["err_strehl"], 1, "f") + " %"],
+                get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + MyFormat(get_state().answers[EA.ERR_STREHL].value, 1, "f") + " %"],
             ["Intensity: ", W.strehl["intensity"], MyFormat(
                 W.strehl["intensity"], 1, "f") + " [adu]"],
             ["Background: ", W.strehl["my_background"], MyFormat(
@@ -433,7 +455,7 @@ def PlotEllipse():
 
         W.tmp.lst = [
             ["Strehl: ", get_state().answers[EA.STREHL].value, "%.1f" %
-                (get_state().answers[EA.STREHL].value) + " +/- "+"%.1f" % W.strehl["err_strehl"]+" %"],
+                (get_state().answers[EA.STREHL].value) + " +/- "+"%.1f" % get_state().answers[EA.ERR_STREHL].value+" %"],
             ["Intensity: ", W.strehl["intensity"],  "%.1f" % (
                 get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
             ["Background: ", W.strehl["my_background"], "%.2f" % (get_root().header.zpt-2.5*np.log10(

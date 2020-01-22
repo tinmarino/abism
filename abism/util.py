@@ -129,6 +129,9 @@ class EA(Enum):
     INTENSITY = 'Peak'
     SN = 'S/N'
 
+    # Errors
+    ERR_STREHL = 'Strehl Error'
+
 
 class AbismState:
     """Confiugration from user (front) to science (back)"""
