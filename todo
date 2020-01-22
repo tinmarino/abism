@@ -5,14 +5,10 @@
   * Get Ellipse in legacy
     * First create legacy button
 
-2. Refactor Analysis menu
-  1. frame_text, mustcreate subclass, do not push all in option (remember extendability)
-
-Fix: cut than is really cutting the image !!!
 
 # UI
 
-* Skin: create entrybutton
+* Skin: create entrybutton, and checkbutton (because cannto see in dark)
 * make sahs of left pane, better move when adding or removeing frames
 * ImageFrame: clean : remove old parameters and replce what nee by self
   * Make cube work again (with some self.variable in (frame plot .py)
@@ -28,6 +24,7 @@ Fix: cut than is really cutting the image !!!
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * More options, test my stuff
 * Destroy cleanly, no matplotlib error should trigger
+* frame_text, optionFrame many function, create subclass like optionElement
 
 # Always possible
 
