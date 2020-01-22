@@ -1,14 +1,16 @@
 1. Refactor: AnswerReturn 
   * then every oth todo will be easyier
   * Add other info to Text
+  * PlotStat dans AnswerReturn 520, make it in answer frame and not plot
   * Get Ellipse in legacy
     * First create legacy button
+
+Fix: cut than is really cutting the image !!!
 
 # UI
 
 * Skin: create entry and checkbutton (see readheader and analysis check button, l122)
 * make sahs of left pane, better move when adding or removeing frames
-* PlotStat dans AnswerReturn 520, make it in answer frame and not plot
 * ImageFrame: clean : remove old parameters and replce what nee by self
   * Make cube work again (with some self.variable in (frame plot .py)
 
