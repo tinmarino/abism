@@ -122,12 +122,16 @@ class AbismState:
         self.b_same_center = True
 
         # UI
-        self.b_see_more = False  # See more frame ?
-        self.b_see_manual_background = False  # See manual background
+        self.b_see_more = False
+        self.b_see_manual_background = False
+
+        # Cut
         self.s_image_color_map = get_colormap_list()[0][1]
-        self.s_image_stretch = get_stretch_list()[0][1]
+        self.s_image_stretch = get_stretch_list()[0][2]
         self.s_image_cut = get_cut_list()[0][1]  # fct
         self.i_image_cut = get_cut_list()[0][3]  # param
+        self.i_image_min_cut = 0
+        self.i_image_max_cut = 0
 
 
 @lru_cache(1)

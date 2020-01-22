@@ -17,7 +17,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 from matplotlib.colors import Normalize
 
-from abism.front import util_front as G
+from abism.util import get_state
 
 
 class DraggableColorbar:
@@ -60,7 +60,7 @@ class DraggableColorbar:
         # INDEX
         inverted_bool = False  # are we inverted scale (with "_r")
         try:
-            tmpmap = G.scale_dic[0]["cmap"]
+            tmpmap = get_state().s_image_color_map
         except:  # if no G
             self.old["cmap"] = self.cbar.get_cmap().name
         if "_r" in tmpmap:
@@ -92,9 +92,13 @@ class DraggableColorbar:
                 cmap = cmap.replace("_r", "")
             else:
                 cmap = cmap + "_r"
-        self.callback(cmap=cmap)
 
-        G.cu_color.set(cmap)
+        # Set cmap
+        get_state().s_image_color_map = cmap
+
+        # Redraw
+        self.callback()
+
 
     def on_motion(self, event):
         'on motion we will move the rect if the mouse is over us'
@@ -114,7 +118,14 @@ class DraggableColorbar:
         elif event.button == 3:
             self.cbar.norm.vmin -= (perc*scale)*np.sign(dy)
             self.cbar.norm.vmax += (perc*scale)*np.sign(dy)
-        self.callback(min=self.cbar.norm.vmin, max=self.cbar.norm.vmax)
+
+        # Set bounds
+        get_state().i_image_max_cut = self.cbar.norm.vmax
+        get_state().i_image_min_cut = self.cbar.norm.vmin
+
+        # Redraw
+        self.callback()
+
 
     def on_release(self, event):
         """on release we reset the press data"""
@@ -382,51 +393,3 @@ def center_handler(event, ax, callback=plt.draw):
 
     # Redraw
     callback()
-
-
-def example_call_zoom(ax):
-    fig = ax.get_figure() # get the figure of interest
-    # attach the call back
-    fig.canvas.mpl_connect('scroll_event', lambda event, ax=ax:zoom_fun(event, ax))
-
-
-def example_dragable_color_bar():
-    """Reference: Not used"""
-    np.random.seed(1111)
-
-    # Create empty image
-    nx, ny = 256, 256
-    image = np.zeros((ny, nx))
-
-    # Set number of stars
-    n = 10000
-
-    # Generate random positions
-    r = np.random.randint(n) * nx
-    theta = np.random.uniform(0., 2. * np.pi, n)
-
-    # Generate random fluxes
-    f = np.random.randint(n) ** 2
-
-    # Compute position
-    x = nx / 2 + r * np.cos(theta)
-    y = ny / 2 + r * np.sin(theta)
-
-    # Add stars to image
-    # ==> First for loop and if statement <==
-    for i in range(n):
-        if x[i] >= 0 and x[i] < nx and y[i] >= 0 and y[i] < ny:
-            image[y[i], x[i]] += f[i]
-
-    # Convolve with a gaussian
-    image = gaussian_filter(image, 1)
-    # Add noise
-    image += np.random.normal(3., 0.01, image.shape)
-    img = plt.imshow(image, cmap=plt.cm.spectral)
-    cbar = plt.colorbar(format='%05.2f')
-    cbar.set_norm(NormalizeMy.MyNormalize(
-        vmin=image.min(), vmax=image.max(), stretch='linear'))
-    cbar = DraggableColorbar(cbar, img)
-    cbar.connect()
-
-    plt.show()

@@ -37,16 +37,10 @@ geo_dic['ResultFrame'] = 300
 
 # SCALE dic for the color and contrast
 scale_dic = [{}]
-scale_dic[0]["cmap"] = "jet"
 scale_dic[0]["contour"] = False
 scale_dic[0]["answer"] = "detector"
-scale_dic[0]["percent"] = 99.99
-scale_dic[0]["scale_cut_type"] = "sigma_clip"
-scale_dic[0]["sigma"] = 3
-scale_dic[0]["stretch"] = "linear"
 
 # BOOL TODO remove
-manual_cut_bool = 0
 more_bool = 0
 
 toolbar_fit_bool = False

@@ -8,9 +8,7 @@
 """
 import re
 
-from tkinter import Frame, PanedWindow, Label, Button, StringVar, Entry, \
-    PhotoImage, \
-    VERTICAL, TOP, X, LEFT, RIGHT, BOTH, CENTER
+import tkinter as tk
 
 from abism.front.util_front import photo_up, photo_down, skin, \
     TitleLabel
@@ -18,10 +16,9 @@ from abism.front.util_front import photo_up, photo_down, skin, \
 from abism.util import log, get_root, quit_process, restart, get_state
 
 import abism.front.util_front as G
-import abism.back.util_back as W
 
 
-class TextFrame(Frame):
+class TextFrame(tk.Frame):
     """TextScrollable frame
     parent <- must be vertical pane
     children <- are grided
@@ -46,7 +43,7 @@ class TextFrame(Frame):
     def init_after(self, add_title=True):
         """Place a last widget"""
         # Place button to resize
-        self._arrow = Button(
+        self._arrow = tk.Button(
             self, command=self.toogle, image=photo_up(), **skin().button_dic)
         self._arrow.place(relx=1., rely=0., anchor="ne")
 
@@ -57,7 +54,7 @@ class TextFrame(Frame):
         # Last widget
         if self._last is not None:
             self._last.destroy()
-        self._last = Label(self, height=0, width=0, **skin().frame_dic)
+        self._last = tk.Label(self, height=0, width=0, **skin().frame_dic)
         self._last.grid()
 
     def toogle(self, visible=None):
@@ -202,11 +199,11 @@ class LabelFrame(TextFrame):
         row = 0
         for i in text_and_props:
             arg = skin().fg_and_bg.copy()
-            arg.update({"justify": CENTER})
+            arg.update({"justify": tk.CENTER})
             if isinstance(i, (list, tuple)):
                 arg.update(i[1])
             i = i[0]
-            Label(self, text=i, **arg).grid(
+            tk.Label(self, text=i, **arg).grid(
                 row=row, column=0, sticky="nsew")
             row += 1
 
@@ -232,10 +229,14 @@ class OptionFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
+        # Manual cut image
+        self.see_manual_cut = False
+        self.frame_manual_cut = None
+
         self.init_after()
 
     def ask_image_parameters(self):
-        """Create Image Parameters Frame
+        """Reate Image Parameters tk.Frame
         Warning do not confound with Label one
         To measure the Strehl ratio I really need :\n"
         -> Diameter of the telescope [in meters]\n"
@@ -266,14 +267,14 @@ class OptionFrame(TextFrame):
         # TODO old trick to check for color, change it
         if G.bu_manual['background'] == skin().color.parameter1:
             # Grid new frame
-            G.ManualFrame = Frame(self, **skin().frame_dic)
+            G.ManualFrame = tk.Frame(self, **skin().frame_dic)
             G.ManualFrame.grid(sticky='nsew')
 
             # TITEL
             tl = TitleLabel(G.ManualFrame, text='Parameters')
-            tl.pack(side=TOP, anchor="w")
-            frame_manual_grid = Frame(G.ManualFrame)
-            frame_manual_grid.pack(expand=0, fill=BOTH, side=TOP)
+            tl.pack(side=tk.TOP, anchor="w")
+            frame_manual_grid = tk.Frame(G.ManualFrame)
+            frame_manual_grid.pack(expand=0, fill=tk.BOTH, side=tk.TOP)
             frame_manual_grid.columnconfigure(0, weight=1)
             frame_manual_grid.columnconfigure(1, weight=1)
 
@@ -281,11 +282,11 @@ class OptionFrame(TextFrame):
             # THE ENTRIES (it is before the main dish )
             row = 0
             for i in G.image_parameter_list:
-                l = Label(frame_manual_grid, text=i[0], font=skin().font.answer,
-                          justify=LEFT, anchor="nw", **skin().fg_and_bg)
+                l = tk.Label(frame_manual_grid, text=i[0], font=skin().font.answer,
+                          justify=tk.LEFT, anchor="nw", **skin().fg_and_bg)
                 l.grid(row=row, column=0, sticky="NSEW")
-                vars(G.tkvar)[i[1]] = StringVar()
-                vars(G.tkentry)[i[1]] = Entry(frame_manual_grid, width=10, textvariable=vars(
+                vars(G.tkvar)[i[1]] = tk.StringVar()
+                vars(G.tkentry)[i[1]] = tk.Entry(frame_manual_grid, width=10, textvariable=vars(
                     G.tkvar)[i[1]], font=skin().font.answer,
                     bd=0, **skin().fg_and_bg)
                 if vars(get_root().header)[i[1]] == i[2]:
@@ -318,6 +319,74 @@ class OptionFrame(TextFrame):
             self.toogle(visible=False)
 
 
+    def toogle_manual_cut(self):
+        """Stupid switch"""
+        self.see_manual_cut = not self.see_manual_cut
+        log(5, "Manual Cut see me ?", self.see_manual_cut)
+        if self.see_manual_cut:
+            self.open_manual_cut()
+        elif self.frame_manual_cut:
+            self.close_manual_cut()
+
+
+    def close_manual_cut(self):
+        self.frame_manual_cut.destroy()
+
+
+    def open_manual_cut(self):
+        # Grid main
+        self.frame_manual_cut = tk.Frame(self, bg=skin().color.bg)
+        self.frame_manual_cut.grid(sticky='nsew')
+
+        # Pack title
+        lt = TitleLabel(self.frame_manual_cut, text="Cut image scale")
+        lt.pack(side=tk.TOP, anchor="w")
+
+        # Pack rest
+        parent = tk.Frame(self.frame_manual_cut, bg=skin().color.bg)
+        parent.pack(side=tk.TOP, expand=0, fill=tk.X)
+        parent.columnconfigure(0, weight=1)
+        parent.columnconfigure(1, weight=1)
+
+        # Keep ref to string_vars
+        string_vars = []
+
+        # Define callback
+        def set_cuts(_):
+            get_state().i_image_max_cut = float(string_vars[0].get())
+            get_state().i_image_min_cut = float(string_vars[1].get())
+            get_root().ImageFrame.CutImageScale()
+
+        # Grid them both
+        lst = [["Max cut", get_state().i_image_max_cut],
+               ["Min cut", get_state().i_image_min_cut]]
+        for i in lst:
+            # Label
+            l = tk.Label(
+                parent, text=i[0],
+                font=skin().font.answer, **skin().fg_and_bg)
+            l.grid(column=0, sticky="snew")
+
+            # Entry
+            string_var = tk.StringVar()
+            string_var.set("%.1f" % G.scale_dic[0][i[1]])
+            string_vars.append(string_var)
+            e = tk.Entry(
+                parent, width=10, bd=0, **skin().fg_and_bg, font=skin().font.answer,
+                textvariable=string_var)
+            e.grid(column=1, sticky="nsew")
+            e.bind('<Return>', set_cuts)
+
+        # Grid close
+        bu_close = tk.Button(
+            parent, text=u'\u25b4 ' + 'Close',
+            command=self.close_manual_cut, **skin().button_dic)
+        bu_close.grid(column=0, columnspan=2)
+
+        # Redraw
+        self.init_will_toogle(visible=True, add_title=False)
+
+
 class AnswerFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent, **args):
@@ -327,7 +396,7 @@ class AnswerFrame(TextFrame):
 
     def init_after(self):
         """Add fit type label"""
-        self._fit_type_label = Label(self, text=get_state().fit_type, justify=CENTER, **skin().fg_and_bg)
+        self._fit_type_label = tk.Label(self, text=get_state().fit_type, justify=tk.CENTER, **skin().fg_and_bg)
         self._fit_type_label.grid(sticky='nsew')
         # Add also standard above
         super().init_after()
@@ -337,7 +406,7 @@ class AnswerFrame(TextFrame):
         self._fit_type_label.configure(text=s_text)
 
 
-class ButtonFrame(Frame):
+class ButtonFrame(tk.Frame):
     """Frame 1 with quit, restart"""
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
@@ -347,19 +416,19 @@ class ButtonFrame(Frame):
 
         # Create Quit
         opts.update({'background':skin().color.quit})
-        bu_quit = Button(
+        bu_quit = tk.Button(
             self, text='QUIT',
             command=quit_process, **opts)
 
         # Create Restart
         opts.update({'background':skin().color.restart})
-        bu_restart = Button(
+        bu_restart = tk.Button(
             self, text='RESTART',
             command=restart, **opts)
 
         # Create Expand Image Parameter
         opts.update({'background':skin().color.parameter1})
-        G.bu_manual = Button(
+        G.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().OptionFrame.ask_image_parameters, **opts)
 
@@ -371,7 +440,7 @@ class ButtonFrame(Frame):
         G.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
 
-class LeftFrame(Frame):
+class LeftFrame(tk.Frame):
     """Full Container"""
     def __init__(self, root, parent):
         # Append self -> parent
@@ -379,7 +448,7 @@ class LeftFrame(Frame):
         parent.add(self)
 
         # Create Paned
-        text_paned = PanedWindow(self, orient=VERTICAL, **skin().paned_dic)
+        text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
 
         # Add LabelFrame
         root.LabelFrame = LabelFrame(text_paned, index=0, label_text='Info')
@@ -393,5 +462,5 @@ class LeftFrame(Frame):
         button_frame = ButtonFrame(self)
 
         # Pack buttons and pane
-        button_frame.pack(side=TOP, expand=0, fill=X)
-        text_paned.pack(side=TOP, expand=1, fill=BOTH)
+        button_frame.pack(side=tk.TOP, expand=0, fill=tk.X)
+        text_paned.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
