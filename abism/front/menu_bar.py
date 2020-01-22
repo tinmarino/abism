@@ -335,10 +335,11 @@ class AnalysisMenu(ButtonMenu):
 
     def toogle_more_options(self):
         """More photometry options frame"""
+        self.see_more = not self.see_more
         if self.see_more:
-            self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
-        else:
             self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
+        else:
+            self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
 
 
 class ToolMenu(ButtonMenu):

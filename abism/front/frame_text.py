@@ -586,7 +586,7 @@ class OptionFrame(TextFrame):
 
     def close_more_analysis(self):
         """Close the Frame"""
-        self.see_more_analysis.destroy()
+        self.frame_more_analysis.destroy()
 
         # destroy arrow
         if G.in_arrow_frame == "title_more":
@@ -594,12 +594,7 @@ class OptionFrame(TextFrame):
         G.in_arrow_frame = None
 
         # Change help menu label
-        for i in range(1, 10):
-            j = self.parent_more_analysis.menu.entrycget(i, "label")
-            if "Option" in j:
-                self.parent_more_analysis.menu.entryconfig(
-                    i, label=u'\u25be '+'More Option')
-                break
+        self.parent_more_analysis.toogle_more_options()
 
 
 class AnswerFrame(TextFrame):
