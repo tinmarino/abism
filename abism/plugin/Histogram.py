@@ -23,9 +23,9 @@ def Histopopo(figure, image_sorted, skin=None):
     # Draw tick
     for tick in ax.xaxis.get_major_ticks():
         tick.label.set_fontsize(14)
-    ax.axvline(x=G.scale_dic[0]["min_cut"],
+    ax.axvline(x=get_state().i_image_min_cut,
                linestyle='-', linewidth=2)
-    ax.axvline(x=G.scale_dic[0]["max_cut"],
+    ax.axvline(x=get_state().i_image_max_cut,
                linestyle='-', linewidth=2)
     ax.set_xticklabels(image_sorted)
 

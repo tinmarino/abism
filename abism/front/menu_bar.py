@@ -1,6 +1,7 @@
 """
     Create Menu bar <- MenuBarMaker
 """
+import re
 
 import tkinter as tk
 from abc import abstractmethod
@@ -160,32 +161,49 @@ class ViewMenu(ButtonMenu):
         """Color drop"""
         self.menu.add_command(label="COLOR", bg=None, state=tk.DISABLED)
 
-        # Create tk var
-        string_var = tk.StringVar()
-        string_var.set(get_state().s_image_color_map)
-
-        # Define callback
+        # Define callbacks
         def on_change_cmap(string_var):
-            cmap = string_var.get()
+            s_in = string_var.get()
 
-            # Save
-            get_state().s_image_color_map = cmap
+            get_state().s_image_color_map = s_in
 
-            # Redraw
             get_root().ImageFrame.CutImageScale()
 
-        # Add my favorite colors
-        for i in get_colormap_list():
-            self.menu.add_radiobutton(
-                label=i[0],
-                command=lambda: on_change_cmap(string_var),
-                variable=string_var, value=i[1])
+        def on_change_contour():
+            get_state().b_image_contour = not get_state().b_image_contour
+            get_root().ImageFrame.CutImageScale()
 
-        # Add contour
-        dic = {"contour": 'not a bool'}
-        self.menu.add_command(
+        def on_change_reverse():
+            """Flip _r an end"""
+            s_old = get_state().s_image_color_map
+            get_state().b_image_reverse = not get_state().b_image_reverse
+            if re.search(r'_r$', s_old):
+                cmap = s_old[:-2]
+            else:
+                cmap = s_old + '_r'
+            get_state().s_image_color_map = cmap
+            get_root().ImageFrame.CutImageScale()
+
+        # Create tk var
+        cmap_var = tk.StringVar()
+        cmap_var.set(get_state().s_image_color_map)
+
+        # Add
+        for label, value in get_colormap_list():
+            self.menu.add_radiobutton(
+                label=label,
+                command=lambda: on_change_cmap(cmap_var),
+                variable=cmap_var, value=value)
+
+        # Contour
+        self.menu.add_checkbutton(
             label='Contour',
-            command=lambda: get_root().ImageFrame.CutImageScale(dic=dic))
+            command=on_change_contour)
+
+        # Reverse
+        self.menu.add_checkbutton(
+            label='Reverse',
+            command=on_change_reverse)
 
         # Add column break
         self.menu.add_command(columnbreak=1)

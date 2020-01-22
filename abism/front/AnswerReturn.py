@@ -138,7 +138,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
     #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
     """
     if unit != None:
-        G.scale_dic[0]["answer"] = unit
+        get_state().s_answer_unit = unit
 
     # FIT TYPE
     get_root().AnswerFrame.set_fit_type_text(get_state().fit_type)
@@ -345,7 +345,7 @@ def PlotPickOne():
             W.tmp.lst.append(line)
 
     # Button chanfe coord
-    if G.scale_dic[0]["answer"] == "detector":
+    if get_state().s_answer_unit == "detector":
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
@@ -373,7 +373,7 @@ def PlotEllipse():
 
     ############
     # IMAGE COORD
-    if G.scale_dic[0]["answer"] == "detector":
+    if get_state().s_answer_unit == "detector":
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
@@ -396,7 +396,7 @@ def PlotEllipse():
 
     ##################
     # SKY COORD
-    # including unit = sky :    not =  detector  G.scale_dic[0]["answer"]=="sky":
+    # including unit = sky :    not =  detector  get_state().s_answer_unit=="sky":
     else:
         G.bu_answer_type["text"] = u"\u21aa"+'To detector'
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
@@ -458,7 +458,7 @@ def PlotBinary():
 
     ##############
     # IMAGE COORD
-    if G.scale_dic[0]["answer"] == "detector":
+    if get_state().s_answer_unit == "detector":
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
@@ -610,7 +610,7 @@ def PlotPickMany(append=True):
         get_state().pick_type[1] += 1  # To index well the strehl, I decreased it before, if you don't do, each push on button "to sky" leads to an increase in the indexation of the objet in the label but not in the arrows
 
     # 3/  prepare button,
-    if G.scale_dic[0]["answer"] == "detector":
+    if get_state().s_answer_unit == "detector":
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(
             unit="sky", append=False)
@@ -622,7 +622,7 @@ def PlotPickMany(append=True):
         G.lb_answer_type["text"] = "In sky units"
 
     # 4/ prepare list
-    if G.scale_dic[0]["answer"] == "detector":
+    if get_state().s_answer_unit == "detector":
         if append:
             W.tmp.lst = W.pick_many_det_lst[-1]
         else:
@@ -924,7 +924,7 @@ def PlotOneStar2D():
     def Data(ax):
         G.figresult_mappable1 = ax.imshow(
             get_root().image.im0[r[0]:r[1], r[2]:r[3]],
-            vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+            vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
         #G.ax31.format_coord=lambda x,y: "%.1f"%get_root().image.im0[r[2]+y,r[0]+x]
@@ -934,9 +934,10 @@ def PlotOneStar2D():
         fit_type = get_state().fit_type
         if "Gaussian_hole" in fit_type:
             fit_type = "Gaussian_hole"
-        G.figresult_mappable2 = ax.imshow(vars(BF)[fit_type]((X, Y), W.strehl),
-                                          vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
-                                          cmap=G.cbar.mappable.get_cmap().name, origin='lower',
+        G.figresult_mappable2 = ax.imshow(
+            vars(BF)[fit_type]((X, Y), W.strehl),
+            vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
+            cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
                                           )  # need to comment the extent other wise too crowded and need to change rect position
         #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[fit_type]((r[2]+y,r[0]+x),W.strehl)
@@ -1047,7 +1048,7 @@ def PlotBinaryStar2D():
     ax1 = get_root().ResultFrame.get_figure().add_subplot(121)
     G.figresult_mappable1 = ax1.imshow(
         get_root().image.im0[r[0]:r[1], r[2]:r[3]],
-        vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+        vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
         cmap=G.cbar.mappable.get_cmap().name, origin='lower')
 
     # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
@@ -1060,7 +1061,7 @@ def PlotBinaryStar2D():
         stg = "Gaussian2pt"
     ax2 = get_root().ResultFrame.get_figure().add_subplot(122)
     G.figresult_mappable2 = ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),
-                                          vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+                                          vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
                                           )  # need to comment the extent other wise too crowded and need to change rect positio

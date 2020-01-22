@@ -5,6 +5,8 @@ ImageFrame: clean : remove old parameters and replce what nee by self
 
 MinMAxCut @ image.py
   * Enum or find a way not to hardcode stufff: they all know util
+  * CutImageScale the only caller  seems redundant
+frame_plot figresul_mappage wtf so cannot draw in fgiresult
 
 # Perf
 

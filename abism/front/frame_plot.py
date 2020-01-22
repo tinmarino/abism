@@ -148,6 +148,8 @@ class ImageFrame(PlotFrame):
     """Frame with science image"""
     def __init__(self, parent):
         super().__init__(parent)
+        # Keep contours to remove them
+        self.contours = None
 
         # Create figure && Adjust size and color
         self._fig = Figure()
@@ -178,25 +180,22 @@ class ImageFrame(PlotFrame):
             del self._cbar
             self._fig.clf()
         except BaseException:
-            log(2, 'InitImage, cannot delete cbar')
+            log(5, 'InitImage, cannot delete cbar')
 
+        # Create axes
+        ax = self._fig.add_subplot(111)
 
-        # Scale (much faster also draw_artist can help ?)
-        if re.search(r'\.fits', get_root().image.name):
-            im0 = get_root().image.im0.astype(float32)
-            log(3, 'Init scale dic', G.scale_dic[0])
-            self.CutImageScale(dic=G.scale_dic[0], load=1)  # not to draw the image.
-        else:
-            im0 = get_root().image.im0
-            log(3, 'Warning could not init scale dic, is this a fits ?')
+        # Get image arry
+        self.im0 = get_root().image.im0.astype(float32)
 
         # Display
-        ax = self._fig.add_subplot(111)
         drawing = ax.imshow(
-            im0,
-            vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
+            self.im0,
+            vmin=get_state().i_image_min_cut,
+            vmax=get_state().i_image_max_cut,
+            cmap=get_state().s_image_color_map,
             # orgin=lower to get low y down
-            cmap=get_state().s_image_color_map, origin='lower')
+            origin='lower')
 
         # Compass
         try:
@@ -215,10 +214,14 @@ class ImageFrame(PlotFrame):
 
         # Image levels
         def z(x, y):
-            return get_root().image.im0[y, x]
+            try:
+                res = self.im0[y, x]
+            except IndexError:
+                res = 0
+            return res
 
         def z_max(x, y):
-            return PixelMax(get_root().image.im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
+            return PixelMax(self.im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
 
         def format_coordinate(x, y):
             x, y = int(x), int(y)
@@ -227,8 +230,12 @@ class ImageFrame(PlotFrame):
         # Head up display
         ax.format_coord = format_coordinate
 
+        self.CutImageScale()
+
+        # TODO
+        # CutIamgeScale is drawing, so rename with some update, refresh
         # Draw
-        self._fig.canvas.draw()
+        #self._fig.canvas.draw()
 
         #####################
         ###  SOME  CLICKS #
@@ -245,101 +252,79 @@ class ImageFrame(PlotFrame):
         self.extend_matplotlib()
 
 
-    def CutImageScale(self, dic={}, load=0, run=""):
-        """Change contrast and color"""
-        log(2, "Scale called with:", dic)
+    def add_contour(self):
+        tmp = get_root().image.get_stat_as_dic()
+        mean, rms = tmp["mean"], tmp["rms"]
+        c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
+            rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
 
-        # RUN THE Stff to change radio button for mac
-        if run != "":
-            log(3, "Scale, run=", run)
-            exec(run, globals())
+        self.contours = self._fig.axes[0].contour(
+            self.im0, (c2, c5),
+            origin='lower', colors="k",
+            linewidths=3)
 
-            #######
-            # INIT  WITH CURRENT IMAGE parameters.
-        # try :
-        if not load:
-            G.scale_dic[0]["cmap"] = self._cbar.mappable.get_cmap().name  # Image color
-            G.scale_dic[0]["min_cut"] = self._cbar.cbar.norm.vmin  # Image color
-            G.scale_dic[0]["max_cut"] = self._cbar.cbar.norm.vmax  # Image color
+        # extent=(-3,3,-2,2))
+        log(0, "---> Contour of 3 and 5 sigma, "
+            "clik again on contour to delete its.")
+
+    def remove_contour(self):
+        if self.contours is None: return
+        for coll in self.contours.collections:
+            coll.remove()
+        self.contours = None
+
+    def CutImageScale(self):
+        """Change contrast and color
+        """
+        log(5, 'CutImage Scale called')
 
         ###########
         # CONTOURS
-        if("contour" in dic) and not isinstance(dic["contour"], bool):
-            log(3, "contour ? ", G.scale_dic[0]["contour"])
-            G.scale_dic[0]["contour"] = not G.scale_dic[0]["contour"]
-            if G.scale_dic[0]["contour"]:
-                if "median" not in G.scale_dic[0]:
-                    tmp = get_root().image.get_stat_as_dic()
-                mean, rms = tmp["mean"], tmp["rms"]
-                c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
-                    rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
+        log(3, "contour ? ", get_state().b_image_contour)
+        if get_state().b_image_contour:
+            self.add_contour()
+        else:
+            self.remove_contour()
 
-                ax = self._fig.axes[0]
-                G.contour = ax.contour(get_root().image.im0, (c2, c5),
-                                        origin='lower', colors="k",
-                                        linewidths=3)
-                # extent=(-3,3,-2,2))
-                log(0, "---> Contour of 3 and 5 sigma, "
-                    "clik again on contour to delete its.")
-
-            else:  # include no contour  delete the contours
-                if not load:
-                    for coll in G.contour.collections:
-                        ax.collections.remove(coll)
-
-        ############
-        # UPDATE UPDATE
-        log(2, " MG.scale ,Scale_dic ", G.scale_dic[0])
-        dic["contour"] = G.scale_dic[0]["contour"]
-        G.scale_dic[0].update(dic)  # UPDATE DIC
 
         ###########
         # CUT
         if get_state().s_image_stretch == "None":
             # IG.ManualCut()
-            G.scale_dic[0]["min_cut"] = W.imstat.min
-            G.scale_dic[0]["max_cut"] = W.imstat.max
+            get_state().i_image_min_cut = get_root().image.stat.min
+            get_state().i_image_max_cut = get_root().image.stat.max
         else:
-            dictmp = {"whole_image": "useless"}
-            dictmp.update(G.scale_dic[0])
-            tmp = get_root().image.MinMaxCut(dic=dictmp)
-            G.scale_dic[0]["min_cut"] = tmp["min_cut"]
-            G.scale_dic[0]["max_cut"] = tmp["max_cut"]
-        log(2, "I called Scale cut ")
+            i_min, i_max = get_root().image.MinMaxCut()
+            get_state().i_image_min_cut = i_min
+            get_state().i_image_max_cut = i_max
 
 
-        ###############
-        #  RELOAD THE IMAGE
-        # TODO
-        if not load:
-            self.Draw()
-
-        ##########
-        # RELOAD PlotStar
-            try:
-                PlotStar2()
-            except BaseException:
-                pass  # in case you didn't pick the star yet
-        return
+        # Reload
+        self.Draw()
+        try:
+            # in case you didn't pick the star yet
+            PlotStar2()
+        except BaseException:
+            pass
 
 
     def Draw(self):
         """ Redraw image with new scale"""
 
         cmap = get_state().s_image_color_map
-        min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
+        i_min, i_max = get_state().i_image_min_cut, get_state().i_image_max_cut
 
         # Normalize
         mynorm = MyNormalize(
-            vmin=min, vmax=max,
-            vmid=min-5,
+            vmin=i_min, vmax=i_max,
+            vmid=i_min-5,
             stretch=get_state().s_image_stretch)
 
-        get_root().ImageFrame._cbar.mappable.set_cmap(cmap)
-        get_root().ImageFrame._cbar.mappable.set_norm(mynorm)
+        self._cbar.mappable.set_cmap(cmap)
+        self._cbar.mappable.set_norm(mynorm)
 
-        get_root().ImageFrame._cbar.cbar.patch.figure.canvas.draw()
-        get_root().ImageFrame.get_canvas().draw()
+        self._cbar.cbar.patch.figure.canvas.draw()
+        self.get_canvas().draw()
 
         try:
             for i in (G.figresult_mappable1, G.figresult_mappable2):
@@ -350,7 +335,7 @@ class ImageFrame(PlotFrame):
             log(2, "Draw cannot draw in figresult")
 
 
-    def Remove1Compass(self):
+    def RemoveCompass(self):
         ax = self._fig.axes[0]
         ax.texts.remove(G.north)
         ax.texts.remove(G.east)
@@ -386,11 +371,11 @@ class ImageFrame(PlotFrame):
         # for the arrow IN the image coords can be "data" or "figure fraction"
         elif coord_type == "data":
             # in figure fraction
-            arrow_center = [0.945 * len(get_root().image.im0), 0.1 * len(get_root().image.im0)]
+            arrow_center = [0.945 * len(self.im0), 0.1 * len(self.im0)]
             # -  because y is upside down       think raw collumn
-            north_point = [arrow_center + north_direction / 20 * len(get_root().image.im0),
-                           arrow_center - north_direction / 20 * len(get_root().image.im0)]
-            east_point = [north_point[1] + east_direction / 20 * len(get_root().image.im0),
+            north_point = [arrow_center + north_direction / 20 * len(self.im0),
+                           arrow_center - north_direction / 20 * len(self.im0)]
+            east_point = [north_point[1] + east_direction / 20 * len(self.im0),
                           north_point[1]]
         W.north_direction = north_direction
         W.east_direction = east_direction

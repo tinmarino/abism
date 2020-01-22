@@ -70,6 +70,7 @@ class ImageInfo():
 
         # Now we speak
         self.hdulist = None  # From fits.open
+        self.header = None  # shortcut
         self.im0 = None  # np.array the image !!
         self.sort = None  # Sorted image for cut and histograms
         self.stat = ImageStat(self)
@@ -202,56 +203,32 @@ class ImageInfo():
         return bpm2, median, bpm, sky, conv
 
 
-    def MinMaxCut(self, dic={}):  # From a true value renge give min_cut and max_cut
-        """Define the min and max cut for the viewable image.
-        @param  grid: the image (to be viewed) as a np.array
-        @param  dic:  the scale_dic,  defining the clipping style and size,
-                    for example style: sygma size: 3 means 3 sigma clipping
-        @return the min and max cut in ADU
-        """
-        grid = self.im0
-
-        # Warning of the following hardcode, sigma is fixed!!
-        # CONFIGURE DEFAULT DIC And get input
-        default_dic = {"scale_cut_type": "sigma_clip",
-                       "sigma_min": 1, "sigma_max": 5}
-        default_dic.update(dic)
-        dic = default_dic
+    def MinMaxCut(self):  # From a true value renge give min_cut and max_cut
+        """Returns: (min, max) cut in ADU for the viewable image"""
+        # Get in <- GUI state
+        cut_type = get_state().s_image_cut
+        cut_value = get_state().i_image_cut
+        log(5, 'Get MinMaxCut for', cut_type, ':', cut_value)
 
         # No Clipping
-        if get_state().s_image_cut == "None":
-            min_cut, max_cut = np.min(grid), np.max(grid)
+        if cut_type == 'None':
+            min_cut, max_cut = self.stat.min, self.stat.max
 
-        # PERCENT in (like keep 80% of pixel in the remaining segment
-        elif get_state().s_image_cut == "percent":
-            percent = get_state().i_image_cut
-            if "whole_image" in dic:
-                sort = get_root().image.sort
-            else:
-                sort = grid.flatten()      # Sorted Flatten Image
-                sort.sort()
-            percent = (100. - percent) / 100.   # get a little percentage
-            min_cut = sort[int(percent / 2 * len(sort))]
-            max_cut = sort[int((1-percent/2)*len(sort))]
+        # Percent
+        elif cut_type == 'percent':
+            percent = (100. - cut_value) / 100.   # get a little percentage
+            min_cut = self.sort[int(percent / 2 * self.stat.number_count)]
+            max_cut = self.sort[int((1 - percent) / 2 * self.stat.number_count)]
 
-        # SIGMA clipping
-        elif get_state().s_image_cut == "sigma_clip":
-            if "sigma_min" not in dic:
-                dic["sigma_min"] = get_state().i_image_cut
-                dic["sigma_max"] = get_state().i_image_cut
-            if "median" not in dic:   # The stats isn't done yet
-                if "whole_image" in dic:
-                    dic.update(vars(get_root().image.stat))
-                else:
-                    dic.update(get_array_stat(grid))
+        # Sigma clipping
+        elif cut_type == 'sigma_clip':
+            sigma_min = cut_value - 2
+            sigma_max = cut_value + 2
 
-            mean, rms = dic["mean"], dic["rms"]
-            s_min, s_max = dic["sigma_min"], dic["sigma_max"]
+            min_cut = self.stat.median - sigma_min * self.stat.rms
+            max_cut = self.stat.median + sigma_max * self.stat.rms
 
-            min_cut, max_cut = mean - s_min*rms, mean + s_max*rms
-
-        res = {"min_cut": min_cut, "max_cut": max_cut}
-        return res
+        return min_cut, max_cut
 
 
     def Rescale(grid, dic={}):  # transform 0-1 to 0-1 with a certain function,

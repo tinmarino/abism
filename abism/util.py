@@ -105,9 +105,6 @@ def get_cut_list():
 class AbismState:
     """Confiugration from user (front) to science (back)"""
     def __init__(self):
-        """Radio button state
-        What is the user asking for ?
-        """
         # Type
         self.fit_type = 'Moffat2D'
         self.pick_type = 'one'
@@ -120,6 +117,7 @@ class AbismState:
         self.b_aniso = True
         self.b_same_psf = True
         self.b_same_center = True
+        self.s_answer_unit = 'detector'  # detector or 'sky'
 
         # UI
         self.b_see_more = False
@@ -132,6 +130,8 @@ class AbismState:
         self.i_image_cut = get_cut_list()[0][3]  # param
         self.i_image_min_cut = 0
         self.i_image_max_cut = 0
+        self.b_image_contour = False
+        self.b_image_reverse = False
 
 
 @lru_cache(1)

@@ -360,16 +360,16 @@ class OptionFrame(TextFrame):
         # Grid them both
         lst = [["Max cut", get_state().i_image_max_cut],
                ["Min cut", get_state().i_image_min_cut]]
-        for i in lst:
+        for text, value in lst:
             # Label
             l = tk.Label(
-                parent, text=i[0],
+                parent, text=text,
                 font=skin().font.answer, **skin().fg_and_bg)
             l.grid(column=0, sticky="snew")
 
             # Entry
             string_var = tk.StringVar()
-            string_var.set("%.1f" % G.scale_dic[0][i[1]])
+            string_var.set("%.1f" % value)
             string_vars.append(string_var)
             e = tk.Entry(
                 parent, width=10, bd=0, **skin().fg_and_bg, font=skin().font.answer,
