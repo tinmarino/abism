@@ -73,7 +73,33 @@ def get_colormap_list():
         ['Magma', 'magma'],
         ['Cubehelix', 'cubehelix'],
         ['RdYlBu_r', 'RdYlBu_r'],
-        ['PRGn', 'PRGn'],]
+        ['PRGn', 'PRGn']]
+
+
+def get_stretch_list():
+    """Alias for scale function for image display
+    fct should only go in comment, they are in MyNormalize
+    """
+    return [
+        ["Lin", "x", "linear"],
+        ["Sqrt", "x**0.5", "sqrt"],
+        ["Square", "x**2", "square"],
+        ["Log", "np.log(x+1)/0.69", "log"],
+        ["Arcsinh", "", "arcsinh"]]
+
+
+def get_cut_list():
+    """Min and max cut
+    label , s_type, key, value
+    Note: you can remove key
+    """
+    return [
+        ["RMS", "sigma_clip", "sigma", 3],
+        ["99.95%", "percent", "percent", 99.95],
+        ["99.9%", "percent", "percent", 99.9],
+        ["99%", "percent", "percent", 99],
+        ["90%", "percent", "percent", 90],
+        ["None", "None", "truc", "truc"]]
 
 
 class AbismState:
@@ -99,6 +125,10 @@ class AbismState:
         self.b_see_more = False  # See more frame ?
         self.b_see_manual_background = False  # See manual background
         self.s_image_color_map = get_colormap_list()[0][1]
+        self.s_image_stretch = get_stretch_list()[0][1]
+        self.s_image_cut = get_cut_list()[0][1]  # fct
+        self.i_image_cut = get_cut_list()[0][3]  # param
+
 
 @lru_cache(1)
 def get_state():

@@ -3,6 +3,13 @@ Cmap chioose must get an invert color
 Cmap remove contour !!
 ImageFrame: clean : remove old parameters and replce what nee by self
 
+MinMAxCut @ image.py
+  * Enum or find a way not to hardcode stufff: they all know util
+
+# Perf
+
+* Stat is not lazy and you resort function many times
+
 # AnwerFrame
 
 * Add other info to Text

@@ -14,14 +14,14 @@ import abism.front.util_front as G
 
 from abism.plugin.window_header import spawn_header_window
 
-from abism.util import get_root, get_state, quit_process, \
-    get_colormap_list
-
 # For tool
 from abism.plugin.DebugConsole import PythonConsole
 from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.Histogram import Histopopo
 from abism.front import Pick  # to connect PickOne per defautl
+
+from abism.util import get_root, get_state, quit_process, \
+    get_colormap_list, get_stretch_list, get_cut_list
 
 
 def MenuBarMaker(parent):
@@ -157,109 +157,97 @@ class ViewMenu(ButtonMenu):
         return 'View'
 
 
-    @staticmethod
-    def on_change_cmap(string_var):
-        cmap = string_var.get()
-
-        # Save
-        get_state().s_image_color_map = cmap
-
-        # Redraw
-        get_root().ImageFrame.CutImageScale(dic={'cmap': cmap})
-
-
     def add_color_column(self):
         """Color drop"""
-        if self.style == "cascade":
-            color_menu = tk.Menu(self, **skin().fg_and_bg)
-        else:
-            # if we don't want cascade, we just add in the menu
-            color_menu = self.menu
-        color_menu.add_command(label="COLOR", bg=None, state=tk.DISABLED)
+        self.menu.add_command(label="COLOR", bg=None, state=tk.DISABLED)
 
         # Create tk var
         string_var = tk.StringVar()
         string_var.set(get_state().s_image_color_map)
 
+        # Define callback
+        def on_change_cmap(string_var):
+            cmap = string_var.get()
+
+            # Save
+            get_state().s_image_color_map = cmap
+
+            # Redraw
+            get_root().ImageFrame.CutImageScale()
+
         # Add my favorite colors
         for i in get_colormap_list():
-            color_menu.add_radiobutton(
+            self.menu.add_radiobutton(
                 label=i[0],
-                command=lambda: ViewMenu.on_change_cmap(string_var),
+                command=lambda: on_change_cmap(string_var),
                 variable=string_var, value=i[1])
 
         # Add contour
         dic = {"contour": 'not a bool'}
-        color_menu.add_command(
+        self.menu.add_command(
             label='Contour',
             command=lambda: get_root().ImageFrame.CutImageScale(dic=dic))
 
-        if self.style == "cascade":
-            self.menu.add_cascade(
-                menu=color_menu, underline=0, label="Color")
-        else:
-            self.menu.add_command(columnbreak=1)
+        # Add column break
+        self.menu.add_command(columnbreak=1)
 
 
     def add_scale_column(self):
         """Scale of image drop"""
-        if self == "cascade":
-            scale_menu = tk.Menu(self, **skin().fg_and_bg)
-        else:
-            scale_menu = self.menu
-        scale_menu.add_command(label="FCT", bg=None, state=tk.DISABLED)
+        self.menu.add_command(label="FCT", bg=None, state=tk.DISABLED)
 
-        G.cu_scale = tk.StringVar()
-        G.cu_scale.set(G.scale_dic[0]["stretch"])
-        lst = [["Lin", "x", "linear"], ["Sqrt", "x**0.5", "sqrt"], ["Square", "x**2",
-                                                                    "square"], ["Log", "np.log(x+1)/0.69", "log"], ["Arcsinh", "", "arcsinh"]]
-        for i in lst:
-            scale_menu.add_radiobutton(label=i[0],
-                                    command=lambda i=i: get_root().ImageFrame.CutImageScale(
-                                        dic={"fct": i[1], "stretch": i[2]}, run="G.cu_scale.set('" + i[2] + "')"),
-                                    variable=G.cu_scale, value=i[2])  # we use same value as label
+        # Create tk var
+        string_var = tk.StringVar()
+        string_var.set(get_state().s_image_stretch)
 
-        if self.style == "cascade":
-            self.menu.add_cascade(
-                menu=scale_menu, underline=0, label="Fct")
-        else:
-            self.menu.add_command(columnbreak=1)
+        # Define callback
+        def on_change_stretch(string_var):
+            """same color map callback"""
+            stretch = string_var.get()
+            get_state().s_image_stretch = stretch
+            get_root().ImageFrame.CutImageScale()
+
+        # Add check buttons
+        for i in get_stretch_list():
+            self.menu.add_radiobutton(
+                label=i[0],
+                command=lambda: on_change_stretch(string_var),
+                variable=string_var, value=i[2])
+
+        # Add break
+        self.menu.add_command(columnbreak=1)
 
 
     def add_cut_column(self):
         """Cut min max of the iamge scale"""
-        if self.style == "cascade":
-            cut_menu = tk.Menu(self, **skin().fg_and_bg)
-        else:
-            cut_menu = self.menu
-        cut_menu.add_command(label="CUTS", bg=None, state=tk.DISABLED)
+        self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED)
 
-        G.cu_cut = tk.StringVar()
-        G.cu_cut.set("RMS")
-        # label , scale_cut_type, key, value
-        lst = [["RMS", "sigma_clip", "sigma", 3],
-            ["99.95%", "percent", "percent", 99.95],
-            ["99.9%", "percent", "percent", 99.9],
-            ["99%", "percent", "percent", 99],
-            ["90%", "percent", "percent", 90],
-            ["None", "None", "truc", "truc"],
-            ]
-        for i in lst:
-            cut_menu.add_radiobutton(
+        string_var = tk.StringVar()
+        string_var.set(get_state().s_image_cut)
+
+        # Define callback
+        def on_change_cut(string_var, value):
+            """same color map callback"""
+            cut = string_var.get()
+            get_state().s_image_cut = cut
+            get_state().i_image_cut = value
+            get_root().ImageFrame.CutImageScale()
+
+        # Add check buttons
+        for i in get_cut_list():
+            self.menu.add_radiobutton(
                 label=i[0],
-                command=lambda i=i: get_root().ImageFrame.CutImageScale(
-                dic={"scale_cut_type": i[1], i[2]: i[3]}, run="G.cu_cut.set('"+i[0] + "')"),
-                variable=G.cu_cut, value=i[0])  # we use same value as label
+                command=lambda i=i: on_change_cut(string_var, i[3]),
+                variable=string_var, value=i[0])
 
-        cut_menu.add_radiobutton(label="Manual",
-                                command=ManualCut,
-                                variable=G.cu_cut, value="Manual")  # we use same value as label
+        # Add manual cut trigger
+        self.menu.add_radiobutton(
+            label="Manual",
+            command=ManualCut,
+            variable=string_var, value="Manual")
 
-        if self.style == "cascade":
-            self.menu.add_cascade(
-                menu=cut_menu, underline=0, label="Cut")
-        else:
-            self.menu.add_command(columnbreak=1)
+        # Add break
+        self.menu.add_command(columnbreak=1)
 
 
 class ToolMenu(ButtonMenu):

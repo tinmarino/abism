@@ -13,13 +13,7 @@ from scipy.signal import convolve2d
 from abism.plugin.ReadHeader import parse_header  # What a name !
 
 # TODO root for MinMaxCut, should be here
-from abism.util import log, get_root
-
-
-# class Grid(np.array):
-#     """Get more cool stuf"""
-#     def __init__(self):
-#         pass
+from abism.util import log, get_root, get_state
 
 
 class ImageStat():
@@ -217,6 +211,7 @@ class ImageInfo():
         """
         grid = self.im0
 
+        # Warning of the following hardcode, sigma is fixed!!
         # CONFIGURE DEFAULT DIC And get input
         default_dic = {"scale_cut_type": "sigma_clip",
                        "sigma_min": 1, "sigma_max": 5}
@@ -224,12 +219,12 @@ class ImageInfo():
         dic = default_dic
 
         # No Clipping
-        if dic["scale_cut_type"] == "None":
+        if get_state().s_image_cut == "None":
             min_cut, max_cut = np.min(grid), np.max(grid)
 
         # PERCENT in (like keep 80% of pixel in the remaining segment
-        elif dic["scale_cut_type"] == "percent":
-            percent = dic["percent"]
+        elif get_state().s_image_cut == "percent":
+            percent = get_state().i_image_cut
             if "whole_image" in dic:
                 sort = get_root().image.sort
             else:
@@ -240,10 +235,10 @@ class ImageInfo():
             max_cut = sort[int((1-percent/2)*len(sort))]
 
         # SIGMA clipping
-        elif dic["scale_cut_type"] == "sigma_clip":
+        elif get_state().s_image_cut == "sigma_clip":
             if "sigma_min" not in dic:
-                dic["sigma_min"] = dic["sigma"]
-                dic["sigma_max"] = dic["sigma"]
+                dic["sigma_min"] = get_state().i_image_cut
+                dic["sigma_max"] = get_state().i_image_cut
             if "median" not in dic:   # The stats isn't done yet
                 if "whole_image" in dic:
                     dic.update(vars(get_root().image.stat))

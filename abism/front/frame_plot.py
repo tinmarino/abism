@@ -295,23 +295,18 @@ class ImageFrame(PlotFrame):
 
         ###########
         # CUT
-        if "scale_cut_type" in dic:
-            if dic["scale_cut_type"] == "None":
-                # IG.ManualCut()
-                G.scale_dic[0]["min_cut"] = W.imstat.min
-                G.scale_dic[0]["max_cut"] = W.imstat.max
-            else:
-                dictmp = {"whole_image": "useless"}
-                dictmp.update(G.scale_dic[0])
-                tmp = get_root().image.MinMaxCut(dic=dictmp)
-                G.scale_dic[0]["min_cut"] = tmp["min_cut"]
-                G.scale_dic[0]["max_cut"] = tmp["max_cut"]
-            log(2, "I called Scale cut ")
+        if get_state().s_image_stretch == "None":
+            # IG.ManualCut()
+            G.scale_dic[0]["min_cut"] = W.imstat.min
+            G.scale_dic[0]["max_cut"] = W.imstat.max
+        else:
+            dictmp = {"whole_image": "useless"}
+            dictmp.update(G.scale_dic[0])
+            tmp = get_root().image.MinMaxCut(dic=dictmp)
+            G.scale_dic[0]["min_cut"] = tmp["min_cut"]
+            G.scale_dic[0]["max_cut"] = tmp["max_cut"]
+        log(2, "I called Scale cut ")
 
-        ######
-        # SCALE FCT
-        if "stretch" not in G.scale_dic[0]:  # in case
-            G.scale_dic[0]["stretch"] = "linear"
 
         ###############
         #  RELOAD THE IMAGE
@@ -334,8 +329,12 @@ class ImageFrame(PlotFrame):
         cmap = get_state().s_image_color_map
         min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
 
+        # Normalize
         mynorm = MyNormalize(
-            vmin=min, vmax=max, stretch=G.scale_dic[0]["stretch"], vmid=min - 5)
+            vmin=min, vmax=max,
+            vmid=min-5,
+            stretch=get_state().s_image_stretch)
+
         get_root().ImageFrame._cbar.mappable.set_cmap(cmap)
         get_root().ImageFrame._cbar.mappable.set_norm(mynorm)
 
