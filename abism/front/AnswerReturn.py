@@ -923,7 +923,7 @@ def PlotOneStar2D():
     Y, X = np.meshgrid(y, x)
 
     def Data(ax):
-        G.figresult_mappable1 = ax.imshow(
+        ax.imshow(
             get_root().image.im0[r[0]:r[1], r[2]:r[3]],
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower')
@@ -935,7 +935,7 @@ def PlotOneStar2D():
         fit_type = get_state().fit_type
         if "Gaussian_hole" in fit_type:
             fit_type = "Gaussian_hole"
-        G.figresult_mappable2 = ax.imshow(
+        ax.imshow(
             vars(BF)[fit_type]((X, Y), W.strehl),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower',
@@ -1047,7 +1047,7 @@ def PlotBinaryStar2D():
     # TRUE
     get_root().ResultFrame.get_figure().clf()
     ax1 = get_root().ResultFrame.get_figure().add_subplot(121)
-    G.figresult_mappable1 = ax1.imshow(
+    ax1.imshow(
         get_root().image.im0[r[0]:r[1], r[2]:r[3]],
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
         cmap=G.cbar.mappable.get_cmap().name, origin='lower')
@@ -1061,7 +1061,7 @@ def PlotBinaryStar2D():
     elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
     ax2 = get_root().ResultFrame.get_figure().add_subplot(122)
-    G.figresult_mappable2 = ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),
+    ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),
                                           vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
                                           cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")

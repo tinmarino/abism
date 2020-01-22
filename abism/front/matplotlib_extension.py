@@ -14,7 +14,6 @@ Should remove abism sutff and git to it as params
 
 import pylab as plt
 import numpy as np
-from scipy.ndimage import gaussian_filter
 from matplotlib.colors import Normalize
 
 from abism.util import get_state
@@ -107,7 +106,7 @@ class DraggableColorbar:
         if event.inaxes != self.cbar.ax:
             return
         self.old["norm"] = self.cbar.norm
-        xprev, yprev = self.press
+        yprev = self.press[1]
         dy = event.y - yprev
         self.press = event.x, event.y
         scale = self.cbar.norm.vmax - self.cbar.norm.vmin
@@ -127,8 +126,10 @@ class DraggableColorbar:
         self.callback()
 
 
-    def on_release(self, event):
-        """on release we reset the press data"""
+    def on_release(self, _):
+        """Reset the press data
+        Param: event: unused
+        """
         self.press = None
 
     def disconnect(self):
@@ -146,6 +147,7 @@ class MyNormalize(Normalize):
 
     def __init__(self, stretch='linear', exponent=5, vmid=None, vmin=None,
                  vmax=None, clip=False):
+        #pylint: disable=too-many-arguments
         '''
         Initalize an APLpyNormalize instance.
 
@@ -209,14 +211,6 @@ class MyNormalize(Normalize):
                 self.midpoint = None
 
     def __call__(self, value, clip=None):
-
-        #read in parameters
-        method = self.stretch
-        exponent = self.exponent
-        midpoint = self.midpoint
-
-        # ORIGINAL MATPLOTLIB CODE
-
         if clip is None:
             clip = self.clip
 
@@ -228,62 +222,60 @@ class MyNormalize(Normalize):
             val = np.ma.array([value]).astype(np.float)
 
         self.autoscale_None(val)
+
+        # Check
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin == vmax:
+        if vmin == vmax:
             return 0.0 * val
-        else:
-            if clip:
-                mask = np.ma.getmask(val)
-                val = np.ma.array(np.clip(val.filled(vmax), vmin, vmax),
-                               mask=mask)
-            result = (val - vmin) * (1.0 / (vmax - vmin))
 
-            # CUSTOM APLPY CODE
+        if clip:
+            mask = np.ma.getmask(val)
+            val = np.ma.array(np.clip(val.filled(vmax), vmin, vmax), mask=mask)
+        result = (val - vmin) * (1.0 / (vmax - vmin))
 
-            # Keep track of negative values
-            negative = result < 0.
+        # Keep track of negative values
+        negative = result < 0.
 
-            if self.stretch == 'linear':
+        result = self.apply_stretch(result)
 
-                pass
-
-            elif self.stretch == 'log':
-
-                result = np.ma.log10(result * (self.midpoint - 1.) + 1.) \
-                    / np.ma.log10(self.midpoint)
-
-            elif self.stretch == 'sqrt':
-
-                result = np.ma.sqrt(result)
-
-            elif self.stretch == 'square':
-
-                result = result * result
-
-            elif self.stretch == 'arcsinh':
-
-                result = np.ma.arcsinh(result / self.midpoint) \
-                    / np.ma.arcsinh(1. / self.midpoint)
-
-            elif self.stretch == 'power':
-
-                result = np.ma.power(result, exponent)
-
-            else:
-
-                raise Exception("Unknown stretch in APLpyNormalize: %s" %
-                                self.stretch)
-
-            # Now set previously negative values to 0, as these are
-            # different from true NaN values in the FITS image
-            result[negative] = -np.inf
+        # Now set previously negative values to 0, as these are
+        # different from true NaN values in the FITS image
+        result[negative] = -np.inf
 
         if vtype == 'scalar':
             result = result[0]
 
         return result
+
+
+    def apply_stretch(self, result):
+        if self.stretch == 'linear':
+            pass
+
+        elif self.stretch == 'log':
+            result = np.ma.log10(result * (self.midpoint - 1.) + 1.) \
+                / np.ma.log10(self.midpoint)
+
+        elif self.stretch == 'sqrt':
+            result = np.ma.sqrt(result)
+
+        elif self.stretch == 'square':
+            result = result * result
+
+        elif self.stretch == 'arcsinh':
+            result = np.ma.arcsinh(result / self.midpoint) \
+                / np.ma.arcsinh(1. / self.midpoint)
+
+        elif self.stretch == 'power':
+            result = np.ma.power(result, self.exponent)
+
+        else:
+            raise Exception("Unknown stretch in APLpyNormalize: %s" %
+                            self.stretch)
+        return result
+
 
     def inverse(self, value):
 
@@ -307,7 +299,7 @@ class MyNormalize(Normalize):
 
         elif self.stretch == 'log':
 
-            val = (np.ma.power(10., val * ma.log10(self.midpoint)) - 1.) / \
+            val = (np.ma.power(10., val * np.ma.log10(self.midpoint)) - 1.) / \
                 (self.midpoint - 1.)
 
         elif self.stretch == 'sqrt':
@@ -317,7 +309,7 @@ class MyNormalize(Normalize):
         elif self.stretch == 'arcsinh':
 
             val = self.midpoint * \
-                np.ma.sinh(val * ma.arcsinh(1. / self.midpoint))
+                np.ma.sinh(val * np.ma.arcsinh(1. / self.midpoint))
 
         elif self.stretch == 'square':
 
@@ -335,8 +327,10 @@ class MyNormalize(Normalize):
         return vmin + val * (vmax - vmin)
 
 
-def get_center_and_radius(event, ax):
-    """Return center, radius, both are (x, y) tuples"""
+def get_center_and_radius(_, ax):
+    """Return center, radius, both are (x, y) tuples
+    Param: event, ax
+    """
     # Get the current x and y limits
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -382,7 +376,7 @@ def zoom_handler(event, ax, callback=plt.draw, base_scale=1.2):
 
 def center_handler(event, ax, callback=plt.draw):
     # Get image center and radius
-    center, radius = get_center_and_radius(event, ax)
+    _, radius = get_center_and_radius(event, ax)
     click = (event.xdata, event.ydata)
 
     # Set new limits

@@ -324,15 +324,18 @@ class ImageFrame(PlotFrame):
         self._cbar.mappable.set_norm(mynorm)
 
         self._cbar.cbar.patch.figure.canvas.draw()
-        self.get_canvas().draw()
+        self.redraw()
 
+        # Try to draw  result frame
         try:
-            for i in (G.figresult_mappable1, G.figresult_mappable2):
-                i.set_norm(mynorm)
-                i.set_cmap(cmap)
-            get_root().FrameResult.redraw()
-        except BaseException:
-            log(2, "Draw cannot draw in figresult")
+            for ax in get_root().ResultFrame.get_figure().axes:
+                if not len(ax.images): continue
+                mappable = ax.images[0]
+                mappable.set_norm(mynorm)
+                mappable.set_cmap(cmap)
+            get_root().ResultFrame.redraw()
+        except BaseException as e:
+            log(2, "Draw cannot draw in Result Figure (bottom right):", e)
 
 
     def RemoveCompass(self):
