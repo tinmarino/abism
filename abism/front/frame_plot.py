@@ -246,7 +246,6 @@ class ImageFrame(PlotFrame):
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
         if new_fits:
-            G.label_bool = 0
             get_root().LabelFrame.update_label()
 
         self.extend_matplotlib()

@@ -480,7 +480,7 @@ def PlotBinary():
 
     ##############
     # SKY COORD
-    else:  # including Scale_dic[0]["answer"] = sky
+    else:  # Including coor_type from sky = sky
         G.bu_answer_type["text"] = u"\u21aa"+'To detector'
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
         G.lb_answer_type["text"] = "In sky units"

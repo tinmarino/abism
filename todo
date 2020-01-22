@@ -20,6 +20,7 @@ Fix: cut than is really cutting the image !!!
 * Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * More options, test my stuff
+* Destroy cleanly, no matplotlib error should trigger
 
 # Always possible
 

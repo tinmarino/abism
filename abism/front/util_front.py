@@ -10,44 +10,21 @@ from enum import Enum
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-from abism.util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
+from abism.util import root_path, log, get_version, get_root
 
 
-""" SOOOO dirty"""
+# SOOOO dirty
+
 
 class VoidClass:
     """Helper container"""
 
-
-interaction_type = "tkinter"
-last_top_size = 300
-
-# GEO DIC
-geo_dic = {}                        # geometry dictionnay
-geo_dic['ResultFrame'] = 300
-
-
-# SCALE dic for the color and contrast
-scale_dic = [{}]
-scale_dic[0]["contour"] = False
-scale_dic[0]["answer"] = "detector"
-
-# BOOL TODO remove
+# Clean Analysis Menu
 more_bool = 0
-
-toolbar_fit_bool = False
-toolbar_result_bool = False
 manual_back_bool = False
-# the labels on the left, when open image, this is set to true
-label_bool = True
-result_bool = True                          # show the full results frame
-top_bool = True
-in_arrow_frame = None                          # no body in lefftoparrowframe
-
-# CLASS
-# (we save the tkvariables ) # it may be changed see image parameters
+in_arrow_frame = None   # no body in lefftoparrowframe
+tkentry = VoidClass()   # Image parameters
 tkvar = VoidClass()
-tkentry = VoidClass()
 
 
 
@@ -140,6 +117,7 @@ class TextDic(DotDic):
 
 
 class MenuDic(DotDic):
+    """Skin for menu buttons"""
     def __init__(self, color):
         super().__init__()
         self.background = color.bg
@@ -157,6 +135,7 @@ class LabelTitleDic(DotDic):
         "padx": 3,
     """
     def __init__(self, color):
+        super().__init__()
         self.bg = color.label_title_bg
         self.fg = color.label_title_fg
         self.font = tk.font.Font(size=10)
@@ -167,6 +146,7 @@ class LabelTitleDic(DotDic):
 
 
 class TitleLabel(tk.Label):
+    """Label on left frame where title of the frame"""
     def __init__(self, parent, **args):
         args.update(skin().label_title_dic)
         super().__init__(parent, **args)
@@ -312,6 +292,7 @@ def reset_skin(in_scheme):
     """Invalidate skin cache
     Used if skin has been updated from callers (the world)
     """
+    # pylint: disable=global-statement
     global scheme
     scheme = in_scheme
     skin.cache_clear()
