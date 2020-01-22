@@ -19,14 +19,6 @@ class VoidClass:
     """Helper container"""
 
 
-# BUTTON WIDTH
-button_width = 12  # the width of the standard buttons
-
-# GUI FORM
-# we don't hide text frame by default, the text framme is the output frame on the left
-hidden_text_bool = 0
-all_frame = []                        # all frames will be here to change color
-# Can be tkinter or shell , written interaction with the mainloop
 interaction_type = "tkinter"
 last_top_size = 300
 

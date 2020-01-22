@@ -1,35 +1,43 @@
 """
     Fits Header parser
-    These are the importants files I retrieve from the header.
 
+Necessary:
     diameter        (real in m)     The primary diameter
     wavelenght      (real in um)    The wavelength of the detection
     obstruction     (real in %)     The percentage in area of the central
-    obstruction. This is 14%**2 for VLT i guess, TODO check that !!
+                                    obstruction. This is 14%**2 for VLT i guess,
     pixel_scale     (real in arsec/pixel) The number anguler size of one p
-    pixel in arcsec
+                                    pixel in arcsec
+
+Util for real intensity/position:
     exptime         (real in sec)   The time of one exposure.  This will not
-    infer the strehl ratio but the potometry  as well as the zero point.
+                                    infer the strehl ratio but the potometry
+                                    as well as the zero point.
     zpt             (real in log)   The luminosity of 1 intensity Arbitrary
-    Unit during one second. The higher the Zero point, the fainter stars (or noise)
-    you may detect. It depends on the filter AND the airmass.
-    wcs             (wcs object)  This set of matrices can be used to get the
-    position on sky of your object.
+                                    Unit during one second.
+                                    The higher the Zero point, the fainter stars
+                                    (or noise) you may detect.
+                                    It depends on the filter AND the airmass.
+    wcs             (wcs object)    This set of matrices can be used to get the
+                                    position on sky of your object.
+
+Helper:
     telescope       (string)        Name of your telescope
     date            (string)        Date, maybe of last modification
     date_obs        (string)        Data of observation.
     instrument      (string)        Name of the instrument.
     company         (string)        Name of the company owning the telescope:
-        ESO, CFHT, Carnergie...
+                                    ESO, CFHT, Carnergie...
 
     instrument      (string)        Name of the camera. Can be used to
-    automatially retrieve informations.
+                                    automatially retrieve informations.
     reduced_type    (string)        RAW or REDUCED
 
     saturation_level  (real ADU)    The ADU of saturation of the CCD, proper to
-    the science camera.
-    non_lineratiry_level (real ADU) The ADU where non linearity starts, I wont
-    use this value I guess. Or just as a quiet warning.
+                                    the science camera.  non_lineratiry_level
+                                    (real ADU) The ADU where non linearity starts,
+                                    I wont use this value I guess.
+                                    Or just as a quiet warning.
 """
 
 import numpy as np

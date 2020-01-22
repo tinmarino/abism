@@ -174,7 +174,6 @@ def MoreCreate():
     # FRAME
     # create the more_staff Frame
     G.MoreFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
-    G.all_frame.append("G.MoreFrame")
     G.MoreFrame.grid(sticky='nsew')
 
     label_more = TitleLabel(G.MoreFrame, text="More Options")
@@ -182,7 +181,6 @@ def MoreCreate():
 
     #
     frame_more_grid = tk.Frame(G.MoreFrame, bg=skin().color.bg)
-    G.all_frame.append("frame_more_grid")
     frame_more_grid.pack(side=tk.TOP, expand=0, fill=tk.X)
     frame_more_grid.columnconfigure(0, weight=1)
     frame_more_grid.columnconfigure(1, weight=1)
@@ -275,9 +273,6 @@ def MoreClose():
         G.arrtitle.destroy()
     G.in_arrow_frame = None
 
-    # REMOVE MOREFRAME AND CHILD
-    G.all_frame = [x for x in G.all_frame if x != "G.MoreFrame"]
-
     # Change help menu label
     for i in range(1, 10):
         j = parent_more.menu.entrycget(i, "label")
@@ -298,7 +293,6 @@ def ManualBackground():
 def ManualBackOpen():
     get_state().noise_type = "manual"
     G.ManualBackFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
-    G.all_frame.append("G.ManualBackFrame")
     G.ManualBackFrame.grid(sticky='nsew')
     G.ManualBackFrame.columnconfigure(0, weight=1)
     G.ManualBackFrame.columnconfigure(1, weight=1)
@@ -335,9 +329,6 @@ def ManualBackOpen():
 
 def ManualBackClose():
     G.ManualBackFrame.destroy()
-    G.all_frame = [x for x in G.all_frame if x !=
-                   "G.ManualBackFrame"]  # remove Frame
-
     G.background = float(G.tkvar.background.get())
 
 
