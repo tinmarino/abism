@@ -281,10 +281,9 @@ class ImageFrame(PlotFrame):
         ###########
         # CONTOURS
         log(3, "contour ? ", get_state().b_image_contour)
+        self.remove_contour()
         if get_state().b_image_contour:
             self.add_contour()
-        else:
-            self.remove_contour()
 
 
         ###########
@@ -348,7 +347,7 @@ class ImageFrame(PlotFrame):
         ax = self._fig.axes[0]
         if not (("CD1_1" in vars(get_root().header)) and ("CD2_2" in vars(get_root().header))):
             log(0, "WARNING WCS Matrix not detected,",
-                  "I don't know where the north is")
+                "I don't know where the north is")
             get_root().header.CD1_1 = get_root().header.pixel_scale * 3600
             get_root().header.CD2_2 = get_root().header.pixel_scale * 3600
 
@@ -380,7 +379,7 @@ class ImageFrame(PlotFrame):
         W.north_direction = north_direction
         W.east_direction = east_direction
         log(3, "north", north_point, east_point,
-              arrow_center, north_direction, east_direction)
+            arrow_center, north_direction, east_direction)
 
         #################
         # 2/ DRAW        0 is the end of the arrow
