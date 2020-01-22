@@ -32,6 +32,20 @@ class Answer(ABC):
         return str(self.value)
 
 
+class AnswerSky(Answer):
+    """Different possible representation
+    on sky: real univer
+    on detector: what you see, (on image is overused)
+    """
+    @abstractmethod
+    def str_sky(self):
+        return self.__str__()
+
+    @abstractmethod
+    def str_detector(self):
+        return self.__str__()
+
+
 class AnswerNum(Answer):
     """A number"""
     def __init__(self, text, number):
@@ -41,7 +55,7 @@ class AnswerNum(Answer):
         return f'{self.value:,.1f}'.replace(',', ' ')
 
 
-class AnswerPosition(Answer):
+class AnswerPosition(AnswerSky):
     """A position on image: x, y or ra/dec
     Stored as x, y and a ref to wcs
     """

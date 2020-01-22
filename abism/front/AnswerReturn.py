@@ -25,7 +25,8 @@ import abism.back.util_back as W
 # Plugin
 from abism.plugin import ReadHeader as RH  # to know witch telescope
 
-from abism.util import log, get_root, get_state, EA
+from abism.util import log, get_root, get_state, EA, \
+    AnswerSky
 
 
 class AnswerLine(ABC):
@@ -63,6 +64,25 @@ class AnswerImageSky(AnswerLine):
         else:
             text.insert(END, self.s_sky, self.tags)
         text.insert(END, "\n")
+
+    @staticmethod
+    def from_answer(answer, tags=[]):
+        # Get sky and detector
+        if isinstance(answer, AnswerSky):
+            s_sky = answer.str_sky()
+            s_detector = answer.str_detector()
+        else:
+            s_sky = s_detector = str(answer)
+
+        # Return crafted object
+        return AnswerImageSky(
+            str(answer.text),
+            answer.value,
+            s_detector,
+            s_sky,
+            tags=tags
+            )
+
 
 
 class AnswerText(AnswerLine):
@@ -218,14 +238,8 @@ def PlotPickOne():
     W.tmp.lst = []
 
     # Strehl
-    line = AnswerImageSky(
-        "Strehl: ",
-        get_state().answers[EA.STREHL].value,
-        MyFormat(get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + \
-            MyFormat(W.strehl["err_strehl"], 1, "f") + " %",
-        '',
-        tags=['tag-important']
-        )
+    line = AnswerImageSky.from_answer(
+        get_state().answers[EA.STREHL], tags=['tag-important'])
     W.tmp.lst.append(line)
 
     # Equivalent Strehl Ratio
