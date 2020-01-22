@@ -4,24 +4,10 @@
 import tkinter as tk
 
 from abism.front import Pick
-from abism.front.util_front import skin, TitleLabel
+from abism.front.util_front import skin, TitleLabel, open_backgroud_and_substract
 import abism.front.util_front as G
 
-import abism.back.util_back as W
-
 from abism.util import log, get_root, get_state
-
-"""
-             #TODO ["Ellipse"   , "ellipse" ,
-             lambda: Pick.RefreshPick("ellipse") ] ,
-             #TODO ["Annulus"   , "annulus" ,
-             lambda: Pick.RefreshPick("annulus") ],
-             #TODO ["Tight Binary", "tightbinary"  ,
-             lambda: Pick.RefreshPick("tightbinary") ] ,
-             #["Gaussian_hole" ,  "Gaussian_hole"   ,
-             #  ["InRectangle", "in_rectangle" ] ,
-
-"""
 
 
 def AnalysisMenu(parent):
@@ -86,17 +72,13 @@ def AnalysisMenu(parent):
     return menu_button
 
 
-parent_more = None
-
-
 
 
 def MoreWidget(parent):
     """More photometry options frame"""
-    global parent_more
-    parent_more = parent
 
     # Change  menu label more option -> less option
+    # Todo as toogle in TextFrame
     for i in range(1, 10):
         j = parent.menu.entrycget(i, "label")
         if "Option" in j:
@@ -109,176 +91,7 @@ def MoreWidget(parent):
                     i, label=u'\u25b4 '+'Less Option')
                 break
 
-    # CHANGE BOOL MAY CLOSE
-    if G.more_bool == 1:  # close more frame
-        MoreClose()
-
-    else:  # CREATE
-        MoreCreate()
-
-
-def grid_more_checkbuttons(frame):
-    myargs = {"anchor": "w", "bg": skin().color.bg, "fg": skin().color.fg,
-              "padx": 0, "pady": 0, "highlightthickness": 0}
-
-    # Define callback
-    def on_change_aniso(int_var):
-        get_state().b_aniso = int_var.get()
-        # Aniso
-        if get_state().b_aniso:
-            msg = "Anisomorphism: angular dimension are fitted separately"
-        else:
-            msg = "Isomorphism: angular dimension are fitted together"
-        log(0, msg)
-
-    def on_change_psf(int_var):
-        get_state().b_same_psf = int_var.get()
-        if get_state().b_same_psf:
-            msg = "Not same psf: Each star is fitted with independant psf"
-        else:
-            msg = "Same psf: Both stars are fitted with same psf"
-        log(0, msg)
-
-    def on_change_center(int_var):
-        get_state().b_same_center = int_var.get()
-        if get_state().b_same_center:
-            msg = ("Same center: Assuming the saturation "
-                   "is centered at the center of the object")
-        else:
-            msg = ("Not same center: Assuming the saturation"
-                   "isn't centered at the center of th object")
-        log(0, msg)
-
-
-    # Declare label and associated variable
-    text_n_var_n_fct = (
-        ('Anisomorphism', get_state().b_aniso, on_change_aniso),
-        ('Binary_same_psf', get_state().b_same_psf, on_change_psf),
-        ('Saturated_same_center', get_state().b_same_center, on_change_center),
-    )
-
-    # Create && Grid all
-    for (text, var, fct) in text_n_var_n_fct:
-        int_var = tk.IntVar(value=var)
-        check = tk.Checkbutton(
-            frame, text=text, variable=int_var,
-            command=lambda fct=fct, int_var=int_var: fct(int_var), **myargs)
-        check.grid(column=0, columnspan=2, sticky='nwse')
-
-
-def MoreCreate():
-    """Create More Frame"""
-    G.more_bool = not G.more_bool  # mean = 1
-
-    # #########""
-    # FRAME
-    # create the more_staff Frame
-    G.MoreFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
-    G.MoreFrame.grid(sticky='nsew')
-
-    label_more = TitleLabel(G.MoreFrame, text="More Options")
-    label_more.pack(side=tk.TOP, anchor="w")
-
-    #
-    frame_more_grid = tk.Frame(G.MoreFrame, bg=skin().color.bg)
-    frame_more_grid.pack(side=tk.TOP, expand=0, fill=tk.X)
-    frame_more_grid.columnconfigure(0, weight=1)
-    frame_more_grid.columnconfigure(1, weight=1)
-
-
-    def set_noise(i):
-        get_state().noise_type = i
-
-    def set_phot(i):
-        get_state().phot_type = i
-
-    def PhotType(frame):
-        G.menu_phot = tk.Menubutton(frame, text=u'\u25be '+'Photometry',
-                                    relief=tk.RAISED, **skin().button_dic)
-        G.menu_phot.menu = tk.Menu(G.menu_phot)
-
-        G.cu_phot = tk.StringVar()
-        G.cu_phot.set(get_state().phot_type)
-
-        lst = [
-            ['Elliptical Aperture', 'elliptical_aperture'],
-            ['Fit', 'fit'],
-            ['Rectangle Aperture', 'encircled_energy'],
-            ['Manual', 'manual'],
-        ]
-
-        for i in lst:
-            G.menu_phot.menu.add_radiobutton(
-                label=i[0], command = lambda: set_phot(i[1]),
-                variable=G.cu_phot, value=i[1])
-
-        G.menu_phot['menu'] = G.menu_phot.menu
-        return G.menu_phot
-
-    # Substract background
-    bu_subtract_bg = tk.Button(
-        frame_more_grid, text='SubstractBackground',
-        command=SubstractBackground, **skin().button_dic)
-    bu_subtract_bg.grid(row=0, column=0, columnspan=2, sticky="nswe")
-
-    # Noise type
-    def NoiseType(frame):
-        G.menu_noise = tk.Menubutton(
-            frame, text=u'\u25be '+'Background',
-            relief=tk.RAISED, **skin().button_dic)
-        G.menu_noise.menu = tk.Menu(G.menu_noise)
-
-        G.cu_noise = tk.StringVar()
-        G.cu_noise.set(get_state().noise_type)
-
-        lst = [
-            ["Annulus", "elliptical_annulus"],
-            ['Fit', 'fit'],
-            ["8Rects", "8rects"],
-            ['Manual', "manual"],
-            ["None", "None"],
-        ]
-        for i in lst:
-            if i[0] == "Manual":
-                G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=ManualBackground,
-                    variable=G.cu_noise, value=i[1])
-            else:
-                G.menu_noise.menu.add_radiobutton(
-                    label=i[0], command=lambda i=i: set_noise(i[1]),
-                    variable=G.cu_noise, value=i[1])
-
-        G.menu_noise['menu'] = G.menu_noise.menu
-        return G.menu_noise
-
-    NoiseType(frame_more_grid).grid(row=1, column=0, sticky="nswe")
-    PhotType(frame_more_grid).grid(row=1, column=1, sticky="nswe")
-    grid_more_checkbuttons(frame_more_grid)
-
-
-    bu_close = tk.Button(frame_more_grid, text=u'\u25b4 '+'Close',
-                         command=MoreClose, **skin().button_dic)
-    bu_close.grid(column=0, columnspan=2)
-
-    # Redraw
-    get_root().OptionFrame.init_will_toogle(visible=True, add_title=False)
-
-
-def MoreClose():
-    """Close the Frame"""
-    # change bool destroy
-    G.more_bool = not G.more_bool
-    G.MoreFrame.destroy()
-    if G.in_arrow_frame == "title_more":
-        G.arrtitle.destroy()
-    G.in_arrow_frame = None
-
-    # Change help menu label
-    for i in range(1, 10):
-        j = parent_more.menu.entrycget(i, "label")
-        if "Option" in j:
-            parent_more.menu.entryconfig(i, label=u'\u25be '+'More Option')
-            break
+    get_root().OptionFrame.toogle_more_analysis(parent)
 
 
 def ManualBackground():
@@ -330,24 +143,6 @@ def ManualBackOpen():
 def ManualBackClose():
     G.ManualBackFrame.destroy()
     G.background = float(G.tkvar.background.get())
-
-
-def SubstractBackground():
-    """Subtract A background image
-    Choose a FITS image tho subtract to the current image to get read of the sky
-    value or/and the pixel response. This is a VERY basic task that is only
-    subtracting 2 images.
-    It could be improved but image reduction is not the goal of ABISM
-    """
-    from tkinter.filedialog import askopenfilename
-
-    # Ask for background
-    fp_sky = askopenfilename(
-        filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
-
-    # Substract and Redraw
-    if get_root().image.substract_sky(fp_sky):
-        get_root().ImageFrame.draw_image()
 
 
 def SetFitType(name):  # strange but works

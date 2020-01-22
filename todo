@@ -5,6 +5,9 @@
   * Get Ellipse in legacy
     * First create legacy button
 
+2. Refactor Analysis menu
+  1. frame_text, mustcreate subclass, do not push all in option (remember extendability)
+
 Fix: cut than is really cutting the image !!!
 
 # UI

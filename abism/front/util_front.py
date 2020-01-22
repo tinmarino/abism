@@ -14,12 +14,9 @@ from abism.util import root_path, log, get_version, get_root
 
 
 # SOOOO dirty
-
-
+# Clean Analysis Menu
 class VoidClass:
     """Helper container"""
-
-# Clean Analysis Menu
 more_bool = 0
 manual_back_bool = False
 in_arrow_frame = None   # no body in lefftoparrowframe
@@ -79,6 +76,11 @@ class ButtonDic(DotDic):
         self.pady = 0
         self.highlightthickness = 0
 
+
+class CheckButtonDic(ButtonDic):
+    def __init__(self, color):
+        super().__init__(color)
+        self.anchor = 'w'
 
 class PanedDic(DotDic):
     """The sas is the little between windows "glissiere", to resize"""
@@ -231,6 +233,7 @@ class Skin:
         self.label_title_dic = LabelTitleDic(self.color)
         self.text_dic = TextDic(self.color)
         self.menu_dic = MenuDic(self.color)
+        self.checkbutton_dic = CheckButtonDic(self.color)
 
         self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
 
@@ -417,3 +420,17 @@ def open_file():
     # Change title
     fname = get_root().image.name.split('/')[-1]
     get_root().title('Abism (' + fname + ')')
+
+
+def open_backgroud_and_substract():
+    """Subtract A background image"""
+    # Ask for background
+    fp_sky = askopenfilename(
+        filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
+
+    # Substract and Redraw
+    if get_root().image.substract_sky(fp_sky):
+        get_root().ImageFrame.draw_image()
+
+
+

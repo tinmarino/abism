@@ -11,11 +11,39 @@ import re
 import tkinter as tk
 
 from abism.front.util_front import photo_up, photo_down, skin, \
-    TitleLabel
+    TitleLabel, open_backgroud_and_substract
 
 from abism.util import log, get_root, quit_process, restart, get_state
 
+# TODO remove
 import abism.front.util_front as G
+from abism.front.Menu.AnalysisMenu import ManualBackground
+
+
+class LeftFrame(tk.Frame):
+    """Full Container"""
+    def __init__(self, root, parent):
+        # Append self -> parent
+        super().__init__(parent, **skin().frame_dic)
+        parent.add(self)
+
+        # Create Paned
+        text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
+
+        # Add LabelFrame
+        root.LabelFrame = LabelFrame(text_paned, index=0, label_text='Info')
+
+        # Add LabelFrame
+        root.OptionFrame = OptionFrame(text_paned, index=1, label_text='Option')
+
+        # Add AnswerFrame
+        root.AnswerFrame = AnswerFrame(text_paned, label_text='Result')
+        # Create Buttons with callback to preceding
+        button_frame = ButtonFrame(self)
+
+        # Pack buttons and pane
+        button_frame.pack(side=tk.TOP, expand=0, fill=tk.X)
+        text_paned.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
 
 class TextFrame(tk.Frame):
@@ -233,6 +261,11 @@ class OptionFrame(TextFrame):
         self.see_manual_cut = False
         self.frame_manual_cut = None
 
+        # More analysis
+        self.see_more_analysis = False
+        self.frame_more_analysis = None
+        self.parent_more_analysis = None
+
         self.init_after()
 
     def ask_image_parameters(self):
@@ -387,6 +420,188 @@ class OptionFrame(TextFrame):
         self.init_will_toogle(visible=True, add_title=False)
 
 
+    def toogle_more_analysis(self, parent):
+        self.see_more_analysis = not self.see_more_analysis
+
+        # Keep ref to change label
+        self.parent_more_analysis = parent
+
+        # Discriminate show / hide
+        if self.see_more_analysis:
+            self.open_more_analysis()
+        else:
+            self.close_more_analysis()
+
+
+    @staticmethod
+    def grid_more_checkbuttons(frame):
+        # Define callback
+        def on_change_aniso(int_var):
+            get_state().b_aniso = int_var.get()
+            # Aniso
+            if get_state().b_aniso:
+                msg = "Anisomorphism: angular dimension are fitted separately"
+            else:
+                msg = "Isomorphism: angular dimension are fitted together"
+            log(0, msg)
+
+        def on_change_psf(int_var):
+            get_state().b_same_psf = int_var.get()
+            if get_state().b_same_psf:
+                msg = "Not same psf: Each star is fitted with independant psf"
+            else:
+                msg = "Same psf: Both stars are fitted with same psf"
+            log(0, msg)
+
+        def on_change_center(int_var):
+            get_state().b_same_center = int_var.get()
+            if get_state().b_same_center:
+                msg = ("Same center: Assuming the saturation "
+                    "is centered at the center of the object")
+            else:
+                msg = ("Not same center: Assuming the saturation"
+                    "isn't centered at the center of th object")
+            log(0, msg)
+
+
+        # Declare label and associated variable
+        text_n_var_n_fct = (
+            ('Anisomorphism', get_state().b_aniso, on_change_aniso),
+            ('Binary_same_psf', get_state().b_same_psf, on_change_psf),
+            ('Saturated_same_center', get_state().b_same_center, on_change_center),
+        )
+
+        # Create && Grid all
+        for (text, var, fct) in text_n_var_n_fct:
+            int_var = tk.IntVar(value=var)
+            check = tk.Checkbutton(
+                frame, text=text, variable=int_var, **skin().checkbutton_dic,
+                command=lambda fct=fct, int_var=int_var: fct(int_var))
+            check.grid(column=0, columnspan=2, sticky='nwse')
+
+
+    def open_more_analysis(self):
+        """Create More Frame"""
+        # Grid root
+        self.frame_more_analysis = tk.Frame(
+            get_root().OptionFrame, **skin().frame_dic)
+        self.frame_more_analysis.grid(sticky='nsew')
+
+        # Pack title
+        label_more = TitleLabel(self.frame_more_analysis, text="More Options")
+        label_more.pack(side=tk.TOP, anchor="w")
+
+        # Pack rest
+        frame_more_grid = tk.Frame(
+            self.frame_more_analysis, **skin().frame_dic)
+        frame_more_grid.pack(side=tk.TOP, expand=0, fill=tk.X)
+        frame_more_grid.columnconfigure(0, weight=1)
+        frame_more_grid.columnconfigure(1, weight=1)
+
+        # Grid button: substract background
+        bu_subtract_bg = tk.Button(
+            frame_more_grid, text='SubstractBackground',
+            command=open_backgroud_and_substract, **skin().button_dic)
+        bu_subtract_bg.grid(row=0, column=0, columnspan=2, sticky="nswe")
+
+        # Grid Menu: set photometric type
+        def create_phot_menu(frame):
+            menu_phot = tk.Menubutton(
+                frame, text=u'\u25be '+'Photometry',
+                relief=tk.RAISED, **skin().button_dic)
+            menu_phot.menu = tk.Menu(menu_phot)
+            menu_phot['menu'] = menu_phot.menu
+
+            lst = [
+                ['Elliptical Aperture', 'elliptical_aperture'],
+                ['Fit', 'fit'],
+                ['Rectangle Aperture', 'encircled_energy'],
+                ['Manual', 'manual'],
+            ]
+
+            def set_phot(i):
+                get_state().phot_type = i
+
+            # Add radio buttons:
+            string_var = tk.StringVar()
+            string_var.set(get_state().phot_type)
+            for text, tag in lst:
+                menu_phot.menu.add_radiobutton(
+                    label=text, command=lambda tag=tag: set_phot(tag),
+                    variable=string_var, value=tag)
+
+            return menu_phot
+
+        create_phot_menu(frame_more_grid).grid(row=1, column=1, sticky="nswe")
+
+        # Grid menu: set noise type (or background estimation)
+        def create_noise_menu(frame):
+            # Root
+            menu = tk.Menubutton(
+                frame, text=u'\u25be '+'Background',
+                relief=tk.RAISED, **skin().button_dic)
+            menu.menu = tk.Menu(menu)
+            menu['menu'] = menu.menu
+
+
+            lst = [
+                ["Annulus", "elliptical_annulus"],
+                ['Fit', 'fit'],
+                ["8Rects", "8rects"],
+                ['Manual', "manual"],
+                ["None", "None"],
+            ]
+
+            def set_noise(i):
+                get_state().noise_type = i
+
+            string_var = tk.StringVar()
+            string_var.set(get_state().noise_type)
+            for text, tag in lst:
+                if text == "Manual":
+                    menu.menu.add_radiobutton(
+                        label=text, command=ManualBackground,
+                        variable=string_var, value=tag)
+                else:
+                    menu.menu.add_radiobutton(
+                        label=text, command=lambda tag=tag: set_noise(tag),
+                        variable=string_var, value=tag)
+
+            return menu
+
+        menu_noise = create_noise_menu(frame_more_grid)
+        menu_noise.grid(row=1, column=0, sticky="nswe")
+
+        # Grid check buttons: for conf
+        self.__class__.grid_more_checkbuttons(frame_more_grid)
+
+        bu_close = tk.Button(
+            frame_more_grid, text=u'\u25b4 '+'Close',
+            command=self.close_more_analysis, **skin().button_dic)
+        bu_close.grid(column=0, columnspan=2)
+
+        # Redraw
+        get_root().OptionFrame.init_will_toogle(visible=True, add_title=False)
+
+
+    def close_more_analysis(self):
+        """Close the Frame"""
+        self.see_more_analysis.destroy()
+
+        # destroy arrow
+        if G.in_arrow_frame == "title_more":
+            G.arrtitle.destroy()
+        G.in_arrow_frame = None
+
+        # Change help menu label
+        for i in range(1, 10):
+            j = self.parent_more_analysis.menu.entrycget(i, "label")
+            if "Option" in j:
+                self.parent_more_analysis.menu.entryconfig(
+                    i, label=u'\u25be '+'More Option')
+                break
+
+
 class AnswerFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent, **args):
@@ -438,29 +653,3 @@ class ButtonFrame(tk.Frame):
         bu_quit.grid(row=0, column=0, sticky="nsew")
         bu_restart.grid(row=0, column=1, sticky="nsew")
         G.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
-
-
-class LeftFrame(tk.Frame):
-    """Full Container"""
-    def __init__(self, root, parent):
-        # Append self -> parent
-        super().__init__(parent, **skin().frame_dic)
-        parent.add(self)
-
-        # Create Paned
-        text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
-
-        # Add LabelFrame
-        root.LabelFrame = LabelFrame(text_paned, index=0, label_text='Info')
-
-        # Add LabelFrame
-        root.OptionFrame = OptionFrame(text_paned, index=1, label_text='Option')
-
-        # Add AnswerFrame
-        root.AnswerFrame = AnswerFrame(text_paned, label_text='Result')
-        # Create Buttons with callback to preceding
-        button_frame = ButtonFrame(self)
-
-        # Pack buttons and pane
-        button_frame.pack(side=tk.TOP, expand=0, fill=tk.X)
-        text_paned.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
