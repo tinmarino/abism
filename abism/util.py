@@ -70,16 +70,10 @@ def get_colormap_list():
     """
     return [
         ['Black&White', 'bone'],
-        ['Spectral-r', 'Spectral_r'],
         ['Magma', 'magma'],
         ['Cubehelix', 'cubehelix'],
         ['RdYlBu_r', 'RdYlBu_r'],
-        ['PRGn', 'PRGn'],
-        ]
-
-
-
-
+        ['PRGn', 'PRGn'],]
 
 
 class AbismState:
@@ -104,7 +98,7 @@ class AbismState:
         # UI
         self.b_see_more = False  # See more frame ?
         self.b_see_manual_background = False  # See manual background
-        self.s_image_color_map = 'bone'
+        self.s_image_color_map = get_colormap_list()[0][1]
 
 @lru_cache(1)
 def get_state():

@@ -26,7 +26,7 @@ from abism.front.AnswerReturn import PlotStar2
 from abism.back.ImageFunction import PixelMax
 import abism.back.util_back as W
 
-from abism.util import log, get_root
+from abism.util import log, get_root, get_state
 
 class PlotFrame(tk.Frame):
     """Frame with a mpl figure"""
@@ -196,7 +196,7 @@ class ImageFrame(PlotFrame):
             im0,
             vmin=G.scale_dic[0]["min_cut"], vmax=G.scale_dic[0]["max_cut"],
             # orgin=lower to get low y down
-            cmap=G.scale_dic[0]["cmap"], origin='lower')
+            cmap=get_state().s_image_color_map, origin='lower')
 
         # Compass
         try:
@@ -314,7 +314,7 @@ class ImageFrame(PlotFrame):
             G.scale_dic[0]["contour"] = not G.scale_dic[0]["contour"]
             if G.scale_dic[0]["contour"]:
                 if "median" not in G.scale_dic[0]:
-                    tmp = vars(W.imstat)
+                    tmp = get_root().image.get_stat_as_dic()
                 mean, rms = tmp["mean"], tmp["rms"]
                 c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
                     rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
@@ -373,15 +373,10 @@ class ImageFrame(PlotFrame):
         return
 
 
-    def Draw(self, min=None, max=None, cmap=None, norm=False, cbar=True):
+    def Draw(self):
         """ Redraw image with new scale"""
-        if min is not None:
-            G.scale_dic[0]["min_cut"] = min
-            G.scale_dic[0]["max_cut"] = max
-        if cmap is not None:
-            G.scale_dic[0]["cmap"] = cmap
 
-        cmap = G.scale_dic[0]["cmap"]
+        cmap = get_state().s_image_color_map
         min, max = G.scale_dic[0]["min_cut"], G.scale_dic[0]["max_cut"]
 
         mynorm = MyNormalize(

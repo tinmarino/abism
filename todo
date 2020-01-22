@@ -1,5 +1,7 @@
 MenuBarShould be a class
 Cmap chioose must get an invert color
+Cmap remove contour !!
+ImageFrame: clean : remove old parameters and replce what nee by self
 
 # AnwerFrame
 
