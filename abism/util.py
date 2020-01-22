@@ -68,22 +68,8 @@ def get_colormap_list():
         cubehelix   <- enhanced B&W (with some pink, greeny blue) awesome!
 
     """
-    import matplotlib as mpl
-
-    # Register solarized
-    cmap_solarized = mpl.colors.LinearSegmentedColormap.from_list(
-        'solarized',
-        ['#6c71c4',
-         '#268bd2',
-         '#859900',
-         '#b58900',
-         '#cb4b16',
-         '#dc322f'])
-    mpl.cm.register_cmap(name='solarized', cmap=cmap_solarized)
-
     return [
         ['Black&White', 'bone'],
-        ['Solarized', 'solarized'],
         ['Spectral-r', 'Spectral_r'],
         ['Magma', 'magma'],
         ['Cubehelix', 'cubehelix'],
