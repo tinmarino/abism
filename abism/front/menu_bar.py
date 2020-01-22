@@ -24,27 +24,29 @@ from abism.util import get_root, get_state, quit_process, \
     get_colormap_list, get_stretch_list, get_cut_list
 
 
-def MenuBarMaker(parent):
-    """Create the menu bar (autopack top)"""
+class MenuBar(tk.Frame):
+    """Full Menu Bar, autopack, the only one exported"""
+    def __init__(self, parent):
+        """Create the menu bar (autopack top)"""
+        super().__init__(parent, bg=skin().color.bg)
 
-    # Pack bar at top
-    menu_bar = tk.Frame(parent, bg=skin().color.bg)
-    menu_bar.pack(side=tk.TOP, expand=0, fill=tk.X)
+        # Pack at top
+        self.pack(side=tk.TOP, expand=0, fill=tk.X)
 
-    # For all menu button (tab)
-    for col, callback in enumerate([
-            AbismMenu,
-            FileMenu,
-            AnalysisMenu.AnalysisMenu,
-            ViewMenu,
-            ToolMenu,
+        # For all menu button (tab)
+        for col, callback in enumerate([
+                AbismMenu,
+                FileMenu,
+                AnalysisMenu.AnalysisMenu,
+                ViewMenu,
+                ToolMenu,
                 ]):
-        # Same weight
-        menu_bar.columnconfigure(col, weight=1)
-        # Create
-        button = callback(menu_bar)
-        # Grid it
-        button.grid(row=0, column=col, sticky="nsew")
+            # Same weight
+            self.columnconfigure(col, weight=1)
+            # Create
+            button = callback(self)
+            # Grid it
+            button.grid(row=0, column=col, sticky="nsew")
 
 
 class ButtonMenu(tk.Menubutton):

@@ -1,8 +1,6 @@
 1. Refactor: AnswerReturn 
    * then every oth todo will be easyier
 
-MenuBarShould be a class
-
 frame_plot G.figresul_mappage wtf so cannot draw in fgiresult
 
 # Perf

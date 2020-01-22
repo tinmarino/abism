@@ -186,11 +186,11 @@ class ImageFrame(PlotFrame):
         ax = self._fig.add_subplot(111)
 
         # Get image arry
-        self.im0 = get_root().image.im0.astype(float32)
+        im0 = get_root().image.im0.astype(float32)
 
         # Display
         drawing = ax.imshow(
-            self.im0,
+            im0,
             vmin=get_state().i_image_min_cut,
             vmax=get_state().i_image_max_cut,
             cmap=get_state().s_image_color_map,
@@ -215,13 +215,13 @@ class ImageFrame(PlotFrame):
         # Image levels
         def z(x, y):
             try:
-                res = self.im0[y, x]
+                res = im0[y, x]
             except IndexError:
                 res = 0
             return res
 
         def z_max(x, y):
-            return PixelMax(self.im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
+            return PixelMax(im0, r=(y - 10, y + 11, x - 10, x + 11))[1]
 
         def format_coordinate(x, y):
             x, y = int(x), int(y)
@@ -258,8 +258,9 @@ class ImageFrame(PlotFrame):
         c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
             rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
 
+        im0 = get_root().image.im0.astype(float32)
         self.contours = self._fig.axes[0].contour(
-            self.im0, (c2, c5),
+            im0, (c2, c5),
             origin='lower', colors="k",
             linewidths=3)
 
@@ -345,6 +346,8 @@ class ImageFrame(PlotFrame):
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
         ax = self._fig.axes[0]
+        im0 = get_root().image.im0.astype(float32)
+
         if not (("CD1_1" in vars(get_root().header)) and ("CD2_2" in vars(get_root().header))):
             log(0, "WARNING WCS Matrix not detected,",
                 "I don't know where the north is")
@@ -370,11 +373,11 @@ class ImageFrame(PlotFrame):
         # for the arrow IN the image coords can be "data" or "figure fraction"
         elif coord_type == "data":
             # in figure fraction
-            arrow_center = [0.945 * len(self.im0), 0.1 * len(self.im0)]
+            arrow_center = [0.945 * len(im0), 0.1 * len(im0)]
             # -  because y is upside down       think raw collumn
-            north_point = [arrow_center + north_direction / 20 * len(self.im0),
-                           arrow_center - north_direction / 20 * len(self.im0)]
-            east_point = [north_point[1] + east_direction / 20 * len(self.im0),
+            north_point = [arrow_center + north_direction / 20 * len(im0),
+                           arrow_center - north_direction / 20 * len(im0)]
+            east_point = [north_point[1] + east_direction / 20 * len(im0),
                           north_point[1]]
         W.north_direction = north_direction
         W.east_direction = east_direction

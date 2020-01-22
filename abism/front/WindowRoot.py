@@ -9,7 +9,7 @@ from os.path import isfile
 import tkinter as tk
 
 # Gui
-from abism.front.menu_bar import MenuBarMaker
+from abism.front.menu_bar import MenuBar
 from abism.front.frame_text import LeftFrame
 from abism.front.frame_plot import RightFrame
 from abism.front.util_front import skin, icon_path, open_file
@@ -49,13 +49,14 @@ class RootWindow(tk.Tk):
         self.set_shortcut()
 
         # 1 Menu: Pack
-        MenuBarMaker(self)
+        MenuBar(self)
 
         # ALL What is not the menu is a paned windows :
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        main_paned = tk.PanedWindow(self, orient=tk.HORIZONTAL, **skin().paned_dic)
-        main_paned.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        main_paned = tk.PanedWindow(
+            self, orient=tk.HORIZONTAL, **skin().paned_dic)
+        main_paned.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # 2 Left: Add
         LeftFrame(self, main_paned)
@@ -68,13 +69,18 @@ class RootWindow(tk.Tk):
 
 
     def set_image(self, filepath):
+        if not filepath: return
+
         # Craft ImageInfo
         self.image = ImageInfo.from_file(filepath)
-        self.image.stat.init_all()
+        if not self.image:
+            log(0, 'Error: Cannot read fits image from file', filepath)
+            return
 
+        # Set title
         self.set_title()
 
-        # Helper
+        # Alias Helper
         self.header = self.image.header
 
         # Redraw

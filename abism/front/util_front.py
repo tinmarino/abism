@@ -1,6 +1,7 @@
 """
     Utilities for Abism GUI
 """
+import os
 
 # Standard
 from functools import lru_cache
@@ -10,7 +11,6 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
 from abism.util import root_path, log, get_version, get_root  # pylint: disable=no-name-in-module
-
 
 
 """ SOOOO dirty"""
@@ -420,11 +420,12 @@ def open_file():
     directly in the script by bash Abism.sh [-i] image.fits.
     Used: MenuFile or bind with o
     """
-    import os
-
     # Get rootdirecotyr of search
-    initialdir = "/".join(get_root().image.name.split("/")[: -1])
-    initialdir = initialdir or os.getcwd()
+    try:
+        initialdir = "/".join(get_root().image.name.split("/")[: -1])
+        initialdir = initialdir or os.getcwd()
+    except:
+        initialdir = os.getcwd()
 
     # Pop window to ask for a file
     s_file = askopenfilename(

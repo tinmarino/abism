@@ -23,27 +23,32 @@ class ImageStat():
         self.image = image
 
     def init_all(self):
-        """
-        Returns self
-        TODO better perf lazy loading ?
-        TODO  give sorted sort
-        """
+        """Returns self"""
+        if self.image.sort is None:
+            self.image.make_sort()
+        sort = self.image.sort
 
         self.mean = np.mean(self.image.im0)
 
-        self.median = np.median(self.image.im0)
-
         self.rms = np.std(self.image.im0)
-
-        self.min = np.min(self.image.im0)
-
-        self.max = np.max(self.image.im0)
 
         self.number_count = len(self.image.im0.flatten())
 
-        self.sum = self.mean * self.number_count  # or np.sum(self.image.im0)
+        # Median
+        middle = (self.number_count-1) // 2
+        if self.number_count % 2:
+            self.median = sort[middle]
+        else:
+            self.median = (sort[middle] + sort[middle + 1]) / 2
+
+        self.min = sort[0]
+
+        self.max = sort[-1]
+
+        self.sum = self.mean * self.number_count
 
         return self
+
 
 
 class ImageInfo():
@@ -76,19 +81,31 @@ class ImageInfo():
         self.stat = ImageStat(self)
 
 
-    @staticmethod
-    def from_array(grid):
-        """Builder"""
-        image = ImageInfo()
 
+    def make_sort(self):
+        self.sort = self.im0.flatten()
+        self.sort.sort()
+
+
+    def set_array(self, array):
         # Remove nan -> they cause errors
-        # TODO pretty mask
-        grid[np.isnan(grid)] = 0
+        # TODO pretty mask ... takes time
+        array[np.isnan(array)] = 0
 
         # Save im0
-        image.im0 = grid
+        self.im0 = array
+
+        self.make_sort()
+
+        # Statistics
+        self.stat.init_all()
 
 
+    @staticmethod
+    def from_array(array):
+        """Builder"""
+        image = ImageInfo()
+        image.set_array(array)
         return image
 
 
@@ -99,29 +116,34 @@ class ImageInfo():
         new_fits if a new file, and not cube scrolling
         I know this is not front but so central ...
         """
-        # Create
-        image = ImageInfo()
-
         # Check in
         if not filename:
-            return image
+            return None
 
         # Check open
         try:
             hdulist = fits.open(filename)
         except FileNotFoundError:
-            return image
+            return None
+
+        image = ImageInfo()
 
         # Get <- Io
         image.name = filename
         image.hdulist = hdulist
 
-        image.im0 = image.hdulist[0].data
+        # Ctor from array
+        image.set_array(hdulist[0].data)
 
         # Parse header
         image.header = parse_header(image.hdulist[0].header)
 
-        image.set_science_variable()
+        # BPM
+        if image.bpm_name is not None:
+            hdu = fits.open(image.bpm_name)
+            image.bpm = hdu[0].data
+        else:
+            image.bpm = 0 * image.im0 + 1
 
         return image
 
@@ -131,22 +153,6 @@ class ImageInfo():
         Used for Sky, Background, Photometry, Object detection
         """
         return vars(self.stat.init_all())
-
-    def set_science_variable(self):
-        """ Get variable, stat from image
-        TODO refactor full with ImageInfo lib
-        """
-        # BPM
-        if self.bpm_name is not None:
-            hdu = fits.open(self.bpm_name)
-            self.bpm = hdu[0].data
-        else:
-            self.bpm = 0 * self.im0 + 1
-
-        # Statistics
-        self.sort = self.im0.flatten()
-        self.sort.sort()
-        self.stat.init_all()
 
 
     def substract_sky(self, fp_sky):
