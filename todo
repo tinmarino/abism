@@ -1,12 +1,9 @@
-MenuBarShould be a class
-Cmap chioose must get an invert color
-Cmap remove contour !!
-ImageFrame: clean : remove old parameters and replce what nee by self
+1. Refactor: AnswerReturn 
+   * then every oth todo will be easyier
 
-MinMAxCut @ image.py
-  * Enum or find a way not to hardcode stufff: they all know util
-  * CutImageScale the only caller  seems redundant
-frame_plot figresul_mappage wtf so cannot draw in fgiresult
+MenuBarShould be a class
+
+frame_plot G.figresul_mappage wtf so cannot draw in fgiresult
 
 # Perf
 
@@ -30,6 +27,8 @@ frame_plot figresul_mappage wtf so cannot draw in fgiresult
 * make sahs of left pane, better move when adding or removeing frames
 * More options, test my stuff
 * PlotStat dans AnswerReturn 520, make it in answer frame and not plot
+* ImageFrame: clean : remove old parameters and replce what nee by self
+  * Make cube work again (with some self.variable in (frame plot .py)
 
 
 # Always possible

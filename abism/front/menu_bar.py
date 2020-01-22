@@ -239,23 +239,21 @@ class ViewMenu(ButtonMenu):
         """Cut min max of the iamge scale"""
         self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED)
 
-        string_var = tk.StringVar()
-        string_var.set(get_state().s_image_cut)
-
         # Define callback
-        def on_change_cut(string_var, value):
+        def on_change_cut(s_in, value):
             """same color map callback"""
-            cut = string_var.get()
-            get_state().s_image_cut = cut
+            get_state().s_image_cut = s_in
             get_state().i_image_cut = value
             get_root().ImageFrame.CutImageScale()
 
         # Add check buttons
-        for i in get_cut_list():
+        string_var = tk.StringVar()
+        string_var.set(get_cut_list()[0][1])
+        for text, s, _, i in get_cut_list():
             self.menu.add_radiobutton(
-                label=i[0],
-                command=lambda i=i: on_change_cut(string_var, i[3]),
-                variable=string_var, value=i[0])
+                label=text,
+                command=lambda s=s, i=i: on_change_cut(s, i),
+                variable=string_var, value=text)
 
         def on_manual():
             get_root().OptionFrame.toogle_manual_cut()
