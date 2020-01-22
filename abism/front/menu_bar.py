@@ -19,8 +19,8 @@ from abism.plugin.Histogram import Histopopo
 # TODO remove
 from abism.front import Pick  # to connect PickOne per defautl
 
-from abism.util import get_root, get_state, quit_process, \
-    get_colormap_list, get_stretch_list, get_cut_list
+from abism.util import log, get_root, get_state, quit_process, \
+    get_colormap_list, get_stretch_list, get_cut_list, get_fit_list
 
 
 class MenuBar(tk.Frame):
@@ -141,9 +141,7 @@ class FileMenu(ButtonMenu):
 
 
 class ViewMenu(ButtonMenu):
-    """Color, cut, scale
-    With a style of column or cascade
-    """
+    """Color, Cut, Scale <- Appearance of image"""
     def __init__(self, parent):
         super().__init__(parent)
         self.style = 'column'
@@ -270,7 +268,7 @@ class ViewMenu(ButtonMenu):
 
 
 class AnalysisMenu(ButtonMenu):
-    """Choose Star analysis method: fit and pick"""
+    """Fit, Pick <- Choose Star analysis method"""
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -283,21 +281,19 @@ class AnalysisMenu(ButtonMenu):
         self.menu.add_command(
             label="Fit Type", bg=None, state=tk.DISABLED)
 
-        lst1 = [
-            ["Gaussian", "Gaussian", lambda: SetFitType("Gaussian")],
-            ["Moffat", "Moffat", lambda: SetFitType("Moffat")],
-            ["Bessel1", "Bessel1", lambda: SetFitType("Bessel1")],
-            ["None", "None", lambda: SetFitType("None")],
-        ]
+        def on_change_fit(string_var):
+            s_in = string_var.get()
+            log(5, 'Change Fit to', s_in)
+            get_state().fit_type = s_in
 
         # Add radio but
         string_var = tk.StringVar()
-        string_var.set(get_state().fit_type.replace("2D", ""))
-        for text, tag, callback in lst1:
+        string_var.set(get_state().fit_type)
+        for text in get_fit_list():
             self.menu.add_radiobutton(
                 label=text,
-                command=callback,
-                variable=string_var, value=tag)
+                command=lambda: on_change_fit(string_var),
+                variable=string_var, value=text)
 
         def on_more():
             get_root().OptionFrame.toogle_more_analysis(parent=self)
@@ -364,47 +360,3 @@ class ToolMenu(ButtonMenu):
 
     def get_text(self):
         return 'Tools'
-
-
-
-
-
-
-
-
-
-def SetFitType(name):  # strange but works
-    """Choose Fit Type
-    Different fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.
-    Why is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result
-    What should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat.
-    Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls fit_template_function.py
-    Todo : fastly analyse the situation and choose a fit type consequently
-    """
-    LogFitType()
-
-    get_state().fit_type = name
-    G.cu_fit.set(name.replace("2D", ""))  # to change radio but, check
-    try:
-        if get_state().b_aniso and not '2D' in get_state().fit_type:
-            get_state().fit_type += '2D'
-        elif not get_state().b_aniso:
-            get_state().fit_type = get_state().fit_type.replace('2D', '')
-    except BaseException:
-        if get_state().fit_type.find('2D') == -1:
-            get_state().fit_type += '2D'
-    if not get_state().fit_type.find('None') == -1:
-        get_state().fit_type = 'None'
-
-    # Saturated
-    if "Gaussian_hole" in get_state().fit_type:
-        try:
-            # Global even more dirty
-            if not get_state().same_center:
-                get_state().fit_type = get_state().fit_type.replace('same_center', '')
-            elif not 'same_center' in get_state().fit_type:
-                get_state().fit_type += "same_center"
-        except BaseException:
-            if not 'same_center' in get_state().fit_type:
-                get_state().fit_type += "same_center"
-    log(0, 'Fit Type = ' + get_state().fit_type)

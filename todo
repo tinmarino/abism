@@ -17,6 +17,10 @@ Fix: cut than is really cutting the image !!!
 * ImageFrame: clean : remove old parameters and replce what nee by self
   * Make cube work again (with some self.variable in (frame plot .py)
 
+# Refactor
+
+* SthrelImage discirminator: Sthrel is just a wrapper, join them ?
+
 # Latter
 
 * !!! Bad pixels !! You cannot release putting them to zero

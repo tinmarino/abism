@@ -102,27 +102,32 @@ def get_cut_list():
         ["None", "None", "truc", "truc"]]
 
 
+def get_fit_list():
+    """3 fct or just no fit"""
+    return ["Gaussian", "Moffat", "Bessel1", "None"]
+
+
+
 class AbismState:
     """Confiugration from user (front) to science (back)"""
     def __init__(self):
         # Type
-        self.fit_type = 'Moffat2D'
+        self.fit_type = get_fit_list()[1]
         self.pick_type = 'one'
         self.phot_type = 'elliptical_aperture'
         self.noise_type = 'elliptical_annulus'
         self.aperture_type = 'fit'
         self.pick_old = ''
+        self.b_aniso = True
+        self.b_same_psf = True
+        self.b_same_center = True
 
         # The value of the manually added sky level (rarely used)
         self.i_background = 0
 
-        # More
-        self.b_aniso = True
-        self.b_same_psf = True
-        self.b_same_center = True
-        self.s_answer_unit = 'detector'  # detector or 'sky'
 
-        # Cut
+        # UI
+        self.s_answer_unit = 'detector'  # detector or 'sky'
         self.s_image_color_map = get_colormap_list()[0][1]
         self.s_image_stretch = get_stretch_list()[0][2]
         self.s_image_cut = get_cut_list()[0][1]  # fct

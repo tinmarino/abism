@@ -144,6 +144,8 @@ class LabelFrame(TextFrame):
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
+
+
     def update_label(self):
         """Called later, display what I retrived from header
         warning: expand not working well
@@ -445,7 +447,6 @@ class OptionFrame(TextFrame):
             self.close_more_analysis()
 
 
-
     @staticmethod
     def grid_more_checkbuttons(frame):
         # Define callback
@@ -599,6 +600,11 @@ class OptionFrame(TextFrame):
 
     def close_more_analysis(self):
         """Close the Frame"""
+        if not self.frame_more_analysis: return
+
+        # Close sub frame
+        self.close_manual_background()
+
         self.frame_more_analysis.destroy()
 
         # destroy arrow
@@ -661,6 +667,7 @@ class OptionFrame(TextFrame):
 
 
     def close_manual_background(self):
+        if not self.see_manual_background: return
         self.frame_manual_background.destroy()
 
 
