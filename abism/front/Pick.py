@@ -6,8 +6,8 @@ import numpy as np  # for a readind lst like an array
 
 from abism.front import EventArtist  # draw an ellipse
 from abism.front import AnswerReturn as AR
-# Warnign circular dep
-import abism.front.Menu.AnalysisMenu as AnalysisMenu
+
+
 from abism.front.matplotlib_extension import center_handler
 from abism.front import util_front as G
 
@@ -37,8 +37,9 @@ def RefreshPick(label):  # This is the only callled routine
     index = list(lst[:, 1]).index(label)   # or G.connect_var.get()
     get_state().pick_type = label
     # because they are in tools, and it disable the connection, I don't know why
-    if label != "stat" or label != "profile":
-        G.cu_pick.set(label)
+    # TODO di I break something
+    # if label != "stat" or label != "profile":
+    #     G.cu_pick.set(label)
 
       # THE dicconnect
     if type(get_state().pick_old) is list:  # for pick many
@@ -270,7 +271,8 @@ def TightBinary(disconnect=False):
 
         get_state().aniso = False
         get_state().same_psf_var = True
-        AnalysisMenu.SetFitType(get_state().fit_type)
+        # TODO Check if I broke something
+        # SetFitType(get_state().fit_type)
     return
 
 

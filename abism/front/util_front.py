@@ -78,9 +78,13 @@ class ButtonDic(DotDic):
 
 
 class CheckButtonDic(ButtonDic):
+    """For check and radio button
+    Just a button with image at anchor (here west)
+    """
     def __init__(self, color):
         super().__init__(color)
         self.anchor = 'w'
+
 
 class PanedDic(DotDic):
     """The sas is the little between windows "glissiere", to resize"""
@@ -431,6 +435,3 @@ def open_backgroud_and_substract():
     # Substract and Redraw
     if get_root().image.substract_sky(fp_sky):
         get_root().ImageFrame.draw_image()
-
-
-

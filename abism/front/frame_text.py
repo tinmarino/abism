@@ -17,7 +17,7 @@ from abism.util import log, get_root, quit_process, restart, get_state
 
 # TODO remove
 import abism.front.util_front as G
-from abism.front.Menu.AnalysisMenu import ManualBackground
+from abism.front.menu_bar import ManualBackground
 
 
 class LeftFrame(tk.Frame):

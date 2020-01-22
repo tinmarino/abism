@@ -6,11 +6,8 @@ import re
 import tkinter as tk
 from abc import abstractmethod
 
-from abism.front.Menu import AnalysisMenu
-
-from abism.front.util_front import \
-    system_open, about_window, open_file, \
-    change_root_scheme, Scheme, skin
+from abism.front.util_front import system_open, about_window, \
+    open_file, change_root_scheme, Scheme, skin
 
 from abism.plugin.window_header import spawn_header_window
 
@@ -18,6 +15,8 @@ from abism.plugin.window_header import spawn_header_window
 from abism.plugin.DebugConsole import PythonConsole
 from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.Histogram import Histopopo
+
+# TODO remove
 from abism.front import Pick  # to connect PickOne per defautl
 
 from abism.util import get_root, get_state, quit_process, \
@@ -37,7 +36,7 @@ class MenuBar(tk.Frame):
         for col, callback in enumerate([
                 AbismMenu,
                 FileMenu,
-                AnalysisMenu.AnalysisMenu,
+                AnalysisMenu,
                 ViewMenu,
                 ToolMenu,
                 ]):
@@ -270,6 +269,78 @@ class ViewMenu(ButtonMenu):
         self.menu.add_command(columnbreak=1)
 
 
+class AnalysisMenu(ButtonMenu):
+    """Choose Star analysis method: fit and pick"""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.see_more = False
+        self.index_more = 0
+
+        self.add_fit_menu()
+        self.add_pick_menu()
+
+    def add_fit_menu(self):
+        self.menu.add_command(
+            label="Fit Type", bg=None, state=tk.DISABLED)
+
+        lst1 = [
+            ["Gaussian", "Gaussian", lambda: SetFitType("Gaussian")],
+            ["Moffat", "Moffat", lambda: SetFitType("Moffat")],
+            ["Bessel1", "Bessel1", lambda: SetFitType("Bessel1")],
+            ["None", "None", lambda: SetFitType("None")],
+        ]
+
+        # Add radio but
+        string_var = tk.StringVar()
+        string_var.set(get_state().fit_type.replace("2D", ""))
+        for text, tag, callback in lst1:
+            self.menu.add_radiobutton(
+                label=text,
+                command=callback,
+                variable=string_var, value=tag)
+
+        def on_more():
+            self.toogle_more_options()
+            get_root().OptionFrame.toogle_more_analysis(self)
+
+        # Add button more options
+        self.menu.add_command(
+            label=u"\u25be More Options",
+            command=on_more)
+        self.index_more = self.menu.index(tk.END)
+
+        self.menu.add_command(columnbreak=1)
+
+    def add_pick_menu(self):
+        self.menu.add_command(
+            label="Pick Object(s)", bg=None, state=tk.DISABLED)
+
+        lst2 = [
+            ["PickOne", "one", lambda: Pick.RefreshPick("one")],
+            ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
+            # ["PickMany", "many", lambda: Pick.RefreshPick("many")],
+            ["No Pick", "nopick", lambda: Pick.RefreshPick("nopick")],
+        ]
+
+        string_var = tk.StringVar()
+        string_var.set(get_state().pick_type)
+        for text, tag, callback in lst2:
+            self.menu.add_radiobutton(
+                label=text, command=callback,
+                variable=string_var, value=tag)
+
+    def get_text(self):
+        return 'Analysis'
+
+    def toogle_more_options(self):
+        """More photometry options frame"""
+        if self.see_more:
+            self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
+        else:
+            self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
+
+
 class ToolMenu(ButtonMenu):
     """Generic awesome tool. Usually in plugin"""
     def __init__(self, parent):
@@ -295,3 +366,98 @@ class ToolMenu(ButtonMenu):
 
     def get_text(self):
         return 'Tools'
+
+
+
+
+
+
+
+
+
+def ManualBackground():
+    """Create manual background frame"""
+    if get_state().b_see_manual_background:
+        ManualBackClose()
+    else:
+        ManualBackOpen()
+    G.manual_back_bool = not G.manual_back_bool
+
+
+def ManualBackOpen():
+    get_state().noise_type = "manual"
+    G.ManualBackFrame = tk.Frame(get_root().OptionFrame, bg=skin().color.bg)
+    G.ManualBackFrame.grid(sticky='nsew')
+    G.ManualBackFrame.columnconfigure(0, weight=1)
+    G.ManualBackFrame.columnconfigure(1, weight=1)
+
+    def GetValue(event):
+        G.background = float(G.tkvar.background.get())
+        log(2, "ManualBack, called , ", G.background)
+
+    # ENTRY
+    tk.Label(
+        G.ManualBackFrame, text="Background value:",
+        font=skin().font.param, **skin().fg_and_bg
+        ).grid(row=0, column=0, sticky="snew")
+    G.tkvar.background = tk.StringVar()
+    G.tkentry.background = tk.Entry(
+        G.ManualBackFrame, width=10,
+        textvariable=G.tkvar.background,
+        font=skin().font.param,
+        bd=0, **skin().fg_and_bg)
+    G.tkentry.background.grid(row=0, column=1, sticky="nsew")  # ,sticky=W)
+    G.tkentry.background.bind('<Return>', GetValue)
+    G.tkvar.background.set("0.0")
+    if "background" in vars(G):
+        G.tkvar.background.set(str(G.background))
+
+    ###############
+    # CLOSE button
+    G.bu_back_close = tk.Button(
+        G.ManualBackFrame, text=u'\u25b4 ' + 'Close',
+        command=ManualBackClose, **skin().button_dic)
+    G.bu_back_close.grid(row=1, column=0, columnspan=2)
+    log(3, "Manual Back called")
+
+
+def ManualBackClose():
+    G.ManualBackFrame.destroy()
+    G.background = float(G.tkvar.background.get())
+
+
+def SetFitType(name):  # strange but works
+    """Choose Fit Type
+    Different fit types: A Moffat fit is setted by default. You can change it. Gaussian, Moffat,Bessel are three parametrics psf. Gaussian hole is a fit of two Gaussians with the same center by default but you can change that in more option in file button. The Gaussian hole is made for saturated stars. It can be very useful, especially because not may other software utilize this fit.
+    Why is the fit type really important? The photometry and the peak of the objects utilize the fit. For the photometry, the fit measure the aperture and the maximum is directly taken from the fit. So changing the fit type can change by 5 to 10% your result
+    What should I use? For strehl <10% Gaussian, for Strehl>50% Bessel, between these, Moffat.
+    Programmers: Strehl@WindowRoot.py calls SeeingPSF@ImageFunction.py which calls fit_template_function.py
+    Todo : fastly analyse the situation and choose a fit type consequently
+    """
+    LogFitType()
+
+    get_state().fit_type = name
+    G.cu_fit.set(name.replace("2D", ""))  # to change radio but, check
+    try:
+        if get_state().b_aniso and not '2D' in get_state().fit_type:
+            get_state().fit_type += '2D'
+        elif not get_state().b_aniso:
+            get_state().fit_type = get_state().fit_type.replace('2D', '')
+    except BaseException:
+        if get_state().fit_type.find('2D') == -1:
+            get_state().fit_type += '2D'
+    if not get_state().fit_type.find('None') == -1:
+        get_state().fit_type = 'None'
+
+    # Saturated
+    if "Gaussian_hole" in get_state().fit_type:
+        try:
+            # Global even more dirty
+            if not get_state().same_center:
+                get_state().fit_type = get_state().fit_type.replace('same_center', '')
+            elif not 'same_center' in get_state().fit_type:
+                get_state().fit_type += "same_center"
+        except BaseException:
+            if not 'same_center' in get_state().fit_type:
+                get_state().fit_type += "same_center"
+    log(0, 'Fit Type = ' + get_state().fit_type)
