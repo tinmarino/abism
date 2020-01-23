@@ -76,41 +76,41 @@ def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
     verbose = get_verbose() > 1
 
     if (fit_type == "Gaussian2D"):
-        tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
-        W.suposed_param.update(tmp)
+        tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
+        suposed_param.update(tmp)
 
     elif(fit_type == 'Gaussian'):
         pass
 
     elif (fit_type == 'Moffat'):  # 1.5 = /np.sqrt(1/2**(-1/b)-1)
-        W.suposed_param.update({'spread_x': 1.5*my_fwhm, 'exponent': 2})
+        suposed_param.update({'spread_x': 1.5*my_fwhm, 'exponent': 2})
 
     elif (fit_type == "Moffat2D"):    # 0.83 = sqrt(ln(2))
         tmp = {
-            "spread_y": W.suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
-        W.suposed_param.update(tmp)
+            "spread_y": suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
+        suposed_param.update(tmp)
 
     elif (fit_type == 'Bessel1'):
         pass
 
     elif (fit_type == "Bessel12D"):    # 0.83 = sqrt(ln(2))
-        tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
-        W.suposed_param.update(tmp)
+        tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
+        suposed_param.update(tmp)
 
     # we consider 2D or not, same_center or not
     elif ("Gaussian_hole" in fit_type):
-        W.suposed_param.update({'center_x_hole': x0, 'center_y_hole': y0, 'spread_x_hole': 0.83*(
+        suposed_param.update({'center_x_hole': x0, 'center_y_hole': y0, 'spread_x_hole': 0.83*(
             my_fwhm)/2, 'spread_y_hole': 0.83*my_fwhm/2, 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
         if not ("2D" in fit_type):
-            W.suposed_param["2D"] = 0
+            suposed_param["2D"] = 0
             doNotFit.append("theta")
             doNotFit.append("theta_hole")
             doNotFit.append("spread_y")
             doNotFit.append("spread_y_hole")
         else:
-            W.suposed_param["2D"] = 1
+            suposed_param["2D"] = 1
         if ("same_center" in fit_type):
-            W.suposed_param["same_center"] = 1
+            suposed_param["same_center"] = 1
             doNotFit.append("center_x_hole")
             doNotFit.append("center_y_hole")
         doNotFit.append("2D")
@@ -118,10 +118,10 @@ def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
 
     # ACTUAL FIT
     if fit_type != "None":
-        res = leastsqFit(vars(BF)[fit_type],
-                            (x, y), W.suposed_param, IX,
-                            err=eIX, doNotFit=doNotFit,
-                            bounds=James, verbose=verbose)
+        res = leastsqFit(
+            vars(BF)[fit_type], (x, y), suposed_param, IX,
+            err=eIX, doNotFit=doNotFit,
+            bounds=fit_bounds, verbose=verbose)
     else:
         # Not fit
         restmp = {
@@ -165,74 +165,55 @@ def Photometry(grid, background):
     In: center, r99
         Only one reading variable photometric type
         background
-    Returns: photometry, sum, number count
+    Returns: photometry, total, number_count
+             1. total phtotometric adu (backgound subtracted)
+             Other. to estimate error
     Note Background must be called before
     """
     photometry = total = number_count = 0
 
     r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
     r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
+    theta = W.strehl.get('theta', 0)
 
     x0, y0 = W.strehl['center_x'], W.strehl['center_y']
     ax1, ax2 = int(x0-r99x), int(x0+r99x)
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
+    # FIT
+    if get_state().phot_type == 'fit':
+        W.strehl["my_photometry"] = W.strehl["photometry_fit"]
+        log(3, "doing fit  phot in ImageFunction.py ")
+
     # Rectangle apperture
-    if get_state().phot_type == 'encircled_energy':
+    elif get_state().phot_type == 'encircled_energy':
         log(3, 'Photometry <- encircled energy (i.e. rectangle)')
         total = np.sum(grid[ax1:ax2, ay1:ay2])
         number_count = 4 * r99x * r99y
-        photometry = total  - number_count * background
+        photometry = total - number_count * background
 
     # Elliptical apperture
     elif get_state().phot_type == 'elliptical_aperture':
         log(3, 'Photometry <- elliptical aperture')
-        bol = IF.EllipticalAperture(
-            grid,
-            dic={"center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v,
-                 "theta": theta})["bol"]
+        ellipse_dic = {"center_x": x0, "center_y": y0,
+                       "ru": r99u, "rv": r99v, "theta": theta}
+        bol = IF.EllipticalAperture(grid, dic=ellipse_dic)["bol"]
         image_elliptic = grid[bol]
 
-        log(2, "phot len", image_elliptic.shape)
-        log(3, "ImageFunciton, Photometry ", r99u, r99v, theta)
-
-        # Just need sum and number count
-        phot = get_array_stat(image_elliptic)
-        W.strehl["sum"] = phot["sum"]
-        log(2, "phot", phot)
-        W.strehl["number_count"] = phot["number_count"]
-        W.strehl["my_photometry"] = phot["sum"] - \
-            phot["number_count"] * W.strehl["my_background"]
+        stat = get_array_stat(image_elliptic)
+        number_count = stat.number_count
+        total = stat.sum
+        photometry = total  - number_count * background
 
     # MANUAL
     elif get_state().phot_type == 'manual':
-        # tmp = pStat.RectanglePhot(grid,r,  W.strehl={"get":["number_count","rms"]} )
-        tmp = get_root().image.RectanglePhot(W.r)
-        photometry = tmp["sum"]
-        W.strehl["number_count"] = tmp["number_count"]
-        W.strehl["my_photometry"] = photometry - \
-            W.strehl["number_count"] * W.strehl["my_background"]
-        log(3, "doing manual phot in ImageFunction.py ")
+        stat = get_root().image.RectanglePhot(W.r)
+        total = stat.sum
+        number_count = stat.number_count
+        photometry = total  - number_count * background
 
-    # FIT
-    elif get_state().phot_type == 'fit':
-        W.strehl["my_photometry"] = W.strehl["photometry_fit"]
-        log(3, "doing fit  phot in ImageFunction.py ")
 
-    ###########
-    # LONG SHORT AXE, ELLIPTICITY
-    W.strehl["fwhm_a"] = max(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
-    W.strehl["fwhm_b"] = min(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
-    W.strehl["eccentricity"] = np.sqrt(
-        W.strehl["fwhm_a"]**2 - W.strehl["fwhm_b"]**2)/W.strehl["fwhm_a"]
-
-    W.strehl["snr"] = W.strehl["my_photometry"] / \
-        W.strehl["my_background"] / np.sqrt(W.strehl["number_count"])
-
-    # "
-    # INVERT X Y To be done
-
-    return W.strehl
+    return photometry, total, number_count
 
 
 def Background(grid):

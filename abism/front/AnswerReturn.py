@@ -25,8 +25,8 @@ import abism.back.util_back as W
 # Plugin
 from abism.plugin import ReadHeader as RH  # to know witch telescope
 
-from abism.util import log, get_root, get_state, EA, \
-    AnswerNum, AnswerSky
+from abism.util import log, get_root, get_state, abism_val, \
+    EA, AnswerNum, AnswerSky
 
 # new
 from abism.back.Strehl import get_equivalent_strehl_ratio
@@ -94,8 +94,11 @@ def tkable_from_answer(answer, error=None, unit='', tags=[]):
         s_error_sky = ' +/- ' + s_error_sky
         s_error_detector = ' +/- ' + s_error_detector
 
-    s_sky += s_error_sky + unit
-    s_detector += s_error_detector + unit
+    # Unit tupling
+    if not isinstance(unit, (tuple, list)): unit = [unit, unit]
+
+    s_detector += s_error_detector + unit[0]
+    s_sky += s_error_sky + unit[1]
 
     # Return crafted object
     return AnswerImageSky(
@@ -225,17 +228,23 @@ def PlotAnswer(unit=None, append=True):  # CALLER
     DisplayAnswer()
 
 def answer_strehl():
-    line = tkable_from_answer(
+    return tkable_from_answer(
         get_state().answers[EA.STREHL],
         error=get_state().answers[EA.ERR_STREHL],
         tags=['tag-important'],
         unit=' %')
 
 def answer_strehl_equivalent():
-    line = tkable_from_answer(
+    return tkable_from_answer(
         get_state().answers[EA.STREHL_EQ],
         error=get_state().answers[EA.ERR_STREHL_EQ],
         unit=' %')
+
+def answer_photometry():
+    return tkable_from_answer(
+        get_state().answers[EA.PHOTOMETRY],
+        #error=get_state().answers[EA.ERR_STREHL_EQ],
+        unit=(' [adu]', ' [mag]'))
 
 
 def PlotPickOne():
@@ -300,15 +309,7 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Photometry
-    phot_mag = W.strehl["my_photometry"] / get_root().header.exptime
-    phot_mag = get_root().header.zpt - 2.5 * np.log10(phot_mag)
-    line = AnswerImageSky(
-        "Photometry: ",
-        W.strehl["my_photometry"],
-        MyFormat(W.strehl["my_photometry"], 1, "f") + " [adu]",
-        "%.2f" % phot_mag + " [mag]"
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_photometry())
 
     # Background
     back_mag = W.strehl["my_background"] / get_root().header.exptime
@@ -324,10 +325,11 @@ def PlotPickOne():
     W.tmp.lst.append(line)
 
     # Signal / Noise ratio
+    signal_on_noise = get_state().answers[EA.SN]
     line = AnswerImageSky(
         "S/N: ",
-        W.strehl["snr"],
-        MyFormat(W.strehl["snr"], 1, "f"),
+        signal_on_noise,
+        MyFormat(signal_on_noise, 1, "f"),
         ''
         )
     W.tmp.lst.append(line)
@@ -686,7 +688,7 @@ def PlotOneStar1D():
                    'center_x': params['center_x'],
                    'center_y': params['center_y'],
                    'pixelscale': get_root().header.pixel_scale,
-                   'phot': W.strehl["my_photometry"],
+                   'phot': abism_val(EA.PHOTOMETRY),
                    'obstruction': get_root().header.obstruction/100,
                    }
         bessel = BF.DiffractionPatern((a, params['center_y']), params2)

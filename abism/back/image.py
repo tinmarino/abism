@@ -13,13 +13,14 @@ from scipy.signal import convolve2d
 from abism.plugin.ReadHeader import parse_header  # What a name !
 
 # TODO root for MinMaxCut, should be here
-from abism.util import log, get_root, get_state
+from abism.util import log, get_root, get_state, DotDic
 
 
-class ImageStat():
+class ImageStat(DotDic):
     """Container mean, median, rms, min, max, number_count, sum"""
     # pylint: disable=attribute-defined-outside-init
     def __init__(self, image):
+        super().__init__(self)
         self.image = image
 
     def init_all(self):
@@ -148,11 +149,11 @@ class ImageInfo():
         return image
 
 
-    def get_stat_as_dic(self):
+    def get_stat(self):
         """Helper: readability counts
         Used for Sky, Background, Photometry, Object detection
         """
-        return vars(self.stat.init_all())
+        return self.stat
 
 
     def substract_sky(self, fp_sky):
@@ -302,7 +303,7 @@ class ImageInfo():
 
             # MAKE A DEFAULT input of dic the error is a fraction of the rms
             dic = {'rec': 0, 'max_rec': 10, 'error': 0.1, 'sigma': 2.5}
-            dic.update(vars(self.stat))
+            dic.update(self.stat)
 
             return self.sky(dic)
 
@@ -380,4 +381,4 @@ def get_array_stat(grid):
     """Helper for readability
     Get statistic dicitonary from a grid
     """
-    return ImageInfo.from_array(grid).get_stat_as_dic()
+    return ImageInfo.from_array(grid).get_stat()

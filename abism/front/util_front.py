@@ -10,7 +10,7 @@ from enum import Enum
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-from abism.util import root_path, log, get_version, get_root
+from abism.util import root_path, log, get_version, get_root, DotDic
 
 
 # SOOOO dirty
@@ -52,13 +52,6 @@ class Font:
         self.warning = tk.font.Font(size=12)  # just strehl answer
         self.param = tk.font.Font(size=11)  # Image parameters
         self.big = tk.font.Font(size=16)
-
-
-class DotDic(dict):
-    """dot.notation access to dictionary attributes"""
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
 
 
 class ButtonDic(DotDic):

@@ -187,20 +187,20 @@ def FindMaxWithIncreasingSquares(grid, center):  # center is th ecenter click
 def DecreasingGravityCenter(grid, r=None, binfact=2, radiusmin=4):
     """ Get the ce nter of gravity with decreasing squares around the previous gravity center """
 
-    G = GravityCenter(grid, r=r)
+    gravity_center = GravityCenter(grid, r=r)
     # need to do that to avoid error mess 'tuple' object do not support item assignment
     rx1, rx2, ry1, ry2 = r
-    if (r[1]-r[0] > radiusmin):
+    if r[1]-r[0] > radiusmin:
         dist = float((r[1]-r[0]))/2/binfact
         log(2, "DecreasingGravityCenter", "r", r)
-        rx1 = int(G[0] - dist)
-        rx2 = int(G[0] + dist)
-    if (r[3]-r[2] > radiusmin):
+        rx1 = int(gravity_center[0] - dist)
+        rx2 = int(gravity_center[0] + dist)
+    if r[3]-r[2] > radiusmin:
         dist = float((r[3]-r[2]))/2/binfact
-        ry1 = int(G[1] - dist)
-        ry2 = int(G[1] + dist)
-    elif (r[1]-r[0] <= radiusmin):  # now we can leave the function
-        return G
+        ry1 = int(gravity_center[1] - dist)
+        ry2 = int(gravity_center[1] + dist)
+    elif r[1]-r[0] <= radiusmin:  # now we can leave the function
+        return gravity_center
 
     return DecreasingGravityCenter(grid, r=(rx1, rx2, ry1, ry2))
 
@@ -570,7 +570,7 @@ def RadialLine(grid, point1_and_point2, return_point=0):
 # we supose that r is ordere for the display og the strahl funciton
 def XProfile(grid, center, r=None, direction='X'):
     if r is None:
-        r = (0, len(grid)-1,   "useless", "useless")
+        r = (0, len(grid)-1,   0, len(grid[0]) - 1)
     Order4(r)
     if direction == 'X':
         x = np.arange(int(r[0]), int(r[1])+1)

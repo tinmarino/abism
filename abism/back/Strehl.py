@@ -6,19 +6,61 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root, get_state, AnswerNum, EA
+from abism.util import log, get_root, get_state, \
+    AnswerNum, EA, AnswerLuminosity
 import abism.back.util_back as W
 
 
-def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]
-    """ and wavelgnth , pixel_scale, obstruciton, diameter """
-    bessel_integer = get_root().header.wavelength * \
-        10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
-    bessel_integer = bessel_integer**2 * 4 * \
-        np.pi / (1-(get_root().header.obstruction/100)**2)
+def StrehlMeter():  # receive W.r, means a cut of the image
+    """ Note : this should just be a caller
+        this is the first written, strehlMeter for pick one,
+        I putted more for ellipse and binary
+    """
+
+    W.strehl = {"theta": 99}
+    ##########################
+    # FIND   THE   CENTER  AND FWHM
+    W.r = IF.Order4(W.r)
+    # IF.FindBadPixel(get_root().image.im0,(rx1,rx2,ry1,ry2))
+    star_center = IF.DecreasingGravityCenter(get_root().image.im0, r=W.r)  # GravityCenter
+    star_center = IF.FindMaxWithBin(get_root().image.im0, W.r)  # GravityCenter
+    tmp = IF.LocalMax(get_root().image.im0, center=star_center, size=3)
+    star_max, star_center = tmp[2], (tmp[0], tmp[1])
+    W.FWHM = IF.FWHM(get_root().image.im0, star_center)
+    W.background = 0
+
+    # Delegate fit
+    import time
+    start_time = time.time()
+
+    W.psf_fit = SI.PsfFit(
+        get_root().image.im0, center=star_center,
+        max=star_max)
+
+    log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
+    W.strehl.update(W.psf_fit[0])
+
+    # Get Background && SAve
+    background = SI.Background(get_root().image.im0)['my_background']
+    get_state().add_answer(AnswerLuminosity, EA.BACKGROUND, background)
+
+    # Get photometry && Save
+    photometry, total, number_count = \
+        SI.Photometry(get_root().image.im0, background)
+    get_state().add_answer(AnswerLuminosity, EA.PHOTOMETRY, photometry)
+
+    # Get Signal on noise && Save
+    signal_on_noise = photometry / background / np.sqrt(number_count)
+    get_state().add_answer(AnswerNum, EA.SN, signal_on_noise)
+
+
+
+    rotate_fwhm()
+
+    bessel_integer = get_bessel_integer()
 
     # Get theoretical intensity
-    Ith = W.strehl["my_photometry"] / bessel_integer
+    Ith = photometry / bessel_integer
 
     # Get strehl (finally)
     strehl = W.strehl["intensity"] / Ith * 100
@@ -27,6 +69,17 @@ def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]
     get_state().add_answer(AnswerNum, EA.STREHL, strehl)
     W.strehl["Ith"] = Ith  # used for error
     W.strehl["bessel_integer"] = bessel_integer   # used for error
+
+    StrehlError()
+
+
+def get_bessel_integer():
+    """From image statistics"""
+    bessel_integer = get_root().header.wavelength * \
+        10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
+    bessel_integer = bessel_integer**2 * 4 * \
+        np.pi / (1-(get_root().header.obstruction/100)**2)
+    return bessel_integer
 
 
 def StrehlError():
@@ -68,41 +121,14 @@ def StrehlError():
     get_state().add_answer(AnswerNum, EA.ERR_STREHL, res)
 
 
-def StrehlMeter():  # receive W.r, means a cut of the image
-    """ Note : this should just be a caller
-        this is the first written, strehlMeter for pick one,
-        I putted more for ellipse and binary
-    """
 
-    W.strehl = {"theta": 99}
-    ##########################
-    # FIND   THE   CENTER  AND FWHM
-    W.r = IF.Order4(W.r)
-    # IF.FindBadPixel(get_root().image.im0,(rx1,rx2,ry1,ry2))
-    star_center = IF.DecreasingGravityCenter(get_root().image.im0, r=W.r)  # GravityCenter
-    star_center = IF.FindMaxWithBin(get_root().image.im0, W.r)  # GravityCenter
-    tmp = IF.LocalMax(get_root().image.im0, center=star_center, size=3)
-    star_max, star_center = tmp[2], (tmp[0], tmp[1])
-    W.FWHM = IF.FWHM(get_root().image.im0, star_center)
-    W.background = 0
-
-    # Delegate fit
-    import time
-    start_time = time.time()
-
-    W.psf_fit = SI.PsfFit(
-        get_root().image.im0, center=star_center,
-        max=star_max)
-
-    log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
-    W.strehl.update(W.psf_fit[0])
-
-    ### phot and noise
-    W.strehl.update(SI.Background(get_root().image.im0))
-    W.strehl.update(SI.Photometry(get_root().image.im0))
-
-    StrehlRatio()
-    StrehlError()
+def rotate_fwhm():
+    ###########
+    # LONG SHORT AXE, ELLIPTICITY
+    W.strehl["fwhm_a"] = max(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
+    W.strehl["fwhm_b"] = min(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
+    W.strehl["eccentricity"] = np.sqrt(
+        W.strehl["fwhm_a"]**2 - W.strehl["fwhm_b"]**2)/W.strehl["fwhm_a"]
 
 
 def BinaryStrehl():

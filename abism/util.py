@@ -1,5 +1,6 @@
 """
     Util functions
+    Include answer.py in scope (see import at bottom)
 """
 
 # Standard
@@ -11,12 +12,6 @@ from enum import Enum
 
 # Local
 from abism import __version__
-
-# Impersonate answser
-import abism.answer
-for truc in dir(abism.answer):
-    # pylint: disable = exec-used
-    exec(truc + ' = ' + 'abism.answer.' + truc)
 
 _verbose = 10  # Verbose level
 _parsed_args = None  # Arguments from argparse
@@ -118,11 +113,15 @@ def get_fit_list():
 
 
 class EA(Enum):
-    """Enum of Answer names"""
+    """Enum of Answer names
+    Center:   # sky -> ra, dec; detector -> x, y
+    """
     STREHL = 'Strehl'
     STREHL_EQ = u'Eq. SR(2.17\u03bcm)'
+
     CENTER = 'Center'
     FWHM_ABE = 'FWHM'
+
     PHOTOMETRY = 'Photometry'
     BACKGROUND = 'Sky'
     NOISE = 'Sky RMS'
@@ -186,6 +185,10 @@ class AbismState:
 @lru_cache(1)
 def get_state():
     return AbismState()
+
+
+def abism_val(enum_answer):
+    return get_state().answers[enum_answer].value
 
 
 def get_root():
@@ -252,6 +255,13 @@ def root_path():
     return dirname(abspath(__file__)) + '/'
 
 
+class DotDic(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+
 @lru_cache(1)
 def _get_logger():
     import logging
@@ -277,3 +287,10 @@ def log(i, *args):
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     _get_logger().info(message)
+
+
+# Impersonate answser
+import abism.answer
+for truc in dir(abism.answer):
+    # pylint: disable = exec-used
+    exec(truc + ' = ' + 'abism.answer.' + truc)

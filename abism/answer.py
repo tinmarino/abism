@@ -1,4 +1,6 @@
 """
+    Warning, I am loaded in util space
+
     The answer object the backend is sharing
 class Answer(metaclass=ABCMeta):
     # Base class for an answser
@@ -17,6 +19,8 @@ class Answer(metaclass=ABCMeta):
 from abc import ABC, abstractmethod
 
 import numpy as np
+
+from abism.util import get_root
 
 
 class Answer(ABC):
@@ -82,6 +86,38 @@ class AnswerPosition(AnswerSky):
         s_x = f'{x:,.3f}'.replace(',', ' ')
         s_y = f'{y:,.3f}'.replace(',', ' ')
         return s_x + ' , ' + s_y
+
+
+class AnswerLuminosity(AnswerSky):
+    """Luminosity stored in adu, convertable to mag
+    Require: zero point
+             exposure time
+    phot_mag = W.strehl["my_photometry"] / get_root().header.exptime
+    phot_mag = get_root().header.zpt - 2.5 * np.log10(phot_mag)
+    line = AnswerImageSky(
+        "Photometry: ",
+        W.strehl["my_photometry"],
+        MyFormat(W.strehl["my_photometry"], 1, "f") + " [adu]",
+        "%.2f" % phot_mag + " [mag]"
+        )
+    """
+    def __str__(self):
+        return self.str_detector()
+
+    def str_sky(self):
+        # Read header
+        exptime = get_root().header.exptime
+        zpt = get_root().header.zpt
+
+        # Get Flux / sec
+        i_sky = self.value / exptime
+        # Get Magnitude
+        i_sky = zpt - 2.5 * np.log10(i_sky)
+
+        return f'{i_sky:.2f}'
+
+    def str_detector(self):
+        return f'{self.value:.1f}'
 
 
 
