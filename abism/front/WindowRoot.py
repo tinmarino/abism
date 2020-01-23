@@ -84,7 +84,7 @@ class RootWindow(tk.Tk):
         self.header = self.image.header
 
         # Redraw
-        self.ImageFrame.draw_image()
+        self.frame_image.draw_image()
 
 
     def set_title(self):

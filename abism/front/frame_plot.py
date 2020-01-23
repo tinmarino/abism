@@ -37,7 +37,7 @@ class RightFrame(tk.PanedWindow):
         parent.add(self)
 
         # Add science image frame
-        root.ImageFrame = ImageFrame(self)
+        root.frame_image = ImageFrame(self)
 
         # Append bottom, horizontally splitted container of 2 frames
         G.RightBottomPaned = tk.PanedWindow(
@@ -45,10 +45,10 @@ class RightFrame(tk.PanedWindow):
         self.add(G.RightBottomPaned)
 
         # Add Fit (bottom left)
-        root.FitFrame = FitFrame(G.RightBottomPaned)
+        root.frame_fit = FitFrame(G.RightBottomPaned)
 
         # Add Result (bottom right)
-        root.ResultFrame = ResultFrame(G.RightBottomPaned)
+        root.frame_result = ResultFrame(G.RightBottomPaned)
 
 
 class PlotFrame(tk.Frame):
@@ -269,7 +269,7 @@ class ImageFrame(PlotFrame):
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
         if new_fits:
-            get_root().LabelFrame.update_label()
+            get_root().frame_label.update_label()
 
         self.extend_matplotlib()
 
@@ -350,12 +350,12 @@ class ImageFrame(PlotFrame):
 
         # Try to draw  result frame
         try:
-            for ax in get_root().ResultFrame.get_figure().axes:
+            for ax in get_root().frame_result.get_figure().axes:
                 if not len(ax.images): continue
                 mappable = ax.images[0]
                 mappable.set_norm(mynorm)
                 mappable.set_cmap(cmap)
-            get_root().ResultFrame.redraw()
+            get_root().frame_result.redraw()
         except BaseException as e:
             log(2, "Draw cannot draw in Result Figure (bottom right):", e)
 

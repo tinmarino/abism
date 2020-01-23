@@ -288,7 +288,7 @@ class ImageInfo():
 
         else:  # including image not a cube, we try to destroy cube frame
             self.is_cube = False
-            get_root().ImageFrame.Cube()
+            get_root().frame_image.Cube()
 
 
     def sky(self, dic=None):

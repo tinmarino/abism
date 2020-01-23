@@ -166,11 +166,11 @@ class ViewMenu(ButtonMenu):
 
             get_state().s_image_color_map = s_in
 
-            get_root().ImageFrame.CutImageScale()
+            get_root().frame_image.CutImageScale()
 
         def on_change_contour():
             get_state().b_image_contour = not get_state().b_image_contour
-            get_root().ImageFrame.CutImageScale()
+            get_root().frame_image.CutImageScale()
 
         def on_change_reverse():
             """Flip _r an end"""
@@ -181,7 +181,7 @@ class ViewMenu(ButtonMenu):
             else:
                 cmap = s_old + '_r'
             get_state().s_image_color_map = cmap
-            get_root().ImageFrame.CutImageScale()
+            get_root().frame_image.CutImageScale()
 
         # Create tk var
         cmap_var = tk.StringVar()
@@ -221,7 +221,7 @@ class ViewMenu(ButtonMenu):
             """same color map callback"""
             stretch = string_var.get()
             get_state().s_image_stretch = stretch
-            get_root().ImageFrame.CutImageScale()
+            get_root().frame_image.CutImageScale()
 
         # Add check buttons
         for i in get_stretch_list():
@@ -243,7 +243,7 @@ class ViewMenu(ButtonMenu):
             """same color map callback"""
             get_state().s_image_cut = s_in
             get_state().i_image_cut = value
-            get_root().ImageFrame.CutImageScale()
+            get_root().frame_image.CutImageScale()
 
         # Add check buttons
         string_var = tk.StringVar()
@@ -255,7 +255,7 @@ class ViewMenu(ButtonMenu):
                 variable=string_var, value=text)
 
         def on_manual():
-            get_root().OptionFrame.toogle_manual_cut()
+            get_root().frame_option.toogle_manual_cut()
 
         # Add manual cut trigger
         self.menu.add_radiobutton(
@@ -296,7 +296,7 @@ class AnalysisMenu(ButtonMenu):
                 variable=string_var, value=text)
 
         def on_more():
-            get_root().OptionFrame.toogle_more_analysis(parent=self)
+            get_root().frame_option.toogle_more_analysis(parent=self)
 
         # Add button more options
         self.menu.add_command(
@@ -329,7 +329,7 @@ class AnalysisMenu(ButtonMenu):
 
     def toogle_more_options(self):
         """More photometry options frame"""
-        if get_root().OptionFrame.is_more_analysis_visible():
+        if get_root().frame_option.is_more_analysis_visible():
             self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
         else:
             self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
@@ -348,7 +348,7 @@ class ToolMenu(ButtonMenu):
             ["Profile", lambda: Pick.RefreshPick("profile")],
             ["Stat", lambda: Pick.RefreshPick("stat")],
             ["Histogram", lambda: Histopopo(
-                get_root().FitFrame.get_figure(),
+                get_root().frame_fit.get_figure(),
                 get_root().image.sort,
                 skin=skin())],
             ["Legacy Console", PythonConsole],

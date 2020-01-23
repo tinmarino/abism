@@ -202,12 +202,12 @@ def grid_button_change_coord():
         show_answer()
 
     button = Button(
-        get_root().AnswerFrame, background='Khaki', borderwidth=1,
+        get_root().frame_answser, background='Khaki', borderwidth=1,
         text=s_button, **skin().button_dic,
         command=callback)
 
     label = Label(
-        get_root().AnswerFrame,
+        get_root().frame_answser,
         justify=LEFT, anchor="nw", **skin().fg_and_bg,
         text=s_label)
 
@@ -266,8 +266,8 @@ def answer_intensity():
 
 def print_one():
     # Pack fit type in Frame
-    get_root().AnswerFrame.set_fit_type_text(get_state().fit_type)
-    get_root().AnswerFrame.clear()
+    get_root().frame_answser.set_fit_type_text(get_state().fit_type)
+    get_root().frame_answser.clear()
 
     # Button to change cord
     grid_button_change_coord()
@@ -376,8 +376,8 @@ def grid_tuple_obsolete(i):
     if i[0] == "Strehl: ":
         myargs["fg"] = "red"
         myargs["font"] = skin().font.strehl
-    l1 = Label(get_root().AnswerFrame, text=i[0], **myargs)
-    l2 = Label(get_root().AnswerFrame, text=i[2], **myargs)
+    l1 = Label(get_root().frame_answser, text=i[0], **myargs)
+    l2 = Label(get_root().frame_answser, text=i[2], **myargs)
     l1.grid(column=0, sticky="nsew")
     l2.grid(column=1, sticky="nsew")
 
@@ -392,7 +392,7 @@ def refresh_text_answer():
     Nobody can edit text, when it is disabled
     """
     # Create text
-    text = Text(get_root().AnswerFrame, **skin().text_dic)
+    text = Text(get_root().frame_answser, **skin().text_dic)
 
 
     # Configure Text
@@ -425,11 +425,11 @@ def PlotEllipse():
     ########
     # BUTTON
     # to fill th ecolumn on th epossible space
-    get_root().AnswerFrame.columnconfigure(0, weight=1)
+    get_root().frame_answser.columnconfigure(0, weight=1)
     G.bu_answer_type = Button(
-        get_root().AnswerFrame, text='useless', background='Khaki', borderwidth=1, width=9)
+        get_root().frame_answser, text='useless', background='Khaki', borderwidth=1, width=9)
     G.lb_answer_type = Label(
-        get_root().AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
+        get_root().frame_answser, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     ############
     # IMAGE COORD
@@ -593,7 +593,7 @@ def PlotStat():
         ["RMS: ", "%.1f" % dicr["rms"]],
     ]
 
-    ax = get_root().ResultFrame.reset_figure_ax()
+    ax = get_root().frame_result.reset_figure_ax()
     num = 0
     for i in lst:
         print(i[0] + i[1])
@@ -602,7 +602,7 @@ def PlotStat():
         #G.ax3.text(0.5,0.5, i[0]+i[1],transform = G.ax3.transAxes )
         num += 1
 
-    ax = get_root().ResultFrame.redraw()
+    ax = get_root().frame_result.redraw()
 
 
 
@@ -624,7 +624,7 @@ def PlotOneStar1D():
     log(3, 'center=', center)
 
     # Get ax
-    ax = get_root().FitFrame.reset_figure_ax(
+    ax = get_root().frame_fit.reset_figure_ax(
         xlabel='Pixel', ylabel='Intensity')
 
     # Plot x, y
@@ -671,8 +671,8 @@ def PlotOneStar1D():
     ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
 
     # Update skin && Draw
-    get_root().FitFrame.update_skin()
-    get_root().FitFrame.get_canvas().draw()
+    get_root().frame_fit.update_skin()
+    get_root().frame_fit.get_canvas().draw()
 
 
 def PlotBinaryStar1D():
@@ -716,14 +716,14 @@ def PlotBinaryStar1D():
 
     ################
     # PLOT
-    ax = get_root().FitFrame.reset_figure_ax()
+    ax = get_root().frame_fit.reset_figure_ax()
     ax.plot(ab_th+0.5, I_theory, color='purple',
             linewidth=2, label='Fitted PSF')
     #G.ax2.plot(ab_th,I_theory,color='purple',linewidth=2,label='Fitted PSF')
     ax.plot(ab, od, color='black', linestyle='steps', linewidth=1,
             label='Real Profile')  # x+0.5 to recenter the bar
     ax.legend(loc=1, prop={'size': 8})      # Legend
-    get_root().FitFrame.redraw()
+    get_root().frame_fit.redraw()
 
 
 
@@ -731,7 +731,7 @@ def ProfileAnswer():  # 1 and 2D
     def Curve():
         global points  # for the stat
 
-        ax = get_root().FitFrame.reset_figure_ax()
+        ax = get_root().frame_fit.reset_figure_ax()
 
         # DATA
         ab, od, points = IF.RadialLine(
@@ -744,7 +744,7 @@ def ProfileAnswer():  # 1 and 2D
         #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
 
         ax.legend(loc=1, prop={'size': 8})      # Legend
-        get_root().FitFrame.redraw()
+        get_root().frame_fit.redraw()
 
     def Data():
         log(8, "ProfileAnswer :", zip(points, get_root().image.im0[tuple(points)]))
@@ -752,7 +752,7 @@ def ProfileAnswer():  # 1 and 2D
         # like profile_stat points[0] is x and points[1] is y
         ps = get_array_stat(get_root().image.im0[tuple(points)])
 
-        ax = get_root().ResultFrame.reset_figure_ax()
+        ax = get_root().frame_result.reset_figure_ax()
 
         # LEN
         tmp1 = G.my_profile.point1
@@ -771,7 +771,7 @@ def ProfileAnswer():  # 1 and 2D
             ax.text(0.3, 1.0-num/(len(lst)+1), i[0]+"%.1f" % i[1])
             num += 1
 
-        get_root().ResultFrame.redraw()
+        get_root().frame_result.redraw()
 
     Curve()
     Data()
@@ -825,11 +825,11 @@ def PlotOneStar2D():
         ax.format_coord = lambda x, y: ""
 
     # Get && Reset figure
-    figure = get_root().ResultFrame.get_figure()
+    figure = get_root().frame_result.get_figure()
     figure.clf()
     ax1 = figure.add_subplot(121)
     ax2 = figure.add_subplot(122)
-    get_root().ResultFrame.update_skin()
+    get_root().frame_result.update_skin()
 
     # Plot first image (data)
     Data(ax1)
@@ -905,7 +905,7 @@ def PlotOneStar2D():
     ax1.set_xticks(())
     ax1.set_yticks(())
 
-    get_root().ResultFrame.redraw()
+    get_root().frame_result.redraw()
     return
 
 
@@ -925,8 +925,8 @@ def PlotBinaryStar2D():
     ###########
     # IMAGES draw
     # TRUE
-    get_root().ResultFrame.get_figure().clf()
-    ax1 = get_root().ResultFrame.get_figure().add_subplot(121)
+    get_root().frame_result.get_figure().clf()
+    ax1 = get_root().frame_result.get_figure().add_subplot(121)
     ax1.imshow(
         get_root().image.im0[r[0]:r[1], r[2]:r[3]],
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
@@ -940,7 +940,7 @@ def PlotBinaryStar2D():
         stg = "Moffat2pt"
     elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
-    ax2 = get_root().ResultFrame.get_figure().add_subplot(122)
+    ax2 = get_root().frame_result.get_figure().add_subplot(122)
     ax2.imshow(
         vars(BF)[stg]((X, Y), W.strehl),
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
@@ -949,7 +949,7 @@ def PlotBinaryStar2D():
         )  # need to comment the extent other wise too crowded and need to change rect positio
     #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
     ax2.format_coord = lambda x, y: ""
-    get_root().ResultFrame.redraw()
+    get_root().frame_result.redraw()
     return
 
     ############

@@ -30,13 +30,13 @@ class LeftFrame(tk.Frame):
         text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
 
         # Add LabelFrame
-        root.LabelFrame = LabelFrame(text_paned, index=0, label_text='Info')
+        root.frame_label = LabelFrame(text_paned, index=0, label_text='Info')
 
         # Add LabelFrame
-        root.OptionFrame = OptionFrame(text_paned, index=1, label_text='Option')
+        root.frame_option = OptionFrame(text_paned, index=1, label_text='Option')
 
         # Add AnswerFrame
-        root.AnswerFrame = AnswerFrame(text_paned, label_text='Result')
+        root.frame_answser = AnswerFrame(text_paned, label_text='Result')
         # Create Buttons with callback to preceding
         button_frame = ButtonFrame(self)
 
@@ -335,7 +335,7 @@ class OptionFrame(TextFrame):
                 vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
                 vars(G.tkentry)[i[1]].bind(
                     '<Return>',
-                    lambda _: get_root().LabelFrame.set_image_parameters)
+                    lambda _: get_root().frame_label.set_image_parameters)
                 if len(str(vars(get_root().header)[i[1]])) > 6:  # not to long for display
                     vars(G.tkvar)[i[1]].set("%.5f" % float(vars(get_root().header)[i[1]]))
                 else:
@@ -398,7 +398,7 @@ class OptionFrame(TextFrame):
         def set_cuts(_):
             get_state().i_image_max_cut = float(string_vars[0].get())
             get_state().i_image_min_cut = float(string_vars[1].get())
-            get_root().ImageFrame.CutImageScale()
+            get_root().frame_image.CutImageScale()
 
         # Grid them both
         lst = [["Max cut", get_state().i_image_max_cut],
@@ -498,7 +498,7 @@ class OptionFrame(TextFrame):
         """Create More Frame"""
         # Grid root
         self.frame_more_analysis = tk.Frame(
-            get_root().OptionFrame, **skin().frame_dic)
+            get_root().frame_option, **skin().frame_dic)
         self.frame_more_analysis.grid(sticky='nsew')
 
         # Pack title
@@ -595,7 +595,7 @@ class OptionFrame(TextFrame):
         bu_close.grid(column=0, columnspan=2)
 
         # Redraw
-        get_root().OptionFrame.init_will_toogle(visible=True, add_title=False)
+        get_root().frame_option.init_will_toogle(visible=True, add_title=False)
 
 
     def close_more_analysis(self):
@@ -631,7 +631,7 @@ class OptionFrame(TextFrame):
 
         # Grid root
         self.frame_manual_background = tk.Frame(
-            get_root().OptionFrame, bg=skin().color.bg)
+            get_root().frame_option, bg=skin().color.bg)
         self.frame_manual_background.grid(sticky='nsew')
         self.frame_manual_background.columnconfigure(0, weight=1)
         self.frame_manual_background.columnconfigure(1, weight=1)
@@ -717,7 +717,7 @@ class ButtonFrame(tk.Frame):
         opts.update({'background':skin().color.parameter1})
         G.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
-            command=get_root().OptionFrame.ask_image_parameters, **opts)
+            command=get_root().frame_option.ask_image_parameters, **opts)
 
         # Grid
         self.columnconfigure(0, weight=1)

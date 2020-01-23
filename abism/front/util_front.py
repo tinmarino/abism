@@ -412,7 +412,7 @@ def open_file():
     log(0, "Opening file : " + s_file)
     get_root().set_image(s_file)
 
-    get_root().ImageFrame.draw_image()
+    get_root().frame_image.draw_image()
 
     # Change title
     fname = get_root().image.name.split('/')[-1]
@@ -427,4 +427,4 @@ def open_backgroud_and_substract():
 
     # Substract and Redraw
     if get_root().image.substract_sky(fp_sky):
-        get_root().ImageFrame.draw_image()
+        get_root().frame_image.draw_image()
