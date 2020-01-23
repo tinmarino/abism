@@ -33,16 +33,24 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     import time
     start_time = time.time()
 
-    W.psf_fit = SI.PsfFit(
+    W.psf_fit = psf_fit = SI.PsfFit(
         get_root().image.im0, center=star_center,
         max=star_max)
 
     log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
     W.strehl.update(W.psf_fit[0])
 
+    # Save what it take
+    intensity = psf_fit[0]['intensity']
+    get_state().add_answer(EA.INTENSITY, intensity)
+    print('\n\n\nintensitry', intensity)
+
     # Get Background && SAve
-    background = SI.Background(get_root().image.im0)['my_background']
+    back_dic = SI.Background(get_root().image.im0)
+    background = back_dic['my_background']
+    rms = back_dic['rms']
     get_state().add_answer(EA.BACKGROUND, background)
+    get_state().add_answer(EA.NOISE, rms)
 
     # Get photometry && Save
     photometry, _, number_count = \
@@ -58,11 +66,12 @@ def StrehlMeter():  # receive W.r, means a cut of the image
 
     bessel_integer = get_bessel_integer()
 
-    # Get theoretical intensity
+    # Get theoretical intensity && Save
     Ith = photometry / bessel_integer
+    get_state().add_answer(EA.INTENSITY_THEORY, Ith)
 
     # Get strehl (finally)
-    strehl = W.strehl["intensity"] / Ith * 100
+    strehl = intensity / Ith * 100
 
     # Save
     get_state().add_answer(EA.STREHL, strehl)
@@ -146,6 +155,8 @@ def EllipseEventStrehl():
 
     else:  # including aperture = ellipse you've drawn
         SI.EllipseEventBack()  # Update
+        # TODO bass background instead of global
+        # TODO brefore:  check if used
         SI.EllipseEventPhot()  # Update  with ellipse, number count needed
         SI.EllipseEventMax()  # Update
         StrehlRatio()

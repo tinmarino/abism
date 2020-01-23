@@ -136,7 +136,7 @@ class EA(Enum):
     SN = ['S/N', AnswerNum]
 
     # Luxury
-    R99 = 'R99'
+    R99 = ['R99', AnswerNum]
     INTENSITY = ['Peak', AnswerLuminosity]
     INTENSITY_THEORY = ['Ith', AnswerLuminosity]
 
@@ -193,6 +193,11 @@ class AbismState:
 
         # Save answer
         self.answers[enum_answer] = answer
+
+    def get_answer(self, enum_answer):
+        """Get only the value"""
+        return self.answers[enum_answer].value
+
 
 
 @lru_cache(1)

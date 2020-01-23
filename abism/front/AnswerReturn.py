@@ -252,6 +252,34 @@ def answer_fwhm():
         unit=(' [pxl]', ' [mas]'))
 
 
+def answer_background():
+    return tkable_from_answer(
+        get_state().answers[EA.BACKGROUND],
+        error=get_state().answers[EA.NOISE],
+        unit=(' [adu]', ' [mag]'))
+
+
+def answer_signal_on_noise():
+    return tkable_from_answer(
+        get_state().answers[EA.SN])
+
+
+def answer_intensity():
+    return tkable_from_answer(
+        get_state().answers[EA.INTENSITY],
+        unit=(' [adu]', ' [mag]'))
+    """
+    W.tmp.lst.append(answer_intensity())
+    peak_mag = W.strehl["intensity"] / get_root().header.exptime
+    peak_mag = get_root().header.zpt - 2.5 * np.log10(peak_mag)
+    line = AnswerImageSky(
+        "Peak: ",
+        W.strehl["intensity"],
+        MyFormat(W.strehl["intensity"], 1, "f") + " [adu]",
+        "%.1f" % peak_mag + " [mag]"
+        )
+    """
+
 def PlotPickOne():
     # <- Calculate Equivalent strehl2.2 and error
     strehl = get_state().answers[EA.STREHL].value / 100
@@ -269,6 +297,9 @@ def PlotPickOne():
 
     # Save it
     get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err)
+
+
+    # TODO move all preceding in back
 
     # answers = get_state().reset_answers()
     W.tmp.lst = []
@@ -295,38 +326,13 @@ def PlotPickOne():
     W.tmp.lst.append(answer_photometry())
 
     # Background
-    back_mag = W.strehl["my_background"] / get_root().header.exptime
-    back_mag = get_root().header.zpt - 2.5 * np.log10(back_mag)
-    rms_mag = get_root().header.zpt - 2.5 * np.log10(W.strehl['rms'])
-    line = AnswerImageSky(
-        "Background: ",
-        W.strehl["my_background"],
-        MyFormat(W.strehl["my_background"], 1, "f") + \
-            '| rms: ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]",
-        "%.2f" % back_mag + '| rms: ' + "%.2f" % rms_mag + " [mag]"
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_background())
 
     # Signal / Noise ratio
-    signal_on_noise = get_state().answers[EA.SN]
-    line = AnswerImageSky(
-        "S/N: ",
-        signal_on_noise,
-        MyFormat(signal_on_noise, 1, "f"),
-        ''
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_signal_on_noise())
 
     # Peak of detection
-    peak_mag = W.strehl["intensity"] / get_root().header.exptime
-    peak_mag = get_root().header.zpt - 2.5 * np.log10(peak_mag)
-    line = AnswerImageSky(
-        "Peak: ",
-        W.strehl["intensity"],
-        MyFormat(W.strehl["intensity"], 1, "f") + " [adu]",
-        "%.1f" % peak_mag + " [mag]"
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_intensity())
 
     # Saturated
     if 'intensity' not in W.strehl:  # binary
@@ -368,7 +374,7 @@ def PlotPickOne():
             line = AnswerText(text, tags=['tag-important', 'tag-center'])
             W.tmp.lst.append(line)
 
-    # Button chanfe coord
+    # Button change coord
     if get_state().s_answer_unit == "detector":
         G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
@@ -407,8 +413,8 @@ def PlotEllipse():
                 get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + MyFormat(get_state().answers[EA.ERR_STREHL].value, 1, "f") + " %"],
             ["Intensity: ", W.strehl["intensity"], MyFormat(
                 W.strehl["intensity"], 1, "f") + " [adu]"],
-            ["Background: ", W.strehl["my_background"], MyFormat(
-                W.strehl["my_background"], 1, "f") + ' +/- ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]"],
+            ["Background: ", get_state().get_answer(EA.BACKGROUND), MyFormat(
+                get_state().get_answer(EA.BACKGROUND), 1, "f") + ' +/- ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]"],
             ["Photometry: ", W.strehl["my_photometry"], MyFormat(
                 W.strehl["my_photometry"], 1, "f") + " [adu]"],
             #["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f") ],
@@ -446,8 +452,8 @@ def PlotEllipse():
                 (get_state().answers[EA.STREHL].value) + " +/- "+"%.1f" % get_state().answers[EA.ERR_STREHL].value+" %"],
             ["Intensity: ", W.strehl["intensity"],  "%.1f" % (
                 get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
-            ["Background: ", W.strehl["my_background"], "%.2f" % (get_root().header.zpt-2.5*np.log10(
-                W.strehl["my_background"]/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
+            ["Background: ", get_state().get_answer(EA.BACKGROUND), "%.2f" % (get_root().header.zpt-2.5*np.log10(
+                get_state().get_answer(EA.BACKGROUND)/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
             ["Photometry: ", W.strehl["my_photometry"], "%.2f" % (
                 get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"],
             #["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f")  ],
@@ -657,7 +663,7 @@ def PlotOneStar1D():
     x0cut, x1cut = center[0]-r99, center[0]+r99
     ax.axvline(x=x0cut, color='black', linestyle='-.', label='99% EE')
     ax.axvline(x=x1cut, color='black', linestyle='-.')
-    ax.axhline(y=W.strehl["my_background"], color='black', linestyle='-.')
+    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
 
     # Plot Fit
     if not get_state().fit_type == 'None':
@@ -682,7 +688,7 @@ def PlotOneStar1D():
     ax.legend(loc=1, prop={'size': 8})
 
    #  def Percentage(y):  # y is the intensity
-   #      res = 100*(max(MyBessel)-W.strehl["my_background"])*y
+   #      res = 100*(max(MyBessel)-get_state().get_answer(EA.BACKGROUND))*y
     ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
 
     # Update skin && Draw
@@ -1014,7 +1020,7 @@ def CallContrastMap():
     def Worker():
         import ImageFunction as IF
         x, y, tdic = IF.ContrastMap(get_root().image.im0, (W.strehl["center_x"], W.strehl["center_y"]), interp=True, xmin=0.5, xmax=20, step=2, dic={
-                                    "theta": 0, "ru": 1, "rv": 1}, background=0)  # W.strehl["my_background"])
+                                    "theta": 0, "ru": 1, "rv": 1}, background=0)  # get_state().get_answer(EA.BACKGROUND))
 
         FigurePlot(x, y, dic=tdic)
 

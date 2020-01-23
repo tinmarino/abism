@@ -6,7 +6,7 @@ import abism.back.fit_template_function as BF
 from abism.back.image import ImageInfo, get_array_stat
 
 
-from abism.util import log, get_verbose, get_root, get_state
+from abism.util import log, get_verbose, get_root, get_state, EA
 import abism.front.util_front as G
 import abism.back.util_back as W
 
@@ -731,38 +731,49 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
 
 
 def EllipseEventBack():
+    """Return: background from ellipse <int(adu)>"""
     obj = G.ellipse
     rui, rvi = obj.ru, obj.rv     # inner annulus
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
-    ell_i = IF.EllipticalAperture(get_root().image.im0, dic={
-                                  "center_x": obj.x0, "center_y": obj.y0, "ru": rui, "rv": rvi, "theta": obj.theta})  # inner
+    ell_i = IF.EllipticalAperture(
+        get_root().image.im0,
+        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": rui,
+             "rv": rvi, "theta": obj.theta})  # inner
 
-    ell_o = IF.EllipticalAperture(get_root().image.im0, dic={
-                                  "center_x": obj.x0, "center_y": obj.y0, "ru": ruo, "rv": rvo, "theta": obj.theta})  # outter
+    ell_o = IF.EllipticalAperture(
+        get_root().image.im0,
+        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": ruo,
+             "rv": rvo, "theta": obj.theta})  # outter
 
     # annulus  inside out but not inside in
     bol_a = ell_o["bol"] ^ ell_i["bol"]
 
     image_cut = get_root().im0[bol_a]
-    W.strehl["sky"] = get_array_stat(image_cut)
+    stat = get_array_stat(image_cut)
 
-    W.strehl["my_background"] = sky["mean"]
+    stat["mean"]
 
 
 def EllipseEventPhot():
-    """Elliptical phot"""
+    """Elliptical phot
+    Returns: photometry, total, number_count
+    """
     obj = G.ellipse
 
     ###########
     # CAlculate Ellipse stats (phot) update phot
-    dic = {"center_x": obj.x0, "center_y": obj.y0, "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
+    dic = {"center_x": obj.x0, "center_y": obj.y0,
+           "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
     ellipse_stat = IF.EllipticalAperture(
         obj.array, dic=dic, full_answer=True)
-    W.strehl.update(ellipse_stat)
 
-    W.strehl["my_photometry"] = W.strehl["sum"] - W.strehl["my_background"]
-    return
+    number_count, total = ellipse_stat['sum'], ellipse_stat['number_count']
+    photometry = total - get_state().get_answer(EA.BACKGROUND)
+
+    # SAve photo
+    get_state().add_answer(EA.PHOTOMETRY, photometry)
+    return photometry, total, number_count
 
 
 def EllipseEventMax():  # receive EllipseEvent
