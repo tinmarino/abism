@@ -67,20 +67,6 @@ class AnswerImageSky(AnswerLine):
         text.insert(END, "\n")
 
 
-def values_from_answer(answer):
-    """Proxy to ensure skyable
-    TODO remove because all are skyable
-    """
-    # Get sky and detector
-    if isinstance(answer, AnswerSky):
-        s_sky = answer.str_sky()
-        s_detector = answer.str_detector()
-    else:
-        s_sky = s_detector = str(answer)
-
-    return s_sky, s_detector
-
-
 def tkable_from_answer(answer, error=None, unit='', tags=[]):
     # Str answser
     s_sky = answer.str_sky()
@@ -115,10 +101,10 @@ class AnswerText(AnswerLine):
         text.insert(END, self.s_text, self.tags)
 
 
-
 def MyFormat(value, number, letter):
     """This is just to put a "," between the 1,000 for more readability
     MyFormat(var, 1, 'f') -> "%.1f" % var
+    TODO remove one day
     """
     try:
         float(value)  # in case
@@ -157,8 +143,9 @@ def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
     sign = np.sign(angle[0])
     im_angle = im_angle + (sign-1)*(-90)
 
-    sky_angle = np.arccos(angle[1]*W.north_direction[1] + angle[0] *
-                          W.north_direction[0]) * 57.295779  # inverted angle and not north
+    sky_angle = np.arccos(
+        angle[1]*W.north_direction[1] + angle[0] *
+        W.north_direction[0]) * 57.295779  # inverted angle and not north
     sign = np.sign(angle[0]*W.east_direction[0] + angle[1]*W.east_direction[1])
     sky_angle = sky_angle + (sign-1)*(-90)
 
@@ -181,33 +168,11 @@ def PlotAnswer(unit=None, append=True):  # CALLER
     if unit != None:
         get_state().s_answer_unit = unit
 
-    # FIT TYPE
+    # Pack fit type in Frame
     get_root().AnswerFrame.set_fit_type_text(get_state().fit_type)
     get_root().AnswerFrame.clear()
 
-    ##################
-    # 1/  Destroy  answer frame, remove arrows
-    if ((not type(get_state().pick_type) is list) or (get_state().pick_type[0] == 'many' and get_state().pick_type[1] == 1)) or (not append):
-
-        if append and ("arrows" in vars(G)):  # and ( len(G.arrows) !=0)   :
-            try:  # if load new image while being on pick many
-                for i in range(len(G.arrows)):
-                    G.arrows.pop().remove()   # remove from G.arrows and from ax1.texts
-                get_root().ImageFrame.redraw()
-            except:
-                import traceback
-                log(3, traceback.format_exc() + "\nWarning: cannot remove arrows")
-
-
-        ########
-        # 1.3 ANd put the button sky o detector units
-        # to fill th ecolumn on th epossible space
-        G.bu_answer_type = Button(
-            get_root().AnswerFrame, text='useless', background='Khaki', borderwidth=1, **skin().button_dic)
-        G.lb_answer_type = Label(
-            get_root().AnswerFrame, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
-
-    # 2/ CALL the corresponding PLot
+    # CALL the corresponding PLot
     if get_state().pick_type == 'one':
         PlotPickOne()
     elif (get_state().pick_type == 'binary') or (get_state().pick_type == 'tightbinary'):
@@ -268,17 +233,7 @@ def answer_intensity():
     return tkable_from_answer(
         get_state().answers[EA.INTENSITY],
         unit=(' [adu]', ' [mag]'))
-    """
-    W.tmp.lst.append(answer_intensity())
-    peak_mag = W.strehl["intensity"] / get_root().header.exptime
-    peak_mag = get_root().header.zpt - 2.5 * np.log10(peak_mag)
-    line = AnswerImageSky(
-        "Peak: ",
-        W.strehl["intensity"],
-        MyFormat(W.strehl["intensity"], 1, "f") + " [adu]",
-        "%.1f" % peak_mag + " [mag]"
-        )
-    """
+
 
 def PlotPickOne():
     # <- Calculate Equivalent strehl2.2 and error
@@ -962,11 +917,12 @@ def PlotBinaryStar2D():
     elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
     ax2 = get_root().ResultFrame.get_figure().add_subplot(122)
-    ax2.imshow(vars(BF)[stg]((X, Y), W.strehl),
-                                          vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-                                          cmap=G.cbar.mappable.get_cmap().name, origin='lower',
-                                          # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-                                          )  # need to comment the extent other wise too crowded and need to change rect positio
+    ax2.imshow(
+        vars(BF)[stg]((X, Y), W.strehl),
+        vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
+        cmap=G.cbar.mappable.get_cmap().name, origin='lower',
+        # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
+        )  # need to comment the extent other wise too crowded and need to change rect positio
     #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
     ax2.format_coord = lambda x, y: ""
     get_root().ResultFrame.redraw()
@@ -978,6 +934,7 @@ def PlotBinaryStar2D():
 
 
 def CallContrastMap():
+    """Not called"""
     G.contrast_fig = matplotlib.figure.Figure()
     ax = G.contrast_fig.add_subplot(111)
 

@@ -43,7 +43,6 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     # Save what it take
     intensity = psf_fit[0]['intensity']
     get_state().add_answer(EA.INTENSITY, intensity)
-    print('\n\n\nintensitry', intensity)
 
     # Get Background && SAve
     back_dic = SI.Background(get_root().image.im0)

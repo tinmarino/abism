@@ -299,34 +299,6 @@ def TightBinary3(event):  # Here we call the math
     TightBinary()
 
 
-def PickMany(disconnect=False):
-    """Pick Many Stars
-    As for PickOne, you have to draw a rectangle around a star. But this time
-    the output is shorten. After the Strehl measurment of the star you picked,
-    you can pick an other star
-    """
-    # DISCONNECT
-    if disconnect and get_state().pick_old == 'many':
-        try:
-            G.rs_many.set_active(False)
-        except:
-            pass  # in case rs_many is not called yet
-        return
-
-    # CONNECT
-    if get_state().pick_type == "many":
-        G.arrows, G.answer_saved = [], {}
-        log(0, "\n\n\n______________________________\n"
-            "|Pick Many| : draw rectangles around your stars-----------------------")
-        # G.pick count the index of the picked star
-        get_state().pick_type = ['many', 1]
-        log(9, 'pick,G.pick', get_state().pick_type)
-        G.rs_many = matplotlib.widgets.RectangleSelector(
-            get_root().ImageFrame.get_figure().axes[0], RectangleClick, drawtype='box',
-            rectprops=dict(facecolor='blue', edgecolor='black', alpha=0.5, fill=True))
-        return
-
-
 def StatPick(disconnect=False):
     """Draw a rectangle
     """
