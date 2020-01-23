@@ -32,6 +32,9 @@ from abism.util import log, get_root, get_state
 class RightFrame(tk.PanedWindow):
     """Full Container"""
     def __init__(self, root, parent):
+        # Save self
+        root.paned_image = self
+
         # Append self, vertically splited
         super().__init__(parent, orient=tk.VERTICAL, **skin().paned_dic)
         parent.add(self)
@@ -39,16 +42,17 @@ class RightFrame(tk.PanedWindow):
         # Add science image frame
         root.frame_image = ImageFrame(self)
 
-        # Append bottom, horizontally splitted container of 2 frames
-        G.RightBottomPaned = tk.PanedWindow(
+        # Append bottom && Save
+        paned = tk.PanedWindow(
             self, orient=tk.HORIZONTAL, **skin().paned_dic)
-        self.add(G.RightBottomPaned)
+        self.add(paned)
+        root.paned_bottom = paned
 
         # Add Fit (bottom left)
-        root.frame_fit = FitFrame(G.RightBottomPaned)
+        root.frame_fit = FitFrame(paned)
 
         # Add Result (bottom right)
-        root.frame_result = ResultFrame(G.RightBottomPaned)
+        root.frame_result = ResultFrame(paned)
 
 
 class PlotFrame(tk.Frame):

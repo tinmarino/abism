@@ -54,18 +54,21 @@ class RootWindow(tk.Tk):
         # ALL What is not the menu is a paned windows :
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        main_paned = tk.PanedWindow(
+        self.paned_root = tk.PanedWindow(
             self, orient=tk.HORIZONTAL, **skin().paned_dic)
-        main_paned.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.paned_root.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # 2 Left: Add
-        LeftFrame(self, main_paned)
+        LeftFrame(self, self.paned_root)
 
         # 3 Right: Add
-        RightFrame(self, main_paned)
+        RightFrame(self, self.paned_root)
 
         # Init image
         self.set_image(util._parsed_args.image)
+
+        # Configure geometry
+        self.configure_root()
 
 
     def set_image(self, filepath):
@@ -101,6 +104,27 @@ class RootWindow(tk.Tk):
         else:
             log(3, "->you have no beautiful icon "
                 "because you didn't set the PATH in Abism.py")
+
+
+    def configure_root(self):
+        """Configure from (default + argument)
+        OneDay some preferences ...
+        Note: do not name it configure or it overrides default frame method
+        """
+        args = util._parsed_args
+
+        self.geometry(args.gui_geometry)
+
+        self.paned_root.update()
+        self.paned_root.sash_place(0, args.gui_sash_root, 0)
+
+        self.paned_image.update()
+        self.paned_image.sash_place(0, 0, args.gui_sash_image)
+
+        self.paned_bottom.update()
+        width = int(self.paned_bottom.winfo_width() / 2)
+        self.paned_bottom.sash_place(0, width, 0)
+
 
 
     def set_shortcut(self):

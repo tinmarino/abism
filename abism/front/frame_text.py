@@ -26,8 +26,9 @@ class LeftFrame(tk.Frame):
         super().__init__(parent, **skin().frame_dic)
         parent.add(self)
 
-        # Create Paned
+        # Create Paned && Save
         text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
+        root.paned_text = text_paned
 
         # Add LabelFrame
         root.frame_label = LabelFrame(text_paned, index=0, label_text='Info')

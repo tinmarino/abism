@@ -34,21 +34,41 @@ def parse_argument():
 
     # Image
     parser.add_argument(
-        '-i', '--image', metavar='image.fits', type=str,
-        action='append',
+        '-i', '--image', metavar='image.fits', type=str, action='append',
         help='image to diplay: filepath of the .fits')
 
     parser.add_argument(
-        'image', metavar='image.fits', type=str,
+        'image', metavar='image.fits', type=str, nargs='?', action='append',
         default='',
-        nargs='?', action='append',
         help='image to diplay: the first one is chosen')
 
     parser.add_argument(
-        '-v', '--verbose', type=int,
-        default=0, action='store',
+        '-v', '--verbose', type=int, action='store',
+        default=0,
         help='verbosity level: 0..10')
 
+    # Gui
+    #####
+
+    # Geometry (defaults for a 1080 x 1920)
+    parser.add_argument(
+        '--gui-geometry', type=str, action='store', nargs='?',
+        default='1200x920+300+50',
+        help=('window geometry: wxh±x±y | ex: 12+34-56+78 '
+              '<- where 12 is width, 34 is height, '
+              '56 is leftmost, 78 is topmost'))
+
+    # Sash1
+    parser.add_argument(
+        '--gui-sash-root', type=str, action='store', nargs='?',
+        default=400,
+        help='separator (main vertical) position from left (in pixel)')
+
+    # Sash2
+    parser.add_argument(
+        '--gui-sash-image', type=str, action='store', nargs='?',
+        default=700,
+        help='separator (image vertical) position from top (in pixel)')
 
     # Custom
     parsed_args = parser.parse_args()
@@ -116,6 +136,13 @@ def abism_val(enum_answer):
     return get_state().answers[enum_answer].value
 
 
+class DotDic(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+
 class EA(Enum):
     """Enum of Answer names
     EX.value = (s_display_text, class_ctor)
@@ -145,7 +172,7 @@ class EA(Enum):
     ERR_STREHL_EQ = ['Strehl Equivalent Error', AnswerNum]
 
 
-class AbismState:
+class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     def __init__(self):
         # The returns dictionary: EAnswer -> Answser Object
@@ -233,7 +260,8 @@ def restart():
     arg_dic = vars(_parsed_args)
     for key, value in arg_dic.items():
         if key == 'script' or not value: continue
-        print(key, ' ', arg_dic[key])
+        log(3, 'Cmd (key, value)', key, ' ', arg_dic[key])
+        key = key.replace('_', '-')
         stg += '--' + key + ' ' + str(value) + ' '
     stg += '&'
     log(0, "\n\n\n" + 80 * "_" + "\n",
@@ -267,13 +295,6 @@ def set_verbose(i_level):
 def root_path():
     """Return: path of this file"""
     return dirname(abspath(__file__)) + '/'
-
-
-class DotDic(dict):
-    """dot.notation access to dictionary attributes"""
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
 
 
 @lru_cache(1)
