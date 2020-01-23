@@ -59,33 +59,6 @@ def Order4(r, grid=None):
     return (rx1, rx2, ry1, ry2)
 
 
-def LocalMax2(grid, center=None, r=None, size=4):  # size useless, old
-        # CUT
-        #center = (r[0]+r[1])/2, (r[2]+r[3])/2
-    x0, y0 = int(center[0]), int(center[1])
-    reindex = center[0]-2, center[1]-2
-    x = np.arange(x0-2, x0+2)
-    y = np.arange(y0-2, y0+2)
-    xx = np.arange(reindex[0], center[0]+2, 0.01)
-    yy = np.arange(reindex[1], center[1]+2, 0.01)
-    grid = grid[center[0]-2:center[0]+2,  center[1]-2:center[1]+2]
-
-    # FILT
-    mIX = scipy.ndimage.uniform_filter(grid, size=(3, 3))
-    bol1 = np.abs(grid-mIX) > mIX
-    grid[bol1] = mIX[bol1]
-
-    # INTERPOLATE
-    grid = scipy.interpolate.interp2d(x, y, grid, kind="cubic")
-    grid = grid(xx, yy)
-    coord = np.unravel_index(grid.argmax(), grid.shape)
-
-    res = float(coord[0])/100 + reindex[0], float(coord[1]) / \
-        100 + reindex[1],  grid[coord[0], coord[1]]
-    log(3, " LocalMax@ImageFunction.py : ", res)
-    return res
-
-
 def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With bad pixel filter
     """ type = "gravity" # gravity center of the 3*3 box
                "interpolation" # interpolation of the 5*5
