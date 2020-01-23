@@ -124,10 +124,12 @@ class EA(Enum):
     CENTER = 'Center'
     FWHM_ABE = 'FWHM'
     PHOTOMETRY = 'Photometry'
-    BACKGROUND = 'Background'
+    BACKGROUND = 'Sky'
+    NOISE = 'Sky RMS'
+    SN = 'S/N'
     R99 = 'R99'
     INTENSITY = 'Peak'
-    SN = 'S/N'
+    INTENSITY_THEORY = 'Ith'
 
     # Errors
     ERR_STREHL = 'Strehl Error'

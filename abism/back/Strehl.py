@@ -16,7 +16,11 @@ def StrehlRatio():  # read W.strehl ["my_photometry"], ["intensity"]
         10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \
         np.pi / (1-(get_root().header.obstruction/100)**2)
-    Ith = W.strehl["my_photometry"] / bessel_integer  # for I theory
+
+    # Get theoretical intensity
+    Ith = W.strehl["my_photometry"] / bessel_integer
+
+    # Get strehl (finally)
     strehl = W.strehl["intensity"] / Ith * 100
 
     # Save
@@ -33,7 +37,7 @@ def StrehlError():
     Sr = get_state().answers[EA.STREHL].value
     Ith, bessel_integer = dics["Ith"], dics['bessel_integer']
 
-    # BACKGROUND
+    # Background
     dBack = W.strehl["rms"]
 
     # PHOTOMETRY
@@ -69,6 +73,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
         this is the first written, strehlMeter for pick one,
         I putted more for ellipse and binary
     """
+
     W.strehl = {"theta": 99}
     ##########################
     # FIND   THE   CENTER  AND FWHM
@@ -81,20 +86,15 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     W.FWHM = IF.FWHM(get_root().image.im0, star_center)
     W.background = 0
 
-    ######################
-    #  FIT   the PSF            (the most important of the software)
+    # Delegate fit
     import time
     start_time = time.time()
-    dictionary = {'NoiseType': get_state().noise_type, 'PhotType': get_state().phot_type,
-                  'FitType': get_state().fit_type, "bpm": get_root().image.bpm}
 
-    # @timeout(15)
-    def FIT():
-        W.psf_fit = SI.PsfFit(get_root().image.im0, center=star_center,
-                              max=star_max, dictionary=dictionary)
-    FIT()
+    W.psf_fit = SI.PsfFit(
+        get_root().image.im0, center=star_center,
+        max=star_max)
+
     log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
-
     W.strehl.update(W.psf_fit[0])
 
     ### phot and noise
@@ -103,8 +103,6 @@ def StrehlMeter():  # receive W.r, means a cut of the image
 
     StrehlRatio()
     StrehlError()
-
-    return
 
 
 def BinaryStrehl():

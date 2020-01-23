@@ -224,6 +224,19 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         PlotStat()
     DisplayAnswer()
 
+def answer_strehl():
+    line = tkable_from_answer(
+        get_state().answers[EA.STREHL],
+        error=get_state().answers[EA.ERR_STREHL],
+        tags=['tag-important'],
+        unit=' %')
+
+def answer_strehl_equivalent():
+    line = tkable_from_answer(
+        get_state().answers[EA.STREHL_EQ],
+        error=get_state().answers[EA.ERR_STREHL_EQ],
+        unit=' %')
+
 
 def PlotPickOne():
     """get_state().add_answer(AnswerNum, EA.STREHL, strehl)"""
@@ -259,21 +272,10 @@ def PlotPickOne():
     W.tmp.lst = []
 
     # Strehl
-    line = tkable_from_answer(
-        get_state().answers[EA.STREHL],
-        error=get_state().answers[EA.ERR_STREHL],
-        tags=['tag-important'],
-        unit=' %',
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_strehl())
 
     # Equivalent Strehl Ratio
-    line = tkable_from_answer(
-        get_state().answers[EA.STREHL_EQ],
-        error=get_state().answers[EA.ERR_STREHL_EQ],
-        unit=' %',
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_strehl_equivalent())
 
     # # Center (need to inverse)
     # line = AnswerImageSky(
@@ -635,8 +637,8 @@ def DisplayAnswer():
 ###############
 
 
-def PlotStar():  # will also take W.sthrel["psf_fit"]
-    # BINARY  draw radial Profile
+def PlotStar():
+    # Binary plot profile
     if (get_state().pick_type == "binary") or (get_state().pick_type == "tightbinary"):
         PlotBinaryStar1D()
     else:  # including only one star  (ie : not binary)

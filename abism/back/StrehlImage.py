@@ -16,26 +16,32 @@ import abism.back.util_back as W
 ###############
 
 
-def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
+
+def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
     """full_answer get the photometry and the background
     Clean me and the rest will follow
     """
+    # In enhanced fit type
     fit_type = get_state().fit_type
     fit_type = enhance_fit_type(fit_type)
 
-    # dictionary will be used for the noise or not
+    # In center and bound
     (x0, y0), (rx1, rx2, ry1, ry2) = center, list(map(int, W.r))
-    log(3, "----->Seeingfit@ImageFunction.py -> r: ",
-          rx1, rx2, ry1, ry2, 'center :', center)
+    log(3, "PsfFit: ", rx1, rx2, ry1, ry2, 'center :', center)
+
+    # Get working grid
     my_max = max
     X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
     y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way
     IX = grid[rx1:rx2+1, ry1:ry2+1]  # the cutted image
 
+    # Mask bad pixel (TODO look at that)
     IX, mIX = IF.FindBadPixel(IX)
     eIX = (IX-mIX).std() * np.ones(IX.shape)
 
+    # Get fwhm
     my_fwhm = IF.FWHM(grid, center)
+
 
     # FIRST Geuss
     doNotFit = []
@@ -43,15 +49,23 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
         doNotFit.append('background')
 
     local_median = np.median(grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
-    W.suposed_param = {'center_x': x0, 'center_y': y0, 'spread_x': 0.83 *
-                       (my_fwhm), 'intensity': my_max, 'background': 0}  # 0.83 = sqrt(ln(2))
-    James = {"center_x": [x0-10, x0+10],
-             "center_y": [y0-10, y0+10],
-             "spread_x": [-0.1, None],
-             "spread_y": [-0.1, None],
-             # "exponent" :[1.2, 6 ],
-             "background": [None, my_max],
-             "instensity": [local_median, 2.3 * my_max - local_median],
+
+    suposed_param = {
+        'center_x': x0,
+        'center_y': y0,
+        'spread_x': 0.83 * (my_fwhm),
+        'intensity': my_max,
+        'background': 0
+    }
+
+    fit_bounds = {
+        "center_x": [x0 - 10, x0 + 10],
+        "center_y": [y0 - 10, y0 + 10],
+        "spread_x": [-0.1, None],
+        "spread_y": [-0.1, None],
+        # "exponent" :[1.2, 6 ],
+        "background": [None, my_max],
+        "instensity": [local_median, 2.3 * my_max - local_median],
 
              }
 
@@ -59,64 +73,64 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
     #  FIT
     #############
 
-    def Fit():
-        verbose = get_verbose() > 1
+    verbose = get_verbose() > 1
 
-        if (fit_type == "Gaussian2D"):
-            tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
-            W.suposed_param.update(tmp)
+    if (fit_type == "Gaussian2D"):
+        tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
+        W.suposed_param.update(tmp)
 
-        elif(fit_type == 'Gaussian'):
-            pass
+    elif(fit_type == 'Gaussian'):
+        pass
 
-        elif (fit_type == 'Moffat'):  # 1.5 = /np.sqrt(1/2**(-1/b)-1)
-            W.suposed_param.update({'spread_x': 1.5*my_fwhm, 'exponent': 2})
+    elif (fit_type == 'Moffat'):  # 1.5 = /np.sqrt(1/2**(-1/b)-1)
+        W.suposed_param.update({'spread_x': 1.5*my_fwhm, 'exponent': 2})
 
-        elif (fit_type == "Moffat2D"):    # 0.83 = sqrt(ln(2))
-            tmp = {
-                "spread_y": W.suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
-            W.suposed_param.update(tmp)
+    elif (fit_type == "Moffat2D"):    # 0.83 = sqrt(ln(2))
+        tmp = {
+            "spread_y": W.suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
+        W.suposed_param.update(tmp)
 
-        elif (fit_type == 'Bessel1'):
-            pass
+    elif (fit_type == 'Bessel1'):
+        pass
 
-        elif (fit_type == "Bessel12D"):    # 0.83 = sqrt(ln(2))
-            tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
-            W.suposed_param.update(tmp)
+    elif (fit_type == "Bessel12D"):    # 0.83 = sqrt(ln(2))
+        tmp = {"spread_y": W.suposed_param["spread_x"], "theta": 0.1}
+        W.suposed_param.update(tmp)
 
-        # we consider 2D or not, same_center or not
-        elif ("Gaussian_hole" in fit_type):
-            W.suposed_param.update({'center_x_hole': x0, 'center_y_hole': y0, 'spread_x_hole': 0.83*(
-                my_fwhm)/2, 'spread_y_hole': 0.83*my_fwhm/2, 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
-            if not ("2D" in fit_type):
-                W.suposed_param["2D"] = 0
-                doNotFit.append("theta")
-                doNotFit.append("theta_hole")
-                doNotFit.append("spread_y")
-                doNotFit.append("spread_y_hole")
-            else:
-                W.suposed_param["2D"] = 1
-            if ("same_center" in fit_type):
-                W.suposed_param["same_center"] = 1
-                doNotFit.append("center_x_hole")
-                doNotFit.append("center_y_hole")
-            doNotFit.append("2D")
-            doNotFit.append("same_center")
-
-        # ACTUAL FIT
-        if fit_type != "None":
-            res = leastsqFit(vars(BF)[fit_type],
-                                (x, y), W.suposed_param, IX,
-                                err=eIX, doNotFit=doNotFit,
-                                bounds=James, verbose=verbose)
+    # we consider 2D or not, same_center or not
+    elif ("Gaussian_hole" in fit_type):
+        W.suposed_param.update({'center_x_hole': x0, 'center_y_hole': y0, 'spread_x_hole': 0.83*(
+            my_fwhm)/2, 'spread_y_hole': 0.83*my_fwhm/2, 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
+        if not ("2D" in fit_type):
+            W.suposed_param["2D"] = 0
+            doNotFit.append("theta")
+            doNotFit.append("theta_hole")
+            doNotFit.append("spread_y")
+            doNotFit.append("spread_y_hole")
         else:
-            restmp = {'center_x': x0, 'center_y': y0,
-                      'intensity': my_max, "r99x": 5*my_fwhm, "r99y": 5*my_fwhm}
-            res = (restmp, 0, 0, IX, 0)
-        return res
+            W.suposed_param["2D"] = 1
+        if ("same_center" in fit_type):
+            W.suposed_param["same_center"] = 1
+            doNotFit.append("center_x_hole")
+            doNotFit.append("center_y_hole")
+        doNotFit.append("2D")
+        doNotFit.append("same_center")
 
-    res = Fit()
+    # ACTUAL FIT
+    if fit_type != "None":
+        res = leastsqFit(vars(BF)[fit_type],
+                            (x, y), W.suposed_param, IX,
+                            err=eIX, doNotFit=doNotFit,
+                            bounds=James, verbose=verbose)
+    else:
+        # Not fit
+        restmp = {
+            'center_x': x0, 'center_y': y0,
+            'intensity': my_max, "r99x": 5*my_fwhm, "r99y": 5*my_fwhm}
+        res = (restmp, 0, 0, IX, 0)
 
+
+    # Update stuff ToRead
     tmp = {}
     tmp.update(res[0])
     res[0]["fit_dic"] = tmp
@@ -146,38 +160,33 @@ def PsfFit(grid, center=(0, 0), max=1, dictionary={}, full_answer=True):
     return res
 
 
-def Photometry(grid):
-    r99x, r99y = W.strehl["r99x"], W.strehl["r99y"]
-    r99u, r99v = W.strehl["r99u"], W.strehl["r99v"]
+def Photometry(grid, background):
+    """Make photometry of region
+    In: center, r99
+        Only one reading variable photometric type
+        background
+    Returns: photometry, sum, number count
+    Note Background must be called before
+    """
+    photometry = total = number_count = 0
+
+    r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
+    r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
 
     x0, y0 = W.strehl['center_x'], W.strehl['center_y']
     ax1, ax2 = int(x0-r99x), int(x0+r99x)
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
-    # RECT AP
-    if get_state().phot_type == 'encircled_energy':  # change photometry
-        W.strehl["sum"] = np.sum(grid[ax1:ax2, ay1:ay2])
-        W.strehl["number_count"] = 4 * r99x * r99y
-        W.strehl["my_photometry"] = W.strehl["sum"] - \
-            W.strehl["number_count"] * W.strehl["my_background"]
-        log(3, "doing encircled energy in ImageFunction.py,",
-              W.strehl["sum"], "between :", ax1, ax2, ay1, ay2,)
+    # Rectangle apperture
+    if get_state().phot_type == 'encircled_energy':
+        log(3, 'Photometry <- encircled energy (i.e. rectangle)')
+        total = np.sum(grid[ax1:ax2, ay1:ay2])
+        number_count = 4 * r99x * r99y
+        photometry = total  - number_count * background
 
-    # ELL AP
-    elif get_state().phot_type == "elliptical_aperture":
-        """ we take the int of everything """
-        ####
-        # cut image
-        myrad = int(r99u + r99v)
-        theta = W.strehl.get('theta', 0)
-        x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
-
-        log(2, "size of the myrad, of the phot", myrad)
-        # c like cut If borders
-        cx1, cx2 = max(x0-myrad, 0), min(x0+myrad, len(grid)+1)
-        cy1, cy2 = max(y0-myrad, 0), min(y0+myrad, len(grid[0])+1)
-        image_cut = grid[cx1:cx2, cy1:cy2]
-
+    # Elliptical apperture
+    elif get_state().phot_type == 'elliptical_aperture':
+        log(3, 'Photometry <- elliptical aperture')
         bol = IF.EllipticalAperture(
             grid,
             dic={"center_x": x0, "center_y": y0, "ru": r99u, "rv": r99v,
@@ -186,6 +195,7 @@ def Photometry(grid):
 
         log(2, "phot len", image_elliptic.shape)
         log(3, "ImageFunciton, Photometry ", r99u, r99v, theta)
+
         # Just need sum and number count
         phot = get_array_stat(image_elliptic)
         W.strehl["sum"] = phot["sum"]
@@ -226,15 +236,19 @@ def Photometry(grid):
 
 
 def Background(grid):
-    log(3, 'Getting Background with type', get_state().noise_type)
+    # Log
+    background_type = get_state().noise_type
+    log(3, 'Getting Background with type', background_type)
+
+    res = 0
 
     # BAckground and rms
     dic = W.strehl
     r = W.r
 
     # IN RECT
-    if get_state().noise_type == 'in_rectangle':                            # change noise  from fit
-        dic['my_background'] = back/back_count
+    if get_state().noise_type == 'in_rectangle':  # change noise  from fit
+        dic['my_background'] = back / back_count
         rms = 0.
         for i in listrms:
             rms += (i-dic['my_background'])**2
@@ -756,12 +770,14 @@ def EllipseEventBack():
 
 
 def EllipseEventPhot():
+    """Elliptical phot"""
     obj = G.ellipse
 
     ###########
     # CAlculate Ellipse stats (phot) update phot
-    ellipse_stat = IF.EllipticalAperture(obj.array, dic={
-                                         "center_x": obj.x0, "center_y": obj.y0, "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}, full_answer=True)  # ellipse , photometry
+    dic = {"center_x": obj.x0, "center_y": obj.y0, "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
+    ellipse_stat = IF.EllipticalAperture(
+        obj.array, dic=dic, full_answer=True)
     W.strehl.update(ellipse_stat)
 
     W.strehl["my_photometry"] = W.strehl["sum"] - W.strehl["my_background"]
@@ -848,3 +864,5 @@ def enhance_fit_type(name):  # strange but works
 
     log(0, 'Fit Type = ' + fit_type)
     return fit_type
+
+

@@ -35,33 +35,34 @@ def DoNotPassBorder(grid, point2d):
 
 
 def Order2(a, b):
-    if a >= b:
-        return (b, a)
-    else:
-        return (a, b)
+    """Returns (min, max)"""
+    if a >= b: return (b, a)
+    return (a, b)
 
 
 def Order4(r, grid=None):
+    """Returns (rxmin, rxmax, rymin, rymax)
+    Arg: r <- 4-tuple
+         grid <- to check bounds
+    """
     rx1, rx2, ry1, ry2 = r[0], r[1], r[2], r[3]
     if rx1 > rx2:
-        tmp = rx1
-        rx1 = rx2
-        rx2 = tmp
+        rx1, rx2 = rx2, rx1
     if ry1 > ry2:
-        tmp = ry1
-        ry1 = ry2
-        ry2 = tmp
+        ry1, ry2 = ry2, ry1
+    rx1 = max(rx1, 0)
+    ry1 = max(ry1, 0)
     if grid is not None:
-        rx1 = max(rx1, 0)
-        ry1 = max(ry1, 0)
         rx2 = min(rx2, len(grid)-1)
         ry2 = min(ry2, len(grid[0])-1)
     return (rx1, rx2, ry1, ry2)
 
 
-def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With bad pixel filter
-    """ type = "gravity" # gravity center of the 3*3 box
-               "interpolation" # interpolation of the 5*5
+def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
+    """Returns: maximum in a circle of `size` around `center` in `grid`
+    type = "gravity"       # gravity center of the 3*3 box
+           "interpolation" # interpolation of the 5*5
+    With bad pixel filter
     """
     # INIT R
     if r is None:
@@ -92,7 +93,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):  # With 
         y = np.arange(ymin, ymax)
         cut2 = grid[xmin: xmax, ymin: ymax]
         log(3, "LocalMax shapes:", x.shape, y.shape,
-                  cut2.shape, xmin, xmax, ymin, ymax)
+            cut2.shape, xmin, xmax, ymin, ymax)
         interp = scipy.interpolate.interp2d(x, y, cut2, kind="cubic")
 
         xx = np.arange(xmin, xmax, 0.1)
@@ -302,8 +303,11 @@ def GoodPixelMax(grid, r=(10, 10, 10, 10)):   # array.float , 2 float , 1 float
 
 
 def EnergyRadius(grid, fit_type, dic={}):
-    """ We first define r99u and v following the spread direction x and y respectively,
-    we then transfroms it to r99x and y """
+    """We first define r99u and v following the spread direction
+    x and y respectively, but these are arbitrary due to the fit
+    we then transfroms it to r99x and R99y
+    Returns: (r99uv), (r99xy)
+    """
     params = dic  # because no update
     ############
     # GAUSSIAN
@@ -811,6 +815,3 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     log(2, "phot1 :", res["phot"])
     log(2, "phot2 :", res["my_photometry"])
     log(2, "back :", res["my_background"], "\n")
-
-
-
