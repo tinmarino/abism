@@ -129,3 +129,15 @@ def EllipseEventStrehl():
         StrehlRatio()
         StrehlError()
         return
+
+
+def get_equivalent_strehl_ratio(strehl, wavelength):
+    """Get equivalent Strehl ration at 2.17"""
+    if strehl < 0:
+        factor = 0
+    else:
+        factor = wavelength / 2 / np.pi * np.sqrt(-np.log(strehl))
+
+    factor = - (factor * 2 * np.pi / 2.17)**2
+
+    return 100 * np.exp(factor)

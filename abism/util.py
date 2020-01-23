@@ -120,7 +120,7 @@ def get_fit_list():
 class EA(Enum):
     """Enum of Answer names"""
     STREHL = 'Strehl'
-    SR = u'Eq. SR(2.17\u03bcm)'
+    STREHL_EQ = u'Eq. SR(2.17\u03bcm)'
     CENTER = 'Center'
     FWHM_ABE = 'FWHM'
     PHOTOMETRY = 'Photometry'
@@ -131,6 +131,7 @@ class EA(Enum):
 
     # Errors
     ERR_STREHL = 'Strehl Error'
+    ERR_STREHL_EQ = 'Strehl Equivalent Error'
 
 
 class AbismState:

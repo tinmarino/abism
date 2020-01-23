@@ -26,8 +26,10 @@ import abism.back.util_back as W
 from abism.plugin import ReadHeader as RH  # to know witch telescope
 
 from abism.util import log, get_root, get_state, EA, \
-    AnswerSky
+    AnswerNum, AnswerSky
 
+# new
+from abism.back.Strehl import get_equivalent_strehl_ratio
 
 class AnswerLine(ABC):
     """A line to append to a text widget"""
@@ -80,7 +82,7 @@ def values_from_answer(answer):
     return s_sky, s_detector
 
 
-def tkable_from_answer(answer, error=None, tags=[]):
+def tkable_from_answer(answer, error=None, unit='', tags=[]):
     # Str answser
     s_sky, s_detector = values_from_answer(answer)
 
@@ -92,8 +94,8 @@ def tkable_from_answer(answer, error=None, tags=[]):
         s_error_sky = ' +/- ' + s_error_sky
         s_error_detector = ' +/- ' + s_error_detector
 
-    s_sky += s_error_sky
-    s_detector += s_error_detector
+    s_sky += s_error_sky + unit
+    s_detector += s_error_detector + unit
 
     # Return crafted object
     return AnswerImageSky(
@@ -215,11 +217,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         PlotEllipse()
     elif get_state().pick_type[0] == "many":
         PlotPickMany(append=append)
-        if append:
-            DisplayAnswer()
-
-        else:
-            DisplayAnswer()
+        DisplayAnswer()
 
         return
     elif get_state().pick_type[0] == "stat":
@@ -231,22 +229,25 @@ def PlotPickOne():
     """get_state().add_answer(AnswerNum, EA.STREHL, strehl)"""
     # <- Calculate Equivalent strehl2.2 and error
     strehl = get_state().answers[EA.STREHL].value / 100
-    if strehl < 0:
-        rms = 0
-    else:
-        rms = get_root().header.wavelength / 2 / np.pi * np.sqrt(-np.log(strehl))
-    W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
+    wavelength = get_root().header.wavelength
 
-    #rms =  get_root().header.wavelength /2/np.pi * np.sqrt(-np.log(get_state().answers[EA.ERR_STREHL].value/100))
-    #W.strehl["strehl2_2"] = 100 *np.exp(-(rms*2*np.pi/2.17)**2)
-    W.strehl["err_strehl2_2"] = W.strehl["strehl2_2"] / \
-    get_state().answers[EA.STREHL].value*get_state().answers[EA.ERR_STREHL].value
+    # Get equivalent Strehl ratio
+    strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
+
+    # Save it
+    get_state().add_answer(AnswerNum, EA.STREHL_EQ, strehl_eq)
+
+    # Get Error on equivalent strehl
+    strehl_eq_err = get_state().answers[EA.ERR_STREHL].value
+    strehl_eq_err *= strehl_eq / (strehl * 100)
+
+    # Save it
+    get_state().add_answer(AnswerNum, EA.ERR_STREHL_EQ, strehl_eq_err)
 
     ###
     # WCS
     # In bad mood: this return (99, 99)
     # In good mod: array([[266.56370013, -28.83449908]])
-
     my_wcs = get_root().header.wcs.all_pix2world(
         np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
     W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
@@ -261,16 +262,16 @@ def PlotPickOne():
     line = tkable_from_answer(
         get_state().answers[EA.STREHL],
         error=get_state().answers[EA.ERR_STREHL],
-        tags=['tag-important'])
+        tags=['tag-important'],
+        unit=' %',
+        )
     W.tmp.lst.append(line)
 
     # Equivalent Strehl Ratio
-    line = AnswerImageSky(
-        "Eq. SR(2.17\u03bcm): ",
-        W.strehl["strehl2_2"],
-        MyFormat(W.strehl["strehl2_2"], 1, "f") + " +/- " + \
-            MyFormat(W.strehl["err_strehl2_2"], 1, "f") + " %",
-        ''
+    line = tkable_from_answer(
+        get_state().answers[EA.STREHL_EQ],
+        error=get_state().answers[EA.ERR_STREHL_EQ],
+        unit=' %',
         )
     W.tmp.lst.append(line)
 
@@ -599,7 +600,7 @@ def on_resize_text(event):
 
 
 def DisplayAnswer():
-    """Row can be higher if pick many , and font smaller
+    """Grid formatted text answered
     Nobody can edit text, when it is disabled
     """
     # Grid Buttons
