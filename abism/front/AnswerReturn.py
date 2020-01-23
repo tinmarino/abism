@@ -266,13 +266,6 @@ def PlotPickOne():
     # Save it
     get_state().add_answer(AnswerNum, EA.ERR_STREHL_EQ, strehl_eq_err)
 
-    ###
-    # WCS
-    # In bad mood: this return (99, 99)
-    # In good mod: array([[266.56370013, -28.83449908]])
-    my_wcs = get_root().header.wcs.all_pix2world(
-        np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
-    W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
     pxll = get_root().header.pixel_scale
     if isinstance(get_root().header, RH.SinfoniHeader):
         pxll = get_root().header.sinf_pixel_scale
