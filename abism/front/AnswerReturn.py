@@ -160,33 +160,62 @@ def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
     ##################
 
 
-def PlotAnswer(unit=None, append=True):  # CALLER
-    """Append False when pick many click on To sky button
-    # TODO ?
-    #["Fit Type: "   , get_state().fit_type  , str(get_state().fit_type) ],
-    """
-    if unit != None:
-        get_state().s_answer_unit = unit
+def show_answer():  # CALLER
+    """Draw && Print answer i.e. Image and Text"""
 
-    # Pack fit type in Frame
-    get_root().AnswerFrame.set_fit_type_text(get_state().fit_type)
-    get_root().AnswerFrame.clear()
 
-    # CALL the corresponding PLot
-    if get_state().pick_type == 'one':
-        PlotPickOne()
-    elif (get_state().pick_type == 'binary') or (get_state().pick_type == 'tightbinary'):
-        PlotBinary()
-    elif get_state().pick_type == 'ellipse':
-        PlotEllipse()
-    elif get_state().pick_type[0] == "many":
-        PlotPickMany(append=append)
-        DisplayAnswer()
+    plot_result()
 
-        return
-    elif get_state().pick_type[0] == "stat":
-        PlotStat()
-    DisplayAnswer()
+
+def plot_result():
+    """Discirminate according to pick"""
+    pick = get_state().pick_type
+
+    if pick == 'one':
+        print_one(); return
+
+    if pick in ('binary', 'tightbinary'):
+        PlotBinary(); return
+
+    if pick == 'ellipse':
+        PlotEllipse(); return
+
+    if pick == "stat":
+        PlotStat(); return
+
+
+
+def grid_button_change_coord():
+    # Declare button info
+    if get_state().s_answer_unit == "detector":
+        s_button = u"\u21aa"+'To sky     '
+        s_label = "In detector units"
+    else:
+        s_button = u"\u21aa"+'To detector'
+        s_label = "In sky units"
+
+    def callback():
+        if get_state().s_answer_unit == 'detector':
+            get_state().s_answer_unit = 'sky'
+        else:
+            get_state().s_answer_unit = 'detector'
+        show_answer()
+
+    button = Button(
+        get_root().AnswerFrame, background='Khaki', borderwidth=1,
+        text=s_button, **skin().button_dic,
+        command=callback)
+
+    label = Label(
+        get_root().AnswerFrame,
+        justify=LEFT, anchor="nw", **skin().fg_and_bg,
+        text=s_label)
+
+    # Grid Buttons
+    button.grid(column=1, sticky="wnse")
+    label.grid(column=0, sticky="wnse")
+
+
 
 
 def answer_strehl():
@@ -235,7 +264,14 @@ def answer_intensity():
         unit=(' [adu]', ' [mag]'))
 
 
-def PlotPickOne():
+def print_one():
+    # Pack fit type in Frame
+    get_root().AnswerFrame.set_fit_type_text(get_state().fit_type)
+    get_root().AnswerFrame.clear()
+
+    # Button to change cord
+    grid_button_change_coord()
+
     # <- Calculate Equivalent strehl2.2 and error
     strehl = get_state().answers[EA.STREHL].value / 100
     wavelength = get_root().header.wavelength
@@ -329,15 +365,54 @@ def PlotPickOne():
             line = AnswerText(text, tags=['tag-important', 'tag-center'])
             W.tmp.lst.append(line)
 
-    # Button change coord
-    if get_state().s_answer_unit == "detector":
-        G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
-        G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
-        G.lb_answer_type["text"] = "In detector units"
-    else:
-        G.bu_answer_type["text"] = u"\u21aa"+'To detector'
-        G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
-        G.lb_answer_type["text"] = "In sky units"
+    refresh_text_answer()
+
+
+
+def grid_tuple_obsolete(i):
+    log(0, "WARNING for dev, this is obsolete fct, use the AnswerLine class\n\n\n")
+    myargs = skin().fg_and_bg.copy()
+    myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
+    if i[0] == "Strehl: ":
+        myargs["fg"] = "red"
+        myargs["font"] = skin().font.strehl
+    l1 = Label(get_root().AnswerFrame, text=i[0], **myargs)
+    l2 = Label(get_root().AnswerFrame, text=i[2], **myargs)
+    l1.grid(column=0, sticky="nsew")
+    l2.grid(column=1, sticky="nsew")
+
+
+def on_resize_text(event):
+    log(5, 'Answer, Resize text:', event)
+    event.widget.configure(tabs=(event.width/2, LEFT))
+
+
+def refresh_text_answer():
+    """Grid formatted text answered
+    Nobody can edit text, when it is disabled
+    """
+    # Create text
+    text = Text(get_root().AnswerFrame, **skin().text_dic)
+
+
+    # Configure Text
+    text.bind("<Configure>", on_resize_text)
+    text.tag_configure('tag-important', foreground=skin().color.important)
+    text.tag_configure('tag-center', justify=CENTER)
+
+    # Fill text
+    for obj in W.tmp.lst:
+        if isinstance(obj, (tuple, list)):
+            grid_tuple_obsolete(obj)
+        else:
+            obj.insert_in_tk_text(text)
+
+    # Disable edit
+    text.configure(state=DISABLED)
+
+    # Grid text
+    text.grid(columnspan=2, sticky='nsew')
+
 
 
 def PlotEllipse():
@@ -465,10 +540,6 @@ def PlotBinary():
     ##############
     # SKY COORD
     else:  # Including coor_type from sky = sky
-        G.bu_answer_type["text"] = u"\u21aa"+'To detector'
-        G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
-        G.lb_answer_type["text"] = "In sky units"
-
         # "
         # WCS
         my_wcs = get_root().header.wcs.all_pix2world(np.array(
@@ -497,6 +568,11 @@ def PlotBinary():
                      ["Strehl1: ", W.strehl0, "%.1f" % W.strehl0+" %"],
                      ["Strehl2: ", W.strehl1, "%.1f" % W.strehl1+" %"],
                      ]
+
+
+# "
+#   1D 1D 1D
+###############
 
 
 def PlotStat():
@@ -529,58 +605,6 @@ def PlotStat():
     ax = get_root().ResultFrame.redraw()
 
 
-def grid_tuple_obsolete(i):
-    log(0, "WARNING for dev, this is obsolete fct, use the AnswerLine class\n\n\n")
-    myargs = skin().fg_and_bg.copy()
-    myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
-    if i[0] == "Strehl: ":
-        myargs["fg"] = "red"
-        myargs["font"] = skin().font.strehl
-    l1 = Label(get_root().AnswerFrame, text=i[0], **myargs)
-    l2 = Label(get_root().AnswerFrame, text=i[2], **myargs)
-    l1.grid(column=0, sticky="nsew")
-    l2.grid(column=1, sticky="nsew")
-
-
-def on_resize_text(event):
-    log(5, 'Answer, Resize text:', event)
-    event.widget.configure(tabs=(event.width/2, LEFT))
-
-
-def DisplayAnswer():
-    """Grid formatted text answered
-    Nobody can edit text, when it is disabled
-    """
-    # Grid Buttons
-    G.bu_answer_type.grid(column=1, sticky="wnse")
-    G.lb_answer_type.grid(column=0, sticky="wnse")
-
-    # Create text
-    text = Text(get_root().AnswerFrame, **skin().text_dic)
-
-    # Configure Text
-    text.bind("<Configure>", on_resize_text)
-    text.tag_configure('tag-important', foreground=skin().color.important)
-    text.tag_configure('tag-center', justify=CENTER)
-
-    # Fill text
-    for obj in W.tmp.lst:
-        if isinstance(obj, (tuple, list)):
-            grid_tuple_obsolete(obj)
-        else:
-            obj.insert_in_tk_text(text)
-
-    # Disable edit
-    text.configure(state=DISABLED)
-
-    # Grid text
-    text.grid(columnspan=2, sticky='nsew')
-
-
-
-# "
-#   1D 1D 1D
-###############
 
 
 def PlotStar():

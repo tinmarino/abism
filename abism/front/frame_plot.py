@@ -28,6 +28,29 @@ import abism.back.util_back as W
 
 from abism.util import log, get_root, get_state
 
+
+class RightFrame(tk.PanedWindow):
+    """Full Container"""
+    def __init__(self, root, parent):
+        # Append self, vertically splited
+        super().__init__(parent, orient=tk.VERTICAL, **skin().paned_dic)
+        parent.add(self)
+
+        # Add science image frame
+        root.ImageFrame = ImageFrame(self)
+
+        # Append bottom, horizontally splitted container of 2 frames
+        G.RightBottomPaned = tk.PanedWindow(
+            self, orient=tk.HORIZONTAL, **skin().paned_dic)
+        self.add(G.RightBottomPaned)
+
+        # Add Fit (bottom left)
+        root.FitFrame = FitFrame(G.RightBottomPaned)
+
+        # Add Result (bottom right)
+        root.ResultFrame = ResultFrame(G.RightBottomPaned)
+
+
 class PlotFrame(tk.Frame):
     """Frame with a mpl figure"""
     def __init__(self, parent):
@@ -497,25 +520,3 @@ class ResultFrame(PlotFrame):
         self.init_label("2D Shape")
         self.init_canvas(self._fig)
         self.init_toolbar_button()
-
-
-class RightFrame(tk.PanedWindow):
-    """Full Container"""
-    def __init__(self, root, parent):
-        # Append self, vertically splited
-        super().__init__(parent, orient=tk.VERTICAL, **skin().paned_dic)
-        parent.add(self)
-
-        # Add science image frame
-        root.ImageFrame = ImageFrame(self)
-
-        # Append bottom, horizontally splitted container of 2 frames
-        G.RightBottomPaned = tk.PanedWindow(
-            self, orient=tk.HORIZONTAL, **skin().paned_dic)
-        self.add(G.RightBottomPaned)
-
-        # Add Fit (bottom left)
-        root.FitFrame = FitFrame(G.RightBottomPaned)
-
-        # Add Result (bottom right)
-        root.ResultFrame = ResultFrame(G.RightBottomPaned)

@@ -370,23 +370,28 @@ def PickWorker():
     if get_state().pick_type == "binary":
         log(3, "I call binary math")
         Strehl.BinaryStrehl()
-        AR.PlotAnswer()
+        AR.show_answer()
         AR.PlotStar2()
         AR.PlotStar()
+        return
     if get_state().pick_type == "tightbinary":
         log(3, "I call binary math")
         Strehl.TightBinaryStrehl()
-        AR.PlotAnswer()
+        AR.show_answer()
         AR.PlotStar2()
         AR.PlotStar()
-    elif get_state().pick_type == "stat":
+        return
+    if get_state().pick_type == "stat":
         AR.PlotStat()
-    elif get_state().pick_type == "ellipse":
+        return
+    if get_state().pick_type == "ellipse":
         Strehl.EllipseEventStrehl()
-        AR.PlotAnswer()
+        AR.show_answer()
+        return
 
-    elif get_state().pick_type == "one" or get_state().pick_type == "many":  # including "one" or "many"
+    if get_state().pick_type == "one":
         Strehl.StrehlMeter()
-        AR.PlotAnswer()
+        AR.show_answer()
         # we transport star center, because if it is bad, it is good to know, this star center was det by iterative grav center  the fit image is a W.psf_fit[0][3]
         AR.PlotStar()
+        return
