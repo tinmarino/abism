@@ -24,6 +24,7 @@ _root = None
 
 
 
+@lru_cache(1)
 def parse_argument():
     # pylint: disable=global-statement
     global _parsed_args, _verbose
@@ -60,13 +61,13 @@ def parse_argument():
 
     # Sash1
     parser.add_argument(
-        '--gui-sash-root', type=str, action='store', nargs='?',
+        '--gui-sash-root', type=int, action='store', nargs='?',
         default=400,
         help='separator (main vertical) position from left (in pixel)')
 
     # Sash2
     parser.add_argument(
-        '--gui-sash-image', type=str, action='store', nargs='?',
+        '--gui-sash-image', type=int, action='store', nargs='?',
         default=700,
         help='separator (image vertical) position from top (in pixel)')
 
@@ -79,6 +80,8 @@ def parse_argument():
     # set
     _parsed_args = parsed_args
     _verbose = _parsed_args.verbose
+
+    return _parsed_args
 
 
 def get_colormap_list():

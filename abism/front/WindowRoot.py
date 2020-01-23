@@ -18,7 +18,7 @@ from abism.front.util_front import skin, icon_path, open_file
 from abism.back.image import ImageInfo
 
 
-from abism.util import log, set_root, restart
+from abism.util import log, set_root, restart, parse_argument
 import abism.util as util
 
 
@@ -33,10 +33,7 @@ class RootWindow(tk.Tk):
     def __init__(self):
         """Create main app"""
         super().__init__()
-
-        # Parse arguments
-        from abism.util import parse_argument
-        parse_argument()
+        self.geometry(parse_argument().gui_geometry)
 
         # Variables for my children
         set_root(self)
@@ -113,7 +110,6 @@ class RootWindow(tk.Tk):
         """
         args = util._parsed_args
 
-        self.geometry(args.gui_geometry)
 
         self.paned_root.update()
         self.paned_root.sash_place(0, args.gui_sash_root, 0)
