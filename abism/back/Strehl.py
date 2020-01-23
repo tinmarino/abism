@@ -8,8 +8,6 @@ from abism.back import StrehlImage as SI
 
 from abism.util import log, get_root, get_state, EA
 
-from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm
-
 import abism.back.util_back as W
 
 
@@ -44,16 +42,16 @@ def StrehlMeter():  # receive W.r, means a cut of the image
 
     # Get Background && SAve
     background = SI.Background(get_root().image.im0)['my_background']
-    get_state().add_answer(AnswerLuminosity, EA.BACKGROUND, background)
+    get_state().add_answer(EA.BACKGROUND, background)
 
     # Get photometry && Save
-    photometry, total, number_count = \
+    photometry, _, number_count = \
         SI.Photometry(get_root().image.im0, background)
-    get_state().add_answer(AnswerLuminosity, EA.PHOTOMETRY, photometry)
+    get_state().add_answer(EA.PHOTOMETRY, photometry)
 
     # Get Signal on noise && Save
     signal_on_noise = photometry / background / np.sqrt(number_count)
-    get_state().add_answer(AnswerNum, EA.SN, signal_on_noise)
+    get_state().add_answer(EA.SN, signal_on_noise)
 
     # Save:  Side effect of course
     save_fwhm()
@@ -67,7 +65,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     strehl = W.strehl["intensity"] / Ith * 100
 
     # Save
-    get_state().add_answer(AnswerNum, EA.STREHL, strehl)
+    get_state().add_answer(EA.STREHL, strehl)
     W.strehl["Ith"] = Ith  # used for error
     W.strehl["bessel_integer"] = bessel_integer   # used for error
 
@@ -119,7 +117,7 @@ def StrehlError():
     # Save
     # TODO move me in caller
     res = dSr * 3  # because I calculated the best error
-    get_state().add_answer(AnswerNum, EA.ERR_STREHL, res)
+    get_state().add_answer(EA.ERR_STREHL, res)
 
 
 
@@ -128,7 +126,7 @@ def save_fwhm():
     fwhm_a = max(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
     fwhm_b = min(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
     fwhm_e = np.sqrt(fwhm_a**2 - fwhm_b**2) / fwhm_a
-    get_state().add_answer(AnswerFwhm, EA.FWHM_ABE, (fwhm_a, fwhm_b, fwhm_e))
+    get_state().add_answer(EA.FWHM_ABE, (fwhm_a, fwhm_b, fwhm_e))
 
 
 def BinaryStrehl():

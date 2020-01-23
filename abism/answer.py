@@ -1,26 +1,11 @@
 """
-    Warning, I am loaded in util space
-
-    The answer object the backend is sharing
-class Answer(metaclass=ABCMeta):
-    # Base class for an answser
-    # Printable with a value
-    def __init__(self, text, obj):
-        self.text = text
-        self.value = obj
-
-    def __str__(self):
-        pass
-
-
-
+    List of AnswerSky
 """
 
 from abc import ABC, abstractmethod
 
 import numpy as np
 
-from abism.util import get_root
 
 
 class Answer(ABC):
@@ -40,7 +25,7 @@ class AnswerSky(Answer):
     on sky: real univer
     on detector: what you see, (on image is overused)
     """
-    def __str__():
+    def __str__(self):
         return self.str_detector()
 
     @abstractmethod
@@ -50,13 +35,16 @@ class AnswerSky(Answer):
     def str_detector(self): pass
 
 
-class AnswerNum(Answer):
+class AnswerNum(AnswerSky):
     """A number"""
     def __init__(self, text, number):
         super().__init__(text, float(number))
 
-    def __str__(self):
+    def str_detector(self):
         return f'{self.value:,.1f}'.replace(',', ' ')
+
+    def str_sky(self):
+        return self.str_detector()
 
 
 class AnswerPosition(AnswerSky):
@@ -86,6 +74,7 @@ class AnswerLuminosity(AnswerSky):
              exposure time
     """
     def str_sky(self):
+        from abism.util import get_root
         # Read header
         exptime = get_root().header.exptime
         zpt = get_root().header.zpt
@@ -106,6 +95,7 @@ class AnswerFwhm(AnswerSky):
     Need the pixel scale, separation too
     """
     def str_sky(self):
+        from abism.util import get_root
         # Get pixel scale
         try:  # Sinfoni
             pxll = get_root().header.sinf_pixel_scale

@@ -112,27 +112,37 @@ def get_fit_list():
     return ["Gaussian", "Moffat", "Bessel1", "None"]
 
 
+def abism_val(enum_answer):
+    return get_state().answers[enum_answer].value
+
+
 class EA(Enum):
     """Enum of Answer names
+    EX.value = (s_display_text, class_ctor)
     Center:   # sky -> ra, dec; detector -> x, y
     """
-    STREHL = 'Strehl'
-    STREHL_EQ = u'Eq. SR(2.17\u03bcm)'
+    from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm
 
-    CENTER = 'Center'
-    FWHM_ABE = 'FWHM a,b,e: '
+    # Main
+    STREHL = ['Strehl', AnswerNum]
+    STREHL_EQ = [u'Eq. SR(2.17\u03bcm)', AnswerNum]
 
-    PHOTOMETRY = 'Photometry'
-    BACKGROUND = 'Sky'
-    NOISE = 'Sky RMS'
-    SN = 'S/N'
+    # Detail
+    CENTER = ['Center', AnswerNum]
+    FWHM_ABE = ['FWHM a,b,e: ', AnswerFwhm]
+    PHOTOMETRY = ['Photometry', AnswerLuminosity]
+    BACKGROUND = ['Sky', AnswerLuminosity]
+    NOISE = ['Sky RMS', AnswerLuminosity]
+    SN = ['S/N', AnswerNum]
+
+    # Luxury
     R99 = 'R99'
-    INTENSITY = 'Peak'
-    INTENSITY_THEORY = 'Ith'
+    INTENSITY = ['Peak', AnswerLuminosity]
+    INTENSITY_THEORY = ['Ith', AnswerLuminosity]
 
     # Errors
-    ERR_STREHL = 'Strehl Error'
-    ERR_STREHL_EQ = 'Strehl Equivalent Error'
+    ERR_STREHL = ['Strehl Error', AnswerNum]
+    ERR_STREHL_EQ = ['Strehl Equivalent Error', AnswerNum]
 
 
 class AbismState:
@@ -170,10 +180,13 @@ class AbismState:
         self.answers = {}
         return self.answers
 
-    def add_answer(self, class_answer, enum_answer, value, *arg, **args):
+    def add_answer(self, enum_answer, value, *arg, **args):
         # Check if overwork
         if enum_answer in self.answers:
             log(0, 'Warning the', enum_answer, 'has already been calculated')
+
+        # Retrieve class ctor from enum
+        class_answer = enum_answer.value[1]
 
         # Craft anwser
         answer = class_answer(enum_answer, value, *arg, **args)
@@ -185,10 +198,6 @@ class AbismState:
 @lru_cache(1)
 def get_state():
     return AbismState()
-
-
-def abism_val(enum_answer):
-    return get_state().answers[enum_answer].value
 
 
 def get_root():

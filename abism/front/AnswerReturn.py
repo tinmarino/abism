@@ -26,7 +26,6 @@ import abism.back.util_back as W
 from abism.plugin import ReadHeader as RH  # to know witch telescope
 
 from abism.util import log, get_root, get_state, abism_val, EA
-from abism.answer import AnswerNum, AnswerSky
 
 # new
 from abism.back.Strehl import get_equivalent_strehl_ratio
@@ -84,25 +83,22 @@ def values_from_answer(answer):
 
 def tkable_from_answer(answer, error=None, unit='', tags=[]):
     # Str answser
-    s_sky, s_detector = values_from_answer(answer)
+    s_sky = answer.str_sky()
+    s_detector = answer.str_detector()
 
     # Str error
-    if error is None:
-        s_error_sky = s_error_detector = ''
-    else:
-        s_error_sky, s_error_detector = values_from_answer(error)
-        s_error_sky = ' +/- ' + s_error_sky
-        s_error_detector = ' +/- ' + s_error_detector
+    if error is not None:
+        s_sky += ' +/- ' + error.str_sky()
+        s_detector += ' +/- ' + error.str_detector()
 
     # Unit tupling
     if not isinstance(unit, (tuple, list)): unit = [unit, unit]
-
-    s_detector += s_error_detector + unit[0]
-    s_sky += s_error_sky + unit[1]
+    s_detector += unit[0]
+    s_sky += unit[1]
 
     # Return crafted object
     return AnswerImageSky(
-        answer.text.value,
+        answer.text.value[0],
         answer.value,
         s_detector,
         s_sky,
@@ -257,7 +253,6 @@ def answer_fwhm():
 
 
 def PlotPickOne():
-    """get_state().add_answer(AnswerNum, EA.STREHL, strehl)"""
     # <- Calculate Equivalent strehl2.2 and error
     strehl = get_state().answers[EA.STREHL].value / 100
     wavelength = get_root().header.wavelength
@@ -266,14 +261,14 @@ def PlotPickOne():
     strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
 
     # Save it
-    get_state().add_answer(AnswerNum, EA.STREHL_EQ, strehl_eq)
+    get_state().add_answer(EA.STREHL_EQ, strehl_eq)
 
     # Get Error on equivalent strehl
     strehl_eq_err = get_state().answers[EA.ERR_STREHL].value
     strehl_eq_err *= strehl_eq / (strehl * 100)
 
     # Save it
-    get_state().add_answer(AnswerNum, EA.ERR_STREHL_EQ, strehl_eq_err)
+    get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err)
 
     # answers = get_state().reset_answers()
     W.tmp.lst = []
