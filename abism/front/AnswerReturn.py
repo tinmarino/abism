@@ -25,8 +25,8 @@ import abism.back.util_back as W
 # Plugin
 from abism.plugin import ReadHeader as RH  # to know witch telescope
 
-from abism.util import log, get_root, get_state, abism_val, \
-    EA, AnswerNum, AnswerSky
+from abism.util import log, get_root, get_state, abism_val, EA
+from abism.answer import AnswerNum, AnswerSky
 
 # new
 from abism.back.Strehl import get_equivalent_strehl_ratio
@@ -227,6 +227,7 @@ def PlotAnswer(unit=None, append=True):  # CALLER
         PlotStat()
     DisplayAnswer()
 
+
 def answer_strehl():
     return tkable_from_answer(
         get_state().answers[EA.STREHL],
@@ -234,17 +235,25 @@ def answer_strehl():
         tags=['tag-important'],
         unit=' %')
 
+
 def answer_strehl_equivalent():
     return tkable_from_answer(
         get_state().answers[EA.STREHL_EQ],
         error=get_state().answers[EA.ERR_STREHL_EQ],
         unit=' %')
 
+
 def answer_photometry():
     return tkable_from_answer(
         get_state().answers[EA.PHOTOMETRY],
         #error=get_state().answers[EA.ERR_STREHL_EQ],
         unit=(' [adu]', ' [mag]'))
+
+
+def answer_fwhm():
+    return tkable_from_answer(
+        get_state().answers[EA.FWHM_ABE],
+        unit=(' [pxl]', ' [mas]'))
 
 
 def PlotPickOne():
@@ -266,10 +275,6 @@ def PlotPickOne():
     # Save it
     get_state().add_answer(AnswerNum, EA.ERR_STREHL_EQ, strehl_eq_err)
 
-    pxll = get_root().header.pixel_scale
-    if isinstance(get_root().header, RH.SinfoniHeader):
-        pxll = get_root().header.sinf_pixel_scale
-
     # answers = get_state().reset_answers()
     W.tmp.lst = []
 
@@ -289,17 +294,7 @@ def PlotPickOne():
     # W.tmp.lst.append(line)
 
     # FWHM
-    line = AnswerImageSky(
-        "FWHM a,b,e: ",
-        (W.strehl["fwhm_x"], W.strehl["fwhm_y"]),
-        MyFormat(W.strehl["fwhm_a"], 1, "f") + ", " + \
-            MyFormat(W.strehl["fwhm_b"], 1, "f") + ", " + \
-            MyFormat(W.strehl["eccentricity"], 2, "f") + "[pxl]",
-        "%.1f" % (W.strehl["fwhm_a"]*pxll*1000) + ", " + \
-            "%.1f" % (W.strehl["fwhm_b"]*pxll*1000) + ", " + \
-            "%.2f" % W.strehl["eccentricity"] + "[mas]"
-        )
-    W.tmp.lst.append(line)
+    W.tmp.lst.append(answer_fwhm())
 
     # Photometry
     W.tmp.lst.append(answer_photometry())

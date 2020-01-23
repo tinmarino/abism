@@ -120,7 +120,7 @@ class EA(Enum):
     STREHL_EQ = u'Eq. SR(2.17\u03bcm)'
 
     CENTER = 'Center'
-    FWHM_ABE = 'FWHM'
+    FWHM_ABE = 'FWHM a,b,e: '
 
     PHOTOMETRY = 'Photometry'
     BACKGROUND = 'Sky'

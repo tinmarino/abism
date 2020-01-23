@@ -32,8 +32,7 @@ class Answer(ABC):
         self.value = value
 
     @abstractmethod
-    def __str__(self):
-        return str(self.value)
+    def __str__(self): pass
 
 
 class AnswerSky(Answer):
@@ -41,13 +40,14 @@ class AnswerSky(Answer):
     on sky: real univer
     on detector: what you see, (on image is overused)
     """
-    @abstractmethod
-    def str_sky(self):
-        return self.__str__()
+    def __str__():
+        return self.str_detector()
 
     @abstractmethod
-    def str_detector(self):
-        return self.__str__()
+    def str_sky(self): pass
+
+    @abstractmethod
+    def str_detector(self): pass
 
 
 class AnswerNum(Answer):
@@ -67,15 +67,7 @@ class AnswerPosition(AnswerSky):
         super().__init__(text, xy)
         self.converter = converter
 
-    def __str__(self):
-        return self.str_detector()
-
     def str_sky(self):
-        """
-        my_wcs = wcs.all_pix2world(
-        np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
-            W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
-        """
         if self.converter is None: return self.str_detector()
         ra, dec = self.converter(np.array([self.value]), 0)
         s_ra, s_dec = format_sky(ra, dec)
@@ -92,18 +84,7 @@ class AnswerLuminosity(AnswerSky):
     """Luminosity stored in adu, convertable to mag
     Require: zero point
              exposure time
-    phot_mag = W.strehl["my_photometry"] / get_root().header.exptime
-    phot_mag = get_root().header.zpt - 2.5 * np.log10(phot_mag)
-    line = AnswerImageSky(
-        "Photometry: ",
-        W.strehl["my_photometry"],
-        MyFormat(W.strehl["my_photometry"], 1, "f") + " [adu]",
-        "%.2f" % phot_mag + " [mag]"
-        )
     """
-    def __str__(self):
-        return self.str_detector()
-
     def str_sky(self):
         # Read header
         exptime = get_root().header.exptime
@@ -118,6 +99,33 @@ class AnswerLuminosity(AnswerSky):
 
     def str_detector(self):
         return f'{self.value:.1f}'
+
+
+class AnswerFwhm(AnswerSky):
+    """FWHM has diffrent values
+    Need the pixel scale, separation too
+    """
+    def str_sky(self):
+        # Get pixel scale
+        try:  # Sinfoni
+            pxll = get_root().header.sinf_pixel_scale
+        except:
+            pxll = get_root().header.pixel_scale
+
+        # Apply pixel scale
+        a, b, e = self.value
+        a *= pxll * 1000
+        b *= pxll * 1000
+
+        return self.__class__.format_value(a, b, e)
+
+    def str_detector(self):
+        return self.__class__.format_value(*self.value)
+
+    @staticmethod
+    def format_value(a, b, e):
+        return  f'{a:.1f}, {b:.1f}, {e:.2f}'
+
 
 
 

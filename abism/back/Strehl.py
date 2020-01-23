@@ -6,8 +6,10 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root, get_state, \
-    AnswerNum, EA, AnswerLuminosity
+from abism.util import log, get_root, get_state, EA
+
+from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm
+
 import abism.back.util_back as W
 
 
@@ -53,9 +55,8 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     signal_on_noise = photometry / background / np.sqrt(number_count)
     get_state().add_answer(AnswerNum, EA.SN, signal_on_noise)
 
-
-
-    rotate_fwhm()
+    # Save:  Side effect of course
+    save_fwhm()
 
     bessel_integer = get_bessel_integer()
 
@@ -122,13 +123,12 @@ def StrehlError():
 
 
 
-def rotate_fwhm():
-    ###########
-    # LONG SHORT AXE, ELLIPTICITY
-    W.strehl["fwhm_a"] = max(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
-    W.strehl["fwhm_b"] = min(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
-    W.strehl["eccentricity"] = np.sqrt(
-        W.strehl["fwhm_a"]**2 - W.strehl["fwhm_b"]**2)/W.strehl["fwhm_a"]
+def save_fwhm():
+    """Save (Long, Short axe, Excentricity)"""
+    fwhm_a = max(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
+    fwhm_b = min(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
+    fwhm_e = np.sqrt(fwhm_a**2 - fwhm_b**2) / fwhm_a
+    get_state().add_answer(AnswerFwhm, EA.FWHM_ABE, (fwhm_a, fwhm_b, fwhm_e))
 
 
 def BinaryStrehl():
