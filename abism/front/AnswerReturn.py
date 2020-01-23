@@ -59,7 +59,7 @@ class AnswerImageSky(AnswerLine):
         Hopefully you created a tag-left and tag-right
         And you readed me .....
         """
-        text.insert(END, self.s_variable + "\t", self.tags)
+        text.insert(END, self.s_variable + ":\t", self.tags)
         if get_state().s_answer_unit == 'detector' or not self.s_sky:
             text.insert(END, self.s_image, self.tags)
         else:

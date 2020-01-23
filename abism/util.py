@@ -129,7 +129,7 @@ class EA(Enum):
 
     # Detail
     CENTER = ['Center', AnswerNum]
-    FWHM_ABE = ['FWHM a,b,e: ', AnswerFwhm]
+    FWHM_ABE = ['FWHM a,b,e', AnswerFwhm]
     PHOTOMETRY = ['Photometry', AnswerLuminosity]
     BACKGROUND = ['Sky', AnswerLuminosity]
     NOISE = ['Sky RMS', AnswerLuminosity]
