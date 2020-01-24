@@ -105,8 +105,6 @@ class TextFrame(tk.Frame):
 
     def update_sash(self):
         """Update sash position"""
-        # self.update_last_widget()
-
         # Log before move
         log(3, 'Toggle sash: nb=', self._index,
             ',visible=', self._see_me,
@@ -136,6 +134,14 @@ class TextFrame(tk.Frame):
         def will_refresh():
             self.update()
             self.toogle(visible=visible)
+        self.after_idle(will_refresh)
+
+    def will_update_sash(self):
+        """The Reformat when added or deleted"""
+        def will_refresh():
+            self.update_last_widget()
+            self.update()
+            self.update_sash()
         self.after_idle(will_refresh)
 
     def clear(self):
@@ -269,6 +275,19 @@ class OptionFrame(TextFrame):
 
         self.init_after()
 
+
+    # Image Parameters
+    #############################################################
+
+    def toogle_image_parameters(self):
+        self.see_image_parameter = not self.see_image_parameter
+        if self.see_image_parameter:
+            self.open_image_parameter()
+            get_root().frame_button.config_button_image_less()
+        else:
+            self.close_image_parameter()
+            get_root().frame_button.config_button_image_more()
+
     @staticmethod
     def get_image_parameter_list():
         return [
@@ -280,14 +299,30 @@ class OptionFrame(TextFrame):
             ["Exposure time [sec]: ", 'exptime', float('nan')],
             ]
 
-    def toogle_image_parameters(self):
-        self.see_image_parameter = not self.see_image_parameter
-        if self.see_image_parameter:
-            self.open_image_parameter()
-            get_root().frame_button.config_button_image_less()
-        else:
-            self.close_image_parameter()
-            get_root().frame_button.config_button_image_more()
+    def init_image_parameters(self):
+        """Read from header dictionary"""
+        for _, key in self.get_image_parameter_list():
+            self.image_parameter_tkvar_dic[key].set(vars(get_root().image.header)[key])
+        self.set_image_parameters()
+
+    def set_image_parameters(self):
+        """Set imageparameter, labels"""
+        log(0, "New image parameters:")
+        for label, key, badvalue in self.get_image_parameter_list():
+            value = float(self.image_parameter_entry_dic[key].get())
+            # Change header field
+            vars(get_root().header)[key] = value
+
+            # Log (this is important)
+            log(0, f'{value:10.4f}  <-  {label}')
+            # COLOR
+            if vars(get_root().header)[key] == badvalue:
+                self.image_parameter_entry_dic[key]["bg"] = "#ff9090"
+            else:
+                self.image_parameter_entry_dic[key]["bg"] = "#ffffff"
+
+        # Show
+        get_root().frame_label.update_label()
 
     def open_image_parameter(self):
         # Grid new frame
@@ -341,38 +376,13 @@ class OptionFrame(TextFrame):
         # Show me
         self.init_will_toogle(visible=True, add_title=False)
 
-
     def close_image_parameter(self):
         self.frame_image_parameter.destroy()
-        self.toogle(visible=False)
+        self.will_update_sash()
 
 
-    def init_image_parameters(self):
-        """Read from header dictionary"""
-        for _, key in self.get_image_parameter_list():
-            self.image_parameter_tkvar_dic[key].set(vars(get_root().image.header)[key])
-        self.set_image_parameters()
-
-
-    def set_image_parameters(self):
-        """Set imageparameter, labels"""
-        log(0, "New image parameters:")
-        for label, key, badvalue in self.get_image_parameter_list():
-            value = float(self.image_parameter_entry_dic[key].get())
-            # Change header field
-            vars(get_root().header)[key] = value
-
-            # Log (this is important)
-            log(0, f'{value:10.4f}  <-  {label}')
-            # COLOR
-            if vars(get_root().header)[key] == badvalue:
-                self.image_parameter_entry_dic[key]["bg"] = "#ff9090"
-            else:
-                self.image_parameter_entry_dic[key]["bg"] = "#ffffff"
-
-        # Show
-        get_root().frame_label.update_label()
-
+    # Manual Cut
+    #############################################################
 
     def toogle_manual_cut(self):
         """Stupid switch"""
@@ -382,11 +392,6 @@ class OptionFrame(TextFrame):
             self.open_manual_cut()
         elif self.frame_manual_cut:
             self.close_manual_cut()
-
-
-    def close_manual_cut(self):
-        self.frame_manual_cut.destroy()
-
 
     def open_manual_cut(self):
         # Grid main
@@ -441,6 +446,13 @@ class OptionFrame(TextFrame):
         # Redraw
         self.init_will_toogle(visible=True, add_title=False)
 
+    def close_manual_cut(self):
+        self.frame_manual_cut.destroy()
+        self.will_update_sash()
+
+
+    # More analysis
+    #############################################################
 
     def toogle_more_analysis(self, parent=None):
         self.see_more_analysis = not self.see_more_analysis
@@ -457,7 +469,6 @@ class OptionFrame(TextFrame):
             self.open_more_analysis()
         else:
             self.close_more_analysis()
-
 
     @staticmethod
     def grid_more_checkbuttons(frame):
@@ -505,6 +516,9 @@ class OptionFrame(TextFrame):
                 command=lambda fct=fct, int_var=int_var: fct(int_var))
             check.grid(column=0, columnspan=2, sticky='nwse')
 
+    def is_more_analysis_visible(self):
+        """Used by menu bar"""
+        return self.see_more_analysis
 
     def open_more_analysis(self):
         """Create More Frame"""
@@ -609,7 +623,6 @@ class OptionFrame(TextFrame):
         # Show me
         self.init_will_toogle(visible=True, add_title=False)
 
-
     def close_more_analysis(self):
         """Close the Frame"""
         if not self.frame_more_analysis: return
@@ -620,12 +633,11 @@ class OptionFrame(TextFrame):
         self.frame_more_analysis.destroy()
 
         # Refresh
-        self.update_sash()
+        self.will_update_sash()
 
 
-    def is_more_analysis_visible(self):
-        return self.see_more_analysis
-
+    # Manual background
+    #############################################################
 
     def toogle_manual_background(self):
         """Create manual background frame"""
@@ -680,7 +692,7 @@ class OptionFrame(TextFrame):
     def close_manual_background(self):
         if not self.see_manual_background: return
         self.frame_manual_background.destroy()
-        self.update_sash()
+        self.will_update_sash()
 
 
 
@@ -739,9 +751,9 @@ class ButtonFrame(tk.Frame):
         self.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
     def config_button_image_less(self):
-        self.bu_manual['background'] =  skin().color.parameter2
+        self.bu_manual['background'] = skin().color.parameter2
         self.bu_manual['text'] = u'\u25b4 ImageParameters'
 
     def config_button_image_more(self):
-        self.bu_manual['background'] =  skin().color.parameter1
+        self.bu_manual['background'] = skin().color.parameter1
         self.bu_manual['text'] = u'\u25be ImageParameters'

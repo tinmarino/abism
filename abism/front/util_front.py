@@ -64,6 +64,8 @@ class CheckButtonDic(ButtonDic):
     """
     def __init__(self, color):
         super().__init__(color)
+        # look more like a frame than a button (see more analysis)
+        self.bg = color.bg
         self.anchor = 'w'
 
 
