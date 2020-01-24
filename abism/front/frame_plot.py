@@ -279,7 +279,7 @@ class ImageFrame(PlotFrame):
 
 
     def add_contour(self):
-        tmp = get_root().image.get_stat_as_dic()
+        tmp = get_root().image.get_stat()
         mean, rms = tmp["mean"], tmp["rms"]
         c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
             rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
