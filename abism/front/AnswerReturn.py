@@ -1070,3 +1070,10 @@ def FigurePlot(x, y, dic={}):
     # Over
     log(3, '_' * 50 + "\n", currentThread().getName(),
         'Exiting' + 20 * '-' + "\n")
+
+
+def ProfileEvent(obj):  # Called by Gui/EventArtist.py
+    # not  invert, always in array coord, Event is inverting its x and y for me :)
+    G.my_point2 = [obj.point2[0], obj.point2[1]]
+    G.my_point1 = [obj.point1[0], obj.point1[1]]
+    ProfileAnswer()
