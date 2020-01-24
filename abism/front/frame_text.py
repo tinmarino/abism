@@ -51,7 +51,7 @@ class TextFrame(tk.Frame):
     parent <- must be vertical pane
     children <- are grided
     """
-    def __init__(self, parent, label_text='Frame', index=0):
+    def __init__(self, parent, label_text='Frame', index=None):
         super().__init__(parent, skin().frame_dic)
 
         # Prepare grid attributes
@@ -71,9 +71,10 @@ class TextFrame(tk.Frame):
     def init_after(self, add_title=True):
         """Place a last widget"""
         # Place button to resize
-        self._arrow = tk.Button(
-            self, command=self.toogle, image=photo_up(), **skin().button_dic)
-        self._arrow.place(relx=1., rely=0., anchor="ne")
+        if self._index is not None:
+            self._arrow = tk.Button(
+                self, command=self.toogle, image=photo_up(), **skin().button_dic)
+            self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
         if add_title:
@@ -109,7 +110,7 @@ class TextFrame(tk.Frame):
         i_height = self.winfo_y() + 22
         if self._see_me:
             self._arrow.configure(image=photo_up())
-            i_height += max(0, self._last.winfo_y() - self._last.winfo_height())
+            i_height += 5 + max(0, self._last.winfo_y() - self._last.winfo_height())
         else:
             self._arrow.configure(image=photo_down())
         self._parent.sash_place(self._index, 0, i_height)
@@ -118,7 +119,7 @@ class TextFrame(tk.Frame):
         log(3, 'New sash pos: height=', i_height)
 
     def init_will_toogle(self, visible=True, add_title=True):
-        """Place last and togfle later.
+        """Best way to showme: Place last and togfle later
         Usually called to set visible when some widget added
         This trick is due to the fact widget will be updated at next tk loop
         """
@@ -230,8 +231,8 @@ class LabelFrame(TextFrame):
                 row=row, column=0, sticky="nsew")
             row += 1
 
-        # Create what it takes
-        self.init_after()
+        # Show me
+        self.init_will_toogle()
 
 
 class OptionFrame(TextFrame):
