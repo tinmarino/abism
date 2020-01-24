@@ -276,25 +276,8 @@ class OptionFrame(TextFrame):
 
         self.init_after()
 
-    def ask_image_parameters(self):
-        """Reate Image Parameters tk.Frame
-        Warning do not confound with Label one
-        To measure the Strehl ratio I really need :\n"
-        -> Diameter of the telescope [in meters]\n"
-        -> Obstruction of the telescope [ in % of the area obstructed ]\n"
-        -> Wavelenght [ in micro meter ], the central wavelength of the band\n"
-        -> Pixel_scale [ in arcsec per pixel ]\n"
-        All the above parameters are used to get the diffraction pattern of the telescope
-            because the peak of the PSF will be divided by the maximum of the diffraction
-            patter WITH the same photometry to get the strehl.\n\n"
-        Put the corresponding values in the entry widgets.
-        Then, to save the values, press enter i, ONE of the entry widget
-        or click on ImageParamter button again.\n"
-        Note that these parameters should be readden from your image header.
-        If it is not the case, you can send me an email or modify ReadHeader.py module."
-        """
-        # Label, variable , default value
-        G.image_parameter_list = [
+    def get_image_parameter_list():
+        return [
             ["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", float('nan')],
             ["Pixel scale" + "*" + " [''/pix]: ", "pixel_scale", float('nan')],
             ["Diameter" + "*" + " [m]:", "diameter", float('nan')],
