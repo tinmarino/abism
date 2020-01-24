@@ -1,9 +1,10 @@
-1. Refactor: AnswerReturn 
-  * then every oth todo will be easyier
+1. Refactor: AnswerReturn and Pick  (then every oth todo will be easyier)
   * Add other info to Text
   * PlotStat dans AnswerReturn 520, make it in answer frame and not plot
   * Get Ellipse in legacy
     * First create legacy button
+    * And make ellipse work
+    * 
 
 
 * Photometric error where are you ? 
@@ -15,16 +16,15 @@
 # UI
 
 * Skin: create entrybutton, and checkbutton (because cannto see in dark)
-* make sahs of left pane, better move when adding or removeing frames
-* ImageFrame: clean : remove old parameters and replce what nee by self
-  * Make cube work again (with some self.variable in (frame plot .py)
 
 # Easy win
 
 * pylint frame_plot
+* Move Profile in analisys
 
 # Refactor
 
+* Read_Header to back (see deps_2.png)
 * frame_plot and frem_text perfect (no G)
 * SthrelImage discirminator: Sthrel is just a wrapper, join them ?
 * frame_tex, base class has getten big
@@ -33,6 +33,7 @@
 # Latter
 
 * !!! Bad pixels !! You cannot release putting them to zero
+* Datacube if more than 3 dimension
 * Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * More options, test my stuff

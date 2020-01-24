@@ -227,12 +227,11 @@ class Skin:
 
 def update_widget_skin(widget):
     """Update the skin of a widget"""
-    from abism.front.frame_plot import PlotFrame
-
     log(9, 'Updating:', widget.__class__.__name__)
 
-    if isinstance(widget, PlotFrame):
-        widget.update_skin()
+    custom_call = getattr(widget, 'update_skin', None)
+    if callable(custom_call):
+        custom_call()
         log(9, 'And is instance of PlotFrame ------------')
     elif isinstance(widget, tk.Button):
         # Do not change favourites buttons ...

@@ -74,7 +74,9 @@ def PickEllipse(disconnect=False):
         G.ellipse = EventArtist.Ellipse(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
-            array=get_root().image.im0
+            array=get_root().image.im0,
+            callback=MultiprocessCaller
+
         )
 
 
@@ -93,7 +95,8 @@ def PickAnnulus(disconnect=False):
         G.annulus = EventArtist.Annulus(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
-            array=get_root().image.im0
+            array=get_root().image.im0,
+            callback=IF.AnnulusEventPhot()
         )
 
 
@@ -125,6 +128,7 @@ def Profile(disconnect=False):
         G.my_profile = EventArtist.Profile(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
+            callback=AR.ProfileEvent
         )
 
 

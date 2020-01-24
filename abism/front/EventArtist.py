@@ -3,9 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
-from abism.front import Pick
 
-from abism.back import ImageFunction as IF  # to give him the output
 
 from abism.util import log
 
@@ -66,7 +64,7 @@ class Annulus:
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
-        self.Return()
+        self.callback(self)
 
     def on_press(self, event):
         if not event.inaxes:
@@ -208,9 +206,6 @@ class Annulus:
         self.DrawArtist()
         return
 
-    def Return(self):  # flux
-        IF.AnnulusEventPhot(self)
-
         ########
         # PARAMS
 
@@ -238,11 +233,13 @@ class Annulus:
 
 
 class Ellipse:
-    def __init__(self, figure, ax, array=None):
+    def __init__(self, figure, ax, array=None, callback=None):
         """array is the array called by imshow"""
         self.fig = figure
         self.ax = ax
         self.array = array
+        self.callback = callback
+
         self.artist = ""
         self.num_key = ""    # number of key operation to make like if you press   5r, the r operation is done 5 times we put 0 to concatenate
         self.zoom_bool = False
@@ -286,7 +283,7 @@ class Ellipse:
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
-        self.Return()
+        self.callback()
 
     def on_press(self, event):  # key
         self.zoom_bool = True
@@ -391,20 +388,21 @@ class Ellipse:
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.add_patch(self.artist)  # it works like this so why to ask
 
-    def Return(self):
-        Pick.MultiprocessCaller()
-
         ##############
         # PROFILE
         #############
 
 
 class Profile:
-    def __init__(self, fig, ax):
+    """Alias Line
+    Callback : recevese self (point1 and point2)
+    """
+    def __init__(self, fig, ax, callback=None):
         self.point1 = None  # to know if we cicked yet
         self.l = None
         self.fig = fig
         self.ax = ax
+        self.callback=callback
 
         # self.InitProfile(None) # argument in case we are in a zoom  and need to change background
         self.Connect()
@@ -459,7 +457,7 @@ class Profile:
         self.DrawArtist()
 
     def on_release(self, event):
-        IF.ProfileEvent(self)
+        self.callback(self)
         self.point1 = None
 
         # self.my_point2 = [event.ydata,event.xdata] # invert
@@ -494,5 +492,3 @@ class Profile:
         self.l.remove()
         self.fig.canvas.blit(self.ax.bbox)  # blit both
         # self.fig.canvas.draw_idle()
-
-    # def InitProfile(self,event):

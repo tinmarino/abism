@@ -185,8 +185,6 @@ class ImageFrame(PlotFrame):
         self.init_label("Image")
         self.init_canvas(self._fig)
 
-        self.frame_cube = None
-
 
     def extend_matplotlib(self):
         """Enable scroll with mouse"""
