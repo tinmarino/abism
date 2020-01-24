@@ -278,12 +278,12 @@ class OptionFrame(TextFrame):
 
     def get_image_parameter_list():
         return [
-            ["Wavelength" + "*" + " [" + u'\u03BC' + "m]:", "wavelength", float('nan')],
-            ["Pixel scale" + "*" + " [''/pix]: ", "pixel_scale", float('nan')],
-            ["Diameter" + "*" + " [m]:", "diameter", float('nan')],
-            ["Obstruction (d2/d1)*" + " [%]:", "obstruction", float('nan')],
-            ["Zero point [mag]: ", "zpt", float('nan')],
-            ["Exposure time [sec]: ", "exptime", float('nan')],
+            [u'Wavelength* [\u03BCm]:', 'wavelength', float('nan')],
+            ["Pixel scale* [''/pix]: ", 'pixel_scale', float('nan')],
+            ["Diameter* [m]:", 'diameter', float('nan')],
+            ["Obstruction (d2/d1)* [%]:", 'obstruction', float('nan')],
+            ["Zero point [mag]: ", 'zpt', float('nan')],
+            ["Exposure time [sec]: ", 'exptime', float('nan')],
             ]
 
         ##########
