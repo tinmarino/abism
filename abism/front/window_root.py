@@ -23,7 +23,7 @@ import abism.util as util
 
 
 
-class RootWindow(tk.Tk):
+class WindowRoot(tk.Tk):
     """Main window app object
     May one day destroy util_front ...
     Call me like Tk:
