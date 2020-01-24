@@ -139,18 +139,7 @@ class Annulus:
         elif string == "right":
             self.y0 += 1
 
-        # KNOW
-        elif string == "p":  # print( )
-            def PD(dic):  # Write dictionary for RunCommand
-                for k in dic.keys():
-                    print('%.20s    %.20s' % (k, dic[k]))
 
-        # OVER
-        return
-
-        #################
-        # DRAW
-        ###############
 
     def RemoveArtist(self, draw=True):
         for i in self.artist_list:
