@@ -13,18 +13,6 @@ from tkinter.filedialog import askopenfilename
 from abism.util import root_path, log, get_version, get_root, DotDic
 
 
-# SOOOO dirty
-# Clean Analysis Menu
-class VoidClass:
-    """Helper container"""
-more_bool = 0
-manual_back_bool = False
-in_arrow_frame = None   # no body in lefftoparrowframe
-tkentry = VoidClass()   # Image parameters
-tkvar = VoidClass()
-
-
-
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""

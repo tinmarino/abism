@@ -195,8 +195,7 @@ class AbismState(DotDic):
         # The value of the manually added sky level (rarely used)
         self.i_background = 0
 
-        # UI
-        self.s_answer_unit = 'detector'  # detector or 'sky'
+        # UI image
         self.s_image_color_map = get_colormap_list()[0][1]
         self.s_image_stretch = get_stretch_list()[0][2]
         self.s_image_cut = get_cut_list()[0][1]  # fct
@@ -205,6 +204,10 @@ class AbismState(DotDic):
         self.i_image_max_cut = 0
         self.b_image_contour = False
         self.b_image_reverse = False
+
+        # UI text
+        self.s_answer_unit = 'detector'  # detector or 'sky'
+
 
     def reset_answers(self):
         self.answers = {}

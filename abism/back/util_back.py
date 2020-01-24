@@ -12,16 +12,12 @@ class VoidClass:
     """ Placeholder of the most ugly container
     this is for the temporary variables to pass from one function to an other.
     Like W.tmp.lst... carrefull
+    Clean  AnswerFrame
     """
 tmp = VoidClass()
 
-imstat = VoidClass()
 strehl_type = 'max'
 strehl = {}
 
-err_msg = []
-mode = "manual"  # oppsite of automatic
-
 
 rect_phot_bool = 0  # for rectanglephot called by command
-same_psf = 1
