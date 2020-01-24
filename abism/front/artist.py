@@ -1,4 +1,9 @@
-""" Note that all x,y are given for an array, in the image display, x and y must be switched """
+"""
+Note that all x,y are given for an array, in the image display, x and y must be switched
+
+TODO refactor: mutualize more code
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -7,7 +12,20 @@ import matplotlib
 from abism.util import log
 
 
-class Annulus:
+class Artist:
+    """Default artist, generic drawer"""
+    def __init__(self, figure, ax, array=None, callback=None):
+        """array is the array called by imshow"""
+        self.fig = figure
+        self.ax = ax
+        self.array = array
+        self.callback = callback
+
+        # A center always
+        self.x0 = self.y0 = 0
+
+
+class Annulus(Artist):
     """This is actually the Annulus even, but it could be a "ellipse" event or
     whatever can fit in the canvas class (rectangle, polygone...) , actually I
     deleted the ellispe event, which can be usefull because not every body want
@@ -16,17 +34,20 @@ class Annulus:
     aperture, you play with that and then, if its works well, you can auto
     detect stars and make a completely automatic ABism (ie, without opening
     image)  , see in Abism
-    0.5, 0.6"""
-    def __init__(self, figure, ax, array=None):  # array is the array called by imshow
+    0.5, 0.6
+    """
+    def __init__(self, figure, ax, array=None, callback=None):
+        super().__init__(figure, ax, array=array, callback=callback)
         self.fig = figure
         self.ax = ax
-        self.type = type  # ellipse or annulus
+
+
         self.artist_list = []  # Filled in InitAnnulus and modified in event_motion
         # number of key operation to make like if you press 5r,
         # the r operation is done 5 times we put 0 to concatenate
         self.num_key = ""
 
-        if array != None:
+        if array is not None:
             self.array = array
 
         self.ParamDefiner()  # initial parameters, at the end of this file
@@ -43,7 +64,9 @@ class Annulus:
         self.fig.canvas.mpl_disconnect(self.cid_zoom)
 
     def Connect(self):
-        """matplotlib connections, the connections are "self" because we need to disconnect it (replace connect by disconnect) """
+        """matplotlib connections, the connections are "self"
+        because we need to disconnect it (replace connect by disconnect)
+        """
         # MOTION
         self.cid_motion = self.fig.canvas.mpl_connect(
             'motion_notify_event', self.on_motion)
@@ -69,7 +92,7 @@ class Annulus:
         self.Draw()
         return
 
-    def on_click(self, event):  # mouse click
+    def on_click(self, event):
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
@@ -86,14 +109,15 @@ class Annulus:
         except:
             if self.num_key == "":
                 self.num_key = 1
-            for i in range(self.num_key):
+            for _ in range(self.num_key):
                 self.Modify(event.key)
             self.num_key = ""
         self.Draw()
         return
 
-    def Modify(self, string):  # modify self.params
+    def Modify(self, string):
         """To modify self parameters, called by AnnulusOnpress"""
+        # pylint: disable = too-many-branches
 
         # rU
         if string == "r":    # ru
@@ -140,7 +164,6 @@ class Annulus:
             self.y0 += 1
 
 
-
     def RemoveArtist(self, draw=True):
         for i in self.artist_list:
             i.remove()
@@ -158,16 +181,21 @@ class Annulus:
             # except : pass
         self.fig.canvas.blit(self.ax.bbox)  # blit both
 
-    def Init(self, event):
+    def Init(self, _):
+        """Unused event (bad design)"""
         self.RemoveArtist(draw=False)  # Important not to draw
         # self.fig.canvas.draw()
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
         # facecolor, edgecolor,linestyle,alpha    for out, in , phot
-        for i in [["None", "black", "dashed", 1],    ["None", "black", "dashed", 1],    ["black", "black", "solid", 0.3]]:
+        for i in [
+                ["None", "black", "dashed", 1],
+                ["None", "black", "dashed", 1],
+                ["black", "black", "solid", 0.3]]:
             # OUT
-            ell = matplotlib.patches.Ellipse(xy=(0, 0), width=1, height=1,
-                                             facecolor=i[0], edgecolor=i[1], linestyle=i[2], alpha=i[3])
+            ell = matplotlib.patches.Ellipse(
+                xy=(0, 0), width=1, height=1,
+                facecolor=i[0], edgecolor=i[1], linestyle=i[2], alpha=i[3])
             self.ax.add_patch(ell)
             self.artist_list.append(ell)
 
@@ -202,10 +230,7 @@ class Annulus:
         Ell(self.artist_list[2])
 
         self.DrawArtist()
-        return
 
-        ########
-        # PARAMS
 
     # called first, all params possible should be here., even if it is just None
     def ParamDefiner(self):
@@ -223,24 +248,19 @@ class Annulus:
         self.inner_u = 10  # called i
         self.outter_u = 20  # called o
 
-        return
 
-        #############
-        # ELLIPSE
-        #############
-
-
-class Ellipse:
+class Ellipse(Artist):
+    """Draw an ellipse"""
     def __init__(self, figure, ax, array=None, callback=None):
         """array is the array called by imshow"""
-        self.fig = figure
-        self.ax = ax
-        self.array = array
-        self.callback = callback
+        super().__init__(figure, ax, array=array, callback=callback)
 
         self.artist = ""
-        self.num_key = ""    # number of key operation to make like if you press   5r, the r operation is done 5 times we put 0 to concatenate
+        # number of key operation to make like if you press
+        # 5r, the r operation is done 5 times we put 0 to concatenate
+        self.num_key = ""
         self.zoom_bool = False
+        self.bg = None
 
         self.ParamDefiner()  # initial parameters, at the end of this file
         self.DrawArtist()
@@ -255,7 +275,8 @@ class Ellipse:
         self.fig.canvas.mpl_disconnect(self.cid_button_press)
 
     def Connect(self):
-        """m atplotlib connections, the connections are "self" because we need to disconnect it (replace connect by disconnect) """
+        """matplotlib connections, the connections are "self" because
+        we need to disconnect it (replace connect by disconnect) """
 
         # MOTION
         self.cid_motion = self.fig.canvas.mpl_connect(
@@ -283,7 +304,8 @@ class Ellipse:
         self.y0, self.x0 = event.xdata, event.ydata
         self.callback()
 
-    def on_press(self, event):  # key
+    def on_press(self, event):
+        # pylint: disable = too-many-branches
         self.zoom_bool = True
 
         if event.key == "R":
@@ -337,11 +359,10 @@ class Ellipse:
             self.Draw()
 
         self.zoom_bool = False
-        return
 
-    def on_zoom(self, event):
-        if self.zoom_bool:
-            return
+    def on_zoom(self, _):
+        if self.zoom_bool: return
+
         self.RemoveArtist(draw=False)  # Important not to draw if zoom
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
 
@@ -368,7 +389,6 @@ class Ellipse:
         # theta is the same, just, x and y direction where change by width and height
         self.artist.angle = 180 * self.theta / np.pi
         self.DrawArtist()
-        return
 
     # called first, all params possible should be here., even if it is just None
     def ParamDefiner(self):
@@ -380,8 +400,9 @@ class Ellipse:
 
         # facecolor, edgecolor,linestyle,alpha    for out, in , phot
         i = ["green", "blue", "dashed", 0.8]
-        self.artist = matplotlib.patches.Ellipse(xy=(200, 200), width=100, height=100,
-                                                 facecolor=i[0], edgecolor=i[1], linestyle=i[2], alpha=i[3])
+        self.artist = matplotlib.patches.Ellipse(
+            xy=(200, 200), width=100, height=100,
+            facecolor=i[0], edgecolor=i[1], linestyle=i[2], alpha=i[3])
         self.RemoveArtist(draw=False)  # Important not to draw if zoom
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.add_patch(self.artist)  # it works like this so why to ask
@@ -391,18 +412,18 @@ class Ellipse:
         #############
 
 
-class Profile:
+class Profile(Artist):
     """Alias Line
     Callback : recevese self (point1 and point2)
     """
     def __init__(self, fig, ax, callback=None):
-        self.point1 = None  # to know if we cicked yet
-        self.l = None
-        self.fig = fig
-        self.ax = ax
-        self.callback=callback
+        super().__init__(fig, ax, array=None, callback=callback)
 
-        # self.InitProfile(None) # argument in case we are in a zoom  and need to change background
+        self.point1 = None
+        self.point2 = None
+        self.l = None
+        self.bg = None
+
         self.Connect()
 
     def Connect(self):
@@ -428,13 +449,16 @@ class Profile:
             log(3, "artist.profile cannot disconnect release  ")
 
     def on_press(self, event):
+        # Check
         if not event.inaxes:
             return
         toolbar = event.inaxes.figure.canvas.toolbar
+        # pylint: disable = protected-access
         if toolbar._active in ('PAN', 'ZOOM'):
             log(3, "WARNING: Zoom or Pan actif, "
-                "please unselect its before picking your object")
+                   "please unselect its before picking your object")
             return
+
         self.RemoveArtist(draw=True)  # Important not to draw
         self.point1 = [event.ydata, event.xdata]
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
@@ -454,22 +478,12 @@ class Profile:
                          [self.point1[0], self.point2[0]]])
         self.DrawArtist()
 
-    def on_release(self, event):
+    def on_release(self, _):
         self.callback(self)
         self.point1 = None
 
-        # self.my_point2 = [event.ydata,event.xdata] # invert
-        #self.my_point1 = [self.my_point1[1],self.my_point1[0]]
-        # self.RemoveArtist()
-        #import AnswerReturn as AR
-        # AR.ProfileAnswer()
-
-        ####
-        # DRAW
-        ##########
-
     def RemoveArtist(self, draw=True):
-        if self.l != None:
+        if self.l is not None:
             try:
                 self.ax.lines.pop(0)
             except:
@@ -479,7 +493,6 @@ class Profile:
             except:
                 pass
         self.l = None
-        self.my_point1 = None
         if draw:
             self.fig.canvas.draw()
 
