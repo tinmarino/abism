@@ -598,8 +598,7 @@ def PlotStat():
     for i in lst:
         print(i[0] + i[1])
         ax.text(0.3, 1.0-float(num)/(len(lst)+1),
-                i[0]+i[1], transform=G.ax3.transAxes)
-        #G.ax3.text(0.5,0.5, i[0]+i[1],transform = G.ax3.transAxes )
+                i[0]+i[1], transform=ax.transAxes)
         num += 1
 
     ax = get_root().frame_result.redraw()
