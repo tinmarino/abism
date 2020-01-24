@@ -9,13 +9,23 @@ from abism.util import log
 
 
 class Annulus:
-    """This is actually the Annulus even, but it could be a "ellipse" event or whatever can fit in the canvas class (rectangle, polygone...) , actually I deleted the ellispe event, which can be usefull because not every body want the annulus for the background, but maybe make a super fast photometry, like knowing the instrument, you know the PSF FWHM and can auto create the aperture, you play with that and then, if its works well, you can auto detect stars and make a completely automatic ABism (ie, without opening image)  , see in Abism 0.5, 0.6"""
+    """This is actually the Annulus even, but it could be a "ellipse" event or
+    whatever can fit in the canvas class (rectangle, polygone...) , actually I
+    deleted the ellispe event, which can be usefull because not every body want
+    the annulus for the background, but maybe make a super fast photometry,
+    like knowing the instrument, you know the PSF FWHM and can auto create the
+    aperture, you play with that and then, if its works well, you can auto
+    detect stars and make a completely automatic ABism (ie, without opening
+    image)  , see in Abism
+    0.5, 0.6"""
     def __init__(self, figure, ax, array=None):  # array is the array called by imshow
         self.fig = figure
         self.ax = ax
         self.type = type  # ellipse or annulus
         self.artist_list = []  # Filled in InitAnnulus and modified in event_motion
-        self.num_key = ""    # number of key operation to make like if you press   5r, the r operation is done 5 times we put 0 to concatenate
+        # number of key operation to make like if you press 5r,
+        # the r operation is done 5 times we put 0 to concatenate
+        self.num_key = ""
 
         if array != None:
             self.array = array
