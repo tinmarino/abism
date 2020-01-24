@@ -170,6 +170,7 @@ class LabelFrame(TextFrame):
         Nx x Ny x Nz
         WCS detected or not
         """
+        # pylint: disable = too-many-statements, too-many-branches
         # Declare list of label (text, properties)
         text_and_props = []
 
@@ -213,7 +214,6 @@ class LabelFrame(TextFrame):
         bolt = bolt or isnan(get_root().header.wavelength)
         bolt = bolt or isnan(get_root().header.obstruction)
         bolt = bolt or isnan(get_root().header.pixel_scale)
-
         if bolt:
             lbl = "WARNING: some parameters not found"
             text_and_props.append((lbl, {"fg": "red"}))
