@@ -6,7 +6,7 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-from abism.back.image import ImageInfo, get_array_stat
+from abism.back.image import get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
 from abism.util import log
@@ -807,3 +807,6 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     log(2, "phot1 :", res["phot"])
     log(2, "phot2 :", res["my_photometry"])
     log(2, "back :", res["my_background"], "\n")
+
+
+

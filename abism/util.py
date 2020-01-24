@@ -177,6 +177,7 @@ class EA(Enum):
 
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
+    # pylint: disable = super-init-not-called
     def __init__(self):
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}

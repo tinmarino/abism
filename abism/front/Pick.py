@@ -20,7 +20,8 @@ from abism.util import log, get_root, get_state
 
 def RefreshPick(label):  # This is the only callled routine
     # if label != "" : G.connect_menu["text"] = u'\u25be ' +   label # remove the little arrow
-    """in function of the name of G.connect_var, we call the good one. Disconnect old pick event and connect the new one """
+    """In function of the name of G.connect_var, we call the good one.
+    Disconnect old pick event and connect the new one """
     lst = np.array([
         ["PickOne", "one", "PickOne"],
         ["PickMany", "many", "PickMany"],
@@ -31,31 +32,33 @@ def RefreshPick(label):  # This is the only callled routine
         ["Annulus", "annulus", "PickAnnulus"],
         ["Ellipse", "ellipse", "PickEllipse"],
         ["No Pick", "nopick", "NoPick"],
-    ])  # Label@Menu , get_state().pick_type, fct to call
+    ])
 
     get_state().pick_old = get_state().pick_type
     index = list(lst[:, 1]).index(label)   # or G.connect_var.get()
     get_state().pick_type = label
-    # because they are in tools, and it disable the connection, I don't know why
-    # TODO di I break something
+    # because they are in tools, and it disable the connection,
+    # I don't know why
+
+
+    # TODO di I break something, yes the string_var aut
     # if label != "stat" or label != "profile":
     #     G.cu_pick.set(label)
 
       # THE dicconnect
-    if type(get_state().pick_old) is list:  # for pick many
-        index_old = list(lst[:, 1]).index(
-            get_state().pick_old[0])   # or G.connect_var.get()
-    else:
-        index_old = list(lst[:, 1]).index(
-            get_state().pick_old)   # or G.connect_var.get()
-    # This staff with disconnect is to avoid twice a call, in case pick_old = pick  it is not necessary but more pretty
+    index_old = list(lst[:, 1]).index(
+        get_state().pick_old)   # or G.connect_var.get()
+    # This staff with disconnect is to avoid twice a call,
+    # in case pick_old = pick  it is not necessary but more pretty
+    # WTF !!!, hacky way to call a dict ,-)
     globals()[lst[index_old, 2]](disconnect=True)
 
       # THE CALLL
     globals()[lst[index, 2]]()
 
 
-def NoPick(disconnect=False):  # to check if all pick types are disconnect
+def NoPick(disconnect=False):
+    # pylint: disable=unused-argument
     return
 
 
@@ -96,7 +99,7 @@ def PickAnnulus(disconnect=False):
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
             array=get_root().image.im0,
-            callback=IF.AnnulusEventPhot()
+            callback=IF.AnnulusEventPhot
         )
 
 
@@ -169,7 +172,8 @@ def PickOne(disconnect=False):
                            alpha=0.5, fill=True),
             button=[1],  # 1/left, 2/center , 3/right
         )
-        G.cid_left = get_root().frame_image.get_canvas().mpl_connect('button_press_event', PickEvent)
+        G.cid_left = get_root().frame_image.get_canvas().mpl_connect(
+            'button_press_event', PickEvent)
 
 
 def PickEvent(event):

@@ -8,6 +8,10 @@
 
 2. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
 
+3. Pick -> pick.Pick, a class with pick information for gui.
+  Then answer Return must be divided
+        Old * Move Profile in analisys
+
 * Photometric error where are you ? 
 
 # Bug
@@ -20,7 +24,6 @@
 
 # Easy win
 
-* Move Profile in analisys
 * Read_Header to BackEnd (see deps_2.png)
 * put image info in abism state (and not root) 
 
