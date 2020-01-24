@@ -56,16 +56,19 @@ class RootWindow(tk.Tk):
         self.paned_root.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # 2 Left: Add
-        LeftFrame(self, self.paned_root)
+        left = LeftFrame(self, self.paned_root)
+        left_width = parse_argument().gui_sash_root
+        self.paned_root.add(left, width=left_width)
 
         # 3 Right: Add
-        RightFrame(self, self.paned_root)
+        root_width = int(parse_argument().gui_geometry.split('x')[0])
+        right_width = root_width - left_width
+        height = parse_argument().gui_sash_image
+        right = RightFrame(self, self.paned_root, right_width, height)
+        self.paned_root.add(right)
 
         # Init image
         self.set_image(util._parsed_args.image)
-
-        # Configure geometry
-        self.configure_root()
 
 
     def set_image(self, filepath):
@@ -101,26 +104,6 @@ class RootWindow(tk.Tk):
         else:
             log(3, "->you have no beautiful icon "
                 "because you didn't set the PATH in Abism.py")
-
-
-    def configure_root(self):
-        """Configure from (default + argument)
-        OneDay some preferences ...
-        Note: do not name it configure or it overrides default frame method
-        """
-        args = util._parsed_args
-
-
-        self.paned_root.update()
-        self.paned_root.sash_place(0, args.gui_sash_root, 0)
-
-        self.paned_image.update()
-        self.paned_image.sash_place(0, 0, args.gui_sash_image)
-
-        self.paned_bottom.update()
-        width = int(self.paned_bottom.winfo_width() / 2)
-        self.paned_bottom.sash_place(0, width, 0)
-
 
 
     def set_shortcut(self):

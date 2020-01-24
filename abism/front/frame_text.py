@@ -24,7 +24,6 @@ class LeftFrame(tk.Frame):
     def __init__(self, root, parent):
         # Append self -> parent
         super().__init__(parent, **skin().frame_dic)
-        parent.add(self)
 
         # Create Paned && Save
         text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
