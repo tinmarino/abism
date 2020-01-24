@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 
 
-
 from abism.util import log
 
 
@@ -429,15 +428,15 @@ class Profile:
         try:
             self.fig.canvas.mpl_disconnect(self.cid_press_event)
         except:
-            log(3, "EventArtist.profile cannot deisconnect press ")
+            log(3, "artist.profile cannot deisconnect press ")
         try:
             self.fig.canvas.mpl_disconnect(self.cid_motion_event)
         except:
-            log(3, "EventArtist.profile cannot disconnect motion ")
+            log(3, "artist.profile cannot disconnect motion ")
         try:
             self.fig.canvas.mpl_disconnect(self.cid_release_event)
         except:
-            log(3, "EventArtist.profile cannot disconnect release  ")
+            log(3, "artist.profile cannot disconnect release  ")
 
     def on_press(self, event):
         if not event.inaxes:

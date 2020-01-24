@@ -4,7 +4,7 @@
 import matplotlib
 import numpy as np  # for a readind lst like an array
 
-from abism.front import EventArtist  # draw an ellipse
+from abism.front import artist  # draw an ellipse
 from abism.front import AnswerReturn as AR
 
 
@@ -71,7 +71,7 @@ def PickEllipse(disconnect=False):
         return
     # CONNECT
     if get_state().pick_type == "ellipse":
-        G.ellipse = EventArtist.Ellipse(
+        G.ellipse = artist.Ellipse(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
             array=get_root().image.im0,
@@ -92,7 +92,7 @@ def PickAnnulus(disconnect=False):
         return
     # CONNECT
     if get_state().pick_type == "annulus":
-        G.annulus = EventArtist.Annulus(
+        G.annulus = artist.Annulus(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
             array=get_root().image.im0,
@@ -125,7 +125,7 @@ def Profile(disconnect=False):
         # if get_state().pick_type == "profile" : return # in order not to cal twice at the begining
     # CONNECT
     if get_state().pick_type == "profile":
-        G.my_profile = EventArtist.Profile(
+        G.my_profile = artist.Profile(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
             callback=AR.ProfileEvent
