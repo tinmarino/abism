@@ -217,7 +217,7 @@ class LabelFrame(TextFrame):
         if bolt:
             lbl = "WARNING: some parameters not found"
             text_and_props.append((lbl, {"fg": "red"}))
-            get_root().frame_option.open_image_parameter()
+            get_root().frame_option.toogle_image_parameter()
         else:
             lbl = "Parameters read from header"
             text_and_props.append((lbl, {"fg": "blue"}))
@@ -281,7 +281,7 @@ class OptionFrame(TextFrame):
     # Image Parameters
     #############################################################
 
-    def toogle_image_parameters(self):
+    def toogle_image_parameter(self):
         self.see_image_parameter = not self.see_image_parameter
         if self.see_image_parameter:
             self.open_image_parameter()
@@ -301,13 +301,7 @@ class OptionFrame(TextFrame):
             ["Exposure time [sec]: ", 'exptime', float('nan')],
             ]
 
-    def init_image_parameters(self):
-        """Read from header dictionary"""
-        for _, key in self.get_image_parameter_list():
-            self.image_parameter_tkvar_dic[key].set(vars(get_root().image.header)[key])
-        self.set_image_parameters()
-
-    def set_image_parameters(self):
+    def set_image_parameter(self):
         """Set imageparameter, labels"""
         log(0, "New image parameters:")
         for label, key, badvalue in self.get_image_parameter_list():
@@ -368,7 +362,7 @@ class OptionFrame(TextFrame):
                 entry["bg"] = "#ff9090"
             # Bind entry Return
             entry.bind(
-                '<Return>', lambda _: self.set_image_parameters())
+                '<Return>', lambda _: self.set_image_parameter())
 
             # Grid entry && Save
             entry.grid(row=row, column=1, sticky="NSEW")
@@ -743,7 +737,7 @@ class ButtonFrame(tk.Frame):
         opts.update({'background':skin().color.parameter1})
         self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
-            command=get_root().frame_option.toogle_image_parameters, **opts)
+            command=get_root().frame_option.toogle_image_parameter, **opts)
 
         # Grid
         self.columnconfigure(0, weight=1)
