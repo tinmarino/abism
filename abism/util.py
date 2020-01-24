@@ -54,7 +54,7 @@ def parse_argument():
     # Geometry (defaults for a 1080 x 1920)
     parser.add_argument(
         '--gui-geometry', type=str, action='store', nargs='?',
-        default='1200x920+300+50',
+        default='1200x920+150+50',
         help=('window geometry: wxh±x±y | ex: 12+34-56+78 '
               '<- where 12 is width, 34 is height, '
               '56 is leftmost, 78 is topmost'))
