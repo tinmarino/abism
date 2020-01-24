@@ -89,6 +89,11 @@ class RootWindow(tk.Tk):
         # Redraw
         self.frame_image.draw_image()
 
+        # Reset ImageParameters if open
+        if self.frame_option.see_image_parameter:
+            self.frame_option.close_image_parameter()
+            self.frame_option.open_image_parameter()
+
 
     def set_title(self):
         """Create OS's window title, icon and Set geomrtry"""

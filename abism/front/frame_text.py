@@ -294,45 +294,41 @@ class OptionFrame(TextFrame):
         frame_manual_grid.columnconfigure(0, weight=1)
         frame_manual_grid.columnconfigure(1, weight=1)
 
-        ###################
-        # TODO clean that !!!, should not be so hard
-        # THE ENTRIES (it is before the main dish )
-        for row, (label, key, value) in enumerate(self.get_image_parameter_list()):
-            # Label
-            l = tk.Label(
-                frame_manual_grid, text=label, font=skin().font.answer,
-                justify=tk.LEFT, anchor="nw", **skin().fg_and_bg)
-            l.grid(row=row, column=0, sticky="NSEW")
-
-            # Entry
+        # Loop for all needed variable
+        # And grid their (label, entry)
+        for row, (text, key, value) in enumerate(self.get_image_parameter_list()):
+            # Init variable (may cut it)
             string_var = tk.StringVar()
+            s_from_header = vars(get_root().header)[key]
+            if len(str(s_from_header)) > 6:
+                string_var.set("%.5f" % float(s_from_header))
+            else:
+                string_var.set(s_from_header)
+
+            # Grid label
+            label = tk.Label(
+                frame_manual_grid, text=text, font=skin().font.answer,
+                justify=tk.LEFT, anchor="nw", **skin().fg_and_bg)
+            label.grid(row=row, column=0, sticky="NSEW")
+
+            # Create entry <- string_var
             entry = tk.Entry(
-                frame_manual_grid, width=10,
-                textvariable=string_var,
-                font=skin().font.answer,
-                bd=0, **skin().fg_and_bg)
-            # Colory entry
+                frame_manual_grid, width=10, font=skin().font.answer,
+                bd=0, **skin().fg_and_bg,
+                textvariable=string_var)
+            # Color entry
             if vars(get_root().header)[key] == value:
                 entry["bg"] = "#ff9090"
-            # Bind Return
+            # Bind entry Return
             entry.bind(
                 '<Return>', lambda _: self.set_image_parameters())
 
-            # Grid entry
+            # Grid entry && Save
             entry.grid(row=row, column=1, sticky="NSEW")
-
-            # Init variable
-            if len(str(vars(get_root().header)[key])) > 6:
-                # Cut
-                string_var.set("%.5f" % float(vars(get_root().header)[key]))
-            else:
-                string_var.set(vars(get_root().header)[key])
-
-            # Dirty save
             self.image_parameter_tkvar_dic[key] = string_var
             self.image_parameter_entry_dic[key] = entry
 
-
+        # Show me
         self.init_will_toogle(visible=True, add_title=False)
 
 
