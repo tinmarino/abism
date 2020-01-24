@@ -37,11 +37,12 @@ class LeftFrame(tk.Frame):
 
         # Add AnswerFrame
         root.frame_answser = AnswerFrame(text_paned, label_text='Result')
+
         # Create Buttons with callback to preceding
-        button_frame = ButtonFrame(self)
+        root.frame_button = ButtonFrame(self)
 
         # Pack buttons and pane
-        button_frame.pack(side=tk.TOP, expand=0, fill=tk.X)
+        root.frame_button.pack(side=tk.TOP, expand=0, fill=tk.X)
         text_paned.pack(side=tk.TOP, expand=1, fill=tk.BOTH)
 
 
@@ -144,8 +145,6 @@ class LabelFrame(TextFrame):
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
-
-
     def update_label(self):
         """Called later, display what I retrived from header
         warning: expand not working well
@@ -155,14 +154,6 @@ class LabelFrame(TextFrame):
         Nx x Ny x Nz
         WCS detected or not
         """
-
-        # Image parameters
-        if "ManualFrame" in vars(G):
-            for i in G.image_parameter_list:
-                vars(G.tkvar)[i[1]].set(vars(get_root().image.header)[i[1]])
-            # to restore the values in the unclosed ImageParameters Frame
-            self.set_image_parameters()
-
         # Declare list of label (text, properties)
         text_and_props = []
 
@@ -185,7 +176,7 @@ class LabelFrame(TextFrame):
             lbl = ''
 
         # Get Size : Nx * Ny * Nz
-        shape = list(get_root().image.im0.shape[::-1])  # reverse, inverse, list order
+        shape = list(get_root().image.im0.shape[::-1])
         if "NAXIS3" in get_root().header.header.keys():
             shape.append(get_root().header.header["NAXIS3"])
             lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])
@@ -242,25 +233,17 @@ class LabelFrame(TextFrame):
         # Create what it takes
         self.init_after()
 
-    def set_image_parameters(self):
-        """Set imageparameter, labels"""
-        # Parse
-        for i in G.image_parameter_list:
-            vars(get_root().header)[i[1]] = float(vars(G.tkentry)[i[1]].get())
-            # COLOR
-            if vars(get_root().header)[i[1]] == i[2]:
-                vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
-            else:
-                vars(G.tkentry)[i[1]]["bg"] = "#ffffff"
-
-        # Show
-        self.update_label()
-
 
 class OptionFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
+        # Image parameter
+        self.see_image_parameter = False
+        self.frame_image_parameter = None
+        self.image_parameter_entry_dic = {}
+        self.image_parameter_tkvar_dic = {}
+
         # Manual cut image
         self.see_manual_cut = False
         self.frame_manual_cut = None
@@ -276,6 +259,7 @@ class OptionFrame(TextFrame):
 
         self.init_after()
 
+    @staticmethod
     def get_image_parameter_list():
         return [
             [u'Wavelength* [\u03BCm]:', 'wavelength', float('nan')],
@@ -286,63 +270,102 @@ class OptionFrame(TextFrame):
             ["Exposure time [sec]: ", 'exptime', float('nan')],
             ]
 
-        ##########
-        # INITIATE THE FRAME, change button color
-        # TODO old trick to check for color, change it
-        if G.bu_manual['background'] == skin().color.parameter1:
-            # Grid new frame
-            G.ManualFrame = tk.Frame(self, **skin().frame_dic)
-            G.ManualFrame.grid(sticky='nsew')
+    def toogle_image_parameters(self):
+        self.see_image_parameter = not self.see_image_parameter
+        if self.see_image_parameter:
+            self.open_image_parameter()
+            get_root().frame_button.config_button_image_less()
+        else:
+            self.close_image_parameter()
+            get_root().frame_button.config_button_image_more()
 
-            # TITEL
-            tl = TitleLabel(G.ManualFrame, text='Parameters')
-            tl.pack(side=tk.TOP, anchor="w")
-            frame_manual_grid = tk.Frame(G.ManualFrame)
-            frame_manual_grid.pack(expand=0, fill=tk.BOTH, side=tk.TOP)
-            frame_manual_grid.columnconfigure(0, weight=1)
-            frame_manual_grid.columnconfigure(1, weight=1)
+    def open_image_parameter(self):
+        # Grid new frame
+        self.frame_image_parameter = tk.Frame(self, **skin().frame_dic)
+        self.frame_image_parameter.grid(sticky='nsew')
 
-            ###################
-            # THE ENTRIES (it is before the main dish )
-            row = 0
-            for i in G.image_parameter_list:
-                l = tk.Label(frame_manual_grid, text=i[0], font=skin().font.answer,
-                          justify=tk.LEFT, anchor="nw", **skin().fg_and_bg)
-                l.grid(row=row, column=0, sticky="NSEW")
-                vars(G.tkvar)[i[1]] = tk.StringVar()
-                vars(G.tkentry)[i[1]] = tk.Entry(frame_manual_grid, width=10, textvariable=vars(
-                    G.tkvar)[i[1]], font=skin().font.answer,
-                    bd=0, **skin().fg_and_bg)
-                if vars(get_root().header)[i[1]] == i[2]:
-                    vars(G.tkentry)[i[1]]["bg"] = "#ff9090"
-                vars(G.tkentry)[i[1]].grid(row=row, column=1, sticky="NSEW")
-                vars(G.tkentry)[i[1]].bind(
-                    '<Return>',
-                    lambda _: get_root().frame_label.set_image_parameters)
-                if len(str(vars(get_root().header)[i[1]])) > 6:  # not to long for display
-                    vars(G.tkvar)[i[1]].set("%.5f" % float(vars(get_root().header)[i[1]]))
-                else:
-                    vars(G.tkvar)[i[1]].set(vars(get_root().header)[i[1]])
-                row += 1
+        # Pack title
+        tl = TitleLabel(self.frame_image_parameter, text='Parameters')
+        tl.pack(side=tk.TOP, anchor="w")
 
-            # EXPAND
-            G.bu_manual['background'] =  skin().color.parameter2
-            G.bu_manual['text'] = u'\u25b4 ' + 'ImageParameters'
+        # Pack grid frame
+        frame_manual_grid = tk.Frame(self.frame_image_parameter)
+        frame_manual_grid.pack(expand=0, fill=tk.BOTH, side=tk.TOP)
+        frame_manual_grid.columnconfigure(0, weight=1)
+        frame_manual_grid.columnconfigure(1, weight=1)
 
-            self.init_will_toogle(visible=True, add_title=False)
+        ###################
+        # TODO clean that !!!, should not be so hard
+        # THE ENTRIES (it is before the main dish )
+        for row, (label, key, value) in enumerate(self.get_image_parameter_list()):
+            # Label
+            l = tk.Label(
+                frame_manual_grid, text=label, font=skin().font.answer,
+                justify=tk.LEFT, anchor="nw", **skin().fg_and_bg)
+            l.grid(row=row, column=0, sticky="NSEW")
 
-        elif G.bu_manual['background'] == skin().color.parameter2:  # destroy manualFrame  and save datas
+            # Entry
+            string_var = tk.StringVar()
+            entry = tk.Entry(
+                frame_manual_grid, width=10,
+                textvariable=string_var,
+                font=skin().font.answer,
+                bd=0, **skin().fg_and_bg)
+            # Colory entry
+            if vars(get_root().header)[key] == value:
+                entry["bg"] = "#ff9090"
+            # Bind Return
+            entry.bind(
+                '<Return>', lambda _: self.set_image_parameters())
 
-            G.ManualFrame.destroy()
-            del G.ManualFrame
-            if G.in_arrow_frame == "param_title":
-                G.arrtitle.destroy()
-                G.in_arrow_frame = None
-            # Remove MoreFrame
-            G.all_frame = [x for x in G.all_frame if x != "G.ManualFrame"]
-            G.bu_manual["background"] =  skin().color.parameter1
-            G.bu_manual["text"] = u'\u25be ' + 'ImageParameters'
-            self.toogle(visible=False)
+            # Grid entry
+            entry.grid(row=row, column=1, sticky="NSEW")
+
+            # Init variable
+            if len(str(vars(get_root().header)[key])) > 6:
+                # Cut
+                string_var.set("%.5f" % float(vars(get_root().header)[key]))
+            else:
+                string_var.set(vars(get_root().header)[key])
+
+            # Dirty save
+            self.image_parameter_tkvar_dic[key] = string_var
+            self.image_parameter_entry_dic[key] = entry
+
+
+        self.init_will_toogle(visible=True, add_title=False)
+
+
+    def close_image_parameter(self):
+        self.frame_image_parameter.destroy()
+        self.toogle(visible=False)
+
+
+    def init_image_parameters(self):
+        """Read from header dictionary"""
+        for text, key in self.get_image_parameter_list():
+            self.image_parameter_tkvar_dic[key].set(vars(get_root().image.header)[key])
+        self.set_image_parameters()
+
+
+    def set_image_parameters(self):
+        """Set imageparameter, labels"""
+        log(0, "New image parameters:")
+        for label, key, badvalue in self.get_image_parameter_list():
+            value = float(self.image_parameter_entry_dic[key].get())
+            # Change header field
+            vars(get_root().header)[key] = value
+
+            # Log (this is important)
+            log(0, f'{value:10.4f}  <-  {label}')
+            # COLOR
+            if vars(get_root().header)[key] == badvalue:
+                self.image_parameter_entry_dic[key]["bg"] = "#ff9090"
+            else:
+                self.image_parameter_entry_dic[key]["bg"] = "#ffffff"
+
+        # Show
+        get_root().frame_label.update_label()
 
 
     def toogle_manual_cut(self):
@@ -590,11 +613,6 @@ class OptionFrame(TextFrame):
 
         self.frame_more_analysis.destroy()
 
-        # destroy arrow
-        if G.in_arrow_frame == "title_more":
-            G.arrtitle.destroy()
-        G.in_arrow_frame = None
-
 
     def is_more_analysis_visible(self):
         return self.see_more_analysis
@@ -698,13 +716,21 @@ class ButtonFrame(tk.Frame):
 
         # Create Expand Image Parameter
         opts.update({'background':skin().color.parameter1})
-        G.bu_manual = tk.Button(
+        self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
-            command=get_root().frame_option.ask_image_parameters, **opts)
+            command=get_root().frame_option.toogle_image_parameters, **opts)
 
         # Grid
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         bu_quit.grid(row=0, column=0, sticky="nsew")
         bu_restart.grid(row=0, column=1, sticky="nsew")
-        G.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
+        self.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+    def config_button_image_less(self):
+        self.bu_manual['background'] =  skin().color.parameter2
+        self.bu_manual['text'] = u'\u25b4 ImageParameters'
+
+    def config_button_image_more(self):
+        self.bu_manual['background'] =  skin().color.parameter1
+        self.bu_manual['text'] = u'\u25be ImageParameters'
