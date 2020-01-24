@@ -337,23 +337,9 @@ def RectangleClick(eclick, erelease):
     return
 
 
-def ManualRectangle(eclick, erelease):
-    image_click = eclick.xdata, eclick.ydata
-    image_release = erelease.xdata, erelease.ydata
-    # we inverse to get x,y like row,column
-    r = image_click[1], image_release[1], image_click[0], image_release[0]
-    r = IF.Order4(r)
-    if G.rect_phot_bool:
-        log(0, IF.RectanglePhot(get_root().image.im0, r))
-    log(9, '----> WindowRoot.py, ManualRectangle', r)
-    if G.bu_noise_manual['background'] == 'green':
-        G.r = r
-    elif G.bu_noise_manual['background'] == 'blue':
-        G.remember_r.append(r)
-    G.rect_phot_bool = 0
-    #############################
-    ## MULTIPROCESSING TOOLS    #
-    #############################
+#############################
+## MULTIPROCESSING TOOLS    #
+#############################
 
 
 def MultiprocessCaller():
