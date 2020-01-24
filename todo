@@ -28,6 +28,7 @@
 * frame_plot and frem_text perfect (no G)
 * SthrelImage discirminator: Sthrel is just a wrapper, join them ?
 * frame_tex, base class has getten big
+* put image info in abism state (and not root) 
 
 # Latter
 

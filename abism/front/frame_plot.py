@@ -185,6 +185,8 @@ class ImageFrame(PlotFrame):
         self.init_label("Image")
         self.init_canvas(self._fig)
 
+        self.frame_cube = None
+
 
     def extend_matplotlib(self):
         """Enable scroll with mouse"""
@@ -444,56 +446,62 @@ class ImageFrame(PlotFrame):
     def Cube(self):
         """Prepare Cube buttons"""
         # Try to destroy if not a cube
-        if not get_root().image.is_cube:
-            try:
-                G.CubeFrame.destroy()
-            except BaseException:
-                pass
         # Create a cube interface else
+        if not get_root().image.is_cube:
+            self.close_cube()
         else:
-            # FRAME
-            G.CubeFrame = tk.Frame(G.ButtonFrame, **skin().frame_dic)
-            G.CubeFrame.pack(side=tk.TOP, expand=0, fill=tk.X)
+            self.open_cube()
 
-            # CUBE IMAGE SELECTION
-            # LEFT
-            G.bu_cubel = tk.Button(G.CubeFrame, text='<-',
-                                command=lambda: self.CubeDisplay("-"), **skin().button_dic)
+    def close_cube(self):
+        try:
+            self.frame_cube.destroy()
+        except BaseException:
+            pass
 
-            # ENTRY
-            G.cube_var = tk.StringVar()
-            G.cube_entry = tk.Entry(
-                G.CubeFrame, width=10, justify=tk.CENTER,
-                textvariable=G.cube_var, bd=0, **skin().fg_and_bg)
-            G.cube_var.set(get_root().image.cube_num + 1)
-            G.cube_entry.bind("<Return>", lambda x: self.CubeDisplay("0"))
+    def open_cube(self):
+        # Pack Frame
+        self.frame_cube = tk.Frame(
+            get_root().paned_text.frame_button, **skin().frame_dic)
+        self.frame_cube.pack(side=tk.TOP, expand=0, fill=tk.X)
+        for i in range(3):
+            self.frame_cube.columnconfigure(i, weight=1)
+        lt = TitleLabel(self.frame_cube, text="Cube Number")
+        lt.grid(row=0, column=0, columnspan=3, sticky="w")
 
-            # RIGHT
-            G.bu_cuber = tk.Button(
-                G.CubeFrame, text='->',
-                command=lambda: self.CubeDisplay("+"), **skin().button_dic)
+        # Define tk variable
+        int_var = tk.IntVar()
+        int_var.set(get_root().image.cube_num + 1)
 
-            # GRID
-            for i in range(3):
-                G.CubeFrame.columnconfigure(i, weight=1)
-            lt = TitleLabel(G.CubeFrame, text="Cube Number")
-            lt.grid(row=0, column=0, columnspan=3, sticky="w")
-            G.bu_cubel.grid(row=1, column=0, sticky="nsew")
-            G.cube_entry.grid(row=1, column=1, sticky="nsew")
-            G.bu_cuber.grid(row=1, column=2, sticky="nsew")
+        # callback
+        def callback(i_click):
+            """Callback for cube button + -"""
+            if i_click == 0:
+                get_root().image.cube_num = int_var.get()
+            else:
+                get_root().image.cube_num += i_click
 
+            int_var.set(get_root().image.cube_num + 1)
+            self.draw_image(new_fits=False)
 
-    def CubeDisplay(self, stg_click):
-        """Callback for cube button + -"""
-        if stg_click == '+':
-            get_root().image.cube_num += 1
-        elif stg_click == '-':
-            get_root().image.cube_num -= 1
-        elif stg_click == '0':
-            get_root().image.cube_num = float(G.cube_var.get())
+        # Button left
+        bu_left = tk.Button(
+            self.frame_cube, text='<-',
+            command=lambda: callback(-1), **skin().button_dic)
+        bu_left.grid(row=1, column=0, sticky="nsew")
 
-        G.cube_var.set(get_root().image.cube_num + 1)
-        self.draw_image(new_fits=False)
+        # Entry
+        entry = tk.Entry(
+            self.frame_cube, width=10, justify=tk.CENTER,
+            textvariable=int_var, bd=0, **skin().fg_and_bg)
+        entry.bind("<Return>", lambda x: callback(0))
+        entry.grid(row=1, column=1, sticky="nsew")
+
+        # Button right
+        bu_right = tk.Button(
+            self.frame_cube, text='->',
+            command=lambda: callback(1), **skin().button_dic)
+        bu_right.grid(row=1, column=2, sticky="nsew")
+
 
 
 class FitFrame(PlotFrame):
