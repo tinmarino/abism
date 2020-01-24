@@ -18,22 +18,17 @@ from abism.util import log, get_root, get_state, DotDic
 
 class ImageStat(DotDic):
     """Container mean, median, rms, min, max, number_count, sum"""
-    # pylint: disable=attribute-defined-outside-init
     def __init__(self, image):
-        super().__init__(self)
-        self.image = image
+        # Sort
+        if image.sort is None:
+            image.make_sort()
+        sort = image.sort
 
-    def init_all(self):
-        """Returns self"""
-        if self.image.sort is None:
-            self.image.make_sort()
-        sort = self.image.sort
+        self.mean = np.mean(image.im0)
 
-        self.mean = np.mean(self.image.im0)
+        self.rms = np.std(image.im0)
 
-        self.rms = np.std(self.image.im0)
-
-        self.number_count = len(self.image.im0.flatten())
+        self.number_count = len(image.im0.flatten())
 
         # Median
         middle = (self.number_count-1) // 2
@@ -48,8 +43,6 @@ class ImageStat(DotDic):
 
         self.sum = self.mean * self.number_count
 
-        return self
-
 
 
 class ImageInfo():
@@ -58,12 +51,27 @@ class ImageInfo():
         - Maybe I should put it in AbismState but ...
         - that does not change anything anyway
     """
-    def __init__(self):
+    def __init__(self, array):
+        """np.array of the image
+        Warning, it NaN values are zeroed
         """
-        image_name
-        image_click = (0., 0.)
-        image_release = (0., 0.)
-        """
+        self.im0 = array  # np.array the image !!
+
+        # Sorted image for cut and histograms
+        self.sort = self.im0.flatten()
+        self.sort.sort()
+
+        # Get statistics
+        self.stat = ImageStat(self)
+
+        # Remove nan -> they cause errors
+        # TODO pretty mask ... takes time
+        self.im0[np.isnan(self.im0)] = 0
+
+        # Metadata
+        self.hdulist = None  # From fits.open
+        self.header = None  # shortcut
+
         # Current image filepath
         self.name = ''  # Filename
         self.is_cube = False  # Cube it is not
@@ -73,41 +81,6 @@ class ImageInfo():
 
         self.bpm = None  # Bad Pixel mask array
         self.bpm_name = None  # Bad Pixel Mask filepath
-
-        # Now we speak
-        self.hdulist = None  # From fits.open
-        self.header = None  # shortcut
-        self.im0 = None  # np.array the image !!
-        self.sort = None  # Sorted image for cut and histograms
-        self.stat = ImageStat(self)
-
-
-
-    def make_sort(self):
-        self.sort = self.im0.flatten()
-        self.sort.sort()
-
-
-    def set_array(self, array):
-        # Remove nan -> they cause errors
-        # TODO pretty mask ... takes time
-        array[np.isnan(array)] = 0
-
-        # Save im0
-        self.im0 = array
-
-        self.make_sort()
-
-        # Statistics
-        self.stat.init_all()
-
-
-    @staticmethod
-    def from_array(array):
-        """Builder"""
-        image = ImageInfo()
-        image.set_array(array)
-        return image
 
 
     @staticmethod
@@ -127,14 +100,12 @@ class ImageInfo():
         except FileNotFoundError:
             return None
 
-        image = ImageInfo()
+        # Ctor from array
+        image = ImageInfo(hdulist[0].data)
 
         # Get <- Io
         image.name = filename
         image.hdulist = hdulist
-
-        # Ctor from array
-        image.set_array(hdulist[0].data)
 
         # Parse header
         image.header = parse_header(image.hdulist[0].header)
@@ -381,4 +352,4 @@ def get_array_stat(grid):
     """Helper for readability
     Get statistic dicitonary from a grid
     """
-    return ImageInfo.from_array(grid).get_stat()
+    return ImageInfo(grid).get_stat()

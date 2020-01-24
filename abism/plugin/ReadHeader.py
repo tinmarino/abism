@@ -76,10 +76,10 @@ class Header:
         self.header = header
 
         # Strehl
-        self.diameter = 99.  # m
-        self.wavelength = 99.  # um
-        self.obstruction = 99.  # % area
-        self.pixel_scale = 99.   # arsec/pixel
+        self.diameter = float('nan')  # m
+        self.wavelength = float('nan')  # um
+        self.obstruction = float('nan')  # % area
+        self.pixel_scale = float('nan')   # arsec/pixel
 
         self.exptime = 1.     # sec
         self.zpt = 0.

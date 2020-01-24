@@ -292,8 +292,7 @@ def Background(grid):
 
         bol_a = bol_o ^ bol_i
 
-        iminfo_cut = ImageInfo.from_array(image_cut[bol_a])
-        iminfo_cut.stat.init_all()
+        iminfo_cut = ImageInfo(image_cut[bol_a])
         tmp = iminfo_cut.sky()
         dic['rms'] = tmp["rms"]
         dic['my_background'] = tmp["mean"]
@@ -827,8 +826,7 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     back, number_back = np.sum(obj.array[bol_a]), len(obj.array[bol_a])
 
     # PHOT and back
-    iminfo_cut = ImageInfo.from_array(obj.array[bol_a])
-    iminfo_cut.stat.init_all()
+    iminfo_cut = ImageInfo(obj.array[bol_a])
     res["background_dic"] = iminfo_cut.sky()
     res["my_background"] = res["background_dic"]["mean"]
     res["phot"] = np.sum(obj.array[bol_e])

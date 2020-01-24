@@ -208,14 +208,16 @@ class LabelFrame(TextFrame):
         text_and_props.append((lbl, {}))
 
         # Header reads Strehl variables ?
-        bolt = get_root().header.diameter == 99.
-        bolt = bolt or get_root().header.wavelength == 99.
-        bolt = bolt or get_root().header.obstruction == 99.
-        bolt = bolt or get_root().header.pixel_scale == 99.
+        from math import isnan
+        bolt = isnan(get_root().header.diameter)
+        bolt = bolt or isnan(get_root().header.wavelength)
+        bolt = bolt or isnan(get_root().header.obstruction)
+        bolt = bolt or isnan(get_root().header.pixel_scale)
 
         if bolt:
             lbl = "WARNING: some parameters not found"
             text_and_props.append((lbl, {"fg": "red"}))
+            get_root().frame_option.open_image_parameter()
         else:
             lbl = "Parameters read from header"
             text_and_props.append((lbl, {"fg": "blue"}))
