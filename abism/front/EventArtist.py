@@ -496,21 +496,3 @@ class Profile:
         # self.fig.canvas.draw_idle()
 
     # def InitProfile(self,event):
-
-
-def example1():
-    figure = plt.figure()
-    ax = figure.add_subplot(111)
-
-    # SHOW
-    x = np.arange(1, 100)
-    y = np.arange(1, 100)
-    Y, X = np.meshgrid(y, x)
-    R = 0*X
-    bol = (X > 10) & (X < 20) & (Y > 60) & (Y < 70)
-    R[bol] = 1
-    plt.imshow(R)
-
-    Event(figure, ax, array=R, type="annulus")
-
-    return
