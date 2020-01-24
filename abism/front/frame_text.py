@@ -15,8 +15,6 @@ from abism.front.util_front import photo_up, photo_down, skin, \
 
 from abism.util import log, get_root, quit_process, restart, get_state
 
-# TODO remove
-import abism.front.util_front as G
 
 
 class LeftFrame(tk.Frame):
@@ -69,7 +67,7 @@ class TextFrame(tk.Frame):
         self._index = index  # for sash
 
     def init_after(self, add_title=True):
-        """Place a last widget"""
+        """Place Button, Label and last widget"""
         # Place button to resize
         if self._index is not None:
             self._arrow = tk.Button(
@@ -80,6 +78,11 @@ class TextFrame(tk.Frame):
         if add_title:
             TitleLabel(self, text=self._label_text).place(x=0, y=0)
 
+        # Place last widget
+        self.update_last_widget()
+
+    def update_last_widget(self):
+        """Put last widget at end"""
         # Last widget
         if self._last is not None:
             self._last.destroy()
@@ -97,6 +100,12 @@ class TextFrame(tk.Frame):
             self._see_me = visible
         else:
             self._see_me = not self._see_me
+
+        self.update_sash()
+
+    def update_sash(self):
+        """Update sash position"""
+        # self.update_last_widget()
 
         # Log before move
         log(3, 'Toggle sash: nb=', self._index,
@@ -340,7 +349,7 @@ class OptionFrame(TextFrame):
 
     def init_image_parameters(self):
         """Read from header dictionary"""
-        for text, key in self.get_image_parameter_list():
+        for _, key in self.get_image_parameter_list():
             self.image_parameter_tkvar_dic[key].set(vars(get_root().image.header)[key])
         self.set_image_parameters()
 
@@ -597,8 +606,8 @@ class OptionFrame(TextFrame):
             command=self.toogle_more_analysis, **skin().button_dic)
         bu_close.grid(column=0, columnspan=2)
 
-        # Redraw
-        get_root().frame_option.init_will_toogle(visible=True, add_title=False)
+        # Show me
+        self.init_will_toogle(visible=True, add_title=False)
 
 
     def close_more_analysis(self):
@@ -609,6 +618,9 @@ class OptionFrame(TextFrame):
         self.close_manual_background()
 
         self.frame_more_analysis.destroy()
+
+        # Refresh
+        self.update_sash()
 
 
     def is_more_analysis_visible(self):
@@ -622,7 +634,6 @@ class OptionFrame(TextFrame):
             self.open_manual_background()
         else:
             self.close_manual_background()
-
 
     def open_manual_background(self):
         get_state().noise_type = "manual"
@@ -663,10 +674,13 @@ class OptionFrame(TextFrame):
             command=self.close_manual_background)
         button.grid(row=1, column=0, columnspan=2)
 
+        # Show Me
+        self.init_will_toogle(visible=True, add_title=False)
 
     def close_manual_background(self):
         if not self.see_manual_background: return
         self.frame_manual_background.destroy()
+        self.update_sash()
 
 
 

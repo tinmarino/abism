@@ -137,7 +137,7 @@ def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
 
     ######
     # DICTIONARY , backup and star improving
-    do_improve = not get_state().b_aniso and not get_state.fit_type == 'None'
+    do_improve = not get_state().b_aniso and not get_state().fit_type == 'None'
     if do_improve:
         try:
             res[0]["spread_y"], res[0]["spread_x"] = res[0]["spread"], res[0]["spread"]
