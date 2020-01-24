@@ -2,8 +2,6 @@
     The Tkinter Frame using matplotlib
     TODO stop putting all in G
 """
-import re
-
 # Module
 import tkinter as tk
 from matplotlib.figure import Figure
@@ -144,6 +142,7 @@ class PlotFrame(tk.Frame):
         return self._toolbar
 
     def is_toolbar_active(self):
+        # pylint: disable = protected-access
         return self._toolbar._active in ('PAN', 'ZOOM')
 
     def redraw(self):
@@ -281,8 +280,9 @@ class ImageFrame(PlotFrame):
     def add_contour(self):
         tmp = get_root().image.get_stat()
         mean, rms = tmp["mean"], tmp["rms"]
-        c0, c1, c2, c3, c4, c5 = mean, mean + rms, mean + 2 * \
-            rms, mean + 3 * rms, mean + 4 * rms, mean + 5 * rms
+
+        # Get contour 2 and 5 rms
+        c2, c5 = mean + 2 * rms, mean + 5 * rms
 
         im0 = get_root().image.im0.astype(float32)
         self.contours = self._fig.axes[0].contour(
@@ -352,10 +352,10 @@ class ImageFrame(PlotFrame):
         self._cbar.cbar.patch.figure.canvas.draw()
         self.redraw()
 
-        # Try to draw  result frame
+        # Try to draw result frame
         try:
             for ax in get_root().frame_result.get_figure().axes:
-                if not len(ax.images): continue
+                if not ax.images: continue
                 mappable = ax.images[0]
                 mappable.set_norm(mynorm)
                 mappable.set_cmap(cmap)
