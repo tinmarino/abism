@@ -86,6 +86,9 @@ class RootWindow(tk.Tk):
         # Alias Helper
         self.header = self.image.header
 
+        # Draw Cube button
+        self.frame_button.toogle_cube()
+
         # Redraw
         self.frame_image.draw_image()
 

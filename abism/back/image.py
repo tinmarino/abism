@@ -55,18 +55,7 @@ class ImageInfo():
         """np.array of the image
         Warning, it NaN values are zeroed
         """
-        self.im0 = array  # np.array the image !!
-
-        # Sorted image for cut and histograms
-        self.sort = self.im0.flatten()
-        self.sort.sort()
-
-        # Get statistics
-        self.stat = ImageStat(self)
-
-        # Remove nan -> they cause errors
-        # TODO pretty mask ... takes time
-        self.im0[np.isnan(self.im0)] = 0
+        self.set_array(array)
 
         # Metadata
         self.hdulist = None  # From fits.open
@@ -81,6 +70,22 @@ class ImageInfo():
 
         self.bpm = None  # Bad Pixel mask array
         self.bpm_name = None  # Bad Pixel Mask filepath
+
+
+    def set_array(self, array):
+        """Array info called from init and cube chage"""
+        self.im0 = array  # np.array the image !!
+
+        # Sorted image for cut and histograms
+        self.sort = self.im0.flatten()
+        self.sort.sort()
+
+        # Get statistics
+        self.stat = ImageStat(self)
+
+        # Remove nan -> they cause errors
+        # TODO pretty mask ... takes time
+        self.im0[np.isnan(self.im0)] = 0
 
 
     @staticmethod
@@ -100,8 +105,10 @@ class ImageInfo():
         except FileNotFoundError:
             return None
 
-        # Ctor from array
-        image = ImageInfo(hdulist[0].data)
+        if len(hdulist[0].data.shape) >= 3:
+            image = ImageInfo.from_cube(hdulist)
+        else:  # including image not a cube, we try to destroy cube frame
+            image = ImageInfo.from_2D(hdulist)
 
         # Get <- Io
         image.name = filename
@@ -110,7 +117,7 @@ class ImageInfo():
         # Parse header
         image.header = parse_header(image.hdulist[0].header)
 
-        # BPM
+        # BPM TODO nothing to be here
         if image.bpm_name is not None:
             hdu = fits.open(image.bpm_name)
             image.bpm = hdu[0].data
@@ -118,6 +125,35 @@ class ImageInfo():
             image.bpm = 0 * image.im0 + 1
 
         return image
+
+
+    @staticmethod
+    def from_2D(hdulist):
+        image = ImageInfo(hdulist[0].data)
+        image.is_cube = False
+        return image
+
+
+    @staticmethod
+    def from_cube(hdulist):
+        """ TODO call image_frame.Cube(), to create or destroy
+        Here i got deleted 1bb47dccf2
+        """
+        # Dirty cut first dim for nasa sample
+        if len(hdulist[0].data.shape) > 3:
+            hdulist[0].data = hdulist[0].data[0]
+
+        # we start with the last index
+        cube_num = hdulist[0].data.shape[0] - 1
+        image = ImageInfo(hdulist[0].data[cube_num])
+        image.is_cube = True
+        image.cube_num = cube_num
+        return image
+
+
+    def update_cube(self):
+        im0 = self.hdulist[0].data[self.cube_num]
+        self.set_array(im0)
 
 
     def get_stat(self):
@@ -236,30 +272,6 @@ class ImageInfo():
         grid = grid * (maxc - minc) + minc
 
         return grid
-
-
-    def CubeRefactorMe(self):
-        if len(self.hdulist[0].data.shape) == 3:
-            if new_fits:
-                # we start with the last index
-                self.cube_num = self.hdulist[0].data.shape[0] - 1
-            if abs(self.cube_num) < len(self.hdulist[0].data[:, 0, 0]):
-                if self.is_cube == 0:  # to load cube frame
-                    self.is_cube = 1
-                    selfFrame.Cube()
-                self.from_array(self.hdulist[0].data[self.cube_num])
-
-            else:
-                self.cube_num = self.hdulist[0].data.shape[0] - 1
-                log(1, '\nERROR InitImage@WindowRoot.py :' + self.name
-                    + ' has no index ' + str(self.cube_num)
-                    + 'Go back to the last cube index :'
-                    + str(self.cube_num) + "\n")
-            G.cube_var.set(int(self.cube_num + 1))
-
-        else:  # including image not a cube, we try to destroy cube frame
-            self.is_cube = False
-            get_root().frame_image.Cube()
 
 
     def sky(self, dic=None):

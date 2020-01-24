@@ -443,67 +443,6 @@ class ImageFrame(PlotFrame):
                 xy=east_point, textcoords=coord_type, color='red')
 
 
-    def Cube(self):
-        """Prepare Cube buttons"""
-        # Try to destroy if not a cube
-        # Create a cube interface else
-        if not get_root().image.is_cube:
-            self.close_cube()
-        else:
-            self.open_cube()
-
-    def close_cube(self):
-        try:
-            self.frame_cube.destroy()
-        except BaseException:
-            pass
-
-    def open_cube(self):
-        # Pack Frame
-        self.frame_cube = tk.Frame(
-            get_root().paned_text.frame_button, **skin().frame_dic)
-        self.frame_cube.pack(side=tk.TOP, expand=0, fill=tk.X)
-        for i in range(3):
-            self.frame_cube.columnconfigure(i, weight=1)
-        lt = TitleLabel(self.frame_cube, text="Cube Number")
-        lt.grid(row=0, column=0, columnspan=3, sticky="w")
-
-        # Define tk variable
-        int_var = tk.IntVar()
-        int_var.set(get_root().image.cube_num + 1)
-
-        # callback
-        def callback(i_click):
-            """Callback for cube button + -"""
-            if i_click == 0:
-                get_root().image.cube_num = int_var.get()
-            else:
-                get_root().image.cube_num += i_click
-
-            int_var.set(get_root().image.cube_num + 1)
-            self.draw_image(new_fits=False)
-
-        # Button left
-        bu_left = tk.Button(
-            self.frame_cube, text='<-',
-            command=lambda: callback(-1), **skin().button_dic)
-        bu_left.grid(row=1, column=0, sticky="nsew")
-
-        # Entry
-        entry = tk.Entry(
-            self.frame_cube, width=10, justify=tk.CENTER,
-            textvariable=int_var, bd=0, **skin().fg_and_bg)
-        entry.bind("<Return>", lambda x: callback(0))
-        entry.grid(row=1, column=1, sticky="nsew")
-
-        # Button right
-        bu_right = tk.Button(
-            self.frame_cube, text='->',
-            command=lambda: callback(1), **skin().button_dic)
-        bu_right.grid(row=1, column=2, sticky="nsew")
-
-
-
 class FitFrame(PlotFrame):
     """Frame with the curve of the fit (1d)"""
     def __init__(self, parent):
