@@ -26,6 +26,7 @@
 
 * Read_Header to BackEnd (see deps_2.png)
 * put image info in abism state (and not root) 
+* rename image -> image_info
 
 # Refactor
 

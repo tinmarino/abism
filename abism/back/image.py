@@ -65,12 +65,13 @@ class ImageInfo():
         self.name = ''  # Filename
         self.is_cube = False  # Cube it is not
         self.cube_num = -1
-        self.click = (0., 0.)  # Mouse click position
-        self.release = (0., 0.)  # You guess ?
 
         self.bpm = None  # Bad Pixel mask array
         self.bpm_name = None  # Bad Pixel Mask filepath
 
+        # TODO remove (has been classified)
+        self.click = (0., 0.)  # Mouse click position
+        self.release = (0., 0.)  # You guess ?
 
     def set_array(self, array):
         """Array info called from init and cube chage"""

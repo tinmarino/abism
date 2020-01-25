@@ -182,13 +182,16 @@ class AbismState(DotDic):
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}
 
+        # The last pick string, to dissconnect
+        # TODO better be an object
+        self.pick_type = 'one'
+        self.pick_old = ''
+
         # Type
         self.fit_type = get_fit_list()[1]
-        self.pick_type = 'one'
         self.phot_type = 'elliptical_aperture'
         self.noise_type = 'elliptical_annulus'
         self.aperture_type = 'fit'
-        self.pick_old = ''
         self.b_aniso = True
         self.b_same_psf = True
         self.b_same_center = True

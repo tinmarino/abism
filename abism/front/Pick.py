@@ -2,36 +2,40 @@
     Pick star and call back
 """
 import matplotlib
-import numpy as np  # for a readind lst like an array
+import numpy as np
+from abc import ABC, abstractmethod
 
-from abism.front import artist  # draw an ellipse
+from abism.front import artist
+from abism.front.matplotlib_extension import center_handler
 from abism.front import AnswerReturn as AR
 
-
-from abism.front.matplotlib_extension import center_handler
-from abism.front import util_front as G
-
 from abism.back import Strehl
-from abism.back import ImageFunction as IF
 import abism.back.util_back as W
 
 from abism.util import log, get_root, get_state
 
+# TODO remove
+from abism.back import ImageFunction as IF
+from abism.front import util_front as G
 
-def RefreshPick(label):  # This is the only callled routine
-    # if label != "" : G.connect_menu["text"] = u'\u25be ' +   label # remove the little arrow
+
+pick = None
+
+# TODO rewrite totally at end of refactoring
+def RefreshPick(label):
+    global pick
+    """The exported routine"""
     """In function of the name of G.connect_var, we call the good one.
     Disconnect old pick event and connect the new one """
     lst = np.array([
-        ["PickOne", "one", "PickOne"],
-        ["PickMany", "many", "PickMany"],
-        ["Binary Fit", "binary", "Binary"],
-        ["Tight Binary", "tightbinary", "TightBinary"],
-        ["Profile", "profile", "Profile"],
-        ["Stat", "stat", "StatPick"],
-        ["Annulus", "annulus", "PickAnnulus"],
-        ["Ellipse", "ellipse", "PickEllipse"],
-        ["No Pick", "nopick", "NoPick"],
+        ["PickOne", "one", PickOne],
+        ["Binary Fit", "binary", Binary],
+        ["Tight Binary", "tightbinary", TightBinary],
+        ["Profile", "profile", Profile],
+        ["Stat", "stat", StatPick],
+        ["Annulus", "annulus", PickAnnulus],
+        ["Ellipse", "ellipse", PickEllipse],
+        ["No Pick", "nopick", NoPick],
     ])
 
     get_state().pick_old = get_state().pick_type
@@ -41,20 +45,98 @@ def RefreshPick(label):  # This is the only callled routine
     # I don't know why
 
 
-    # TODO di I break something, yes the string_var aut
+    # TODO di I break something,
+    # <-- yes the string_var aut
     # if label != "stat" or label != "profile":
     #     G.cu_pick.set(label)
 
-      # THE dicconnect
+    pretty = [0]
+
+    # Dicconnect old
     index_old = list(lst[:, 1]).index(
         get_state().pick_old)   # or G.connect_var.get()
-    # This staff with disconnect is to avoid twice a call,
-    # in case pick_old = pick  it is not necessary but more pretty
-    # WTF !!!, hacky way to call a dict ,-)
-    globals()[lst[index_old, 2]](disconnect=True)
+    if index_old in pretty:
+        lst[index_old, 2]().disconnect()
+    else:
+        # This staff with disconnect is to avoid twice a call,
+        # in case pick_old = pick  it is not necessary but more pretty
+        # WTF !!!, hacky way to call a dict ,-)
+        lst[index_old, 2](disconnect=True)
 
-      # THE CALLL
-    globals()[lst[index, 2]]()
+    # Connect new
+    if index in pretty:
+        # Do not grabage me
+        pick = lst[index, 2]()
+        pick.connect()
+    else:
+        lst[index, 2]()
+
+
+class Pick(ABC):
+    """Class for a connection:
+    image event -> operation (then result display)
+    Note: disconnection is not generic:
+        sometime a matplotlit callback_id
+        sometime a cutom artist
+    """
+    def __init__(self):
+        self.canvas = get_root().frame_image.get_canvas()
+        self.figure = get_root().frame_image.get_figure()
+        self.ax = self.figure.axes[0]
+
+    @abstractmethod
+    def connect(self): pass
+
+    @abstractmethod
+    def disconnect(self): pass
+
+
+class PickOne(Pick):
+    """Pick One Star
+    This button should be green and the zoom button of the image toolbar
+    unpressed. If it is pressed, clik again on it. You then have to draw a
+    rectangle aroung the star to mesure the strehl ratio around this star.  A
+    first fit will be computed in the rectangle you've just drawn. Then the
+    photometry of the star will be computed according to the photometry and
+    background measurement type you chose in 'MoreOption' in the file menu. By
+    default, the photometry is processed in a 99% flux rectangle.  And the
+    background, in 8 little rectangles around the star.
+    The fit is necessary to get the maximum, the peak of the psf that will be
+    compared to the diffraction pattern. You can set to assess the photometry
+    of the object with the fit.  A Moffat fit type is chosen by default. but
+    you can change it with the button FitType. I recommend you to use a
+    Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for
+    strehl>60%."
+    """
+    def __init__(self):
+        super().__init__()
+        self.rectangle_selector = None
+
+        # The id of connection (alias callback), to be disabled
+        self.id_callback = None
+
+    def connect(self):
+        log(0, "\n\n\n________________________________\n|Pick One|:\n"
+            "    1/Draw a rectangle around your star with left button\n"
+            "    2/Click on star 'center' with right button")
+        self.rectangle_selector = matplotlib.widgets.RectangleSelector(
+            self.ax,
+            RectangleClick, drawtype='box',
+            rectprops=dict(facecolor='green', edgecolor='black',
+                           alpha=0.5, fill=True),
+            button=[1],  # 1/left, 2/center , 3/right
+        )
+        self.id_callback = self.canvas.mpl_connect(
+            'button_press_event', PickEvent)
+
+    def disconnect(self):
+        log(3, 'PickOne disconnect')
+        if self.rectangle_selector:
+            self.rectangle_selector.set_active(False)
+        if self.id_callback:
+            self.canvas.mpl_disconnect(self.id_callback)
+
+
 
 
 def NoPick(disconnect=False):
@@ -135,47 +217,6 @@ def Profile(disconnect=False):
         )
 
 
-def PickOne(disconnect=False):
-    """Pick One Star
-    This button should be green and the zoom button of th eimage toolbar
-    unpressed. If it is pressed, clik again on it. You then hav eto draw a
-    rectangle aroung the star to mesure the strehl ratio around this star.  A
-    first fit will be computed in the rectangle you 've just drawn. Then the
-    photometry of the star will be computed according to the photometry and
-    background measurement type you chose in 'MoreOption' in the file menu. By
-    default, the photometry is processed in a 99% flux rectangle.  And the
-    backgorund, in 8 littel rectangels around the star.
-    The fit is necessary to get the maximum, the peak of the psf that will be
-    compared to the diffraction pattern. You can set to assess the photometry
-    of the object with the fit.  A Moffat fit type is chosen by default. but
-    you can change it with the button FitType. I recommend you to use a
-    Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for
-    strehl>60%."
-    """
-
-    # DISCONNECT
-    if disconnect and get_state().pick_old == 'one':
-        if "rs_one" in vars(G):
-            G.rs_one.set_active(False)
-        if "cid_left" in vars(G):
-            get_root().frame_image.get_canvas().mpl_disconnect(G.cid_left)
-        return
-
-    # CONNECT
-    if get_state().pick_type == "one":
-        log(0, " \n\n\n________________________________\n|Pick One|:\n"
-            "    1/Draw a rectangle around your star with left button\n"
-            "    2/Click on star 'center' with right button")
-        G.rs_one = matplotlib.widgets.RectangleSelector(
-            get_root().frame_image.get_figure().axes[0], RectangleClick, drawtype='box',
-            rectprops=dict(facecolor='green', edgecolor='black',
-                           alpha=0.5, fill=True),
-            button=[1],  # 1/left, 2/center , 3/right
-        )
-        G.cid_left = get_root().frame_image.get_canvas().mpl_connect(
-            'button_press_event', PickEvent)
-
-
 def PickEvent(event):
     """For  mouse click"""
     # Left click -> avoid shadowing rectangle selection
@@ -233,24 +274,33 @@ def Binary(disconnect=False):
 
 
 def Binary2(event):
-    if not event.inaxes:
-        return
+    # Check in: click in image
+    if not event.inaxes: return
     log(0, "1st point : ", event.xdata, event.ydata)
-    G.star1 = [event.ydata, event.xdata]
-    # we need to inverse, always the same issue ..
+
+    # Save first click
+    get_state().star1 = [event.ydata, event.xdata]
+
+    # Disconnect first click
     get_root().frame_image.get_canvas().mpl_disconnect(G.pt1)
-    G.pt2 = get_root().frame_image.get_canvas().mpl_connect('button_press_event', Binary3)
-    return
+
+    # Connect second click
+    G.pt2 = get_root().frame_image.get_canvas().mpl_connect(
+        'button_press_event', Binary3)
 
 
-def Binary3(event):  # Here we call the math
-    if not event.inaxes:
-        return
+def Binary3(event):
+    """Final click: here the math will be called"""
+    if not event.inaxes: return
     log(0, "2nd point : ", event.xdata, event.ydata)
-    G.star2 = [event.ydata, event.xdata]
-    get_root().frame_image.get_canvas().mpl_disconnect(G.pt2)
 
+    # Save second click
+    get_state().star2 = [event.ydata, event.xdata]
+
+    # Disconnect second click & Restore cursor
+    get_root().frame_image.get_canvas().mpl_disconnect(G.pt2)
     get_root().frame_image.get_canvas().get_tk_widget()["cursor"] = ""
+
     MultiprocessCaller()
     Binary()
 
@@ -329,6 +379,7 @@ def StatPick(disconnect=False):
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
 
+# TODO move me in base class
 def RectangleClick(eclick, erelease):
     """return the extreme coord of the human drawn rectangle  And call StrehlMeter"""
     log(3, 'rectangle click_________________')
