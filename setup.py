@@ -18,7 +18,6 @@ setuptools.setup(
     packages=[
         'abism',
         'abism.front',
-        'abism.front.Menu',
         'abism.back',
         'abism.plugin',
     ],
