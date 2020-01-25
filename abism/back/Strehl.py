@@ -137,8 +137,8 @@ def save_fwhm():
     get_state().add_answer(EA.FWHM_ABE, (fwhm_a, fwhm_b, fwhm_e))
 
 
-def BinaryStrehl():
-    W.psf_fit = SI.BinaryPsf(get_root().image.im0)
+def BinaryStrehl(star1, star2):
+    W.psf_fit = SI.BinaryPsf(get_root().image.im0, star1, star2)
     W.strehl = W.psf_fit[0]
 
 

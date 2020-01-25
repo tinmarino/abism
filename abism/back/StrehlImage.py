@@ -308,14 +308,14 @@ def Background(grid):
     ###############
 
 
-def BinaryPsf(grid, search=False):  # slowlyer
+def BinaryPsf(grid, star1, star2, search=False):
     """search = True means we search the maximum """
     fit_type = get_state().fit_type
     fit_type = enhance_fit_type(fit_type)
     ########
     # " FIRST GUESS
-    max0 = G.star1
-    max1 = G.star2
+    max0 = star1
+    max1 = star2
 
     # distance between two pooints
     star_distance = np.sqrt((max0[0]-max1[0])**2 + (max0[1]-max1[1])**2)
@@ -506,7 +506,8 @@ def BinaryPsf(grid, search=False):  # slowlyer
                     res[0]['spread_x1']**2/(res[0]['b1']-1)
 
         if "hole" in fit_type:
-            photometry -= np.pi*res[0]['intensity_hole'] * \
+            # TODO, ça pue
+            # photometry -= np.pi*res[0]['intensity_hole'] * \
                 res[0]['spread_x_hole']*res[0]['spread_y_hole']
 
         res[0]['center_x'], res[0]['center_y'] = my_center[0], my_center[1]  # to draw
@@ -517,7 +518,7 @@ def BinaryPsf(grid, search=False):  # slowlyer
     return res
 
 
-def TightBinaryPsf(grid, search=False):  # slowlyer
+def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     """search = True means we search the maximum """
 
     fit_type = get_state().fit_type
@@ -525,8 +526,8 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
 
     ########
     # " FIRST GUESS
-    max0 = G.star1
-    max1 = G.star2
+    max0 = star1
+    max1 = star2
 
     # distance between two pooints
     star_distance = np.sqrt((max0[0]-max1[0])**2 + (max0[1]-max1[1])**2)
@@ -570,20 +571,20 @@ def TightBinaryPsf(grid, search=False):  # slowlyer
                        'intensity0': grid[max0[0]][max0[1]], 'intensity1': grid[max1[0]][max1[1]],
                        'background': 0, "theta": 1}
 
-    cut1 = get_root().image.im0[G.star1[0]-2:G.star1[0]+2, G.star1[1]-2:G.star1[1]+2]
+    cut1 = get_root().image.im0[star1[0]-2:star1[0]+2, star1[1]-2:star1[1]+2]
     min1 = np.median(cut1)
     max1 = np.max(cut1)
     max1 = 2*max1 - min1
 
-    cut2 = get_root().image.im0[G.star2[0]-2:G.star2[0]+2, G.star2[1]-2:G.star2[1]+2]
+    cut2 = get_root().image.im0[star2[0]-2:star2[0]+2, star2[1]-2:star2[1]+2]
     min2 = np.median(cut2)
     max2 = np.max(cut2)
     max2 = 2*max2 - min2
     James = {
-        'x0': (G.star1[0]-2, G.star1[0]+2),
-        'x1': (G.star2[0]-2, G.star2[0]+2),
-        'y0': (G.star1[1]-2, G.star1[1]+2),
-        'y1': (G.star2[1]-2, G.star2[1]+2),
+        'x0': (star1[0]-2, star1[0]+2),
+        'x1': (star2[0]-2, star2[0]+2),
+        'y0': (star1[1]-2, star1[1]+2),
+        'y1': (star2[1]-2, star2[1]+2),
         'spread_x0': (-0.1, None),
         'spread_x1': (-0.1, None),
         'spread_y0': (-0.1, None),

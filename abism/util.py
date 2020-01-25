@@ -186,6 +186,7 @@ class AbismState(DotDic):
         # TODO better be an object
         self.pick_type = 'one'
         self.pick_old = ''
+        self.pick = None
 
         # Type
         self.fit_type = get_fit_list()[1]
