@@ -6,6 +6,11 @@ __Install:__
 pip install -U git+https://github.com/tinmarino/abism 
 ```
 
+__Start:__
+```
+abism.py image.fits
+```
+
 __What:__
 A graphical user interface (GUI) to measure the strehl ratio.
 Meaning the quality (.fits) image from a telescope with adaptive optics.
