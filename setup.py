@@ -8,7 +8,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name='abism',
     version=__version__,
-    scripts=['abism.py'] ,
+    scripts=['scripts/abism'],
     author='Julien Girard, Martin Tourneboeuf',
     author_email='tinmarino@gmail.com',
     description='GUI to mesure astrofisics image quality',
@@ -32,5 +32,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-     ],
- )
+    ],
+)
