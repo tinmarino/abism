@@ -11,12 +11,14 @@
 3. Pick -> pick.Pick, a class with pick information for gui.
   Then answer Return must be divided
         Old * Move Profile in analisys
+  Get radio button Pick consisten (just one tkvar)
 
 * Photometric error where are you ? 
 
 # Bug
 
 * Manual photometry not working
+* Image cut 99.9 % (futher more it is cumulative)
 
 # UI
 

@@ -586,55 +586,45 @@ def PlotBinaryStar1D():
 
 
 
-def ProfileAnswer():  # 1 and 2D
-    def Curve():
-        global points  # for the stat
+def ProfileAnswer(point1, point2):
+    """Callback for Profile Pick: 1 and 2D"""
+    # Reset ax
+    ax = get_root().frame_fit.reset_figure_ax()
 
-        ax = get_root().frame_fit.reset_figure_ax()
+    # Get data
+    ab, od, points = IF.RadialLine(
+        get_root().image.im0, (point1, point2), return_point=1)
+    ax.plot(ab, od, '-', linewidth=1, label="Data")
 
-        # DATA
-        ab, od, points = IF.RadialLine(
-            get_root().image.im0, (G.my_point1, G.my_point2), return_point=1)
-        ax.plot(ab, od, '-', linewidth=1, label="Data")
+    # FIT
+    # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
+    #  I_theory = vars(BF) [get_state().fit_type ](points,W.strehl["fit_dic"],get_state().fit_type)
+    #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
 
-        # FIT
-        # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
-        #  I_theory = vars(BF) [get_state().fit_type ](points,W.strehl["fit_dic"],get_state().fit_type)
-        #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
+    ax.legend(loc=1, prop={'size': 8})
+    get_root().frame_fit.redraw()
 
-        ax.legend(loc=1, prop={'size': 8})      # Legend
-        get_root().frame_fit.redraw()
+    log(8, "ProfileAnswer :", zip(points, get_root().image.im0[tuple(points)]))
+    # STAT
+    # like profile_stat points[0] is x and points[1] is y
+    ps = get_array_stat(get_root().image.im0[tuple(points)])
 
-    def Data():
-        log(8, "ProfileAnswer :", zip(points, get_root().image.im0[tuple(points)]))
-        # STAT
-        # like profile_stat points[0] is x and points[1] is y
-        ps = get_array_stat(get_root().image.im0[tuple(points)])
+    ax = get_root().frame_result.reset_figure_ax()
 
-        ax = get_root().frame_result.reset_figure_ax()
+    # LEN
+    tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-        # LEN
-        tmp1 = G.my_profile.point1
-        tmp2 = G.my_profile.point2
-        tlen = np.sqrt((tmp1[0] - tmp2[0])**2 + (tmp1[1] - tmp2[1])**2)
+    lst = [
+        ["LENGTH: ", tlen],
+        ["MIN: ", ps["min"]],
+        ["MAX: ", ps["max"]],
+        ["MEAN: ", ps["mean"]],
+        ["RMS: ", ps["rms"]],
+    ]
+    for num, (label, value) in enumerate(lst):
+        ax.text(0.3, 1.0 - num / (len(lst) + 1), label + "%.1f" % value)
 
-        lst = [
-            ["LENGTH: ", tlen],
-            ["MIN: ", ps["min"]],
-            ["MAX: ", ps["max"]],
-            ["MEAN: ", ps["mean"]],
-            ["RMS: ", ps["rms"]],
-        ]
-        num = 1.
-        for i in lst:
-            ax.text(0.3, 1.0-num/(len(lst)+1), i[0]+"%.1f" % i[1])
-            num += 1
-
-        get_root().frame_result.redraw()
-
-    Curve()
-    Data()
-    return
+    get_root().frame_result.redraw()
 
 
 ####################
@@ -931,14 +921,6 @@ def FigurePlot(x, y, dic={}):
     log(3, '_' * 50 + "\n", currentThread().getName(),
         'Exiting' + 20 * '-' + "\n")
 
-
-def ProfileEvent(obj):  # Called by Gui/EventArtist.py
-    # not  invert, always in array coord, Event is inverting its x and y for me :)
-    G.my_point2 = [obj.point2[0], obj.point2[1]]
-    G.my_point1 = [obj.point1[0], obj.point1[1]]
-    ProfileAnswer()
-
-# Utils
 
 
 def MyFormat(value, number, letter):

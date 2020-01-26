@@ -311,10 +311,9 @@ class AnalysisMenu(ButtonMenu):
             label="Pick Object(s)", bg=None, state=tk.DISABLED)
 
         lst2 = [
-            ["PickOne", "one", lambda: Pick.RefreshPick("one")],
-            ["Binary Fit", "binary", lambda: Pick.RefreshPick("binary")],
-            # ["PickMany", "many", lambda: Pick.RefreshPick("many")],
-            ["No Pick", "nopick", lambda: Pick.RefreshPick("nopick")],
+            ["PickOne", "one", lambda: pick.RefreshPick("one")],
+            ["Binary Fit", "binary", lambda: pick.RefreshPick("binary")],
+            ["No Pick", "nopick", lambda: pick.RefreshPick("nopick")],
         ]
 
         string_var = tk.StringVar()
@@ -345,8 +344,8 @@ class ToolMenu(ButtonMenu):
         super().__init__(parent)
 
         lst = [
-            ["Profile", lambda: Pick.RefreshPick("profile")],
-            ["Stat", lambda: Pick.RefreshPick("stat")],
+            ["Profile", lambda: pick.RefreshPick("profile")],
+            ["Stat", lambda: pick.RefreshPick("stat")],
             ["Histogram", lambda: histopopo(
                 get_root().frame_fit.get_figure(),
                 get_root().image.sort,

@@ -275,8 +275,11 @@ class PickProfile(Pick):
             self.artist_profile.RemoveArtist()
             self.artist_profile = None
 
+
     def work(self, obj):
-        AR.ProfileEvent(obj)
+        point2 = [obj.point2[0], obj.point2[1]]
+        point1 = [obj.point1[0], obj.point1[1]]
+        AR.ProfileAnswer(point1, point2)
 
 
 class PickStat(Pick):
