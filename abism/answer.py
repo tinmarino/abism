@@ -15,6 +15,7 @@ class Answer(ABC):
     def __init__(self, text, value):
         self.text = text
         self.value = value
+        self.unit = ''
 
     @abstractmethod
     def __str__(self): pass
@@ -46,8 +47,9 @@ class AnswerObject(AnswerSky):
 
 class AnswerNum(AnswerSky):
     """A number"""
-    def __init__(self, text, number):
+    def __init__(self, text, number, unit=''):
         super().__init__(text, float(number))
+        self.unit = unit
 
     def str_detector(self):
         return f'{self.value:,.1f}'.replace(',', ' ')
@@ -82,6 +84,10 @@ class AnswerLuminosity(AnswerSky):
     Require: zero point
              exposure time
     """
+    def __init__(self, text, adu):
+        super().__init__(text, adu)
+        self.unit = [' [adu]', ' [mag]']
+
     def str_sky(self):
         from abism.util import get_root
         # Read header
@@ -103,6 +109,10 @@ class AnswerFwhm(AnswerSky):
     """FWHM has diffrent values
     Need the pixel scale, separation too
     """
+    def __init__(self, text, fwhm):
+        super().__init__(text, fwhm)
+        self.unit = [' [pxl]', ' [mas]']
+
     def str_sky(self):
         # Get pixel scale
         pxll = get_pixel_scale()

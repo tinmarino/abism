@@ -148,7 +148,7 @@ class DotDic(dict):
 
 class EA(Enum):
     """Enum of Answer names
-    EX.value = (s_display_text, class_ctor)
+    EX.value = (s_display_text, class_ctor
     Center:   # sky -> ra, dec; detector -> x, y
     """
     from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm, \
@@ -233,7 +233,7 @@ class AbismState(DotDic):
         self.answers = {}
         return self.answers
 
-    def add_answer(self, enum_answer, value, *arg, **args):
+    def add_answer(self, enum_answer, value, *arg, unit=None, **args):
         # Check if overwork
         if enum_answer in self.answers:
             log(0, 'Warning the', enum_answer, 'has already been calculated')
@@ -243,6 +243,10 @@ class AbismState(DotDic):
 
         # Craft anwser
         answer = class_answer(enum_answer, value, *arg, **args)
+
+        # Add unit
+        if unit is not None:
+            answer.unit = unit
 
         # Save answer
         self.answers[enum_answer] = answer

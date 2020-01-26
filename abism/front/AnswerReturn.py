@@ -4,7 +4,6 @@
 """
 
 from threading import Thread, currentThread
-from abc import ABC, abstractmethod
 
 from tkinter import *
 from tkinter import font as tkFont
@@ -23,82 +22,80 @@ from abism.back.image import get_array_stat
 import abism.back.util_back as W
 
 # Plugin
-from abism.plugin import ReadHeader as RH  # to know witch telescope
-
 from abism.util import log, get_root, get_state, abism_val, EA
 
 # new
 from abism.back.Strehl import get_equivalent_strehl_ratio
 
-class AnswerLine(ABC):
-    """A line to append to a text widget"""
-    def __init__(self):
-        pass
 
-    @abstractmethod
-    def insert_in_tk_text(self, text):
-        pass
+def tktext_insert_answer(self, answer, error=None, tags=None):
+    """Insert an answer in a tktext"""
+    # Get name
+    stg = answer.text.value[0] + ":\t"
 
-class AnswerImageSky(AnswerLine):
-    """A Line in the answer"""
-    def __init__(self, s_variable, o_value, s_image, s_sky, tags=[]):
-        """label, variable,
-        value as string on image,
-        value as string in sky referencial <- '' returns s_image
-        """
-        self.s_variable = s_variable
-        self.o_value = o_value
-        self.s_image = s_image
-        self.s_sky = s_sky
-        self.tags = tags
+    # Convert unit && Convert tag
+    if not isinstance(answer.unit, (list, tuple)):
+        answer.unit = answer.unit, answer.unit
+    if not tags: tags = []
 
-    def insert_in_tk_text(self, text):
-        """Should be the other way.
-                    But many things should be the other way
-                    !!! It is a wild world !!!
-        Hopefully you created a tag-left and tag-right
-        And you readed me .....
-        """
-        text.insert(END, self.s_variable + ":\t", self.tags)
-        if get_state().s_answer_unit == 'detector' or not self.s_sky:
-            text.insert(END, self.s_image, self.tags)
+    # Get value and error
+    if get_state().s_answer_unit == 'detector':
+        stg += answer.str_detector()
+        if error:
+            stg += ' +/- ' + error.str_detector()
+        stg += answer.unit[0]
+    else:
+        stg += answer.str_sky()
+        if error:
+            stg += ' +/- ' + error.str_sky()
+        stg += answer.unit[1]
+
+    # Add new line
+    stg += "\n"
+
+    # Insert
+    self.insert(END, stg, tags)
+Text.insert_answer = tktext_insert_answer
+
+
+def tktext_insert_warnings(self):
+    stg = ''
+
+    # Saturated
+    if 'intensity' not in W.strehl:  # binary
+        intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
+    else:
+        intensity = W.strehl["intensity"]
+
+    if intensity > get_root().header.non_linearity_level:
+        if intensity > 1.0 * get_root().header.saturation_level:
+            stg += "!!! SATURATED !!!  Strehl is UNRELIABLE\n"
         else:
-            text.insert(END, self.s_sky, self.tags)
-        text.insert(END, "\n")
+            stg += "!!! NON-LINEAR Strehl may be  unreliable\n"
 
+    # Undersampled
+    is_undersampled = "sinf_pixel_scale" in vars(get_root().header)
+    is_undersampled = is_undersampled and get_root().header.sinf_pixel_scale <= 0.01
+    if is_undersampled:
+        stg += "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)\n"
 
-def tkable_from_answer(answer, error=None, unit='', tags=[]):
-    # Str answser
-    s_sky = answer.str_sky()
-    s_detector = answer.str_detector()
+    # Binary too far
+    if get_state().pick_type == "binary":
+        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
+                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
+        sep = (W.strehl["x0"] - W.strehl["x1"])**2
+        sep += (W.strehl["y0"] - W.strehl["y1"])**2
+        sep = np.sqrt(sep)
 
-    # Str error
-    if error is not None:
-        s_sky += ' +/- ' + error.str_sky()
-        s_detector += ' +/- ' + error.str_detector()
+        if max_dist*15 < sep:  # means too high separation
+            stg += "Wide Binary\npick objects individually\n"
 
-    # Unit tupling
-    if not isinstance(unit, (tuple, list)): unit = [unit, unit]
-    s_detector += unit[0]
-    s_sky += unit[1]
+        if max_dist*3 > sep:  # means too high separation
+            stg += "Tight Binary\nmay be unreliable\n"
 
-    # Return crafted object
-    return AnswerImageSky(
-        answer.text.value[0],
-        answer.value,
-        s_detector,
-        s_sky,
-        tags=tags
-        )
-
-
-class AnswerText(AnswerLine):
-    def __init__(self, obj, tags=[]):
-        self.s_text = str(obj) + "\n"
-        self.tags = tags
-
-    def insert_in_tk_text(self, text):
-        text.insert(END, self.s_text, self.tags)
+    # Insert
+    self.insert(END, stg, ['tag-important', 'tag-center'])
+Text.insert_warnings = tktext_insert_warnings
 
 
 def show_answer():  # CALLER
@@ -121,7 +118,6 @@ def plot_result():
 
     if pick == "stat":
         PlotStat(); return
-
 
 
 def grid_button_change_coord():
@@ -155,101 +151,6 @@ def grid_button_change_coord():
     label.grid(column=0, sticky="wnse")
 
 
-
-
-def answer_strehl():
-    return tkable_from_answer(
-        get_state().answers[EA.STREHL],
-        error=get_state().answers[EA.ERR_STREHL],
-        tags=['tag-important'],
-        unit=' %')
-
-
-def answer_strehl_equivalent():
-    return tkable_from_answer(
-        get_state().answers[EA.STREHL_EQ],
-        error=get_state().answers[EA.ERR_STREHL_EQ],
-        unit=' %')
-
-
-def answer_photometry():
-    return tkable_from_answer(
-        get_state().answers[EA.PHOTOMETRY],
-        #error=get_state().answers[EA.ERR_STREHL_EQ],
-        unit=(' [adu]', ' [mag]'))
-
-
-def answer_fwhm():
-    return tkable_from_answer(
-        get_state().answers[EA.FWHM_ABE],
-        unit=(' [pxl]', ' [mas]'))
-
-
-def answer_background():
-    return tkable_from_answer(
-        get_state().answers[EA.BACKGROUND],
-        error=get_state().answers[EA.NOISE],
-        unit=(' [adu]', ' [mag]'))
-
-
-def answer_signal_on_noise():
-    return tkable_from_answer(
-        get_state().answers[EA.SN])
-
-
-def answer_intensity():
-    return tkable_from_answer(
-        get_state().answers[EA.INTENSITY],
-        unit=(' [adu]', ' [mag]'))
-
-
-def answer_warning():
-    res = []
-
-    # Saturated
-    if 'intensity' not in W.strehl:  # binary
-        intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
-    else:
-        intensity = W.strehl["intensity"]
-
-    if intensity > get_root().header.non_linearity_level:
-        if intensity > 1.0 * get_root().header.saturation_level:
-            text = "!!! SATURATED !!!  Strehl is UNRELIABLE"
-        else:
-            text = "!!! NON-LINEAR Strehl may be  unreliable"
-        line = AnswerText(text, tags=['tag-important', 'tag-center'])
-        res.append(line)
-
-    # Undersampled
-    is_undersampled = "sinf_pixel_scale" in vars(get_root().header)
-    is_undersampled = is_undersampled and get_root().header.sinf_pixel_scale <= 0.01
-    if is_undersampled:
-        text = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
-        line = AnswerText(text, tags=['tag-important', 'tag-center'])
-        res.append(line)
-
-    # Binary too far
-    if get_state().pick_type == "binary":
-        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
-                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
-        sep = (W.strehl["x0"] - W.strehl["x1"])**2
-        sep += (W.strehl["y0"] - W.strehl["y1"])**2
-        sep = np.sqrt(sep)
-
-        if max_dist*15 < sep:  # means too high separation
-            text = "Wide Binary\npick objects individually"
-            line = AnswerText(text, tags=['tag-important', 'tag-center'])
-            res.append(line)
-
-        if max_dist*3 > sep:  # means too high separation
-            text = "Tight Binary\nmay be unreliable"
-            line = AnswerText(text, tags=['tag-important', 'tag-center'])
-            res.append(line)
-
-    return res
-
-
-
 def print_one():
     # Pack fit type in Frame
     get_root().frame_answser.set_fit_type_text(get_state().fit_type)
@@ -266,26 +167,31 @@ def print_one():
     strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
 
     # Save it
-    get_state().add_answer(EA.STREHL_EQ, strehl_eq)
+    get_state().add_answer(EA.STREHL_EQ, strehl_eq, unit=' %')
 
     # Get Error on equivalent strehl
     strehl_eq_err = get_state().answers[EA.ERR_STREHL].value
     strehl_eq_err *= strehl_eq / (strehl * 100)
 
     # Save it
-    get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err)
+    get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err, unit=' %')
 
 
     # TODO move all preceding in back
 
-    # answers = get_state().reset_answers()
-    W.tmp.lst = []
+    text = grid_text_answer()
 
     # Strehl
-    W.tmp.lst.append(answer_strehl())
+    text.insert_answer(
+        get_state().answers[EA.STREHL],
+        error=get_state().answers[EA.ERR_STREHL],
+        tags=['tag-important'])
 
     # Equivalent Strehl Ratio
-    W.tmp.lst.append(answer_strehl_equivalent())
+    text.insert_answer(
+        get_state().answers[EA.STREHL_EQ],
+        error=get_state().answers[EA.ERR_STREHL_EQ])
+
 
     # # Center (need to inverse)
     # line = AnswerImageSky(
@@ -297,36 +203,32 @@ def print_one():
     # W.tmp.lst.append(line)
 
     # FWHM
-    W.tmp.lst.append(answer_fwhm())
+    text.insert_answer(get_state().answers[EA.FWHM_ABE])
+
 
     # Photometry
-    W.tmp.lst.append(answer_photometry())
+    text.insert_answer(get_state().answers[EA.PHOTOMETRY])
 
     # Background
-    W.tmp.lst.append(answer_background())
+    text.insert_answer(
+        get_state().answers[EA.BACKGROUND],
+        error=get_state().answers[EA.NOISE])
 
     # Signal / Noise ratio
-    W.tmp.lst.append(answer_signal_on_noise())
+    text.insert_answer(get_state().answers[EA.SN])
 
     # Peak of detection
-    W.tmp.lst.append(answer_intensity())
+    text.insert_answer(get_state().answers[EA.INTENSITY])
 
-    W.tmp.lst.extend(answer_warning())
+    # text.insert_answer(
+    # W.tmp.lst.extend(answer_warning())
 
-    refresh_text_answer()
+    # Warnings
+    text.insert_warnings()
 
+    # Disable edit
+    text.configure(state=DISABLED)
 
-def grid_tuple_obsolete(i):
-    log(0, "WARNING for dev, this is obsolete fct, use the AnswerLine class\n\n\n")
-    myargs = skin().fg_and_bg.copy()
-    myargs.update({"font": font, "justify": LEFT, "anchor": "nw"})
-    if i[0] == "Strehl: ":
-        myargs["fg"] = "red"
-        myargs["font"] = skin().font.strehl
-    l1 = Label(get_root().frame_answser, text=i[0], **myargs)
-    l2 = Label(get_root().frame_answser, text=i[2], **myargs)
-    l1.grid(column=0, sticky="nsew")
-    l2.grid(column=1, sticky="nsew")
 
 
 def on_resize_text(event):
@@ -334,31 +236,22 @@ def on_resize_text(event):
     event.widget.configure(tabs=(event.width/2, LEFT))
 
 
-def refresh_text_answer():
+def grid_text_answer():
     """Grid formatted text answered
     Nobody can edit text, when it is disabled
     """
     # Create text
     text = Text(get_root().frame_answser, **skin().text_dic)
 
-
     # Configure Text
     text.bind("<Configure>", on_resize_text)
     text.tag_configure('tag-important', foreground=skin().color.important)
     text.tag_configure('tag-center', justify=CENTER)
 
-    # Fill text
-    for obj in W.tmp.lst:
-        if isinstance(obj, (tuple, list)):
-            grid_tuple_obsolete(obj)
-        else:
-            obj.insert_in_tk_text(text)
-
-    # Disable edit
-    text.configure(state=DISABLED)
-
     # Grid text
     text.grid(columnspan=2, sticky='nsew')
+
+    return text
 
 
 
@@ -477,58 +370,55 @@ def PlotBinary():
     # IMAGE COORD
     # TODO move that math to back
 
-    W.tmp.lst = []
+    text = grid_text_answer()
 
     # Fit type
     answer = get_state().add_answer(EA.BINARY, get_state().fit_type)
-    tkable = tkable_from_answer(answer)
-    W.tmp.lst.append(tkable)
+    text.insert_answer(answer)
 
     # Star 1
     answer = get_state().add_answer(EA.STAR1, (y0, x0))
-    tkable = tkable_from_answer(answer)
-    W.tmp.lst.append(tkable)
+    text.insert_answer(answer)
 
     # Star 2
     answer = get_state().add_answer(EA.STAR2, (y1, x1))
-    tkable = tkable_from_answer(answer)
-    W.tmp.lst.append(tkable)
+    text.insert_answer(answer)
 
     # Separation
     o_answer_separation = get_state().add_answer(EA.SEPARATION, separation)
     o_answer_err_separation = get_state().add_answer(EA.ERR_SEPARATION, sep_err)
-    tkable = tkable_from_answer(
+    text.insert_answer(
         o_answer_separation,
-        error=o_answer_err_separation,
-        unit=(' [pxl]', ' [mas]'))
-    W.tmp.lst.append(tkable)
+        error=o_answer_err_separation)
 
     # Photometry 1
     answer = get_state().add_answer(EA.PHOTOMETRY1, W.phot0)
-    tkable = tkable_from_answer(answer, unit=(' [adu]', ' [mag]'))
-    W.tmp.lst.append(tkable)
+    text.insert_answer(answer)
 
     # Photometry 2
     answer = get_state().add_answer(EA.PHOTOMETRY2, W.phot1)
-    tkable = tkable_from_answer(answer, unit=(' [adu]', ' [mag]'))
-    W.tmp.lst.append(tkable)
+    text.insert_answer(answer)
 
     # Flux ratio
     answer = get_state().add_answer(EA.FLUX_RATIO, W.phot0 / W.phot1)
-    tkable = tkable_from_answer(answer)
-    W.tmp.lst.append(tkable)
+    text.insert_answer(answer)
 
     # TODO
     # ["Orientation: ", im_angle, "%.2f" % im_angle + u'\xb0'],
-    answer = get_state().add_answer(EA.STREHL1, W.strehl0)
-    tkable = tkable_from_answer(answer)
-    W.tmp.lst.append(tkable)
 
-    answer = get_state().add_answer(EA.STREHL2, W.strehl1)
-    tkable = tkable_from_answer(answer)
-    W.tmp.lst.append(tkable)
+    # Strehl 1
+    answer = get_state().add_answer(EA.STREHL1, W.strehl0, unit=' %')
+    text.insert_answer(answer)
 
-    refresh_text_answer()
+    # Strehl 2
+    answer = get_state().add_answer(EA.STREHL2, W.strehl1, unit=' %')
+    text.insert_answer(answer)
+
+    # Warnings
+    text.insert_warnings()
+
+    # Disable edit
+    text.configure(state=DISABLED)
 
 
 # "

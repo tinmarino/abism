@@ -73,7 +73,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     strehl = intensity / Ith * 100
 
     # Save
-    get_state().add_answer(EA.STREHL, strehl)
+    get_state().add_answer(EA.STREHL, strehl, unit=' %')
     W.strehl["Ith"] = Ith  # used for error
     W.strehl["bessel_integer"] = bessel_integer   # used for error
 
