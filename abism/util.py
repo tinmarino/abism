@@ -151,7 +151,8 @@ class EA(Enum):
     EX.value = (s_display_text, class_ctor)
     Center:   # sky -> ra, dec; detector -> x, y
     """
-    from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm
+    from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm, \
+        AnswerPosition, AnswerDistance, AnswerObject
 
     # Main
     STREHL = ['Strehl', AnswerNum]
@@ -174,6 +175,20 @@ class EA(Enum):
     ERR_STREHL = ['Strehl Error', AnswerNum]
     ERR_STREHL_EQ = ['Strehl Equivalent Error', AnswerNum]
 
+
+    # Binary
+    BINARY = ['Binary', AnswerObject]
+    STAR1 = ['1 Star', AnswerPosition]
+    STAR2 = ['2 Star', AnswerPosition]
+    PHOTOMETRY1 = ['Phot1', AnswerLuminosity]
+    PHOTOMETRY2 = ['Phot2', AnswerLuminosity]
+    FLUX_RATIO = ['Flux ratio', AnswerNum]
+    SEPARATION = ['Separation', AnswerDistance]
+    STREHL1 = ['Strehl1', AnswerNum]
+    STREHL2 = ['Strehl2', AnswerNum]
+
+    # Error Binary
+    ERR_SEPARATION = ['Separation Error', AnswerDistance]
 
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
@@ -231,6 +246,9 @@ class AbismState(DotDic):
 
         # Save answer
         self.answers[enum_answer] = answer
+
+        # Return
+        return answer
 
     def get_answer(self, enum_answer):
         """Get only the value"""

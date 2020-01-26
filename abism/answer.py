@@ -35,6 +35,15 @@ class AnswerSky(Answer):
     def str_detector(self): pass
 
 
+class AnswerObject(AnswerSky):
+    """Any object"""
+    def str_detector(self):
+        return str(self.value)
+
+    def str_sky(self):
+        return str(self.value)
+
+
 class AnswerNum(AnswerSky):
     """A number"""
     def __init__(self, text, number):
@@ -95,12 +104,8 @@ class AnswerFwhm(AnswerSky):
     Need the pixel scale, separation too
     """
     def str_sky(self):
-        from abism.util import get_root
         # Get pixel scale
-        try:  # Sinfoni
-            pxll = get_root().header.sinf_pixel_scale
-        except:
-            pxll = get_root().header.pixel_scale
+        pxll = get_pixel_scale()
 
         # Apply pixel scale
         a, b, e = self.value
@@ -117,9 +122,29 @@ class AnswerFwhm(AnswerSky):
         return  f'{a:.1f}, {b:.1f}, {e:.2f}'
 
 
+class AnswerDistance(AnswerSky):
+    """NUmber of pixel or angular distance"""
+    def str_sky(self):
+        # Get pixel scale
+        pxll = get_pixel_scale()
+        sky_distance = pxll * 1000 * self.value
+        return f'{sky_distance:.1f}'
+
+    def str_detector(self):
+        return f'{self.value:.2f}'
+
+
 
 
 # Helpers to transform coordinate
+
+def get_pixel_scale():
+    from abism.util import get_root
+    try:  # Sinfoni
+        pxll = get_root().header.sinf_pixel_scale
+    except:
+        pxll = get_root().header.pixel_scale
+    return pxll
 
 
 def decimal2hms(RADeg, delimiter):

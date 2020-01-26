@@ -101,69 +101,8 @@ class AnswerText(AnswerLine):
         text.insert(END, self.s_text, self.tags)
 
 
-def MyFormat(value, number, letter):
-    """This is just to put a "," between the 1,000 for more readability
-    MyFormat(var, 1, 'f') -> "%.1f" % var
-    TODO remove one day
-    """
-    try:
-        float(value)  # in case
-    except:
-        return value
-    stg = "{:,"
-    stg += "." + str(number) + letter + "}"
-    return stg.format(value).replace(",", " ")
-
-
-def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
-    """point1i  (and 2) : list of 2 float = (x,y)= row, column
-    err_point1 = 2 float = x,y )
-    read north position in W
-    """
-    point1, point2 = point[0], point[1]
-    err_point1, err_point2 = err[0], err[1]
-    x0, x1, y0, y1 = point1[0],  point1[1], point2[0],  point2[1]
-    dx0, dx1, dy0, dy1 = err_point1[0],  err_point1[1], err_point2[0],  err_point2[1]
-
-    ##########
-    # SEPARATION DISTANCE
-    dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
-
-    # ERR
-    dist_err = np.sqrt(dx0**2 + dx1**2)
-    dx0 = np.sqrt(err_point1[0]**2 + err_point1[1]**2)
-    dx1 = np.sqrt(err_point2[0]**2 + err_point2[1]**2)
-
-    #############
-    # SEPARATION ANGLE
-    angle = np.array([(y1-y0),   (x1-x0)])
-    angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
-
-    im_angle = np.arccos(angle[1]) * 57.295779  # 360/2pi
-    sign = np.sign(angle[0])
-    im_angle = im_angle + (sign-1)*(-90)
-
-    sky_angle = np.arccos(
-        angle[1]*W.north_direction[1] + angle[0] *
-        W.north_direction[0]) * 57.295779  # inverted angle and not north
-    sign = np.sign(angle[0]*W.east_direction[0] + angle[1]*W.east_direction[1])
-    sky_angle = sky_angle + (sign-1)*(-90)
-
-    res = {"im_angle": im_angle,
-           "sky_angle": sky_angle,
-           "dist": dist, "dist_err": dist_err,
-           }
-    return res
-
-    ##################
-    #  LABELS  LABELS
-    ##################
-
-
 def show_answer():  # CALLER
     """Draw && Print answer i.e. Image and Text"""
-
-
     plot_result()
 
 
@@ -264,6 +203,53 @@ def answer_intensity():
         unit=(' [adu]', ' [mag]'))
 
 
+def answer_warning():
+    res = []
+
+    # Saturated
+    if 'intensity' not in W.strehl:  # binary
+        intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
+    else:
+        intensity = W.strehl["intensity"]
+
+    if intensity > get_root().header.non_linearity_level:
+        if intensity > 1.0 * get_root().header.saturation_level:
+            text = "!!! SATURATED !!!  Strehl is UNRELIABLE"
+        else:
+            text = "!!! NON-LINEAR Strehl may be  unreliable"
+        line = AnswerText(text, tags=['tag-important', 'tag-center'])
+        res.append(line)
+
+    # Undersampled
+    is_undersampled = "sinf_pixel_scale" in vars(get_root().header)
+    is_undersampled = is_undersampled and get_root().header.sinf_pixel_scale <= 0.01
+    if is_undersampled:
+        text = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
+        line = AnswerText(text, tags=['tag-important', 'tag-center'])
+        res.append(line)
+
+    # Binary too far
+    if get_state().pick_type == "binary":
+        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
+                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
+        sep = (W.strehl["x0"] - W.strehl["x1"])**2
+        sep += (W.strehl["y0"] - W.strehl["y1"])**2
+        sep = np.sqrt(sep)
+
+        if max_dist*15 < sep:  # means too high separation
+            text = "Wide Binary\npick objects individually"
+            line = AnswerText(text, tags=['tag-important', 'tag-center'])
+            res.append(line)
+
+        if max_dist*3 > sep:  # means too high separation
+            text = "Tight Binary\nmay be unreliable"
+            line = AnswerText(text, tags=['tag-important', 'tag-center'])
+            res.append(line)
+
+    return res
+
+
+
 def print_one():
     # Pack fit type in Frame
     get_root().frame_answser.set_fit_type_text(get_state().fit_type)
@@ -325,45 +311,7 @@ def print_one():
     # Peak of detection
     W.tmp.lst.append(answer_intensity())
 
-    # Saturated
-    if 'intensity' not in W.strehl:  # binary
-        intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
-    else:
-        intensity = W.strehl["intensity"]
-
-    if intensity > get_root().header.non_linearity_level:
-        if intensity > 1.0 * get_root().header.saturation_level:
-            text = "!!! SATURATED !!!  Strehl is UNRELIABLE"
-        else:
-            text = "!!! NON-LINEAR Strehl may be  unreliable"
-        line = AnswerText(text, tags=['tag-important', 'tag-center'])
-        W.tmp.lst.append(line)
-
-    # Undersampled
-    is_undersampled = "sinf_pixel_scale" in vars(get_root().header)
-    is_undersampled = is_undersampled and get_root().header.sinf_pixel_scale <= 0.01
-    if is_undersampled:
-        text = "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)"
-        line = AnswerText(text, tags=['tag-important', 'tag-center'])
-        W.tmp.lst.append(line)
-
-    # Binary too far
-    if get_state().pick_type == "binary":
-        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
-                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
-        sep = (W.strehl["x0"] - W.strehl["x1"])**2
-        sep += (W.strehl["y0"] - W.strehl["y1"])**2
-        sep = np.sqrt(sep)
-
-        if max_dist*15 < sep:  # means too high separation
-            text = "Wide Binary\npick objects individually"
-            line = AnswerText(text, tags=['tag-important', 'tag-center'])
-            W.tmp.lst.append(line)
-
-        if max_dist*3 > sep:  # means too high separation
-            text = "Tight Binary\nmay be unreliable"
-            line = AnswerText(text, tags=['tag-important', 'tag-center'])
-            W.tmp.lst.append(line)
+    W.tmp.lst.extend(answer_warning())
 
     refresh_text_answer()
 
@@ -493,19 +441,29 @@ def PlotEllipse():
         ]  # label , variable, value as string
 
 
+
 def PlotBinary():
+    # Pack fit type in Frame
+    get_root().frame_answser.set_fit_type_text(get_state().fit_type)
+    get_root().frame_answser.clear()
+
+    # Button to change cord
+    grid_button_change_coord()
+
+    # Some lookup due to move
     x0, x1, y0, y1 = W.strehl["x0"], W.strehl["x1"], W.strehl["y0"], W.strehl["y1"]
     dx0, dx1 = W.psf_fit[1]["x0"], W.psf_fit[1]["x1"]
     dy0, dy1 = W.psf_fit[1]["y0"], W.psf_fit[1]["y1"]
 
-    tmp = Separation(point=((x0, x1), (y0, y1)), err=((dx0, dx1), (dy0, dy1)))
-    separation = tmp["dist"]
-    sep_err = tmp["dist_err"]
-    im_angle = tmp["im_angle"]
-    sky_angle = tmp["sky_angle"]
+    # Get separation
+    separation_dic = Separation(point=((x0, x1), (y0, y1)), err=((dx0, dx1), (dy0, dy1)))
+    separation = separation_dic["dist"]
+    sep_err = separation_dic["dist_err"]
+    im_angle = separation_dic["im_angle"]
+    sky_angle = separation_dic["sky_angle"]
 
-    # "
     # STREHL
+    # Some math TODO move
     W.phot0, W.phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
     bessel_integer = get_root().header.wavelength * \
         10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
@@ -517,56 +475,60 @@ def PlotBinary():
 
     ##############
     # IMAGE COORD
-    if get_state().s_answer_unit == "detector":
-        G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
-        G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
-        G.lb_answer_type["text"] = "In detector units"
+    # TODO move that math to back
 
-        W.tmp.lst = [["Binary: ", get_state().fit_type, get_state().fit_type],
-                     ["1 Star: ", (y0, x0),  "%.1f , %.1f" % (y0, x0)],
-                     ["2 Star: ", (y1, x1),  "%.1f , %.1f" % (y1, x1)],
-                     ["Separation: ", separation, "%.2f" %
-                         separation + "+/-" + "%.2f" % sep_err + " [pxl]"],
-                     ["Phot1: ", W.phot0, "%.1f" % W.phot0 + " [adu]"],
-                     ["Phot2: ", W.phot1, "%.1f" % W.phot1 + " [adu]"],
-                     ["Flux ratio: ", (W.phot0/W.phot1), "%.1f" %
-                      (W.phot0/W.phot1)],
-                     ["Orientation: ", im_angle, "%.2f" % im_angle + u'\xb0'],
-                     ["Strehl1: ", W.strehl0, "%.1f" % W.strehl0+" %"],
-                     ["Strehl2: ", W.strehl1, "%.1f" % W.strehl1+" %"],
-                     ]
+    W.tmp.lst = []
 
-    ##############
-    # SKY COORD
-    else:  # Including coor_type from sky = sky
-        # "
-        # WCS
-        my_wcs = get_root().header.wcs.all_pix2world(np.array(
-            [[W.strehl["y0"], W.strehl["x0"]],  [W.strehl["y1"], W.strehl["x1"]]]), 0)
-        my_wcs = np.array(my_wcs)
-        ra, dec = my_wcs[:, 0], my_wcs[:, 1]
-        pxll = get_root().header.pixel_scale
-        if isinstance(get_root().header, RH.SinfoniHeader):
-            pxll = get_root().header.sinf_pixel_scale
+    # Fit type
+    answer = get_state().add_answer(EA.BINARY, get_state().fit_type)
+    tkable = tkable_from_answer(answer)
+    W.tmp.lst.append(tkable)
 
-        ##########
-        W.tmp.lst = [["Binary: ", get_state().fit_type, get_state().fit_type],
-                     #["1 Star: ", (ra[0], dec[0]), "%s , %s" %
-                     # format_sky(ra[0], dec[0])],
-                     # ["2 Star: ", (ra[1], dec[1]), "%s , %s" %
-                     #  format_sky(ra[1], dec[1])],
-                     ["Separation: ", separation, "%.1f" % (
-                         separation*get_root().header.pxll*1000) + "+/-" + "%.1f" % (sep_err*pxll*1000) + " [mas]"],
-                     ["Phot1: ", W.phot0, "%.1f" % (
-                         get_root().header.zpt - 2.5 * np.log10(W.phot0/get_root().header.exptime)) + " [mag]"],
-                     ["Phot2: ", W.phot1, "%.1f" %
-                      (get_root().header.zpt - 2.5 * np.log10(W.phot1/get_root().header.exptime)) + " [mag]"],
-                     ["Flux ratio: ", (W.phot0/W.phot1), "%.1f" %
-                      (W.phot0/W.phot1)],
-                     ["Orientation: ", sky_angle, "%.2f" % sky_angle + u'\xb0'],
-                     ["Strehl1: ", W.strehl0, "%.1f" % W.strehl0+" %"],
-                     ["Strehl2: ", W.strehl1, "%.1f" % W.strehl1+" %"],
-                     ]
+    # Star 1
+    answer = get_state().add_answer(EA.STAR1, (y0, x0))
+    tkable = tkable_from_answer(answer)
+    W.tmp.lst.append(tkable)
+
+    # Star 2
+    answer = get_state().add_answer(EA.STAR2, (y1, x1))
+    tkable = tkable_from_answer(answer)
+    W.tmp.lst.append(tkable)
+
+    # Separation
+    o_answer_separation = get_state().add_answer(EA.SEPARATION, separation)
+    o_answer_err_separation = get_state().add_answer(EA.ERR_SEPARATION, sep_err)
+    tkable = tkable_from_answer(
+        o_answer_separation,
+        error=o_answer_err_separation,
+        unit=(' [pxl]', ' [mas]'))
+    W.tmp.lst.append(tkable)
+
+    # Photometry 1
+    answer = get_state().add_answer(EA.PHOTOMETRY1, W.phot0)
+    tkable = tkable_from_answer(answer, unit=(' [adu]', ' [mag]'))
+    W.tmp.lst.append(tkable)
+
+    # Photometry 2
+    answer = get_state().add_answer(EA.PHOTOMETRY2, W.phot1)
+    tkable = tkable_from_answer(answer, unit=(' [adu]', ' [mag]'))
+    W.tmp.lst.append(tkable)
+
+    # Flux ratio
+    answer = get_state().add_answer(EA.FLUX_RATIO, W.phot0 / W.phot1)
+    tkable = tkable_from_answer(answer)
+    W.tmp.lst.append(tkable)
+
+    # TODO
+    # ["Orientation: ", im_angle, "%.2f" % im_angle + u'\xb0'],
+    answer = get_state().add_answer(EA.STREHL1, W.strehl0)
+    tkable = tkable_from_answer(answer)
+    W.tmp.lst.append(tkable)
+
+    answer = get_state().add_answer(EA.STREHL2, W.strehl1)
+    tkable = tkable_from_answer(answer)
+    W.tmp.lst.append(tkable)
+
+    refresh_text_answer()
 
 
 # "
@@ -1076,3 +1038,66 @@ def ProfileEvent(obj):  # Called by Gui/EventArtist.py
     G.my_point2 = [obj.point2[0], obj.point2[1]]
     G.my_point1 = [obj.point1[0], obj.point1[1]]
     ProfileAnswer()
+
+# Utils
+
+
+def MyFormat(value, number, letter):
+    """This is just to put a "," between the 1,000 for more readability
+    MyFormat(var, 1, 'f') -> "%.1f" % var
+    TODO remove one day
+    """
+    try:
+        float(value)  # in case
+    except:
+        return value
+    stg = "{:,"
+    stg += "." + str(number) + letter + "}"
+    return stg.format(value).replace(",", " ")
+
+
+def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
+    """point1i  (and 2) : list of 2 float = (x,y)= row, column
+    err_point1 = 2 float = x,y )
+    read north position in W
+    """
+    point1, point2 = point[0], point[1]
+    err_point1, err_point2 = err[0], err[1]
+    x0, x1, y0, y1 = point1[0],  point1[1], point2[0],  point2[1]
+    dx0, dx1, dy0, dy1 = err_point1[0],  err_point1[1], err_point2[0],  err_point2[1]
+
+    ##########
+    # SEPARATION DISTANCE
+    dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
+
+    # ERR
+    dist_err = np.sqrt(dx0**2 + dx1**2)
+    dx0 = np.sqrt(err_point1[0]**2 + err_point1[1]**2)
+    dx1 = np.sqrt(err_point2[0]**2 + err_point2[1]**2)
+
+    #############
+    # SEPARATION ANGLE
+    angle = np.array([(y1-y0),   (x1-x0)])
+    angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
+
+    im_angle = np.arccos(angle[1]) * 57.295779  # 360/2pi
+    sign = np.sign(angle[0])
+    im_angle = im_angle + (sign-1)*(-90)
+
+    sky_angle = np.arccos(
+        angle[1]*W.north_direction[1] + angle[0] *
+        W.north_direction[0]) * 57.295779  # inverted angle and not north
+    sign = np.sign(angle[0]*W.east_direction[0] + angle[1]*W.east_direction[1])
+    sky_angle = sky_angle + (sign-1)*(-90)
+
+    res = {"im_angle": im_angle,
+           "sky_angle": sky_angle,
+           "dist": dist, "dist_err": dist_err,
+           }
+    return res
+
+    ##################
+    #  LABELS  LABELS
+    ##################
+
+
