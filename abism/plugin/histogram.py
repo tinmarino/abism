@@ -8,7 +8,7 @@ from abism.util import get_state
 from abism.front.util_front import set_figure_skin
 
 
-def Histopopo(figure, image_sorted, skin=None):
+def histopopo(figure, image_sorted, skin=None):
     """Single (useless) method for a single (useless) functionality
     figure: matplotlib figure
     image_sorted: 1D sorted array of pixel value

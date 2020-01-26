@@ -12,9 +12,9 @@ from abism.front.util_front import system_open, about_window, \
 from abism.plugin.window_header import spawn_header_window
 
 # For tool
-from abism.plugin.DebugConsole import PythonConsole
+from abism.plugin.debug_console import debug_console
 from abism.plugin.xterm_console import jupyter_window
-from abism.plugin.Histogram import Histopopo
+from abism.plugin.histogram import histopopo
 
 # TODO remove
 from abism.front import Pick  # to connect PickOne per defautl
@@ -347,11 +347,11 @@ class ToolMenu(ButtonMenu):
         lst = [
             ["Profile", lambda: Pick.RefreshPick("profile")],
             ["Stat", lambda: Pick.RefreshPick("stat")],
-            ["Histogram", lambda: Histopopo(
+            ["Histogram", lambda: histopopo(
                 get_root().frame_fit.get_figure(),
                 get_root().image.sort,
                 skin=skin())],
-            ["Legacy Console", PythonConsole],
+            ["Legacy Console", debug_console],
             ["Jupyter Console", jupyter_window],
         ]
         for i in lst:

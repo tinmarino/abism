@@ -368,7 +368,6 @@ def print_one():
     refresh_text_answer()
 
 
-
 def grid_tuple_obsolete(i):
     log(0, "WARNING for dev, this is obsolete fct, use the AnswerLine class\n\n\n")
     myargs = skin().fg_and_bg.copy()

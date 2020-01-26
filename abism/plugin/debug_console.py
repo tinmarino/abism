@@ -24,7 +24,7 @@ from abism.util import log
 from abism.front.util_front import skin
 
 
-def PythonConsole():
+def debug_console():
     # Create root
     root = tk.Tk()
     root.title('Python console')
