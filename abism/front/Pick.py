@@ -220,7 +220,8 @@ class PickEllipse(Pick):
             self.artist_ellipse = None
 
     def work(self, _):
-        MultiprocessCaller()
+        Strehl.EllipseEventStrehl()
+        AR.show_answer()
 
 
 class PickAnnulus(Pick):
@@ -422,27 +423,12 @@ def TightBinary3(event):  # Here we call the math
     get_root().frame_image.get_canvas().mpl_disconnect(G.pt2)
 
     get_root().frame_image.get_canvas().get_tk_widget()["cursor"] = ""
-    MultiprocessCaller()
+
+    # MultiprocessCaller()
+    log(3, "I call binary math")
+    Strehl.TightBinaryStrehl()
+    AR.show_answer()
+    AR.PlotStar2()
+    AR.PlotStar()
+
     TightBinary()
-
-
-
-
-#############################
-## MULTIPROCESSING TOOLS    #
-#############################
-
-
-def MultiprocessCaller():
-    if get_state().pick_type == "tightbinary":
-        log(3, "I call binary math")
-        Strehl.TightBinaryStrehl()
-        AR.show_answer()
-        AR.PlotStar2()
-        AR.PlotStar()
-        return
-    if get_state().pick_type == "ellipse":
-        Strehl.EllipseEventStrehl()
-        AR.show_answer()
-        return
-
