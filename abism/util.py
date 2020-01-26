@@ -236,7 +236,7 @@ class AbismState(DotDic):
     def add_answer(self, enum_answer, value, *arg, unit=None, **args):
         # Check if overwork
         if enum_answer in self.answers:
-            log(0, 'Warning the', enum_answer, 'has already been calculated')
+            log(1, 'Warning the', enum_answer, 'has already been calculated')
 
         # Retrieve class ctor from enum
         class_answer = enum_answer.value[1]

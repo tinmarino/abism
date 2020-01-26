@@ -81,6 +81,30 @@ class Pick(ABC):
     @abstractmethod
     def work(self, obj): pass
 
+    def on_rectangle(self, eclick, erelease):
+        """Param: the extreme coord of the human drawn rectangle"""
+        # Log && Save
+        log(3, 'rectangle click_________________')
+        get_root().image.click = eclick.xdata, eclick.ydata
+        get_root().image.release = erelease.xdata, erelease.ydata
+
+        # Log
+        log(3, 'On:', get_root().image.click, get_root().image.release)
+
+        # Check non null rectangle
+        if get_root().image.click == get_root().image.release:
+            log(0, "Rectangle phot aborded: you clicked and released on "
+                "the same point")
+            return
+
+        # TODO remove that
+        W.r = (int(get_root().image.click[1]), int(get_root().image.release[1]),
+               int(get_root().image.click[0]), int(get_root().image.release[0]))
+
+        # Work
+        self.work(None)
+
+
 class PickOne(Pick):
     """Pick One Star
     This button should be green and the zoom button of the image toolbar
@@ -111,13 +135,13 @@ class PickOne(Pick):
             "    2/Click on star 'center' with right button")
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
             self.ax,
-            RectangleClick, drawtype='box',
+            self.on_rectangle, drawtype='box',
             rectprops=dict(facecolor='green', edgecolor='black',
                            alpha=0.5, fill=True),
             button=[1],  # 1/left, 2/center , 3/right
         )
         self.id_callback = self.canvas.mpl_connect(
-            'button_press_event', self.work)
+            'button_press_event', PickEvent)
 
     def disconnect(self):
         log(3, 'PickOne disconnect')
@@ -129,8 +153,13 @@ class PickOne(Pick):
             self.id_callback = None
 
     def work(self, obj):
-        """obj is a matplotlib event"""
-        PickEvent(obj)
+        """obj is None"""
+        Strehl.StrehlMeter()
+        AR.show_answer()
+        # we transport star center, because if it is bad, it is good to know,
+        # this star center was det by iterative grav center  the fit image
+        # is a W.psf_fit[0][3]
+        AR.PlotStar()
 
 
 class NoPick(Pick):
@@ -207,8 +236,9 @@ class PickProfile(Pick):
         self.artist_profile = artist.Profile(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
-            callback=AR.ProfileEvent
+            callback=self.work
         )
+
     def disconnect(self):
         if self.artist_profile:
             self.artist_profile.Disconnect()
@@ -216,7 +246,7 @@ class PickProfile(Pick):
             self.artist_profile = None
 
     def work(self, obj):
-        IF.AnnulusEventPhot(obj)
+        AR.ProfileEvent(obj)
 
 
 class PickStat(Pick):
@@ -240,8 +270,7 @@ class PickStat(Pick):
             RectangleClick, drawtype='box',
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
-    def work(self, obj):
-        IF.AnnulusEventPhot(obj)
+    def work(self, obj): pass
 
 
 class PickBinary(Pick):
@@ -395,22 +424,6 @@ def TightBinary3(event):  # Here we call the math
 
 
 
-# TODO move me in base class
-def RectangleClick(eclick, erelease):
-    """return the extreme coord of the human drawn rectangle  And call StrehlMeter"""
-    log(3, 'rectangle click_________________')
-    get_root().image.click = eclick.xdata, eclick.ydata
-    get_root().image.release = erelease.xdata, erelease.ydata
-    if get_root().image.click == get_root().image.release:
-        log(0, "Rectangle phot aborded: you clicked and released ont the same point")
-        return
-    log(3, get_root().image.click, get_root().image.release)
-    W.r = (int(get_root().image.click[1]), int(get_root().image.release[1]),
-           int(get_root().image.click[0]), int(get_root().image.release[0]))
-
-    MultiprocessCaller()
-    return
-
 
 #############################
 ## MULTIPROCESSING TOOLS    #
@@ -433,11 +446,3 @@ def MultiprocessCaller():
         AR.show_answer()
         return
 
-    if get_state().pick_type == "one":
-        Strehl.StrehlMeter()
-        AR.show_answer()
-        # we transport star center, because if it is bad, it is good to know,
-        # this star center was det by iterative grav center  the fit image
-        # is a W.psf_fit[0][3]
-        AR.PlotStar()
-        return

@@ -59,6 +59,7 @@ Text.insert_answer = tktext_insert_answer
 
 
 def tktext_insert_warnings(self):
+    """Insert all warning from analyse in tk text widget"""
     stg = ''
 
     # Saturated
@@ -111,13 +112,13 @@ def plot_result():
         print_one(); return
 
     if pick in ('binary', 'tightbinary'):
-        PlotBinary(); return
+        print_binary(); return
 
     if pick == 'ellipse':
         PlotEllipse(); return
 
     if pick == "stat":
-        PlotStat(); return
+        print_statistic(); return
 
 
 def grid_button_change_coord():
@@ -334,8 +335,7 @@ def PlotEllipse():
         ]  # label , variable, value as string
 
 
-
-def PlotBinary():
+def print_binary():
     # Pack fit type in Frame
     get_root().frame_answser.set_fit_type_text(get_state().fit_type)
     get_root().frame_answser.clear()
@@ -357,14 +357,14 @@ def PlotBinary():
 
     # STREHL
     # Some math TODO move
-    W.phot0, W.phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
+    phot0, phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
     bessel_integer = get_root().header.wavelength * \
         10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \
         np.pi / (1-(get_root().header.obstruction/100)**2)
-    Ith0, Ith1 = W.phot0/bessel_integer, W.phot1/bessel_integer
-    W.strehl0 = W.strehl["intensity0"] / Ith0 * 100
-    W.strehl1 = W.strehl["intensity1"] / Ith1 * 100
+    Ith0, Ith1 = phot0/bessel_integer, W.phot1/bessel_integer
+    strehl0 = W.strehl["intensity0"] / Ith0 * 100
+    strehl1 = W.strehl["intensity1"] / Ith1 * 100
 
     ##############
     # IMAGE COORD
@@ -392,26 +392,26 @@ def PlotBinary():
         error=o_answer_err_separation)
 
     # Photometry 1
-    answer = get_state().add_answer(EA.PHOTOMETRY1, W.phot0)
+    answer = get_state().add_answer(EA.PHOTOMETRY1, phot0)
     text.insert_answer(answer)
 
     # Photometry 2
-    answer = get_state().add_answer(EA.PHOTOMETRY2, W.phot1)
+    answer = get_state().add_answer(EA.PHOTOMETRY2, phot1)
     text.insert_answer(answer)
 
     # Flux ratio
-    answer = get_state().add_answer(EA.FLUX_RATIO, W.phot0 / W.phot1)
+    answer = get_state().add_answer(EA.FLUX_RATIO, phot0 / phot1)
     text.insert_answer(answer)
 
     # TODO
     # ["Orientation: ", im_angle, "%.2f" % im_angle + u'\xb0'],
 
     # Strehl 1
-    answer = get_state().add_answer(EA.STREHL1, W.strehl0, unit=' %')
+    answer = get_state().add_answer(EA.STREHL1, strehl0, unit=' %')
     text.insert_answer(answer)
 
     # Strehl 2
-    answer = get_state().add_answer(EA.STREHL2, W.strehl1, unit=' %')
+    answer = get_state().add_answer(EA.STREHL2, strehl1, unit=' %')
     text.insert_answer(answer)
 
     # Warnings
@@ -421,21 +421,21 @@ def PlotBinary():
     text.configure(state=DISABLED)
 
 
-# "
-#   1D 1D 1D
-###############
-
-
-def PlotStat():
+def print_statistic():
+    """Print statistics from a rectangle selection
+    Also get them
+    """
+    # Get stat <- subarray
     W.r = IF.Order4(W.r)
     sub_array = get_root().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
     dicr = get_array_stat(sub_array)
-    myargs = skin().fg_and_bg.copy()
-    myargs.update({"font": skin().font.answer, "justify": LEFT, "anchor": "nw"})
-    row = 0
+
+    # Create text
+    text = grid_text_answer()
+
     lst = [
         ["DIM X*DIM Y: ", "%.1f x %.1f" %
-            (abs(W.r[0]-W.r[1]), abs(W.r[2]-W.r[3]))],
+         (abs(W.r[0]-W.r[1]), abs(W.r[2]-W.r[3]))],
         ["MIN: ", "%.1f" % dicr["min"]],
         ["MAX: ", "%.1f" % dicr["max"]],
         ["SUM: ", "%.1f" % dicr["sum"]],
@@ -444,15 +444,21 @@ def PlotStat():
         ["RMS: ", "%.1f" % dicr["rms"]],
     ]
 
-    ax = get_root().frame_result.reset_figure_ax()
-    num = 0
-    for i in lst:
-        print(i[0] + i[1])
-        ax.text(0.3, 1.0-float(num)/(len(lst)+1),
-                i[0]+i[1], transform=ax.transAxes)
-        num += 1
+    stg = ''
+    for name, value in lst:
+        log(0, name , value)
+        stg += name + value + "\n"
 
-    ax = get_root().frame_result.redraw()
+    text.insert(END, stg)
+
+    # Disable edit
+    text.configure(state=DISABLED)
+
+
+# "
+#   1D 1D 1D
+###############
+
 
 
 
