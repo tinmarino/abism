@@ -138,12 +138,12 @@ def grid_button_change_coord():
         show_answer()
 
     button = Button(
-        get_root().frame_answser, background='Khaki', borderwidth=1,
+        get_root().frame_answer, background='Khaki', borderwidth=1,
         text=s_button, **skin().button_dic,
         command=callback)
 
     label = Label(
-        get_root().frame_answser,
+        get_root().frame_answer,
         justify=LEFT, anchor="nw", **skin().fg_and_bg,
         text=s_label)
 
@@ -154,8 +154,8 @@ def grid_button_change_coord():
 
 def print_one():
     # Pack fit type in Frame
-    get_root().frame_answser.set_fit_type_text(get_state().fit_type)
-    get_root().frame_answser.clear()
+    get_root().frame_answer.set_fit_type_text(get_state().fit_type)
+    get_root().frame_answer.clear()
 
     # Button to change cord
     grid_button_change_coord()
@@ -242,7 +242,7 @@ def grid_text_answer():
     Nobody can edit text, when it is disabled
     """
     # Create text
-    text = Text(get_root().frame_answser, **skin().text_dic)
+    text = Text(get_root().frame_answer, **skin().text_dic)
 
     # Configure Text
     text.bind("<Configure>", on_resize_text)
@@ -266,11 +266,11 @@ def PlotEllipse():
     ########
     # BUTTON
     # to fill th ecolumn on th epossible space
-    get_root().frame_answser.columnconfigure(0, weight=1)
+    get_root().frame_answer.columnconfigure(0, weight=1)
     G.bu_answer_type = Button(
-        get_root().frame_answser, text='useless', background='Khaki', borderwidth=1, width=9)
+        get_root().frame_answer, text='useless', background='Khaki', borderwidth=1, width=9)
     G.lb_answer_type = Label(
-        get_root().frame_answser, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
+        get_root().frame_answer, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
 
     ############
     # IMAGE COORD
@@ -337,8 +337,8 @@ def PlotEllipse():
 
 def print_binary():
     # Pack fit type in Frame
-    get_root().frame_answser.set_fit_type_text(get_state().fit_type)
-    get_root().frame_answser.clear()
+    get_root().frame_answer.set_fit_type_text(get_state().fit_type)
+    get_root().frame_answer.clear()
 
     # Button to change cord
     grid_button_change_coord()
@@ -431,7 +431,7 @@ def print_statistic():
     dicr = get_array_stat(sub_array)
 
     # Clear answer frame
-    get_root().frame_answser.clear()
+    get_root().frame_answer.clear()
 
     # Create text
     text = grid_text_answer()

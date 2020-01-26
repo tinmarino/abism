@@ -34,7 +34,7 @@ class LeftFrame(tk.Frame):
         root.frame_option = OptionFrame(text_paned, index=1, label_text='Option')
 
         # Add AnswerFrame
-        root.frame_answser = AnswerFrame(text_paned, label_text='Result')
+        root.frame_answer = AnswerFrame(text_paned, label_text='Result')
 
         # Create Buttons with callback to preceding
         root.frame_button = ButtonFrame(self)
