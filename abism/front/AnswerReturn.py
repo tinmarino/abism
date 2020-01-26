@@ -430,18 +430,21 @@ def print_statistic():
     sub_array = get_root().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
     dicr = get_array_stat(sub_array)
 
+    # Clear answer frame
+    get_root().frame_answser.clear()
+
     # Create text
     text = grid_text_answer()
 
     lst = [
-        ["DIM X*DIM Y: ", "%.1f x %.1f" %
+        ["DIM X*DIM Y:\t", "%.1f x %.1f" %
          (abs(W.r[0]-W.r[1]), abs(W.r[2]-W.r[3]))],
-        ["MIN: ", "%.1f" % dicr["min"]],
-        ["MAX: ", "%.1f" % dicr["max"]],
-        ["SUM: ", "%.1f" % dicr["sum"]],
-        ["MEAN: ", "%.1f" % dicr["mean"]],
-        ["MEDIAN: ", "%.1f" % dicr["median"]],
-        ["RMS: ", "%.1f" % dicr["rms"]],
+        ["MIN:\t", "%.1f" % dicr["min"]],
+        ["MAX:\t", "%.1f" % dicr["max"]],
+        ["SUM:\t", "%.1f" % dicr["sum"]],
+        ["MEAN:\t", "%.1f" % dicr["mean"]],
+        ["MEDIAN:\t", "%.1f" % dicr["median"]],
+        ["RMS:\t", "%.1f" % dicr["rms"]],
     ]
 
     stg = ''

@@ -81,6 +81,7 @@ class Pick(ABC):
     @abstractmethod
     def work(self, obj): pass
 
+
     def on_rectangle(self, eclick, erelease):
         """Param: the extreme coord of the human drawn rectangle"""
         # Log && Save
@@ -103,6 +104,34 @@ class Pick(ABC):
 
         # Work
         self.work(None)
+
+
+    def pick_event(self, event):
+        """For mouse click PickOne or rectangle"""
+        # Left click -> avoid shadowing rectangle selection
+        if not event.inaxes or event.button == 1:
+            return
+
+        # Right click -> center
+        if event.button == 3:
+            log(5, 'Centering <- right click:', event)
+            center_handler(
+                event,
+                get_root().frame_image.get_figure().axes[0],
+                callback=get_root().frame_image.get_canvas().draw)
+            return
+
+        if get_root().frame_image.is_toolbar_active():
+            log(0, 'WARNING: Zoom or Pan actif, '
+                'please unselect its before picking your object')
+            return
+
+        # Save bounds <- click +/- 15
+        W.r = [event.ydata - 15, event.ydata + 15,
+               event.xdata - 15, event.xdata + 15]
+
+        self.work(None)
+
 
 
 class PickOne(Pick):
@@ -141,7 +170,7 @@ class PickOne(Pick):
             button=[1],  # 1/left, 2/center , 3/right
         )
         self.id_callback = self.canvas.mpl_connect(
-            'button_press_event', PickEvent)
+            'button_press_event', self.pick_event)
 
     def disconnect(self):
         log(3, 'PickOne disconnect')
@@ -267,10 +296,11 @@ class PickStat(Pick):
             "computed in the region-------------------")
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
             self.ax,
-            RectangleClick, drawtype='box',
+            self.on_rectangle, drawtype='box',
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
-    def work(self, obj): pass
+    def work(self, obj):
+        AR.print_statistic()
 
 
 class PickBinary(Pick):
@@ -344,33 +374,6 @@ class PickBinary(Pick):
 
 
 
-def PickEvent(event):
-    """For  mouse click PickOne"""
-    # Left click -> avoid shadowing rectangle selection
-    if not event.inaxes or event.button == 1:
-        return
-
-    # Right click -> center
-    if event.button == 3:
-        log(5, 'Centering <- right click:', event)
-        center_handler(
-            event,
-            get_root().frame_image.get_figure().axes[0],
-            callback=get_root().frame_image.get_canvas().draw)
-        return
-
-    if get_root().frame_image.is_toolbar_active():
-        log(0, 'WARNING: Zoom or Pan actif, '
-            'please unselect its before picking your object')
-        return
-
-    # Save bounds <- click +/- 15
-    W.r = [event.ydata - 15, event.ydata + 15,
-           event.xdata - 15, event.xdata + 15]
-
-    MultiprocessCaller()
-
-
 def TightBinary(disconnect=False):
     # DISCONNECT
     if disconnect and get_state().pick_old == 'tightbinary':
@@ -437,9 +440,6 @@ def MultiprocessCaller():
         AR.show_answer()
         AR.PlotStar2()
         AR.PlotStar()
-        return
-    if get_state().pick_type == "stat":
-        AR.PlotStat()
         return
     if get_state().pick_type == "ellipse":
         Strehl.EllipseEventStrehl()
