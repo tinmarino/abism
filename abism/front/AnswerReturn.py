@@ -449,7 +449,7 @@ def print_statistic():
 
     stg = ''
     for name, value in lst:
-        log(0, name , value)
+        log(0, name, value)
         stg += name + value + "\n"
 
     text.insert(END, stg)
@@ -994,9 +994,3 @@ def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
            "dist": dist, "dist_err": dist_err,
            }
     return res
-
-    ##################
-    #  LABELS  LABELS
-    ##################
-
-

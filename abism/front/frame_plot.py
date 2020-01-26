@@ -267,7 +267,7 @@ class ImageFrame(PlotFrame):
         ###  SOME  CLICKS #
         #####################
         # TODO move me ::
-        Pick.RefreshPick("one")  # assuming that the default PIck is setted yet
+        pick.RefreshPick("one")  # assuming that the default PIck is setted yet
 
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
