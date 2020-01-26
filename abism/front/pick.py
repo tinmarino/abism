@@ -261,6 +261,7 @@ class PickProfile(Pick):
     def __init__(self):
         super().__init__()
         self.artist_profile = None
+        self.point1 = self.point2 = (0, 0)
 
     def connect(self):
         self.artist_profile = artist.Profile(
@@ -277,9 +278,9 @@ class PickProfile(Pick):
 
 
     def work(self, obj):
-        point2 = [obj.point2[0], obj.point2[1]]
-        point1 = [obj.point1[0], obj.point1[1]]
-        AR.ProfileAnswer(point1, point2)
+        self.point2 = [obj.point2[0], obj.point2[1]]
+        self.point1 = [obj.point1[0], obj.point1[1]]
+        AR.show_profile(self.point1, self.point2)
 
 
 class PickStat(Pick):
