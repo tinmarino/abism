@@ -72,8 +72,13 @@ def parse_argument():
         help='separator (image vertical) position from top (in pixel)')
 
     # Custom
-    parsed_args = parser.parse_args()
+    try:
+        parsed_args = parser.parse_args()
+    except SystemExit as e:
+        log(0, 'Argument Parsing error', str(e))
+        parsed_args = parser.parse_args([])
     log(3, 'Parsed initially:', parsed_args)
+
     parsed_args.script = argv[0]
     parsed_args.image = parsed_args.image[0]
 
