@@ -17,7 +17,7 @@ from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.histogram import histopopo
 
 # TODO remove
-from abism.front import Pick  # to connect PickOne per defautl
+from abism.front import pick  # to connect PickOne per defautl
 
 from abism.util import log, get_root, get_state, quit_process, \
     get_colormap_list, get_stretch_list, get_cut_list, get_fit_list

@@ -16,7 +16,7 @@ from abism.front.util_front import photo_up, photo_down, skin, TitleLabel, \
 import abism.front.util_front as G
 
 # TODO must be remooved
-from abism.front import Pick
+from abism.front import pick
 from abism.front.AnswerReturn import PlotStar2
 # TODO this should not be here
 
