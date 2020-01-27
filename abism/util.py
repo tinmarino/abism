@@ -6,7 +6,8 @@
 # Standard
 import sys
 import os
-from os.path import dirname, abspath
+import inspect
+from os.path import dirname, abspath, basename
 from functools import lru_cache
 from enum import Enum
 
@@ -346,4 +347,10 @@ def log(i, *args):
     if get_state().verbose < i: return
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
+    if get_state().verbose > 3:
+        caller = inspect.currentframe().f_back.f_code
+        message += ('    (' + caller.co_name
+                    + '.' + str(caller.co_firstlineno) + ')'
+                    + '@' + basename(caller.co_filename))
+
     _get_logger().info(message)

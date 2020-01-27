@@ -12,7 +12,6 @@ from scipy.signal import convolve2d
 
 from abism.plugin.ReadHeader import parse_header  # What a name !
 
-# TODO root for MinMaxCut, should be here
 from abism.util import log, get_state, DotDic
 
 
@@ -218,7 +217,7 @@ class ImageInfo():
         return bpm2, median, bpm, sky, conv
 
 
-    def MinMaxCut(self):  # From a true value renge give min_cut and max_cut
+    def get_cut_minmax(self):
         """Returns: (min, max) cut in ADU for the viewable image"""
         # Get in <- GUI state
         cut_type = get_state().s_image_cut

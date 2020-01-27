@@ -320,7 +320,7 @@ class ImageFrame(PlotFrame):
             get_state().i_image_min_cut = get_root().image.stat.min
             get_state().i_image_max_cut = get_root().image.stat.max
         else:
-            i_min, i_max = get_root().image.MinMaxCut()
+            i_min, i_max = get_root().image.get_cut_minmax()
             get_state().i_image_min_cut = i_min
             get_state().i_image_max_cut = i_max
 

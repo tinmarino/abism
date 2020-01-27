@@ -644,6 +644,7 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=T
             ru , rv in pixels
            centers in pixels from the begining of the array x = row, y = column
     if full answer return dic : number_count, sum, bol,bol2, interp_grid,
+    # REturn X and y index of bol
     """
     # Check in
     if dic == {}:
@@ -673,7 +674,6 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=T
             grid_cut = grid[bol]
             res.update(get_array_stat(grid_cut))
             res["bol"] = bol
-            log(5, 'Elliptical aperture returns', res)
             return res
         else:  # no full_answer
             res["bol"] = bol
@@ -700,9 +700,6 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=T
         if xy_answer:
             res["coord_x"] = X[bol]
             res["coord_y"] = Y[bol]
-
-    ######
-    # REturn X and y index of bol
 
     return res
 
