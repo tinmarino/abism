@@ -146,12 +146,16 @@ def abism_val(enum_answer):
     return get_state().get_answer(enum_answer)
 
 
-def str_pretty(obj, indent=2, rec=0, key=''):
+def str_pretty(obj, indent=2, depth=4, rec=0, key=''):
     """Returns: pretty str of an object
-    obj <- the object to print
-    indent <- the indent per depth
-    rec <- used in recursion
+    obj    <- object to print
+    indent <- indent per depth
+    depth  <- maximum recursion depth
+    rec, key <- used in recursion
     """
+    # Check in: recursion depth
+    if rec >= depth: return ''
+
     # Init
     s_indent = ' ' * indent * rec
     items = {}
