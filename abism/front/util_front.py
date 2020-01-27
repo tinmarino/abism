@@ -10,7 +10,7 @@ from enum import Enum
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-from abism.util import root_path, log, get_version, get_root, DotDic
+from abism.util import root_path, log, get_root, DotDic
 
 
 @lru_cache(1)
@@ -292,6 +292,7 @@ def about_window():
     """Pop about window
     Append it to (to)
     """
+    from abism import __version__
     # Init
     root = tk.Tk()
     get_root().saved_children.append(root)
@@ -299,7 +300,7 @@ def about_window():
     # Conf
     root.title("About Abism")
     txt = ("Adaptive Background Interactive Strehl Meter\n"
-           "ABISM version " + get_version() + " (2013 -- 2020) \n"
+           "ABISM version " + __version__ + " (2013 -- 2020) \n"
            "Authors: Girard Julien, Tourneboeuf Martin\n"
            "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
     label = tk.Label(root, text=txt, **skin().fg_and_bg)

@@ -10,8 +10,6 @@ from os.path import dirname, abspath
 from functools import lru_cache
 from enum import Enum
 
-# Local
-from abism import __version__
 
 _verbose = 10  # Verbose level
 _parsed_args = None  # Arguments from argparse
