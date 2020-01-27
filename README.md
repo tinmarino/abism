@@ -34,14 +34,17 @@ We did not take time to measure the error of the measure if non linear, it is ve
 __More:__
 
 from ipython:
+
 ```python
-# Launch
-from abism.run import run_async; sm = run_async()
+# Import
+from abism.run import run_async
+
+# Launch (sm for Strehl Meter)
+sm = run_async('--verbose', '1', './image.fits') 
 
 # Print details
 print(sm.state)
 ```
-
 
 
 License: Do whatever you want with the code
