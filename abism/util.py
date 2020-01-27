@@ -6,6 +6,7 @@
 # Standard
 import sys
 import os
+import re
 import inspect
 from os.path import dirname, abspath, basename
 from functools import lru_cache
@@ -145,11 +146,44 @@ def abism_val(enum_answer):
     return get_state().get_answer(enum_answer)
 
 
+def str_pretty(obj, indent=2, rec=0, key=''):
+    """Returns: pretty str of an object
+    obj <- the object to print
+    indent <- the indent per depth
+    rec <- used in recursion
+    """
+    # Init
+    s_indent = ' ' * indent * rec
+    items = {}
+    stg = s_indent
+
+    if key != '': stg += str(key) + ': '
+
+    # Discriminate && Check if final
+    if isinstance(obj, list):
+        items = enumerate(obj)
+    elif isinstance(obj, dict):
+        items = obj.items()
+    elif '__dict__' in dir(obj):
+        items = obj.__dict__.items()
+    if not items:
+        return stg + str(obj)
+
+    # Recurse
+    stg += '(' + type(obj).__name__ + ')\n'
+    for k, v in items:
+        stg += str_pretty(v, indent=indent, rec=rec+1, key=k) + "\n"
+
+    # Return without empty lines
+    return re.sub(r'\n\s*\n', '\n', stg)[:-1]
+
+
 class DotDic(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
+    __repr__ = str_pretty
 
 
 class EA(Enum):
@@ -240,7 +274,6 @@ class AbismState(DotDic):
         # UI text
         self.s_answer_unit = 'detector'  # detector or 'sky'
 
-
     def reset_answers(self):
         self.answers = {}
         return self.answers
@@ -286,39 +319,6 @@ def get_root():
 def set_root(root):
     # pylint: disable=global-statement
     global _root; _root = root
-
-
-def str_pretty(obj, indent=1, rec=0, key=''):
-    """Returns: pretty str of an object
-    obj <- the object to print
-    indent <- the indent per depth
-    rec <- used in recursion
-    """
-    # Init
-    s_indent = ' ' * indent * rec
-    items = {}
-    stg = s_indent
-
-    if key != '': stg += str(key) + ': '
-
-    # Discriminate && Check if final
-    if isinstance(obj, list):
-        items = enumerate(obj)
-    elif isinstance(obj, dict):
-        items = obj.items()
-    elif '__dict__' in dir(obj):
-        items = obj.__dict__.items()
-    if not items:
-        return stg + str(obj)
-
-    # Recurse
-    stg += '(' + type(obj).__name__ + ')\n'
-    for k, v in items:
-        stg += str_pretty(v, indent=indent, rec=rec+1, key=k) + "\n"
-
-    # Return without empty lines
-    return re.sub(r'\n\s*\n', '\n', stg)[:-1]
-
 
 
 def quit_process():
