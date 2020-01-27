@@ -691,7 +691,6 @@ class OptionFrame(TextFrame):
         self.will_update_sash()
 
 
-
 class AnswerFrame(TextFrame):
     """Some conf"""
     def __init__(self, parent, **args):

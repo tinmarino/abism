@@ -24,12 +24,6 @@
 * Skin: create entrybutton, and checkbutton (because cannto see in dark)
 * make shortcut appear on mouse_on <ctrl-o> for example
 
-# Easy win
-
-* put image info in abism state (and not root) 
-
-# Refactor
-
 # Feature
 
 * Ellipse and Annulus Pick (maybe in tool)

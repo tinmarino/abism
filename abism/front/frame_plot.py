@@ -315,11 +315,11 @@ class ImageFrame(PlotFrame):
 
         ###########
         # CUT
-        if get_state().s_image_stretch == "None":
+        if get_state().s_image_cut == "None":
             # IG.ManualCut()
             get_state().i_image_min_cut = get_state().image.stat.min
             get_state().i_image_max_cut = get_state().image.stat.max
-        else:
+        elif get_state().s_image_cut != 'Manual':
             i_min, i_max = get_state().image.get_cut_minmax()
             get_state().i_image_min_cut = i_min
             get_state().i_image_max_cut = i_max

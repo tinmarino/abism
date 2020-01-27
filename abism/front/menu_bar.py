@@ -255,6 +255,7 @@ class ViewMenu(ButtonMenu):
                 variable=string_var, value=text)
 
         def on_manual():
+            get_state().s_image_cut = 'Manual'
             get_root().frame_option.toogle_manual_cut()
 
         # Add manual cut trigger
