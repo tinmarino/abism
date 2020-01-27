@@ -360,10 +360,3 @@ def log(i, *args):
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     _get_logger().info(message)
-
-
-# Impersonate answser
-import abism.answer
-for truc in dir(abism.answer):
-    # pylint: disable = exec-used
-    exec(truc + ' = ' + 'abism.answer.' + truc)
