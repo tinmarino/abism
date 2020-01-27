@@ -18,7 +18,7 @@ import abism.front.util_front as G
 # Back
 from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
-from abism.back.image import get_array_stat
+from abism.back.image_info import get_array_stat
 import abism.back.util_back as W
 
 # Plugin

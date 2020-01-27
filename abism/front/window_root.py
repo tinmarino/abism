@@ -18,8 +18,7 @@ from abism.front.util_front import skin, icon_path, open_file
 from abism.back.image_info import ImageInfo
 
 
-from abism.util import log, set_root, restart, parse_argument
-import abism.util as util
+from abism.util import log, set_root, restart, parse_argument, get_state
 
 
 
@@ -68,15 +67,15 @@ class WindowRoot(tk.Tk):
         self.paned_root.add(right)
 
         # Init image
-        self.set_image(util._parsed_args.image)
+        self.set_image(parse_argument().image)
 
 
     def set_image(self, filepath):
         if not filepath: return
 
         # Craft ImageInfo
-        self.image = ImageInfo.from_file(filepath)
-        if not self.image:
+        get_state().image = ImageInfo.from_file(filepath)
+        if not get_state().image:
             log(0, 'Error: Cannot read fits image from file', filepath)
             return
 
@@ -84,7 +83,7 @@ class WindowRoot(tk.Tk):
         self.set_title()
 
         # Alias Helper
-        self.header = self.image.header
+        self.header = get_state().image.header
 
         # Draw Cube button
         self.frame_button.toogle_cube()
@@ -101,7 +100,7 @@ class WindowRoot(tk.Tk):
     def set_title(self):
         """Create OS's window title, icon and Set geomrtry"""
         self.title('ABISM (' +
-                   "/".join(str(self.image.name).split("/")[-3:]) + ')')
+                   "/".join(str(get_state().image.name).split("/")[-3:]) + ')')
 
 
     def set_icon(self):

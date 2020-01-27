@@ -6,7 +6,7 @@ import numpy as np
 import scipy.ndimage  # for the median filter
 import scipy.interpolate  # for LocalMax
 
-from abism.back.image import get_array_stat
+from abism.back.image_info import get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
 from abism.util import log

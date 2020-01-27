@@ -27,7 +27,6 @@
 # Easy win
 
 * put image info in abism state (and not root) 
-* rename image -> image_info
 
 # Refactor
 
