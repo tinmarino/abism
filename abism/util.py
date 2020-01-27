@@ -139,7 +139,7 @@ def get_fit_list():
 
 
 def abism_val(enum_answer):
-    return get_state().answers[enum_answer].value
+    return get_state().get_answer(enum_answer)
 
 
 class DotDic(dict):
@@ -255,14 +255,17 @@ class AbismState(DotDic):
             answer.unit = unit
 
         # Save answer
-        self.answers[enum_answer] = answer
+        self.answers[enum_answer.name] = answer
 
         # Return
         return answer
 
+    def get_answer_obj(self, enum_answer):
+        return self.answers[enum_answer.name]
+
     def get_answer(self, enum_answer):
         """Get only the value"""
-        return self.answers[enum_answer].value
+        return self.get_answer_obj(enum_answer).value
 
 
 @lru_cache(1)

@@ -161,7 +161,7 @@ def print_one():
     grid_button_change_coord()
 
     # <- Calculate Equivalent strehl2.2 and error
-    strehl = get_state().answers[EA.STREHL].value / 100
+    strehl = get_state().get_answer(EA.STREHL) / 100
     wavelength = get_root().header.wavelength
 
     # Get equivalent Strehl ratio
@@ -171,7 +171,7 @@ def print_one():
     get_state().add_answer(EA.STREHL_EQ, strehl_eq, unit=' %')
 
     # Get Error on equivalent strehl
-    strehl_eq_err = get_state().answers[EA.ERR_STREHL].value
+    strehl_eq_err = get_state().get_answer(EA.ERR_STREHL)
     strehl_eq_err *= strehl_eq / (strehl * 100)
 
     # Save it
@@ -184,14 +184,14 @@ def print_one():
 
     # Strehl
     text.insert_answer(
-        get_state().answers[EA.STREHL],
-        error=get_state().answers[EA.ERR_STREHL],
+        get_state().get_answer_obj(EA.STREHL),
+        error=get_state().get_answer_obj(EA.ERR_STREHL),
         tags=['tag-important'])
 
     # Equivalent Strehl Ratio
     text.insert_answer(
-        get_state().answers[EA.STREHL_EQ],
-        error=get_state().answers[EA.ERR_STREHL_EQ])
+        get_state().get_answer_obj(EA.STREHL_EQ),
+        error=get_state().get_answer_obj(EA.ERR_STREHL_EQ))
 
 
     # # Center (need to inverse)
@@ -204,22 +204,22 @@ def print_one():
     # W.tmp.lst.append(line)
 
     # FWHM
-    text.insert_answer(get_state().answers[EA.FWHM_ABE])
+    text.insert_answer(get_state().get_answer_obj(EA.FWHM_ABE))
 
 
     # Photometry
-    text.insert_answer(get_state().answers[EA.PHOTOMETRY])
+    text.insert_answer(get_state().get_answer_obj(EA.PHOTOMETRY))
 
     # Background
     text.insert_answer(
-        get_state().answers[EA.BACKGROUND],
-        error=get_state().answers[EA.NOISE])
+        get_state().get_answer_obj(EA.BACKGROUND),
+        error=get_state().get_answer_obj(EA.NOISE))
 
     # Signal / Noise ratio
-    text.insert_answer(get_state().answers[EA.SN])
+    text.insert_answer(get_state().get_answer_obj(EA.SN))
 
     # Peak of detection
-    text.insert_answer(get_state().answers[EA.INTENSITY])
+    text.insert_answer(get_state().get_answer_obj(EA.INTENSITY))
 
     # text.insert_answer(
     # W.tmp.lst.extend(answer_warning())
@@ -259,7 +259,7 @@ def grid_text_answer():
 def PlotEllipse():
     """TODO clean + not working anymore due to W.tmp.lst"""
     rms = get_root().header.wavelength / 2/np.pi * \
-        np.sqrt(-np.log(get_state().answers[EA.STREHL].value/100))
+        np.sqrt(-np.log(get_state().get_answer(EA.STREHL)/100))
     W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
     # <- CAlculate Equivalent strehl2.2
 
@@ -280,8 +280,8 @@ def PlotEllipse():
         G.lb_answer_type["text"] = "In detector units"
 
         W.tmp.lst = [
-            ["Strehl: ", get_state().answers[EA.STREHL].value, MyFormat(
-                get_state().answers[EA.STREHL].value, 1, "f") + " +/- " + MyFormat(get_state().answers[EA.ERR_STREHL].value, 1, "f") + " %"],
+            ["Strehl: ", get_state().get_answer(EA.STREHL), MyFormat(
+                get_state().get_answer(EA.STREHL), 1, "f") + " +/- " + MyFormat(get_state().get_answer(EA.ERR_STREHL), 1, "f") + " %"],
             ["Intensity: ", W.strehl["intensity"], MyFormat(
                 W.strehl["intensity"], 1, "f") + " [adu]"],
             ["Background: ", get_state().get_answer(EA.BACKGROUND), MyFormat(
@@ -319,8 +319,8 @@ def PlotEllipse():
         W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0, 0], my_wcs[0, 1]
 
         W.tmp.lst = [
-            ["Strehl: ", get_state().answers[EA.STREHL].value, "%.1f" %
-                (get_state().answers[EA.STREHL].value) + " +/- "+"%.1f" % get_state().answers[EA.ERR_STREHL].value+" %"],
+            ["Strehl: ", get_state().get_answer(EA.STREHL), "%.1f" %
+                (get_state().get_answer(EA.STREHL)) + " +/- "+"%.1f" % get_state().get_answer(EA.ERR_STREHL)+" %"],
             ["Intensity: ", W.strehl["intensity"],  "%.1f" % (
                 get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
             ["Background: ", get_state().get_answer(EA.BACKGROUND), "%.2f" % (get_root().header.zpt-2.5*np.log10(
@@ -362,7 +362,7 @@ def print_binary():
         10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \
         np.pi / (1-(get_root().header.obstruction/100)**2)
-    Ith0, Ith1 = phot0/bessel_integer, W.phot1/bessel_integer
+    Ith0, Ith1 = phot0/bessel_integer, phot1/bessel_integer
     strehl0 = W.strehl["intensity0"] / Ith0 * 100
     strehl1 = W.strehl["intensity1"] / Ith1 * 100
 

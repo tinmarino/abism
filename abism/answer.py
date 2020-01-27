@@ -25,7 +25,7 @@ class AnswerSky(ABC):
         return self.__repr__()
 
     def __repr__(self):
-        return '| ' + self.text + ' <- ' + self.str_detector() + ' |'
+        return self.str_detector() + ' <- ' + self.text
 
     @abstractmethod
     def str_sky(self): pass
