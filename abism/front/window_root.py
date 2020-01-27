@@ -15,7 +15,7 @@ from abism.front.frame_plot import RightFrame
 from abism.front.util_front import skin, icon_path, open_file
 
 # Variables
-from abism.back.image import ImageInfo
+from abism.back.image_info import ImageInfo
 
 
 from abism.util import log, set_root, restart, parse_argument

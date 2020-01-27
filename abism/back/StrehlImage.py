@@ -3,7 +3,7 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back.fit_helper import leastsqFit
 import abism.back.fit_template_function as BF
-from abism.back.image import ImageInfo, get_array_stat
+from abism.back.image_info import ImageInfo, get_array_stat
 
 
 from abism.util import log, get_root, get_state, EA
