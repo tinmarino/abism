@@ -253,6 +253,7 @@ class AbismState(DotDic):
         self.pick_type = 'one'
         self.pick_old = ''
         self.pick = None
+        self.tk_pick = None
 
         # Type
         self.fit_type = get_fit_list()[1]

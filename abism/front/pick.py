@@ -68,6 +68,7 @@ class Pick(ABC):
         sometime a cutom artist
     """
     def __init__(self):
+        log(3, 'Pick: creating a', self.__class__.__name__, 'instance')
         self.canvas = get_root().frame_image.get_canvas()
         self.figure = get_root().frame_image.get_figure()
         self.ax = self.figure.axes[0]
@@ -131,7 +132,6 @@ class Pick(ABC):
                event.xdata - 15, event.xdata + 15]
 
         self.work(None)
-
 
 
 class PickOne(Pick):
@@ -275,7 +275,6 @@ class PickProfile(Pick):
             self.artist_profile.Disconnect()
             self.artist_profile.RemoveArtist()
             self.artist_profile = None
-
 
     def work(self, obj):
         self.point2 = [obj.point2[0], obj.point2[1]]

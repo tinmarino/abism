@@ -35,6 +35,7 @@ class WindowRoot(tk.Tk):
         self.geometry(parse_argument().gui_geometry)
 
         # Variables for my children
+        self.init_state()
         set_root(self)
 
         # Save spawned children
@@ -68,7 +69,6 @@ class WindowRoot(tk.Tk):
 
         # Init image
         self.set_image(parse_argument().image)
-
 
     def set_image(self, filepath):
         if not filepath: return
@@ -123,3 +123,10 @@ class WindowRoot(tk.Tk):
         self.bind_all(
             "<Control-r>",
             lambda _: restart())
+
+    @staticmethod
+    def init_state():
+        # Create tk var
+        get_state().tk_pick = tk.StringVar()
+        get_state().tk_pick.set(get_state().pick_type)
+

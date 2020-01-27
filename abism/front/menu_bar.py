@@ -317,12 +317,10 @@ class AnalysisMenu(ButtonMenu):
             ["No Pick", "nopick", lambda: pick.RefreshPick("nopick")],
         ]
 
-        string_var = tk.StringVar()
-        string_var.set(get_state().pick_type)
         for text, tag, callback in lst2:
             self.menu.add_radiobutton(
                 label=text, command=callback,
-                variable=string_var, value=tag)
+                variable=get_state().tk_pick, value=tag)
 
     def get_text(self):
         return 'Analysis'
@@ -344,18 +342,24 @@ class ToolMenu(ButtonMenu):
         """
         super().__init__(parent)
 
+        # Add radio
         lst = [
-            ["Profile", lambda: pick.RefreshPick("profile")],
-            ["Stat", lambda: pick.RefreshPick("stat")],
+            ["Profile", 'profile', lambda: pick.RefreshPick("profile")],
+            ["Stat", 'stat', lambda: pick.RefreshPick("stat")]]
+        for text, tag, cmd in lst:
+            self.menu.add_radiobutton(
+                label=text, command=cmd,
+                variable=get_state().tk_pick, value=tag)
+
+        lst = [
             ["Histogram", lambda: histopopo(
                 get_root().frame_fit.get_figure(),
                 get_state().image.sort,
                 skin=skin())],
             ["Legacy Console", debug_console],
-            ["Jupyter Console", jupyter_window],
-        ]
-        for i in lst:
-            self.menu.add_command(label=i[0], command=i[1])
+            ["Jupyter Console", jupyter_window]]
+        for text, cmd in lst:
+            self.menu.add_command(label=text, command=cmd)
 
 
     def get_text(self):
