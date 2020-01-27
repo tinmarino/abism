@@ -1,4 +1,4 @@
 #!/usr/bin/python
 """Abism launcher"""
-
-from abism import __main__
+from abism.run import run_sync
+run_sync()
