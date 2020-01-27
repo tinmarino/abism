@@ -392,7 +392,7 @@ def log(i, *args):
     if get_state().verbose > 3:
         caller = inspect.currentframe().f_back.f_code
         message += ('    (' + caller.co_name
-                    + '.' + str(caller.co_firstlineno) + ')'
-                    + '@' + basename(caller.co_filename))
+                    + '.' + str(caller.co_firstlineno)
+                    + '@' + basename(caller.co_filename) + ')')
 
     _get_logger().info(message)
