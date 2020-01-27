@@ -42,6 +42,7 @@ class AbismAsync(threading.Thread):
         # Give info to caller
         import abism.util
         self.util = abism.util
+        self.util_front = abism.front.util_front
 
         self.state = self.util.get_state()
         self.answers = self.state.answers

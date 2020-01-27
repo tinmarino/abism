@@ -22,7 +22,8 @@ Note:
         Python REPL: working! <- bare eval
 
 More:
-    absim.front?
+    help(absim.front)  # GUI info
+    help(absim.back)  # Strehl estimation info
 
 """
-__version__ = '0.903'
+__version__ = '0.904'

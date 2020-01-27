@@ -1,12 +1,7 @@
 """
-    Used as cache
+    TODO delete me
 """
 
-from sys import argv as std_argv
-from abism.util import get_state
-
-
-sys_argv = std_argv
 
 class VoidClass:
     """ Placeholder of the most ugly container
@@ -16,8 +11,4 @@ class VoidClass:
     """
 tmp = VoidClass()
 
-strehl_type = 'max'
 strehl = {}
-
-
-rect_phot_bool = 0  # for rectanglephot called by command
