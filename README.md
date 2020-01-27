@@ -7,8 +7,10 @@ pip install -U git+https://github.com/tinmarino/abism
 ```
 
 __Start:__
-```
-abism.py image.fits
+
+from shell:
+```sh
+abism image.fits
 ```
 
 __What:__
@@ -27,6 +29,19 @@ We did not take time to measure the error of the measure if non linear, it is ve
 
 
 <img  align="center" width=80% src="./abism/doc/abism_v0.900.png">
+
+
+__More:__
+
+from ipython:
+```python
+from abism.run import run_async; sm = run_async()
+```
+
+```python
+import pprint; pp = pprint.PrettyPrinter(indent=4); pp.pprint(sm.state)
+```
+
 
 
 License: Do whatever you want with the code
