@@ -32,6 +32,10 @@
 
 # Refactor
 
+# Feature
+
+* delete lru_cache for ipython: https://stackoverflow.com/questions/40273767/clear-all-lru-cache-in-python/50699209
+  * toherwise cannot call async more than onces
 
 # Latter
 ################################################################################
