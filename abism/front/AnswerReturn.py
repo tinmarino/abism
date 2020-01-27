@@ -31,7 +31,7 @@ from abism.back.Strehl import get_equivalent_strehl_ratio
 def tktext_insert_answer(self, answer, error=None, tags=None):
     """Insert an answer in a tktext"""
     # Get name
-    stg = answer.text.value[0] + ":\t"
+    stg = answer.text + ":\t"
 
     # Convert unit && Convert tag
     if not isinstance(answer.unit, (list, tuple)):

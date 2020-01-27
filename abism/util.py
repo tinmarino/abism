@@ -193,6 +193,7 @@ class EA(Enum):
     # Error Binary
     ERR_SEPARATION = ['Separation Error', AnswerDistance]
 
+
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
@@ -244,10 +245,10 @@ class AbismState(DotDic):
             log(1, 'Warning the', enum_answer, 'has already been calculated')
 
         # Retrieve class ctor from enum
-        class_answer = enum_answer.value[1]
+        text, cls = enum_answer.value
 
         # Craft anwser
-        answer = class_answer(enum_answer, value, *arg, **args)
+        answer = cls(text, value, *arg, **args)
 
         # Add unit
         if unit is not None:
@@ -262,7 +263,6 @@ class AbismState(DotDic):
     def get_answer(self, enum_answer):
         """Get only the value"""
         return self.answers[enum_answer].value
-
 
 
 @lru_cache(1)
