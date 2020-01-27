@@ -11,7 +11,6 @@ from functools import lru_cache
 from enum import Enum
 
 
-_verbose = 10  # Verbose level
 _parsed_args = None  # Arguments from argparse
 
 # Keep a trace
@@ -25,7 +24,7 @@ _root = None
 @lru_cache(1)
 def parse_argument():
     # pylint: disable=global-statement
-    global _parsed_args, _verbose
+    global _parsed_args
 
     from argparse import ArgumentParser
     from sys import argv
@@ -82,7 +81,8 @@ def parse_argument():
 
     # set
     _parsed_args = parsed_args
-    _verbose = _parsed_args.verbose
+
+    get_state().verbose = parsed_args.verbose
 
     return _parsed_args
 
@@ -197,6 +197,8 @@ class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
     def __init__(self):
+        self.verbose = 0
+
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}
 
@@ -311,17 +313,6 @@ def restart():
     # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
-def get_verbose():
-    """Return verbose module variable"""
-    return _verbose
-
-
-def set_verbose(i_level):
-    """Set verbose module variable"""
-    _verbose = i_level
-    return _verbose
-
-
 @lru_cache(1)
 def root_path():
     """Return: path of this file"""
@@ -349,7 +340,7 @@ def _get_logger():
 
 def log(i, *args):
     """Log utility read verbose"""
-    if get_verbose() < i: return
+    if get_state().verbose < i: return
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     _get_logger().info(message)

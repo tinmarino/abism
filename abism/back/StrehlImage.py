@@ -6,7 +6,7 @@ import abism.back.fit_template_function as BF
 from abism.back.image import ImageInfo, get_array_stat
 
 
-from abism.util import log, get_verbose, get_root, get_state, EA
+from abism.util import log, get_root, get_state, EA
 import abism.front.util_front as G
 import abism.back.util_back as W
 
@@ -73,7 +73,7 @@ def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
     #  FIT
     #############
 
-    verbose = get_verbose() > 1
+    verbose = get_state().verbose > 0
 
     if (fit_type == "Gaussian2D"):
         tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
@@ -424,7 +424,7 @@ def BinaryPsf(grid, star1, star2, search=False):
         (x, y), W.suposed_param, IX,
         err=eIX, doNotFit=doNotFit,
         bounds=James,
-        verbose=get_verbose() > 1,
+        verbose=get_state().verbose > 0
     )
 
     ##############
@@ -639,7 +639,7 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
         (x, y), W.suposed_param, IX,
         err=eIX, doNotFit=doNotFit,
         bounds=James,
-        verbose=get_verbose() > 1,
+        verbose=get_state().verbose > 0,
     )
 
     ##############
