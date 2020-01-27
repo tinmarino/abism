@@ -27,27 +27,20 @@ def RefreshPick(label):
     In function of the name of G.connect_var, we call the good one.
     Disconnect old pick event and connect the new one """
     lst = np.array([
-        ["PickOne", "one", PickOne],  # 0 OK
-        ["Binary Fit", "binary", PickBinary],  # 1
-        # ["Tight Binary", "tightbinary", TightBinary],  # 2 # TODO ?
-        ["Profile", "profile", PickProfile],  # 3
-        ["Stat", "stat", PickStat],  # 4
-        ["Annulus", "annulus", PickAnnulus],  # 5
-        ["Ellipse", "ellipse", PickEllipse],  # 6 OK
-        ["No Pick", "nopick", NoPick],  # 7 OK
+        ["PickOne", "one", PickOne],
+        ["Binary Fit", "binary", PickBinary],
+        ["Tight Binary", "tightbinary", PickTightBinary],
+        ["Profile", "profile", PickProfile],
+        ["Stat", "stat", PickStat],
+        ["Annulus", "annulus", PickAnnulus],
+        ["Ellipse", "ellipse", PickEllipse],
+        ["No Pick", "nopick", NoPick],
     ])
 
+    # Get obj from list switch <- degueulasse
     get_state().pick_old = get_state().pick_type
-    index = list(lst[:, 1]).index(label)   # or G.connect_var.get()
+    index = list(lst[:, 1]).index(label)
     get_state().pick_type = label
-    # because they are in tools, and it disable the connection,
-    # I don't know why
-
-
-    # TODO di I break something,
-    # <-- yes the string_var aut
-    # if label != "stat" or label != "profile":
-    #     G.cu_pick.set(label)
 
     # Dicconnect old
     pick_old = get_state().pick
@@ -198,7 +191,6 @@ class NoPick(Pick):
     def work(self, obj): pass
 
 
-
 class PickEllipse(Pick):
     """Not used"""
     def __init__(self):
@@ -316,10 +308,12 @@ class PickBinary(Pick):
         super().__init__()
         self.id_callback = None
         self.star1 = self.star2 = None
+        self.is_parent = False
 
     def connect(self):
-        log(0, "\n\n\n______________________________________\n"
-            "|Binary| : Make 2 clicks, one per star-------------------")
+        if not self.is_parent:
+            log(0, "\n\n\n______________________________________\n"
+                "|Binary| : Make 2 clicks, one per star-------------------")
         self.id_callback = get_root().frame_image.get_canvas().mpl_connect(
             'button_press_event', self.connect_second)
         self.canvas.get_tk_widget()["cursor"] = "target"
@@ -377,61 +371,23 @@ class PickBinary(Pick):
         AR.PlotStar()
 
 
+class PickTightBinary(PickBinary):
+    """Binary that are close so the fit is harder"""
+    def __init__(self):
+        super().__init__()
+        self.is_parent = True
 
-def TightBinary(disconnect=False):
-    # DISCONNECT
-    if disconnect and get_state().pick_old == 'tightbinary':
-        try:
-            get_root().frame_image.get_canvas().mpl_disconnect(G.pt1)
-        except:
-            pass
-        try:
-            get_root().frame_image.get_canvas().mpl_disconnect(G.pt2)
-        except:
-            pass
-        get_root().frame_image.get_canvas().get_tk_widget()["cursor"] = ""
-        return
-
-    # CONNECT
-    if get_state().pick_type == "tightbinary":
+    def connect(self):
         log(0, "\n\n\n______________________________________\n"
             "|TightBinary| : Make 2 clicks, one per star, be precise, "
             "the parameters will be more constrained-------------------")
-        G.pt1 = get_root().frame_image.get_canvas().mpl_connect('button_press_event', TightBinary2)
-        get_root().frame_image.get_canvas().get_tk_widget()["cursor"] = "target"
-
+        super().connect()
         get_state().aniso = False
         get_state().same_psf_var = True
-        # TODO Check if I broke something
-        # SetFitType(get_state().fit_type)
-    return
 
 
-def TightBinary2(event):
-    if not event.inaxes:
-        return
-    log(0, "1st point : ", event.xdata, event.ydata)
-    G.star1 = [event.ydata, event.xdata]
-    # we need to inverse, always the same issue ..
-    get_root().frame_image.get_canvas().mpl_disconnect(G.pt1)
-    G.pt2 = get_root().frame_image.get_canvas().mpl_connect('button_press_event', TightBinary3)
-    return
-
-
-def TightBinary3(event):  # Here we call the math
-    if not event.inaxes:
-        return
-    log(0, "2nd point : ", event.xdata, event.ydata)
-    G.star2 = [event.ydata, event.xdata]
-    get_root().frame_image.get_canvas().mpl_disconnect(G.pt2)
-
-    get_root().frame_image.get_canvas().get_tk_widget()["cursor"] = ""
-
-    # MultiprocessCaller()
-    log(3, "I call binary math")
-    Strehl.TightBinaryStrehl()
-    AR.show_answer()
-    AR.PlotStar2()
-    AR.PlotStar()
-
-    TightBinary()
+    def work(self, obj):
+        Strehl.TightBinaryStrehl(self.star1, self.star2)
+        AR.show_answer()
+        AR.PlotStar2()
+        AR.PlotStar()

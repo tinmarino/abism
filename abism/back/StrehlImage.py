@@ -523,6 +523,9 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     fit_type = get_state().fit_type
     fit_type = enhance_fit_type(fit_type)
 
+    # Declare discriminated answer (for lint)
+    photometry = 0
+
     ########
     # " FIRST GUESS
     max0 = star1
@@ -547,9 +550,9 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     fit_range = star_distance + 5 * max(dist0, dist1)  # range of the fit
     # the error
     rx1 = int(my_center[0] - fit_range / 2)
-    rx2 = int(my_center[0] + fit_range / 2)
-    ry1 = int(my_center[1] + fit_range / 2)
-    ry2 = int(my_center[1] - fit_range / 2)
+    rx2 = int(my_center[0] + 1 + fit_range / 2)
+    ry1 = int(my_center[1] - fit_range / 2)
+    ry2 = int(my_center[1] + 1 + fit_range / 2)
     log(3, "----->IF.BinaryPSF :",
           "The fit is done between points ",
           (rx1, ry1), " and ", (rx2, ry2),
@@ -561,24 +564,39 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     eIX = (IX-mIX).std()
     eIX *= np.ones(IX.shape)
 
+    log(9, "Where is inf, nan ?????", IX)
+
+    i_x1, i_y1 = int(max0[0]), int(max0[1])
+    i_x2, i_y2 = int(max1[0]), int(max1[1])
+
     ###################
     ## Supposed params and bounds #
     ###################
-    W.suposed_param = {'x0': max0[0], 'x1': max1[0], 'y0': max0[1], 'y1': max1[1],
-                       'spread_x0': 0.83*(dist0), 'spread_x1': 0.83*dist1,
-                       'spread_y0': 0.83*(dist0), 'spread_y1': 0.83*dist1,
-                       'intensity0': grid[max0[0]][max0[1]], 'intensity1': grid[max1[0]][max1[1]],
-                       'background': 0, "theta": 1}
+    W.suposed_param = {
+        'x0': max0[0],
+        'x1': max1[0],
+        'y0': max0[1],
+        'y1': max1[1],
+        'spread_x0': 0.83*(dist0),
+        'spread_x1': 0.83*dist1,
+        'spread_y0': 0.83*(dist0),
+        'spread_y1': 0.83*dist1,
+        'intensity0': grid[i_x1][i_y1],
+        'intensity1': grid[i_x2][i_y2],
+        'background': 0,
+        "theta": 1}
 
-    cut1 = get_state().image.im0[star1[0]-2:star1[0]+2, star1[1]-2:star1[1]+2]
+    cut1 = get_state().image.im0[i_x1-2: i_x1+2, i_y1-2: i_y1+2]
     min1 = np.median(cut1)
     max1 = np.max(cut1)
     max1 = 2*max1 - min1
 
-    cut2 = get_state().image.im0[star2[0]-2:star2[0]+2, star2[1]-2:star2[1]+2]
+    cut2 = get_state().image.im0[i_x2-2: i_x2+2, i_y2-2: i_y2+2]
     min2 = np.median(cut2)
     max2 = np.max(cut2)
     max2 = 2*max2 - min2
+    # we put the intensity positive because in a binary fit situation
+    # ... you know.... who knows
     James = {
         'x0': (star1[0]-2, star1[0]+2),
         'x1': (star2[0]-2, star2[0]+2),
@@ -591,7 +609,7 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
         'intensity0': (min1, max1),
         'intensity1': (min2, max2),
         'background': (None, None),
-        "theta": (-0.1, 3.24)}  # becasue James Bound hahahah, These are the fitting limits of the varaibles . WARNING    we put the intensity positive becasue in a binary fit situation you know.... who knows
+        "theta": (-0.1, 3.24)}
 
     ###########
     # DO NOT FIT, dic_for_fit

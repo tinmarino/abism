@@ -502,11 +502,20 @@ def FindBadPixel(grid, r=None, method=('median', 3, 2), ordered=False):
             (rx1, rx2, ry1, ry2) = r
         IX = grid[rx1:rx2+1, ry1:ry2+1]
     res, mIX = IX, IX
+
+    # Filter infs and nan
+    nan = np.isnan(res)
+    inf = np.isinf(res)
+    res[nan] = 0
+    mIX[nan] = 1
+    res[inf] = 0
+    mIX[inf] = 1
+
     if method[0] == 'median':
         mIX = scipy.ndimage.median_filter(IX, size=(method[1], method[1]))
-        res[np.abs(IX-mIX) > (method[2]-1) *
-            mIX] = mIX[np.abs(IX-mIX) > (method[2]-1)*mIX]
+        res[np.abs(IX-mIX) > (method[2]-1) * mIX] = mIX[np.abs(IX-mIX) > (method[2]-1)*mIX]
         # that you Antoine for showing how to get the median value when we differ to much from it.
+
     return res, mIX
 
 

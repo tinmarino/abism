@@ -314,6 +314,7 @@ class AnalysisMenu(ButtonMenu):
         lst2 = [
             ["PickOne", "one", lambda: pick.RefreshPick("one")],
             ["Binary Fit", "binary", lambda: pick.RefreshPick("binary")],
+            ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary")],
             ["No Pick", "nopick", lambda: pick.RefreshPick("nopick")],
         ]
 

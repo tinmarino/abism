@@ -24,6 +24,7 @@
 
 * Ellipse and Annulus Pick (maybe in tool)
 * TightBinary
+  * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * make shortcut appear on mouse_on <ctrl-o> for example
 * delete lru_cache for ipython: https://stackoverflow.com/questions/40273767/clear-all-lru-cache-in-python/50699209
   * toherwise cannot call async more than onces
@@ -46,6 +47,7 @@
 * frame_tex, base class has getten big
 
 # Always possible
+################################################################################
 
 * Better documentation
 * More colorscheme and better interface to choose
@@ -58,3 +60,4 @@
 * Matplotlib super keyboard navigation (did not manage today to get key event only in my frame)
 * Feature: show bad pixels: can be usefull for an observatro (example if object is on it: change telescope orientation)
 * UI: Add some colorscheme (material)
+
