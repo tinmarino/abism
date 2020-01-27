@@ -26,7 +26,6 @@
 
 # Easy win
 
-* Read_Header to BackEnd (see deps_2.png)
 * put image info in abism state (and not root) 
 * rename image -> image_info
 
@@ -34,6 +33,8 @@
 
 # Feature
 
+* Ellipse and Annulus Pick (maybe in tool)
+* TightBinary
 * delete lru_cache for ipython: https://stackoverflow.com/questions/40273767/clear-all-lru-cache-in-python/50699209
   * toherwise cannot call async more than onces
 

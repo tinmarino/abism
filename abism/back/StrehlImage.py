@@ -7,7 +7,6 @@ from abism.back.image import ImageInfo, get_array_stat
 
 
 from abism.util import log, get_root, get_state, EA
-import abism.front.util_front as G
 import abism.back.util_back as W
 
 
@@ -730,9 +729,8 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     ###############
 
 
-def EllipseEventBack():
+def EllipseEventBack(obj):
     """Return: background from ellipse <int(adu)>"""
-    obj = G.ellipse
     rui, rvi = obj.ru, obj.rv     # inner annulus
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
@@ -755,11 +753,10 @@ def EllipseEventBack():
     stat["mean"]
 
 
-def EllipseEventPhot():
+def EllipseEventPhot(obj):
     """Elliptical phot
     Returns: photometry, total, number_count
     """
-    obj = G.ellipse
 
     ###########
     # CAlculate Ellipse stats (phot) update phot
@@ -776,8 +773,7 @@ def EllipseEventPhot():
     return photometry, total, number_count
 
 
-def EllipseEventMax():  # receive EllipseEvent
-    obj = G.ellipse
+def EllipseEventMax(obj):  # receive EllipseEvent
 
     rad = max(obj.ru, obj.rv)
     r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
