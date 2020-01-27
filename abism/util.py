@@ -171,10 +171,11 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key=''):
     elif '__dict__' in dir(obj):
         items = obj.__dict__.items()
     if not items:
-        return stg + str(obj)
+        return stg + str(obj).replace('\n', '\n' + s_indent)
 
     # Recurse
     stg += '(' + type(obj).__name__ + ')\n'
+    items = dict(sorted(items)).items()
     for k, v in items:
         stg += str_pretty(v, indent=indent, rec=rec+1, key=k) + "\n"
 
