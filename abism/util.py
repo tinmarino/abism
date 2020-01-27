@@ -288,6 +288,39 @@ def set_root(root):
     global _root; _root = root
 
 
+def str_pretty(obj, indent=1, rec=0, key=''):
+    """Returns: pretty str of an object
+    obj <- the object to print
+    indent <- the indent per depth
+    rec <- used in recursion
+    """
+    # Init
+    s_indent = ' ' * indent * rec
+    items = {}
+    stg = s_indent
+
+    if key != '': stg += str(key) + ': '
+
+    # Discriminate && Check if final
+    if isinstance(obj, list):
+        items = enumerate(obj)
+    elif isinstance(obj, dict):
+        items = obj.items()
+    elif '__dict__' in dir(obj):
+        items = obj.__dict__.items()
+    if not items:
+        return stg + str(obj)
+
+    # Recurse
+    stg += '(' + type(obj).__name__ + ')\n'
+    for k, v in items:
+        stg += str_pretty(v, indent=indent, rec=rec+1, key=k) + "\n"
+
+    # Return without empty lines
+    return re.sub(r'\n\s*\n', '\n', stg)[:-1]
+
+
+
 def quit_process():
     """Kill process"""
     log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
