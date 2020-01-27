@@ -311,11 +311,6 @@ def restart():
     # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
-def get_version():
-    """Return: version string"""
-    return __version__
-
-
 def get_verbose():
     """Return verbose module variable"""
     return _verbose
