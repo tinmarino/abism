@@ -201,6 +201,9 @@ class AbismState(DotDic):
     def __init__(self):
         self.verbose = 0
 
+        # IamgeInfo cutom type, setted when open_file
+        self.image = None
+
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}
 

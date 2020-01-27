@@ -21,12 +21,12 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     ##########################
     # FIND   THE   CENTER  AND FWHM
     W.r = IF.Order4(W.r)
-    # IF.FindBadPixel(get_root().image.im0,(rx1,rx2,ry1,ry2))
-    star_center = IF.DecreasingGravityCenter(get_root().image.im0, r=W.r)  # GravityCenter
-    star_center = IF.FindMaxWithBin(get_root().image.im0, W.r)  # GravityCenter
-    tmp = IF.LocalMax(get_root().image.im0, center=star_center, size=3)
+    # IF.FindBadPixel(get_state().image.im0,(rx1,rx2,ry1,ry2))
+    star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=W.r)  # GravityCenter
+    star_center = IF.FindMaxWithBin(get_state().image.im0, W.r)  # GravityCenter
+    tmp = IF.LocalMax(get_state().image.im0, center=star_center, size=3)
     star_max, star_center = tmp[2], (tmp[0], tmp[1])
-    W.FWHM = IF.FWHM(get_root().image.im0, star_center)
+    W.FWHM = IF.FWHM(get_state().image.im0, star_center)
     W.background = 0
 
     # Delegate fit
@@ -34,7 +34,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     start_time = time.time()
 
     W.psf_fit = psf_fit = SI.PsfFit(
-        get_root().image.im0, center=star_center,
+        get_state().image.im0, center=star_center,
         max=star_max)
 
     log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
@@ -45,7 +45,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     get_state().add_answer(EA.INTENSITY, intensity)
 
     # Get Background && SAve
-    back_dic = SI.Background(get_root().image.im0)
+    back_dic = SI.Background(get_state().image.im0)
     background = back_dic['my_background']
     rms = back_dic['rms']
     get_state().add_answer(EA.BACKGROUND, background)
@@ -53,7 +53,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
 
     # Get photometry && Save
     photometry, _, number_count = \
-        SI.Photometry(get_root().image.im0, background)
+        SI.Photometry(get_state().image.im0, background)
     get_state().add_answer(EA.PHOTOMETRY, photometry)
 
     # Get Signal on noise && Save
@@ -112,7 +112,7 @@ def StrehlError():
         dI = W.psf_fit[1]["intensity"]
     else:
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
-        mean = np.mean(get_root().image.im0[x0-1:x0+2, y0-1:y0+2])
+        mean = np.mean(get_state().image.im0[x0-1:x0+2, y0-1:y0+2])
         dI = (W.strehl["intensity"] - mean)
         dI /= 2
 
@@ -138,12 +138,12 @@ def save_fwhm():
 
 
 def BinaryStrehl(star1, star2):
-    W.psf_fit = SI.BinaryPsf(get_root().image.im0, star1, star2)
+    W.psf_fit = SI.BinaryPsf(get_state().image.im0, star1, star2)
     W.strehl = W.psf_fit[0]
 
 
 def TightBinaryStrehl():
-    W.psf_fit = SI.TightBinaryPsf(get_root().image.im0)
+    W.psf_fit = SI.TightBinaryPsf(get_state().image.im0)
     W.strehl = W.psf_fit[0]
 
 

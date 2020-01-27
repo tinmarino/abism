@@ -385,7 +385,7 @@ def open_file():
     """
     # Get rootdirecotyr of search
     try:
-        initialdir = "/".join(get_root().image.name.split("/")[: -1])
+        initialdir = "/".join(get_state().image.name.split("/")[: -1])
         initialdir = initialdir or os.getcwd()
     except:
         initialdir = os.getcwd()
@@ -405,7 +405,7 @@ def open_file():
     get_root().frame_image.draw_image()
 
     # Change title
-    fname = get_root().image.name.split('/')[-1]
+    fname = get_state().image.name.split('/')[-1]
     get_root().title('Abism (' + fname + ')')
 
 
@@ -416,5 +416,5 @@ def open_backgroud_and_substract():
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
 
     # Substract and Redraw
-    if get_root().image.substract_sky(fp_sky):
+    if get_state().image.substract_sky(fp_sky):
         get_root().frame_image.draw_image()

@@ -428,7 +428,7 @@ def print_statistic():
     """
     # Get stat <- subarray
     W.r = IF.Order4(W.r)
-    sub_array = get_root().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
+    sub_array = get_state().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
     dicr = get_array_stat(sub_array)
 
     # Clear answer frame
@@ -489,7 +489,7 @@ def PlotOneStar1D():
 
     # Plot x, y
     # we need to give the center (of course)
-    x, y = IF.XProfile(get_root().image.im0, center)
+    x, y = IF.XProfile(get_state().image.im0, center)
     # we get a smaller bin for the fitted curve.
     a = np.arange(min(x), max(x), 0.1)
     # RAW  DATA in X
@@ -551,11 +551,11 @@ def PlotBinaryStar1D():
     dx1 = (x1-x0) / line_len * 5 * fwhm1
     dy1 = (y1-y0) / line_len * 5 * fwhm1
 
-    extremity0 = IF.DoNotPassBorder(get_root().image.im0, (int(x0+dx0), int(y0+dy0)))
-    extremity1 = IF.DoNotPassBorder(get_root().image.im0, (int(x1+dx1), int(y1+dy1)))
+    extremity0 = IF.DoNotPassBorder(get_state().image.im0, (int(x0+dx0), int(y0+dy0)))
+    extremity1 = IF.DoNotPassBorder(get_state().image.im0, (int(x1+dx1), int(y1+dy1)))
 
     ab, od, points = IF.RadialLine(
-        get_root().image.im0, (extremity0, extremity1), return_point=1)
+        get_state().image.im0, (extremity0, extremity1), return_point=1)
 
     if "Moffat" in get_state().fit_type:
         fit_type = "Moffat2pt"
@@ -591,7 +591,7 @@ def show_profile(point1, point2):
     """Callback for Profile Pick: 1 and 2D"""
     # Get data to plot
     ab, od, points = IF.RadialLine(
-        get_root().image.im0, (point1, point2), return_point=1)
+        get_state().image.im0, (point1, point2), return_point=1)
 
     # FIT
     # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
@@ -604,10 +604,10 @@ def show_profile(point1, point2):
     ax.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.redraw()
 
-    log(8, "ProfileAnswer :", zip(points, get_root().image.im0[tuple(points)]))
+    log(8, "ProfileAnswer :", zip(points, get_state().image.im0[tuple(points)]))
 
     # Get stat
-    ps = get_array_stat(get_root().image.im0[tuple(points)])
+    ps = get_array_stat(get_state().image.im0[tuple(points)])
     # LEN
     tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
     lst = [
@@ -642,9 +642,9 @@ def PlotOneStar2D():
     x0, y0 = W.strehl["center_x"], W.strehl["center_y"]
     r99x, r99y = W.strehl["r99x"], W.strehl["r99y"]
     dx1, dx2 = int(max(x0-4*r99x, 0)), int(min(x0+4*r99x,
-                                               len(get_root().image.im0) + 1))  # d like display
+                                               len(get_state().image.im0) + 1))  # d like display
     dy1, dy2 = int(max(y0-4*r99y, 0)), int(min(y0+4*r99y,
-                                               len(get_root().image.im0) + 1))  # c like cut If borders
+                                               len(get_state().image.im0) + 1))  # c like cut If borders
     r = (dx1, dx2, dy1, dy2)  # Teh local cut applied to the image. To show it
 
     x, y = np.arange(r[0], r[1]), np.arange(r[2], r[3])
@@ -652,11 +652,11 @@ def PlotOneStar2D():
 
     def Data(ax):
         ax.imshow(
-            get_root().image.im0[r[0]:r[1], r[2]:r[3]],
+            get_state().image.im0[r[0]:r[1], r[2]:r[3]],
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-        #G.ax31.format_coord=lambda x,y: "%.1f"%get_root().image.im0[r[2]+y,r[0]+x]
+        #G.ax31.format_coord=lambda x,y: "%.1f"%get_state().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
 
     def Fit(ax):
@@ -696,7 +696,7 @@ def PlotOneStar2D():
     if (get_state().noise_type == "8rects"):
         rect = (x0 - params['r99x'], x0 + params['r99x'],
                 y0 - params['r99y'], y0 + params['r99y'])
-        var = IF.EightRectangleNoise(get_root().image.im0, rect, return_rectangle=1)[2]
+        var = IF.EightRectangleNoise(get_state().image.im0, rect, return_rectangle=1)[2]
         for p in var:
             center_tmp = (p[0][0]-r[0]-p[1]/2, p[0][1]-r[2]-p[2]/2)
             a = matplotlib.patches.Rectangle(
@@ -776,12 +776,12 @@ def PlotBinaryStar2D():
     get_root().frame_result.get_figure().clf()
     ax1 = get_root().frame_result.get_figure().add_subplot(121)
     ax1.imshow(
-        get_root().image.im0[r[0]:r[1], r[2]:r[3]],
+        get_state().image.im0[r[0]:r[1], r[2]:r[3]],
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
         cmap=G.cbar.mappable.get_cmap().name, origin='lower')
 
     # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-    ax1.format_coord = lambda x, y: "%.1f" % get_root().image.im0[y, x]
+    ax1.format_coord = lambda x, y: "%.1f" % get_state().image.im0[y, x]
     ax1.format_coord = lambda x, y: ""
     # FIT
     if "Moffat" in get_state().fit_type:
@@ -848,7 +848,7 @@ def CallContrastMap():
 
     def Worker():
         import ImageFunction as IF
-        x, y, tdic = IF.ContrastMap(get_root().image.im0, (W.strehl["center_x"], W.strehl["center_y"]), interp=True, xmin=0.5, xmax=20, step=2, dic={
+        x, y, tdic = IF.ContrastMap(get_state().image.im0, (W.strehl["center_x"], W.strehl["center_y"]), interp=True, xmin=0.5, xmax=20, step=2, dic={
                                     "theta": 0, "ru": 1, "rv": 1}, background=0)  # get_state().get_answer(EA.BACKGROUND))
 
         FigurePlot(x, y, dic=tdic)

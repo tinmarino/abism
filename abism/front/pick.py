@@ -86,21 +86,21 @@ class Pick(ABC):
         """Param: the extreme coord of the human drawn rectangle"""
         # Log && Save
         log(3, 'rectangle click_________________')
-        get_root().image.click = eclick.xdata, eclick.ydata
-        get_root().image.release = erelease.xdata, erelease.ydata
+        get_state().image.click = eclick.xdata, eclick.ydata
+        get_state().image.release = erelease.xdata, erelease.ydata
 
         # Log
-        log(3, 'On:', get_root().image.click, get_root().image.release)
+        log(3, 'On:', get_state().image.click, get_state().image.release)
 
         # Check non null rectangle
-        if get_root().image.click == get_root().image.release:
+        if get_state().image.click == get_state().image.release:
             log(0, "Rectangle phot aborded: you clicked and released on "
                 "the same point")
             return
 
         # TODO remove that
-        W.r = (int(get_root().image.click[1]), int(get_root().image.release[1]),
-               int(get_root().image.click[0]), int(get_root().image.release[0]))
+        W.r = (int(get_state().image.click[1]), int(get_state().image.release[1]),
+               int(get_state().image.click[0]), int(get_state().image.release[0]))
 
         # Work
         self.work(None)
@@ -209,7 +209,7 @@ class PickEllipse(Pick):
         self.artist_ellipse = artist.Ellipse(
             self.figure,
             self.ax,
-            array=get_root().image.im0,
+            array=get_state().image.im0,
             callback=self.work
         )
 
@@ -234,7 +234,7 @@ class PickAnnulus(Pick):
         self.artist_annulus = artist.Annulus(
             self.figure,
             self.ax,
-            array=get_root().image.im0,
+            array=get_state().image.im0,
             callback=self.work
         )
 

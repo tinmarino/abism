@@ -193,7 +193,7 @@ class LabelFrame(TextFrame):
             lbl = ''
 
         # Get Size : Nx * Ny * Nz
-        shape = list(get_root().image.im0.shape[::-1])
+        shape = list(get_state().image.im0.shape[::-1])
         if "NAXIS3" in get_root().header.header.keys():
             shape.append(get_root().header.header["NAXIS3"])
             lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])
@@ -761,7 +761,7 @@ class ButtonFrame(tk.Frame):
         """Prepare Cube buttons"""
         # Try to destroy if not a cube
         # Create a cube interface else
-        if not get_root().image.is_cube:
+        if not get_state().image.is_cube:
             self.close_cube()
         else:
             self.open_cube()
@@ -785,18 +785,18 @@ class ButtonFrame(tk.Frame):
 
         # Define tk variable
         int_var = tk.IntVar()
-        int_var.set(get_root().image.cube_num + 1)
+        int_var.set(get_state().image.cube_num + 1)
 
         # callback
         def callback(i_click):
             """Callback for cube button + -"""
             if i_click == 0:
-                get_root().image.cube_num = int_var.get()
+                get_state().image.cube_num = int_var.get()
             else:
-                get_root().image.cube_num += i_click
+                get_state().image.cube_num += i_click
 
-            int_var.set(get_root().image.cube_num + 1)
-            get_root().image.update_cube()
+            int_var.set(get_state().image.cube_num + 1)
+            get_state().image.update_cube()
             get_root().frame_image.draw_image(new_fits=False)
 
         # Button left

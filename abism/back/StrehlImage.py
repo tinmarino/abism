@@ -206,7 +206,7 @@ def Photometry(grid, background):
 
     # MANUAL
     elif get_state().phot_type == 'manual':
-        stat = get_root().image.RectanglePhot(W.r)
+        stat = get_state().image.RectanglePhot(W.r)
         total = stat.sum
         number_count = stat.number_count
         photometry = total  - number_count * background
@@ -255,7 +255,7 @@ def Background(grid):
             log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
             param = param.copy()
             param.update({"noise": "annulus"})
-            return Background(get_root().image.im0, param=param)
+            return Background(get_state().image.im0, param=param)
         try:
             dic['rms'] = W.psf_fit[1]['background']
         except:
@@ -279,7 +279,7 @@ def Background(grid):
         ax2 = int(W.strehl["center_x"] + myrad)
         ay1 = int(W.strehl["center_y"] - myrad)
         ay2 = int(W.strehl["center_y"] + myrad)
-        image_cut = get_root().image.im0[ax1: ax2, ay1: ay2]
+        image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
 
         bol_i = IF.EllipticalAperture(
             image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
@@ -338,7 +338,7 @@ def BinaryPsf(grid, star1, star2, search=False):
     ry1, ry2 = int(my_center[1] - fit_range /
                    2),  int(my_center[1] + fit_range/2)
 
-    rx1, rx2, ry1, ry2 = IF.Order4((rx1, rx2, ry1, ry2), grid=get_root().image.im0)
+    rx1, rx2, ry1, ry2 = IF.Order4((rx1, rx2, ry1, ry2), grid=get_state().image.im0)
     log(3, "----->IF.BinaryPSF :", "The fit is done between points ",
           (rx1, ry1), " and ", (rx2, ry2), "with fit", fit_type)
     X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
@@ -570,12 +570,12 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
                        'intensity0': grid[max0[0]][max0[1]], 'intensity1': grid[max1[0]][max1[1]],
                        'background': 0, "theta": 1}
 
-    cut1 = get_root().image.im0[star1[0]-2:star1[0]+2, star1[1]-2:star1[1]+2]
+    cut1 = get_state().image.im0[star1[0]-2:star1[0]+2, star1[1]-2:star1[1]+2]
     min1 = np.median(cut1)
     max1 = np.max(cut1)
     max1 = 2*max1 - min1
 
-    cut2 = get_root().image.im0[star2[0]-2:star2[0]+2, star2[1]-2:star2[1]+2]
+    cut2 = get_state().image.im0[star2[0]-2:star2[0]+2, star2[1]-2:star2[1]+2]
     min2 = np.median(cut2)
     max2 = np.max(cut2)
     max2 = 2*max2 - min2
@@ -735,12 +735,12 @@ def EllipseEventBack(obj):
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
     ell_i = IF.EllipticalAperture(
-        get_root().image.im0,
+        get_state().image.im0,
         dic={"center_x": obj.x0, "center_y": obj.y0, "ru": rui,
              "rv": rvi, "theta": obj.theta})  # inner
 
     ell_o = IF.EllipticalAperture(
-        get_root().image.im0,
+        get_state().image.im0,
         dic={"center_x": obj.x0, "center_y": obj.y0, "ru": ruo,
              "rv": rvo, "theta": obj.theta})  # outter
 
@@ -777,7 +777,7 @@ def EllipseEventMax(obj):  # receive EllipseEvent
 
     rad = max(obj.ru, obj.rv)
     r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
-    local_max = IF.LocalMax(get_root().image.im0, r=r)  # With bad pixel filter
+    local_max = IF.LocalMax(get_state().image.im0, r=r)  # With bad pixel filter
 
     ######
     # Update

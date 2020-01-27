@@ -130,7 +130,7 @@ class FileMenu(ButtonMenu):
         self.menu.add_command(
             label='Display Header',
             command=lambda: spawn_header_window(
-                get_root().image.name,
+                get_state().image.name,
                 get_root().header.header.tostring(sep="\n"),
                 save=get_root().saved_children,
             ))
@@ -348,7 +348,7 @@ class ToolMenu(ButtonMenu):
             ["Stat", lambda: pick.RefreshPick("stat")],
             ["Histogram", lambda: histopopo(
                 get_root().frame_fit.get_figure(),
-                get_root().image.sort,
+                get_state().image.sort,
                 skin=skin())],
             ["Legacy Console", debug_console],
             ["Jupyter Console", jupyter_window],

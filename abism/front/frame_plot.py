@@ -212,7 +212,7 @@ class ImageFrame(PlotFrame):
         ax = self._fig.add_subplot(111)
 
         # Get image arry
-        im0 = get_root().image.im0.astype(float32)
+        im0 = get_state().image.im0.astype(float32)
 
         # Display
         drawing = ax.imshow(
@@ -278,13 +278,13 @@ class ImageFrame(PlotFrame):
 
 
     def add_contour(self):
-        tmp = get_root().image.get_stat()
+        tmp = get_state().image.get_stat()
         mean, rms = tmp["mean"], tmp["rms"]
 
         # Get contour 2 and 5 rms
         c2, c5 = mean + 2 * rms, mean + 5 * rms
 
-        im0 = get_root().image.im0.astype(float32)
+        im0 = get_state().image.im0.astype(float32)
         self.contours = self._fig.axes[0].contour(
             im0, (c2, c5),
             origin='lower', colors="k",
@@ -317,10 +317,10 @@ class ImageFrame(PlotFrame):
         # CUT
         if get_state().s_image_stretch == "None":
             # IG.ManualCut()
-            get_state().i_image_min_cut = get_root().image.stat.min
-            get_state().i_image_max_cut = get_root().image.stat.max
+            get_state().i_image_min_cut = get_state().image.stat.min
+            get_state().i_image_max_cut = get_state().image.stat.max
         else:
-            i_min, i_max = get_root().image.get_cut_minmax()
+            i_min, i_max = get_state().image.get_cut_minmax()
             get_state().i_image_min_cut = i_min
             get_state().i_image_max_cut = i_max
 
@@ -375,7 +375,7 @@ class ImageFrame(PlotFrame):
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
         ax = self._fig.axes[0]
-        im0 = get_root().image.im0.astype(float32)
+        im0 = get_state().image.im0.astype(float32)
 
         if not (("CD1_1" in vars(get_root().header)) and ("CD2_2" in vars(get_root().header))):
             log(0, "WARNING WCS Matrix not detected,",
