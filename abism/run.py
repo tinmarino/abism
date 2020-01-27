@@ -6,6 +6,7 @@ import threading
 def run_sync():
     """Never returns"""
     run_helper(Namespace())
+    print('Bye')
 
 
 def run_async():

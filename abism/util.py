@@ -289,8 +289,7 @@ def set_root(root):
 def quit_process():
     """Kill process"""
     log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
-    # parent.destroy()
-    sys.exit(0)
+    get_root().destroy()
 
 
 def restart():
