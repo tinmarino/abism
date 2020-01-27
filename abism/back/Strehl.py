@@ -94,7 +94,7 @@ def StrehlError():
     dics = W.strehl
     # Get in
     # TODO refactor
-    Sr = get_state().answers[EA.STREHL].value
+    Sr = get_state().get_answer(EA.STREHL)
     Ith, bessel_integer = dics["Ith"], dics['bessel_integer']
 
     # Background
