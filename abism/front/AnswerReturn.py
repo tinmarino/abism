@@ -336,6 +336,7 @@ def PlotEllipse():
 
 
 def print_binary():
+    # pylint: disable = too-many-locals
     # Pack fit type in Frame
     get_root().frame_answer.set_fit_type_text(get_state().fit_type)
     get_root().frame_answer.clear()
@@ -352,8 +353,6 @@ def print_binary():
     separation_dic = Separation(point=((x0, x1), (y0, y1)), err=((dx0, dx1), (dy0, dy1)))
     separation = separation_dic["dist"]
     sep_err = separation_dic["dist_err"]
-    im_angle = separation_dic["im_angle"]
-    sky_angle = separation_dic["sky_angle"]
 
     # STREHL
     # Some math TODO move
@@ -404,6 +403,8 @@ def print_binary():
     text.insert_answer(answer)
 
     # TODO
+    # im_angle = separation_dic["im_angle"]
+    # sky_angle = separation_dic["sky_angle"]
     # ["Orientation: ", im_angle, "%.2f" % im_angle + u'\xb0'],
 
     # Strehl 1

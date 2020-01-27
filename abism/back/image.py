@@ -10,7 +10,7 @@ from scipy.ndimage import median_filter
 from scipy.signal import convolve2d
 
 
-from abism.plugin.ReadHeader import parse_header  # What a name !
+from abism.back.read_header import parse_header
 
 from abism.util import log, get_state, DotDic
 
