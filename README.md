@@ -35,10 +35,10 @@ __More:__
 
 from ipython:
 ```python
+# Launch
 from abism.run import run_async; sm = run_async()
-```
 
-```python
+# Print details
 import pprint; pp = pprint.PrettyPrinter(indent=4); pp.pprint(sm.state)
 ```
 
