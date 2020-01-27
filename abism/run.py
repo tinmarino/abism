@@ -54,8 +54,23 @@ def run_async(*argument):
         def run(self):
             _run_helper(self)
 
+    def clear_all_cache():
+        # pylint: disable = protected-access
+        import functools
+        import gc
+
+        gc.collect()
+        wrappers = [
+            a for a in gc.get_objects()
+            if isinstance(a, functools._lru_cache_wrapper)]
+
+        for wrapper in wrappers:
+            wrapper.cache_clear()
     # Hi
     print('---> Abism GUI called async')
+
+    # Clear all cache (for tk photo)
+    clear_all_cache()
 
     # Fake sys.args
     sys.argv = ['ipy'] + list(argument)
