@@ -13,7 +13,7 @@ from scipy.signal import convolve2d
 from abism.plugin.ReadHeader import parse_header  # What a name !
 
 # TODO root for MinMaxCut, should be here
-from abism.util import log, get_root, get_state, DotDic
+from abism.util import log, get_state, DotDic
 
 
 class ImageStat(DotDic):
@@ -232,8 +232,8 @@ class ImageInfo():
         # Percent
         elif cut_type == 'percent':
             percent = (100. - cut_value) / 100.   # get a little percentage
-            min_cut = self.sort[int(percent / 2 * self.stat.number_count)]
-            max_cut = self.sort[int((1 - percent) / 2 * self.stat.number_count)]
+            min_cut = self.sort[int(percent * self.stat.number_count)]
+            max_cut = self.sort[int((1 - percent) * self.stat.number_count)]
 
         # Sigma clipping
         elif cut_type == 'sigma_clip':
