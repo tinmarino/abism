@@ -7,33 +7,32 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-
-class Answer(ABC):
-    """Base class for an answser
-    text and value
+class AnswerSky(ABC):
+    """Abism answer from BackEnd, base class
+    Variables:
+        text: textual name of varaible
+        value: object value of the variable
+    Methods: Different possible representation:
+        on sky: real univer
+        on detector: what you see, (on image is overused)
     """
     def __init__(self, text, value):
         self.text = text
         self.value = value
         self.unit = ''
 
-    @abstractmethod
-    def __str__(self): pass
-
-
-class AnswerSky(Answer):
-    """Different possible representation
-    on sky: real univer
-    on detector: what you see, (on image is overused)
-    """
     def __str__(self):
-        return self.str_detector()
+        return self.__repr__()
+
+    def __repr__(self):
+        return '| ' + self.text + ' <- ' + self.str_detector() + ' |'
 
     @abstractmethod
     def str_sky(self): pass
 
     @abstractmethod
     def str_detector(self): pass
+
 
 
 class AnswerObject(AnswerSky):
