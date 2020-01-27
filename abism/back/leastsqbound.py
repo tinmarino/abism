@@ -10,10 +10,9 @@ from scipy.optimize import _minpack, leastsq
 from abism.util import log
 
 def _internal2external_grad(xi, bounds):
+    """Calculate the internal (unconstrained) to external (constained)
+    parameter gradiants.
     """
-Calculate the internal (unconstrained) to external (constained)
-parameter gradiants.
-"""
     grad = empty_like(xi)
     for i, (v, bound) in enumerate(zip(xi, bounds)):
         lower, upper = bound
@@ -29,10 +28,9 @@ parameter gradiants.
 
 
 def _internal2external_func(bounds):
+    """Make a function which converts between internal (unconstrained) and
+    external (constrained) parameters.
     """
-Make a function which converts between internal (unconstrained) and
-external (constrained) parameters.
-"""
     ls = [_internal2external_lambda(b) for b in bounds]
 
     def convert_i2e(xi):
@@ -44,10 +42,9 @@ external (constrained) parameters.
 
 
 def _internal2external_lambda(bound):
+    """Make a lambda function which converts a single internal (uncontrained)
+    parameter to a external (constrained) parameter.
     """
-Make a lambda function which converts a single internal (uncontrained)
-parameter to a external (constrained) parameter.
-"""
     lower, upper = bound
 
     if lower is None and upper is None:  # no constraints
@@ -61,10 +58,9 @@ parameter to a external (constrained) parameter.
 
 
 def _external2internal_func(bounds):
+    """Make a function which converts between external (constrained) and
+    internal (unconstrained) parameters.
     """
-Make a function which converts between external (constrained) and
-internal (unconstrained) parameters.
-"""
     ls = [_external2internal_lambda(b) for b in bounds]
 
     def convert_e2i(xe):
@@ -76,10 +72,9 @@ internal (unconstrained) parameters.
 
 
 def _external2internal_lambda(bound):
+    """Make a lambda function which converts an single external (constrained)
+    parameter to a internal (unconstrained) parameter.
     """
-Make a lambda function which converts an single external (constrained)
-parameter to a internal (unconstrained) parameter.
-"""
     lower, upper = bound
 
     if lower is None and upper is None:  # no constraints
@@ -95,146 +90,145 @@ parameter to a internal (unconstrained) parameter.
 def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
                  col_deriv=0, ftol=1.49012e-8, xtol=1.49012e-8,
                  gtol=0.0, maxfev=0, epsfcn=0.0, factor=100, diag=None, dic={}):
+    """Bounded minimization of the sum of squares of a set of equations.
+
+    ::
+
+    x = arg min(sum(func(y)**2,axis=0))
+    y
+
+    Parameters
+    ----------
+    func : callable
+        should take at least one (possibly length N vector) argument and
+        returns M floating point numbers.
+    x0 : ndarray
+        The starting estimate for the minimization.
+    args : tuple
+        Any extra arguments to func are placed in this tuple.
+        bounds : list
+        ``(min, max)`` pairs for each element in ``x``, defining
+        the bounds on that parameter. Use None for one of ``min`` or
+        ``max`` when there is no bound in that direction.
+    Dfun : callable
+        A function or method to compute the Jacobian of func with derivatives
+        across the rows. If this is None, the Jacobian will be estimated.
+    full_output : bool
+        non-zero to return all optional outputs.
+    col_deriv : bool
+        non-zero to specify that the Jacobian function computes derivatives
+        down the columns (faster, because there is no transpose operation).
+    ftol : float
+        Relative error desired in the sum of squares.
+    xtol : float
+        Relative error desired in the approximate solution.
+    gtol : float
+        Orthogonality desired between the function vector and the columns of
+        the Jacobian.
+    maxfev : int
+        The maximum number of calls to the function. If zero, then 100*(N+1) is
+        the maximum where N is the number of elements in x0.
+    epsfcn : float
+        A suitable step length for the forward-difference approximation of the
+        Jacobian (for Dfun=None). If epsfcn is less than the machine precision,
+        it is assumed that the relative errors in the functions are of the
+        order of the machine precision.
+    factor : float
+        A parameter determining the initial step bound
+        (``factor * || diag * x||``). Should be in interval ``(0.1, 100)``.
+    diag : sequence
+        N positive entries that serve as a scale factors for the variables.
+
+    Returns
+    -------
+    x : ndarray
+    The solution (or the result of the last iteration for an unsuccessful
+    call).
+    cov_x : ndarray
+    Uses the fjac and ipvt optional outputs to construct an
+    estimate of the jacobian around the solution. ``None`` if a
+    singular matrix encountered (indicates very flat curvature in
+    some direction). This matrix must be multiplied by the
+    residual standard deviation to get the covariance of the
+    parameter estimates -- see curve_fit.
+    infodict : dict
+    a dictionary of optional outputs with the key s::
+
+    - 'nfev' : the number of function calls
+    - 'fvec' : the function evaluated at the output
+    - 'fjac' : A permutation of the R matrix of a QR
+    factorization of the final approximate
+    Jacobian matrix, stored column wise.
+    Together with ipvt, the covariance of the
+    estimate can be approximated.
+    - 'ipvt' : an integer array of length N which defines
+    a permutation matrix, p, such that
+    fjac*p = q*r, where r is upper triangular
+    with diagonal elements of nonincreasing
+    magnitude. Column j of p is column ipvt(j)
+    of the identity matrix.
+    - 'qtf' : the vector (transpose(q) * fvec).
+
+    mesg : str
+    A string message giving information about the cause of failure.
+    ier : int
+    An integer flag. If it is equal to 1, 2, 3 or 4, the solution was
+    found. Otherwise, the solution was not found. In either case, the
+    optional output variable 'mesg' gives more information.
+
+    Notes
+    -----
+    "leastsq" is a wrapper around MINPACK's lmdif and lmder algorithms.
+
+    cov_x is a Jacobian approximation to the Hessian of the least squares
+    objective function.
+    This approximation assumes that the objective function is based on the
+    difference between some observed target data (ydata) and a (non-linear)
+    function of the parameters `f(xdata, params)` ::
+
+    func(params) = ydata - f(xdata, params)
+
+    so that the objective function is ::
+
+    min sum((ydata - f(xdata, params))**2, axis=0)
+    params
+
+    Contraints on the parameters are enforced using an internal parameter list
+    with appropiate transformations such that these internal parameters can be
+    optimized without constraints. The transfomation between a given internal
+    parameter, p_i, and a external parameter, p_e, are as follows:
+
+    With ``min`` and ``max`` bounds defined ::
+
+    p_i = arcsin((2 * (p_e - min) / (max - min)) - 1.)
+    p_e = min + ((max - min) / 2.) * (sin(p_i) + 1.)
+
+    With only ``max`` defined ::
+
+    p_i = sqrt((max - p_e + 1.)**2 - 1.)
+    p_e = max + 1. - sqrt(p_i**2 + 1.)
+
+    With only ``min`` defined ::
+
+    p_i = sqrt((p_e - min + 1.)**2 - 1.)
+    p_e = min - 1. + sqrt(p_i**2 + 1.)
+
+    These transfomations are used in the MINUIT package, and described in
+    detail in the section 1.3.1 of the MINUIT User's Guide.
+
+    To Do
+    -----
+    Currently the ``factor`` and ``diag`` parameters scale the
+    internal parameter list, but should scale the external parameter list.
+
+    The `qtf` vector in the infodic dictionary reflects internal parameter
+    list, it should be correct to reflect the external parameter list.
+
+    References
+    ----------
+    * F. James and M. Winkler. MINUIT User's Guide, July 16, 2004.
+
     """
-Bounded minimization of the sum of squares of a set of equations.
-
-::
-
-x = arg min(sum(func(y)**2,axis=0))
-y
-
-Parameters
-----------
-func : callable
-should take at least one (possibly length N vector) argument and
-returns M floating point numbers.
-x0 : ndarray
-The starting estimate for the minimization.
-args : tuple
-Any extra arguments to func are placed in this tuple.
-bounds : list
-``(min, max)`` pairs for each element in ``x``, defining
-the bounds on that parameter. Use None for one of ``min`` or
-``max`` when there is no bound in that direction.
-Dfun : callable
-A function or method to compute the Jacobian of func with derivatives
-across the rows. If this is None, the Jacobian will be estimated.
-full_output : bool
-non-zero to return all optional outputs.
-col_deriv : bool
-non-zero to specify that the Jacobian function computes derivatives
-down the columns (faster, because there is no transpose operation).
-ftol : float
-Relative error desired in the sum of squares.
-xtol : float
-Relative error desired in the approximate solution.
-gtol : float
-Orthogonality desired between the function vector and the columns of
-the Jacobian.
-maxfev : int
-The maximum number of calls to the function. If zero, then 100*(N+1) is
-the maximum where N is the number of elements in x0.
-epsfcn : float
-A suitable step length for the forward-difference approximation of the
-Jacobian (for Dfun=None). If epsfcn is less than the machine precision,
-it is assumed that the relative errors in the functions are of the
-order of the machine precision.
-factor : float
-A parameter determining the initial step bound
-(``factor * || diag * x||``). Should be in interval ``(0.1, 100)``.
-diag : sequence
-N positive entries that serve as a scale factors for the variables.
-
-Returns
--------
-x : ndarray
-The solution (or the result of the last iteration for an unsuccessful
-call).
-cov_x : ndarray
-Uses the fjac and ipvt optional outputs to construct an
-estimate of the jacobian around the solution. ``None`` if a
-singular matrix encountered (indicates very flat curvature in
-some direction). This matrix must be multiplied by the
-residual standard deviation to get the covariance of the
-parameter estimates -- see curve_fit.
-infodict : dict
-a dictionary of optional outputs with the key s::
-
-- 'nfev' : the number of function calls
-- 'fvec' : the function evaluated at the output
-- 'fjac' : A permutation of the R matrix of a QR
-factorization of the final approximate
-Jacobian matrix, stored column wise.
-Together with ipvt, the covariance of the
-estimate can be approximated.
-- 'ipvt' : an integer array of length N which defines
-a permutation matrix, p, such that
-fjac*p = q*r, where r is upper triangular
-with diagonal elements of nonincreasing
-magnitude. Column j of p is column ipvt(j)
-of the identity matrix.
-- 'qtf' : the vector (transpose(q) * fvec).
-
-mesg : str
-A string message giving information about the cause of failure.
-ier : int
-An integer flag. If it is equal to 1, 2, 3 or 4, the solution was
-found. Otherwise, the solution was not found. In either case, the
-optional output variable 'mesg' gives more information.
-
-Notes
------
-"leastsq" is a wrapper around MINPACK's lmdif and lmder algorithms.
-
-cov_x is a Jacobian approximation to the Hessian of the least squares
-objective function.
-This approximation assumes that the objective function is based on the
-difference between some observed target data (ydata) and a (non-linear)
-function of the parameters `f(xdata, params)` ::
-
-func(params) = ydata - f(xdata, params)
-
-so that the objective function is ::
-
-min sum((ydata - f(xdata, params))**2, axis=0)
-params
-
-Contraints on the parameters are enforced using an internal parameter list
-with appropiate transformations such that these internal parameters can be
-optimized without constraints. The transfomation between a given internal
-parameter, p_i, and a external parameter, p_e, are as follows:
-
-With ``min`` and ``max`` bounds defined ::
-
-p_i = arcsin((2 * (p_e - min) / (max - min)) - 1.)
-p_e = min + ((max - min) / 2.) * (sin(p_i) + 1.)
-
-With only ``max`` defined ::
-
-p_i = sqrt((max - p_e + 1.)**2 - 1.)
-p_e = max + 1. - sqrt(p_i**2 + 1.)
-
-With only ``min`` defined ::
-
-p_i = sqrt((p_e - min + 1.)**2 - 1.)
-p_e = min - 1. + sqrt(p_i**2 + 1.)
-
-These transfomations are used in the MINUIT package, and described in
-detail in the section 1.3.1 of the MINUIT User's Guide.
-
-To Do
------
-Currently the ``factor`` and ``diag`` parameters scale the
-internal parameter list, but should scale the external parameter list.
-
-The `qtf` vector in the infodic dictionary reflects internal parameter
-list, it should be correct to reflect the external parameter list.
-
-References
-----------
-* F. James and M. Winkler. MINUIT User's Guide, July 16, 2004.
-
-"""
     # use leastsq if no bounds are present
     if bounds is None:
         return leastsq(func, x0, args, Dfun, full_output, col_deriv,
