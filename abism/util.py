@@ -71,11 +71,11 @@ def parse_argument():
 
     # Custom
     try:
+        # Parse from sys args
         parsed_args = parser.parse_args()
     except SystemExit as e:
         log(0, 'Argument Parsing error', str(e))
         parsed_args = parser.parse_args([])
-    log(3, 'Parsed initially:', parsed_args)
 
     parsed_args.script = argv[0]
     parsed_args.image = parsed_args.image[0]
@@ -84,6 +84,8 @@ def parse_argument():
     _parsed_args = parsed_args
 
     get_state().verbose = parsed_args.verbose
+
+    log(0, 'Parsed initially:', parsed_args)
 
     return _parsed_args
 
