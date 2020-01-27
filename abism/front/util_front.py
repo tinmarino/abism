@@ -319,13 +319,13 @@ def set_figure_skin(figure, in_skin):
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""
-    return tk.PhotoImage(file=root_path() + "res/arrow_up.gif")
+    return tk.PhotoImage(file=root_path() + "res/arrow_up.gif", master=get_root())
 
 
 @lru_cache(1)
 def photo_down():
     """Return path of arrow_down icon"""
-    return tk.PhotoImage(file=root_path() + "res/arrow_down.gif")
+    return tk.PhotoImage(file=root_path() + "res/arrow_down.gif", master=get_root())
 
 
 @lru_cache(1)

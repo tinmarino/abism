@@ -106,7 +106,7 @@ class WindowRoot(tk.Tk):
     def set_icon(self):
         """Create OS Icon from resources"""
         if isfile(icon_path()):
-            bitmap = tk.PhotoImage(file=icon_path())
+            bitmap = tk.PhotoImage(file=icon_path(), master=self)
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
         else:
             log(3, "->you have no beautiful icon "
