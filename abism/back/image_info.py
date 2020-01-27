@@ -230,7 +230,8 @@ class ImageInfo():
 
         # Percent
         elif cut_type == 'percent':
-            percent = (100. - cut_value) / 100.   # get a little percentage
+            # Get a little percentage (like 0.1 for 99.9)
+            percent = (100. - cut_value) / 100.
             min_cut = self.sort[int(percent * self.stat.number_count)]
             max_cut = self.sort[int((1 - percent) * self.stat.number_count)]
 

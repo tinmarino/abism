@@ -10,25 +10,7 @@ from enum import Enum
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-from abism.util import root_path, log, get_root, DotDic
-
-
-@lru_cache(1)
-def photo_up():
-    """Return path of arrow_up icon"""
-    return tk.PhotoImage(file=root_path() + "res/arrow_up.gif")
-
-
-@lru_cache(1)
-def photo_down():
-    """Return path of arrow_down icon"""
-    return tk.PhotoImage(file=root_path() + "res/arrow_down.gif")
-
-
-@lru_cache(1)
-def icon_path():
-    """Return path of window icon"""
-    return root_path() + 'res/bato_chico.gif'
+from abism.util import root_path, log, get_root, DotDic, get_state
 
 
 class Font:
@@ -67,6 +49,7 @@ class CheckButtonDic(ButtonDic):
         # look more like a frame than a button (see more analysis)
         self.bg = color.bg
         self.anchor = 'w'
+        self.selectcolor = color.bg_extreme
 
 
 class PanedDic(DotDic):
@@ -198,6 +181,7 @@ class ColorScheme:
         self.bu                 = self.solarized_base01
         self.bu_hi              = self.solarized_base00
         self.label_title_bg     = self.solarized_base03
+        self.bg_extreme         = "#000000"
 
     def init_light(self):
         """Solarized light"""
@@ -206,6 +190,7 @@ class ColorScheme:
         self.bu                 = self.solarized_base2
         self.bu_hi              = self.solarized_base3
         self.label_title_bg     = self.solarized_base3
+        self.bg_extreme         = "#ffffff"
 
 
 class Skin:
@@ -243,6 +228,8 @@ def update_widget_skin(widget):
                 ):
             return
         widget.configure(skin().button_dic)
+    elif isinstance(widget, tk.Checkbutton):
+        widget.configure(skin().checkbutton_dic)
     elif isinstance(widget, tk.PanedWindow):
         widget.configure(skin().paned_dic)
     elif isinstance(widget, tk.Frame):
@@ -286,6 +273,65 @@ def reset_skin(in_scheme):
     scheme = in_scheme
     skin.cache_clear()
     skin()
+
+
+def children_do(widget, callback):
+    """Recurse and call helper
+    callback: function(widget)
+    """
+    for item in widget.winfo_children():
+        callback(item)
+        children_do(item, callback)
+
+
+def set_figure_skin(figure, in_skin):
+    """Update skin, caller must redraw"""
+    fg = in_skin.color.fg
+    bg = in_skin.color.bg
+
+    # Figure
+    figure.set_facecolor(bg)
+
+    # Ax
+    for ax in figure.axes:
+        # Spine
+        ax.spines['bottom'].set_color(fg)
+        ax.spines['top'].set_color(fg)
+        ax.spines['right'].set_color(fg)
+        ax.spines['left'].set_color(fg)
+
+        # Tick
+        ax.tick_params(axis='x', colors=fg)
+        ax.tick_params(axis='y', colors=fg)
+
+        # Label
+        ax.yaxis.label.set_color(fg)
+        ax.xaxis.label.set_color(fg)
+
+        # Title
+        ax.title.set_color(fg)
+
+
+# Utilities
+####################################################################
+
+
+@lru_cache(1)
+def photo_up():
+    """Return path of arrow_up icon"""
+    return tk.PhotoImage(file=root_path() + "res/arrow_up.gif")
+
+
+@lru_cache(1)
+def photo_down():
+    """Return path of arrow_down icon"""
+    return tk.PhotoImage(file=root_path() + "res/arrow_down.gif")
+
+
+@lru_cache(1)
+def icon_path():
+    """Return path of window icon"""
+    return root_path() + 'res/bato_chico.gif'
 
 
 def about_window():
@@ -336,43 +382,6 @@ def system_open(path=""):
     if fct is not None:
         subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
     log(0, "ERROR pdf viewer : need to be implemented ")
-
-
-def children_do(widget, callback):
-    """Recurse and call helper
-    callback: function(widget)
-    """
-    for item in widget.winfo_children():
-        callback(item)
-        children_do(item, callback)
-
-
-def set_figure_skin(figure, in_skin):
-    """Update skin, caller must redraw"""
-    fg = in_skin.color.fg
-    bg = in_skin.color.bg
-
-    # Figure
-    figure.set_facecolor(bg)
-
-    # Ax
-    for ax in figure.axes:
-        # Spine
-        ax.spines['bottom'].set_color(fg)
-        ax.spines['top'].set_color(fg)
-        ax.spines['right'].set_color(fg)
-        ax.spines['left'].set_color(fg)
-
-        # Tick
-        ax.tick_params(axis='x', colors=fg)
-        ax.tick_params(axis='y', colors=fg)
-
-        # Label
-        ax.yaxis.label.set_color(fg)
-        ax.xaxis.label.set_color(fg)
-
-        # Title
-        ax.title.set_color(fg)
 
 
 def open_file():
