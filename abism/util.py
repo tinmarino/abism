@@ -24,6 +24,7 @@ _root = None
 
 @lru_cache(1)
 def parse_argument():
+    """Do not call get_state here -> infinite loop"""
     # pylint: disable=global-statement
     global _parsed_args
 
@@ -69,12 +70,23 @@ def parse_argument():
         default=700,
         help='separator (image vertical) position from top (in pixel)')
 
+
+    # Image View
+    ############
+
+    # Colormap
+    parser.add_argument(
+        '-c', '--cmap', metavar='ColorMap', type=str, nargs='?', action='store',
+        default='bone',
+        help='Colormap for the image')
+
     # Custom
     try:
         # Parse from sys args
         parsed_args = parser.parse_args()
     except SystemExit as e:
-        log(0, 'Argument Parsing error', str(e))
+        if str(e) == '0': sys.exit()
+        print('Argument Parsing error:', str(e))
         parsed_args = parser.parse_args([])
 
     parsed_args.script = argv[0]
@@ -82,10 +94,6 @@ def parse_argument():
 
     # set
     _parsed_args = parsed_args
-
-    get_state().verbose = parsed_args.verbose
-
-    log(0, 'Parsed initially:', parsed_args)
 
     return _parsed_args
 
@@ -239,7 +247,7 @@ class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
     def __init__(self):
-        self.verbose = 0
+        self.verbose = parse_argument().verbose
 
         # IamgeInfo cutom type, setted when open_file
         self.image = None
@@ -267,7 +275,7 @@ class AbismState(DotDic):
         self.i_background = 0
 
         # UI image
-        self.s_image_color_map = get_colormap_list()[0][1]
+        self.s_image_color_map = parse_argument().cmap
         self.s_image_stretch = get_stretch_list()[0][2]
         self.s_image_cut = get_cut_list()[0][1]  # fct
         self.i_image_cut = get_cut_list()[0][3]  # param
