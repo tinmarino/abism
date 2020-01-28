@@ -711,6 +711,29 @@ class AnswerFrame(TextFrame):
         """Change fit type label text"""
         self._fit_type_label.configure(text=s_text)
 
+    @staticmethod
+    def on_resize_text(event):
+        log(5, 'Answer, Resize text:', event)
+        event.widget.configure(tabs=(event.width/2, tk.LEFT))
+
+    def grid_text_answer(self):
+        """Grid tk text for results
+        Retunrs tk text to be filled
+        """
+        # Create text
+        text = tk.Text(self, **skin().text_dic)
+
+        # Configure Text
+        text.bind("<Configure>", self.on_resize_text)
+        text.tag_configure('tag-important', foreground=skin().color.important)
+        text.tag_configure('tag-center', justify=tk.CENTER)
+
+        # Grid text
+        text.grid(columnspan=2, sticky='nsew')
+
+        return text
+
+
 
 class ButtonFrame(tk.Frame):
     """Frame 1 with quit, restart"""

@@ -12,6 +12,9 @@ from abism.front import AnswerReturn as AR
 
 from abism.back import Strehl
 
+from abism.plugin.stat_rectangle import show_statistic
+from abism.plugin.profile_line import show_profile
+
 from abism.util import log, get_root, get_state
 
 # TODO remove
@@ -271,7 +274,7 @@ class PickProfile(Pick):
     def work(self, obj):
         self.point2 = [obj.point2[0], obj.point2[1]]
         self.point1 = [obj.point1[0], obj.point1[1]]
-        AR.show_profile(self.point1, self.point2)
+        show_profile(self.point1, self.point2)
 
 
 class PickStat(Pick):
@@ -296,7 +299,7 @@ class PickStat(Pick):
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
     def work(self, obj):
-        AR.print_statistic(self.rectangle)
+        show_statistic(self.rectangle)
 
 
 class PickBinary(Pick):

@@ -117,9 +117,6 @@ def plot_result():
     if pick == 'ellipse':
         PlotEllipse(); return
 
-    if pick == "stat":
-        print_statistic(); return
-
 
 def grid_button_change_coord():
     # Declare button info
@@ -180,7 +177,7 @@ def print_one():
 
     # TODO move all preceding in back
 
-    text = grid_text_answer()
+    text = get_root().frame_answer.grid_text_answer()
 
     # Strehl
     text.insert_answer(
@@ -219,31 +216,6 @@ def print_one():
 
     # Disable edit
     text.configure(state=DISABLED)
-
-
-
-def on_resize_text(event):
-    log(5, 'Answer, Resize text:', event)
-    event.widget.configure(tabs=(event.width/2, LEFT))
-
-
-def grid_text_answer():
-    """Grid formatted text answered
-    Nobody can edit text, when it is disabled
-    """
-    # Create text
-    text = Text(get_root().frame_answer, **skin().text_dic)
-
-    # Configure Text
-    text.bind("<Configure>", on_resize_text)
-    text.tag_configure('tag-important', foreground=skin().color.important)
-    text.tag_configure('tag-center', justify=CENTER)
-
-    # Grid text
-    text.grid(columnspan=2, sticky='nsew')
-
-    return text
-
 
 
 def PlotEllipse():
@@ -359,7 +331,7 @@ def print_binary():
     # IMAGE COORD
     # TODO move that math to back
 
-    text = grid_text_answer()
+    text = get_root().frame_answer.grid_text_answer()
 
     # Fit type
     answer = get_state().add_answer(EA.BINARY, get_state().fit_type)
@@ -411,42 +383,6 @@ def print_binary():
     # Disable edit
     text.configure(state=DISABLED)
 
-
-def print_statistic(rectangle):
-    """Print statistics from a rectangle selection
-    Also get them
-    """
-    # Get stat <- subarray
-    rectangle = IF.Order4(rectangle)
-    sub_array = get_state().image.im0[rectangle[0]:rectangle[1], rectangle[2]:rectangle[3]]
-    dicr = get_array_stat(sub_array)
-
-    # Clear answer frame
-    get_root().frame_answer.clear()
-
-    # Create text
-    text = grid_text_answer()
-
-    lst = [
-        ["DIM X*DIM Y:\t", "%.1f x %.1f" %
-         (abs(rectangle[0]-rectangle[1]), abs(rectangle[2]-rectangle[3]))],
-        ["MIN:\t", "%.1f" % dicr["min"]],
-        ["MAX:\t", "%.1f" % dicr["max"]],
-        ["SUM:\t", "%.1f" % dicr["sum"]],
-        ["MEAN:\t", "%.1f" % dicr["mean"]],
-        ["MEDIAN:\t", "%.1f" % dicr["median"]],
-        ["RMS:\t", "%.1f" % dicr["rms"]],
-    ]
-
-    stg = ''
-    for name, value in lst:
-        log(0, name, value)
-        stg += name + value + "\n"
-
-    text.insert(END, stg)
-
-    # Disable edit
-    text.configure(state=DISABLED)
 
 
 # "
@@ -575,45 +511,6 @@ def PlotBinaryStar1D():
     ax.legend(loc=1, prop={'size': 8})      # Legend
     get_root().frame_fit.redraw()
 
-
-
-def show_profile(point1, point2):
-    """Callback for Profile Pick: 1 and 2D"""
-    # Get data to plot
-    ab, od, points = IF.RadialLine(
-        get_state().image.im0, (point1, point2), return_point=1)
-
-    # FIT
-    # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
-    #  I_theory = vars(BF) [get_state().fit_type ](points,W.strehl["fit_dic"],get_state().fit_type)
-    #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
-
-    # Plot <- Reset
-    ax = get_root().frame_fit.reset_figure_ax()
-    ax.plot(ab, od, '-', linewidth=1, label="Data")
-    ax.legend(loc=1, prop={'size': 8})
-    get_root().frame_fit.redraw()
-
-    log(8, "ProfileAnswer :", zip(points, get_state().image.im0[tuple(points)]))
-
-    # Get stat
-    ps = get_array_stat(get_state().image.im0[tuple(points)])
-    # LEN
-    tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
-    lst = [
-        ["LENGTH: ", tlen],
-        ["MIN: ", ps.min],
-        ["MAX: ", ps.max],
-        ["MEAN: ", ps.mean],
-        ["RMS: ", ps.rms],
-    ]
-
-    # Plot <- Reset
-    ax = get_root().frame_result.reset_figure_ax()
-    # like profile_stat points[0] is x and points[1] is y
-    for num, (label, value) in enumerate(lst):
-        ax.text(0.3, 1.0 - num / (len(lst) + 1), label + "%.1f" % value)
-    get_root().frame_result.redraw()
 
 
 ####################
