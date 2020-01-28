@@ -1,4 +1,5 @@
 import numpy as np
+from abc import ABC, abstractmethod
 
 from abism.back import ImageFunction as IF
 from abism.back.fit_helper import leastsqFit
@@ -306,19 +307,55 @@ def Background(grid):
     # BINARY
     ###############
 
-class Fit:
+
+class Fit(ABC):
     """Bas class to perform a Fit"""
     def __init__(self, grid):
         self.grid = grid
 
-        # Retreive fit_type
+        # Retrieve fit_type
         self.fit_type = get_state().fit_type
         self.fit_type = enhance_fit_type(self.fit_type)
 
+        # Retrieve verbose
+        self.verbose = get_state().verbose > 0
+
+        self.result = []
+
+    def do_fit(self):
+        (x, y), IX, eIX = self.get_xy_IX_eIX()
+        log(3, "fit type is : ", self.fit_type)
+        self.result = leastsqFit(
+            self.get_fit_function(), (x, y), self.get_supposed_parameters(), IX,
+            err=eIX,
+            doNotFit=self.get_not_fitted(),
+            bounds=self.get_bounds(),
+            verbose=self.verbose
+        )
+
+    @abstractmethod
+    def get_xy_IX_eIX(self): pass
+
+    @abstractmethod
+    def get_fit_function(self): pass
+
+    @abstractmethod
+    def get_supposed_parameters(self): pass
+
+    @abstractmethod
+    def get_not_fitted(self): pass
+
+    @abstractmethod
+    def get_bounds(self): pass
+
+    @abstractmethod
+    def get_result(self): pass
 
 
 class BinaryPsf(Fit):
-    """Fit two star function together"""
+    """Fit two star function together
+    TODO log in base class
+    """
     def __init__(self, grid, star1, star2):
         super().__init__(grid)
         self.star1 = star1
@@ -330,67 +367,45 @@ class BinaryPsf(Fit):
                 "type for binary fi, fit type is set to gaussian")
             self.fit_type = "Gaussian"
 
-        ########
-        # " FIRST GUESS
-        x1, y1 = star1
-        x2, y2 = star2
-        self.center = [(x1+x2)/2, (y1+y2)/2]
+        # Calculate distance between two pooints
+        (x1, y1), (x2, y2) = self.star1, self.star2
+        self.star_distance = np.sqrt((x1-x2)**2 + (y1-y2)**2)
+        self.dist1 = min(IF.FWHM(self.grid, self.star1), self.star_distance / 2)
+        self.dist2 = min(IF.FWHM(self.grid, self.star2), self.star_distance / 2)
 
-        # distance between two pooints
-        star_distance = np.sqrt((x1-x2)**2 + (y1-y2)**2)
-        dist1 = min(IF.FWHM(grid, star1), star_distance / 2)
-        dist2 = min(IF.FWHM(grid, star2), star_distance / 2)
+        # Fit
+        self.do_fit()
 
-        ########
-        # DEFINE fitting space
-        fit_range = star_distance + 5 * max(dist1, dist2)  # range of the fit
-        rx1 = int(self.center[0] - fit_range / 2)
-        rx2 = int(self.center[0] + fit_range / 2)
-        ry1 = int(self.center[1] - fit_range / 2)
-        ry2 = int(self.center[1] + fit_range / 2)
+
+    def get_xy_IX_eIX(self):
+        (x1, y1), (x2, y2) = self.star1, self.star2
+        center = [(x1+x2)/2, (y1+y2)/2]
+
+        # Define fitting space
+        fit_range = self.star_distance + 5 * max(self.dist1, self.dist2)
+        rx1 = int(center[0] - fit_range / 2)
+        rx2 = int(center[0] + fit_range / 2)
+        ry1 = int(center[1] - fit_range / 2)
+        ry2 = int(center[1] + fit_range / 2)
 
         rx1, rx2, ry1, ry2 = IF.Order4(
             (rx1, rx2, ry1, ry2),
-            grid=grid)
+            grid=self.grid)
 
         log(3, "----->IF.BinaryPSF :", "The fit is done between points ",
             (rx1, ry1), " and ", (rx2, ry2), "with fit", self.fit_type)
 
         X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
         y, x = np.meshgrid(Y, X)
-        IX = grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
+        IX = self.grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
         IX, mIX = IF.FindBadPixel(IX)  # ,r=r)
 
         # the error
         eIX = (IX-mIX).std()
         eIX *= np.ones(IX.shape)
         log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
+        return (x, y), IX, eIX
 
-        ###################
-        ## Supposed params and bounds #
-        ###################
-        suposed_param = {
-            'x0': x1, 'x1': x2, 'y0': y1, 'y1': y2,
-            'spread_x0': 0.83*(dist1), 'spread_x1': 0.83*dist2,
-            'spread_y0': 0.83*(dist1), 'spread_y1': 0.83*dist2,
-            'intensity0': grid[int(x1)][int(y1)],
-            'intensity1': grid[int(x2)][int(y2)],
-            'background': 0, "theta": 1}
-        if "Moffat" in self.fit_type:
-            suposed_param['b0'], suposed_param['b1'] = 1.8, 1.8
-
-        log(3, "fit type is : ", self.fit_type)
-
-
-        #####################
-        # FIT FIT  ahora si que si
-        self.fit = leastsqFit(
-            self.get_fit_function(), (x, y), suposed_param, IX,
-            err=eIX,
-            doNotFit=self.get_not_fitted(),
-            bounds=self.get_bounds(),
-            verbose=get_state().verbose > 0
-        )
 
     def get_fit_function(self):
         dic_for_fit = {
@@ -402,8 +417,20 @@ class BinaryPsf(Fit):
         return lambda x, y: \
             vars(BF)[self.fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)
 
+
     def get_supposed_parameters(self):
-        suposed_param = {}
+        (x1, y1), (x2, y2) = self.star1, self.star2
+        suposed_param = {
+            'x0': x1, 'y0': y1,
+            'x1': x2, 'y1': y2,
+            'spread_x0': 0.83 * self.dist1, 'spread_x1': 0.83 * self.dist2,
+            'spread_y0': 0.83 * self.dist1, 'spread_y1': 0.83 * self.dist2,
+            'intensity0': self.grid[int(x1)][int(y1)],
+            'intensity1': self.grid[int(x2)][int(y2)],
+            'background': 0, "theta": 1}
+
+        if "Moffat" in self.fit_type:
+            suposed_param['b0'], suposed_param['b1'] = 1.8, 1.8
 
         log(3, "Binary FiT, supposed parameters : ", suposed_param)
         return suposed_param
@@ -462,8 +489,7 @@ class BinaryPsf(Fit):
         return bounds
 
 
-    def get_fit(self):
-
+    def get_result(self):
         ##############
         # restore not fitted variables
         def restore(lst, to_change, reference):
@@ -472,26 +498,26 @@ class BinaryPsf(Fit):
             return lst
 
         if get_state().b_same_psf:
-            self.fit = restore(self.fit, "spread_x1", "spread_x0")
-            self.fit = restore(self.fit, "spread_y1", "spread_y0")
+            self.result = restore(self.result, "spread_x1", "spread_x0")
+            self.result = restore(self.result, "spread_y1", "spread_y0")
             if not "2D" in self.fit_type:
-                self.fit = restore(self.fit, "spread_y0", "spread_x0")
+                self.result = restore(self.result, "spread_y0", "spread_x0")
             if "Moffat" in self.fit_type:
-                self.fit = restore(self.fit, "b1", "b0")
+                self.result = restore(self.result, "b1", "b0")
         else:  # not same psf
             if not "2D" in self.fit_type:
-                self.fit = restore(self.fit, "spread_y0", "spread_x0")
-                self.fit = restore(self.fit, "spread_y1", "spread_x1")
+                self.result = restore(self.result, "spread_y0", "spread_x0")
+                self.result = restore(self.result, "spread_y1", "spread_x1")
 
         # BACKKUP DIC
         tmp = {}
-        tmp.update(self.fit[0])
-        self.fit[0]["fit_dic"] = tmp
+        tmp.update(self.result[0])
+        self.result[0]["fit_dic"] = tmp
 
         # FWHM , Photo < from fit
-        dic_copy0 = self.fit[0].copy()
-        dic_copy1 = self.fit[0].copy()
-        for key in self.fit[0].keys():
+        dic_copy0 = self.result[0].copy()
+        dic_copy1 = self.result[0].copy()
+        for key in self.result[0].keys():
             if "0" in key:
                 dic_copy0[key.replace("0", "")] = dic_copy0[key]
             elif "1" in key:
@@ -507,21 +533,21 @@ class BinaryPsf(Fit):
             pass
 
         tmp = IF.FwhmFromFit(dic_copy0, self.fit_type)
-        self.fit[0].update({
+        self.result[0].update({
             "fwhm_x0": tmp["fwhm_x"],
             "fwhm_y0": tmp["fwhm_y"],
             "photometry_fit0": tmp["photometry_fit"],})
 
         tmp = IF.FwhmFromFit(dic_copy1, self.fit_type)
-        self.fit[0].update({
+        self.result[0].update({
             "fwhm_x1": tmp["fwhm_x"],
             "fwhm_y1": tmp["fwhm_y"],
             "photometry_fit1": tmp["photometry_fit"]})
 
 
-        self.fit[0]["my_photometry0"], self.fit[0]["my_photometry1"] = self.fit[0]["photometry_fit0"], self.fit[0]["photometry_fit1"]
+        self.result[0]["my_photometry0"], self.result[0]["my_photometry1"] = self.result[0]["photometry_fit0"], self.result[0]["photometry_fit1"]
 
-        return self.fit
+        return self.result
 
 
 def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
@@ -720,6 +746,10 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     ###############
 
 
+# Not used
+######################################################################
+
+
 def EllipseEventBack(obj):
     """Return: background from ellipse <int(adu)>"""
     rui, rvi = obj.ru, obj.rv     # inner annulus
@@ -824,6 +854,10 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
     log(2, "phot1 :", res["phot"])
     log(2, "phot2 :", res["my_photometry"])
     log(2, "back :", res["my_background"], "\n")
+
+
+# Helpers
+######################################################################
 
 
 # TODO refactor all that in the discriminator

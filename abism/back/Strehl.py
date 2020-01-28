@@ -139,7 +139,7 @@ def save_fwhm():
 
 def BinaryStrehl(star1, star2):
     binary_psf = SI.BinaryPsf(get_state().image.im0, star1, star2)
-    W.psf_fit = binary_psf.get_fit()
+    W.psf_fit = binary_psf.get_result()
     W.strehl = W.psf_fit[0]
 
 
