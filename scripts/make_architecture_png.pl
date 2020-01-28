@@ -1,8 +1,16 @@
-# To make the architecture png
-# TODO: abism.sh, abism.py
-#       get script path
-#       work with /tmp 
-# Color combination https://color.adobe.com/fr/create?fbclid=IwAR3bPaJcPqxONgHms2YtJv4-gMK9CrijpLd6qNU2fpfeyF79YOXc4GJP9Nk
+#!/usr/bin/perl
+
+=head1
+    Create the architecture scheme in svg
+    with make_archi.pl --pydep --transform --convert
+
+=head1 REQUIREMENTS
+    perl
+    python <- pydeps
+
+=cut
+
+
 
 use v5.26;
 use File::Basename qw/dirname/;
@@ -157,7 +165,7 @@ EOF
 # Plugin
 sub plugin_cluster{ "\n\n" . <<EOF;
 subgraph cluster_plugin {
-	label = "Puglin";
+	label = "Plugin";
 	fontcolor="#34075E";
 	color="#34075E";
     penwidth=5;
