@@ -33,9 +33,11 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     import time
     start_time = time.time()
 
-    W.psf_fit = psf_fit = SI.PsfFit(
+    o_psf = SI.PsfFit(
         get_state().image.im0, center=star_center,
-        max=star_max)
+        my_max=star_max)
+
+    W.psf_fit = psf_fit = o_psf.get_result()
 
     log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
     W.strehl.update(W.psf_fit[0])

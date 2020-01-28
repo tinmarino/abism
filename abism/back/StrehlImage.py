@@ -1,5 +1,6 @@
-import numpy as np
 from abc import ABC, abstractmethod
+
+import numpy as np
 
 from abism.back import ImageFunction as IF
 from abism.back.fit_helper import leastsqFit
@@ -11,157 +12,9 @@ from abism.util import log, get_root, get_state, EA
 import abism.back.util_back as W
 
 
-###############
-# PICK ONE
-###############
-
-
-
-def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
-    """full_answer get the photometry and the background
-    Clean me and the rest will follow
-    """
-    # In enhanced fit type
-    fit_type = get_state().fit_type
-    fit_type = enhance_fit_type(fit_type)
-
-    # In center and bound
-    (x0, y0), (rx1, rx2, ry1, ry2) = center, list(map(int, W.r))
-    log(3, "PsfFit: ", rx1, rx2, ry1, ry2, 'center :', center)
-
-    # Get working grid
-    my_max = max
-    X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
-    y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way
-    IX = grid[rx1:rx2+1, ry1:ry2+1]  # the cutted image
-
-    # Mask bad pixel (TODO look at that)
-    IX, mIX = IF.FindBadPixel(IX)
-    eIX = (IX-mIX).std() * np.ones(IX.shape)
-
-    # Get fwhm
-    my_fwhm = IF.FWHM(grid, center)
-
-
-    # FIRST Geuss
-    doNotFit = []
-    if get_state().noise_type == 'None' or get_state().noise_type == 'manual':
-        doNotFit.append('background')
-
-    local_median = np.median(grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
-
-    suposed_param = {
-        'center_x': x0,
-        'center_y': y0,
-        'spread_x': 0.83 * (my_fwhm),
-        'intensity': my_max,
-        'background': 0
-    }
-
-    fit_bounds = {
-        "center_x": [x0 - 10, x0 + 10],
-        "center_y": [y0 - 10, y0 + 10],
-        "spread_x": [-0.1, None],
-        "spread_y": [-0.1, None],
-        # "exponent" :[1.2, 6 ],
-        "background": [None, my_max],
-        "instensity": [local_median, 2.3 * my_max - local_median],
-
-             }
-
-    ############
-    #  FIT
-    #############
-
-    verbose = get_state().verbose > 0
-
-    if (fit_type == "Gaussian2D"):
-        tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
-        suposed_param.update(tmp)
-
-    elif(fit_type == 'Gaussian'):
-        pass
-
-    elif (fit_type == 'Moffat'):  # 1.5 = /np.sqrt(1/2**(-1/b)-1)
-        suposed_param.update({'spread_x': 1.5*my_fwhm, 'exponent': 2})
-
-    elif (fit_type == "Moffat2D"):    # 0.83 = sqrt(ln(2))
-        tmp = {
-            "spread_y": suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
-        suposed_param.update(tmp)
-
-    elif (fit_type == 'Bessel1'):
-        pass
-
-    elif (fit_type == "Bessel12D"):    # 0.83 = sqrt(ln(2))
-        tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
-        suposed_param.update(tmp)
-
-    # we consider 2D or not, same_center or not
-    elif ("Gaussian_hole" in fit_type):
-        suposed_param.update({'center_x_hole': x0, 'center_y_hole': y0, 'spread_x_hole': 0.83*(
-            my_fwhm)/2, 'spread_y_hole': 0.83*my_fwhm/2, 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
-        if not ("2D" in fit_type):
-            suposed_param["2D"] = 0
-            doNotFit.append("theta")
-            doNotFit.append("theta_hole")
-            doNotFit.append("spread_y")
-            doNotFit.append("spread_y_hole")
-        else:
-            suposed_param["2D"] = 1
-        if ("same_center" in fit_type):
-            suposed_param["same_center"] = 1
-            doNotFit.append("center_x_hole")
-            doNotFit.append("center_y_hole")
-        doNotFit.append("2D")
-        doNotFit.append("same_center")
-
-    # ACTUAL FIT
-    if fit_type != "None":
-        res = leastsqFit(
-            vars(BF)[fit_type], (x, y), suposed_param, IX,
-            err=eIX, doNotFit=doNotFit,
-            bounds=fit_bounds, verbose=verbose)
-    else:
-        # Not fit
-        restmp = {
-            'center_x': x0, 'center_y': y0,
-            'intensity': my_max, "r99x": 5*my_fwhm, "r99y": 5*my_fwhm}
-        res = (restmp, 0, 0, IX, 0)
-
-
-    # Update stuff ToRead
-    tmp = {}
-    tmp.update(res[0])
-    res[0]["fit_dic"] = tmp
-
-    ######
-    # DICTIONARY , backup and star improving
-    do_improve = not get_state().b_aniso and not get_state().fit_type == 'None'
-    if do_improve:
-        try:
-            res[0]["spread_y"], res[0]["spread_x"] = res[0]["spread"], res[0]["spread"]
-            res[1]["spread_y"], res[1]["spread_x"] = res[1]["spread"], res[1]["spread"]
-        except:
-            res[0]["spread_y"], res[0]["spread_x"] = res[0]["spread_x"], res[0]["spread_x"]
-            res[1]["spread_y"], res[1]["spread_x"] = res[1]["spread_x"], res[1]["spread_x"]
-
-    #############
-    # FWHM, and PHOT < from fit
-    res[0].update(IF.FwhmFromFit(res[0],  fit_type))
-
-    # UPDATE R99X
-    (r99x, r99y), (r99u, r99v) = IF.EnergyRadius(
-        grid, fit_type, dic=res[0])
-    res[0]["number_count"] = r99x * r99y
-    res[0]["r99x"], res[0]["r99y"] = r99x, r99y
-    res[0]["r99u"], res[0]["r99v"] = r99u, r99v
-
-    return res
-
 
 class Fit(ABC):
-    """Bas class to perform a Fit"""
+    """Base class to perform a Fit"""
     def __init__(self, grid):
         self.grid = grid
 
@@ -178,7 +31,7 @@ class Fit(ABC):
         (x, y), IX, eIX = self.get_xy_IX_eIX()
         log(3, "fit type is : ", self.fit_type)
         self.result = leastsqFit(
-            self.get_fit_function(), (x, y), self.get_supposed_parameters(), IX,
+            self.get_function(), (x, y), self.get_supposed_parameters(), IX,
             err=eIX,
             doNotFit=self.get_not_fitted(),
             bounds=self.get_bounds(),
@@ -189,7 +42,7 @@ class Fit(ABC):
     def get_xy_IX_eIX(self): pass
 
     @abstractmethod
-    def get_fit_function(self): pass
+    def get_function(self): pass
 
     @abstractmethod
     def get_supposed_parameters(self): pass
@@ -202,6 +55,168 @@ class Fit(ABC):
 
     @abstractmethod
     def get_result(self): pass
+
+
+class PsfFit(Fit):
+    """Fit Point Spread Function of a single source"""
+    def __init__(self, grid, center=(0, 0), my_max=1):
+        super().__init__(grid)
+
+        self.center = center
+        self.my_max = my_max
+
+        self.fwhm = IF.FWHM(self.grid, self.center)
+
+
+        ############
+        #  FIT
+        #############
+        # ACTUAL FIT
+        if self.fit_type != "None":
+            self.do_fit()
+            # res = leastsqFit(
+            #     vars(BF)[fit_type], (x, y), suposed_param, IX,
+            #     err=eIX, doNotFit=doNotFit,
+            #     bounds=fit_bounds, verbose=verbose)
+        else:
+            # Not fit
+            restmp = {
+                'center_x': self.center[0], 'center_y': self.center[0],
+                'intensity': self.my_max,
+                "r99x": 5 * self.fwhm, "r99y": 5 * self.fwhm}
+            self.result = (restmp, 0, 0, None, 0)
+
+
+
+    def get_xy_IX_eIX(self):
+        # In center and bound
+        (rx1, rx2, ry1, ry2) = list(map(int, W.r))
+        log(3, "PsfFit: ", rx1, rx2, ry1, ry2, 'center :', self.center)
+
+        # Get working grid
+        X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
+        y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way
+        IX = self.grid[rx1:rx2+1, ry1:ry2+1]  # the cutted image
+
+        # Mask bad pixel (TODO look at that)
+        IX, mIX = IF.FindBadPixel(IX)
+        eIX = (IX-mIX).std() * np.ones(IX.shape)
+
+        return (x, y), IX, eIX
+
+
+
+    def get_function(self):
+        return vars(BF)[self.fit_type]
+
+    def get_supposed_parameters(self):
+        x0, y0 = self.center
+        suposed_param = {
+            'center_x': self.center[0],
+            'center_y': self.center[1],
+            'spread_x': 0.83 * (self.fwhm),
+            'intensity': self.my_max,
+            'background': 0
+        }
+
+        if (self.fit_type == "Gaussian2D"):
+            tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
+            suposed_param.update(tmp)
+
+        elif(self.fit_type == 'Gaussian'):
+            pass
+
+        elif (self.fit_type == 'Moffat'):  # 1.5 = /np.sqrt(1/2**(-1/b)-1)
+            suposed_param.update({'spread_x': 1.5 * self.fwhm, 'exponent': 2})
+
+        elif (self.fit_type == "Moffat2D"):    # 0.83 = sqrt(ln(2))
+            tmp = {
+                "spread_y": suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
+            suposed_param.update(tmp)
+
+        elif (self.fit_type == 'Bessel1'):
+            pass
+
+        elif (self.fit_type == "Bessel12D"):    # 0.83 = sqrt(ln(2))
+            tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
+            suposed_param.update(tmp)
+
+        # we consider 2D or not, same_center or not
+        elif ("Gaussian_hole" in self.fit_type):
+            suposed_param.update({'center_x_hole': x0, 'center_y_hole': y0, 'spread_x_hole': 0.83*(
+                self.fwhm)/2, 'spread_y_hole': 0.83*self.fwhm/2, 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
+            if not ("2D" in self.fit_type):
+                suposed_param["2D"] = 0
+            else:
+                suposed_param["2D"] = 1
+            if ("same_center" in self.fit_type):
+                suposed_param["same_center"] = 1
+
+        return suposed_param
+
+
+    def get_not_fitted(self):
+        doNotFit = []
+        if get_state().noise_type == 'None' or get_state().noise_type == 'manual':
+            doNotFit.append('background')
+        elif ("Gaussian_hole" in self.fit_type):
+            if not ("2D" in self.fit_type):
+                doNotFit.append("theta")
+                doNotFit.append("theta_hole")
+                doNotFit.append("spread_y")
+                doNotFit.append("spread_y_hole")
+                doNotFit.append("center_x_hole")
+                doNotFit.append("center_y_hole")
+            doNotFit.append("2D")
+            doNotFit.append("same_center")
+        return doNotFit
+
+    def get_bounds(self):
+        x0, y0 = self.center
+        local_median = np.median(
+            self.grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
+
+        fit_bounds = {
+            "center_x": [x0 - 10, x0 + 10],
+            "center_y": [y0 - 10, y0 + 10],
+            "spread_x": [-0.1, None],
+            "spread_y": [-0.1, None],
+            # "exponent" :[1.2, 6 ],
+            "background": [None, self.my_max],
+            "instensity": [local_median, 2.3 * self.my_max - local_median]}
+
+        return fit_bounds
+
+
+    def get_result(self):
+        # Update stuff ToRead
+        tmp = {}
+        tmp.update(self.result[0])
+        self.result[0]["fit_dic"] = tmp
+
+        ######
+        # DICTIONARY , backup and star improving
+        do_improve = not get_state().b_aniso and not self.fit_type == 'None'
+        if do_improve:
+            try:
+                self.result[0]["spread_y"], self.result[0]["spread_x"] = self.result[0]["spread"], self.result[0]["spread"]
+                self.result[1]["spread_y"], self.result[1]["spread_x"] = self.result[1]["spread"], self.result[1]["spread"]
+            except:
+                self.result[0]["spread_y"], self.result[0]["spread_x"] = self.result[0]["spread_x"], self.result[0]["spread_x"]
+                self.result[1]["spread_y"], self.result[1]["spread_x"] = self.result[1]["spread_x"], self.result[1]["spread_x"]
+
+        #############
+        # FWHM, and PHOT < from fit
+        self.result[0].update(IF.FwhmFromFit(self.result[0], self.fit_type))
+
+        # UPDATE R99X
+        (r99x, r99y), (r99u, r99v) = IF.EnergyRadius(
+            self.grid, self.fit_type, dic=self.result[0])
+        self.result[0]["number_count"] = r99x * r99y
+        self.result[0]["r99x"], self.result[0]["r99y"] = r99x, r99y
+        self.result[0]["r99u"], self.result[0]["r99v"] = r99u, r99v
+
+        return self.result
 
 
 class BinaryPsf(Fit):
@@ -259,7 +274,7 @@ class BinaryPsf(Fit):
         return (x, y), IX, eIX
 
 
-    def get_fit_function(self):
+    def get_function(self):
         dic_for_fit = {
             "same_psf": get_state().b_same_psf,
             "aniso": get_state().b_aniso,
@@ -596,6 +611,9 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
     ################
     # ELLIPSE CANVAS
     ###############
+
+
+
 
 
 # Not used
