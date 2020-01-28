@@ -24,6 +24,7 @@
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * make shortcut appear on mouse_on <ctrl-o> for example
+* Contour, 4, 5 lignes plus fines
 * delete lru_cache for ipython: https://stackoverflow.com/questions/40273767/clear-all-lru-cache-in-python/50699209
   * toherwise cannot call async more than onces
 
@@ -34,6 +35,7 @@
 * Datacube if more than 3 dimension
 * Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
+* Bad pixel viewer
 
 ### Latter fix
 * !!! Bad pixels !! You cannot release putting them to zero
