@@ -11,10 +11,6 @@
     * And make ellipse work
     * 
 
-4. Pick -> pick.Pick, a class with pick information for gui.
-  Then answer Return must be divided
-        Old * Move Profile in analisys
-
 * Photometric error where are you ? 
 
 # Bug
@@ -24,7 +20,6 @@
 
 # Feature
 
-* Get commit date
 * Ellipse and Annulus Pick (maybe in tool)
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
@@ -63,4 +58,3 @@
 * Matplotlib super keyboard navigation (did not manage today to get key event only in my frame)
 * Feature: show bad pixels: can be usefull for an observatro (example if object is on it: change telescope orientation)
 * UI: Add some colorscheme (material)
-

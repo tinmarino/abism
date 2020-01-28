@@ -11,15 +11,14 @@ Install:
     2. pip install --user -U git+https://github.com/tinmarino/abism
 
 Run:
-    1. sh> [bash | python] abism.py
-    2. sh> python -m abism
-    3. py> from abism import __main__
+    1. sh> abism
+    2. sh> [bash | python] path/to/clone/abism.py
+    3. sh> python -m abism
+    4. py> from abism import __main__
+    5. py> from abism.run import run_sync; run_sync()
+    6.ipy> from abism.run import run_async; sm = run_async()
 
-Note:
-    Tkinter must use python mainloop (i.e. thread).
-    So you won't have your python interpreter back.
-        Ipython REPL: not working! <- threaded Read Eval Print Loop
-        Python REPL: working! <- bare eval
+They are all equivalent except the last one
 
 More:
     help(absim.front)  # GUI info
