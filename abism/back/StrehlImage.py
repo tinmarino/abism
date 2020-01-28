@@ -484,43 +484,11 @@ class BinaryPsf(Fit):
                     "photometry_fit0": tmp["photometry_fit"],
                     })
         tmp = IF.FwhmFromFit(dic_copy1, self.fit_type)
-        self.fit[0].update({"fwhm_x1": tmp["fwhm_x"],
-                    "fwhm_y1": tmp["fwhm_y"],
-                    "photometry_fit1": tmp["photometry_fit"]
-                    })
+        self.fit[0].update(
+            {"fwhm_x1": tmp["fwhm_x"],
+            "fwhm_y1": tmp["fwhm_y"],
+            "photometry_fit1": tmp["photometry_fit"]})
 
-        if False:
-            if "Gaussian" in self.fit_type:
-                if "2D" in self.fit_type:
-                    photometry0 = np.pi*self.fit[0]['intensity0'] * \
-                        self.fit[0]['spread_x0']*self.fit[0]['spread_y0']
-                    photometry1 = np.pi*self.fit[0]['intensity1'] * \
-                        self.fit[0]['spread_x1']*self.fit[0]['spread_y1']
-                else:
-                    photometry0 = np.pi*self.fit[0]['intensity0']*self.fit[0]['spread_x0']**2
-                    photometry1 = np.pi*self.fit[0]['intensity1']*self.fit[0]['spread_x1']**2
-
-            if "Moffat" in self.fit_type:
-                if "2D" in self.fit_type:
-                    photometry0 = np.pi * \
-                        self.fit[0]['intensity0']*self.fit[0]['spread_x0'] * \
-                        self.fit[0]['spread_y0']/(self.fit[0]['b0']-1)
-                    photometry1 = np.pi * \
-                        self.fit[0]['intensity1']*self.fit[0]['spread_x1'] * \
-                        self.fit[0]['spread_y1']/(self.fit[0]['b1']-1)
-                else:
-                    photometry0 = np.pi*self.fit[0]['intensity0'] * \
-                        self.fit[0]['spread_x0']**2/(self.fit[0]['b0']-1)
-                    photometry1 = np.pi*self.fit[0]['intensity1'] * \
-                        self.fit[0]['spread_x1']**2/(self.fit[0]['b1']-1)
-
-            if "hole" in self.fit_type:
-                # TODO, ça pue
-                # photometry -= np.pi*self.fit[0]['intensity_hole'] * \
-                    self.fit[0]['spread_x_hole']*self.fit[0]['spread_y_hole']
-
-            self.fit[0]['center_x'], self.fit[0]['center_y'] = self.center[0], self.center[1]  # to draw
-            self.fit[0]["photometry0"], self.fit[0]["photometry1"] = photometry0, photometry1
 
         self.fit[0]["my_photometry0"], self.fit[0]["my_photometry1"] = self.fit[0]["photometry_fit0"], self.fit[0]["photometry_fit1"]
 
@@ -715,40 +683,6 @@ def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
                    "fwhm_y1": tmp["fwhm_y"],
                    "photometry_fit1": tmp["photometry_fit"]
                    })
-
-    if False:
-        if "Gaussian" in fit_type:
-            if "2D" in fit_type:
-                photometry0 = np.pi*res[0]['intensity0'] * \
-                    res[0]['spread_x0']*res[0]['spread_y0']
-                photometry1 = np.pi*res[0]['intensity1'] * \
-                    res[0]['spread_x1']*res[0]['spread_y1']
-            else:
-                photometry0 = np.pi*res[0]['intensity0']*res[0]['spread_x0']**2
-                photometry1 = np.pi*res[0]['intensity1']*res[0]['spread_x1']**2
-
-        if "Moffat" in fit_type:
-            if "2D" in fit_type:
-                photometry0 = np.pi * \
-                    res[0]['intensity0']*res[0]['spread_x0'] * \
-                    res[0]['spread_y0']/(res[0]['b0']-1)
-                photometry1 = np.pi * \
-                    res[0]['intensity1']*res[0]['spread_x1'] * \
-                    res[0]['spread_y1']/(res[0]['b1']-1)
-            else:
-                photometry0 = np.pi*res[0]['intensity0'] * \
-                    res[0]['spread_x0']**2/(res[0]['b0']-1)
-                photometry1 = np.pi*res[0]['intensity1'] * \
-                    res[0]['spread_x1']**2/(res[0]['b1']-1)
-
-        if "hole" in fit_type:
-            photometry -= np.pi*res[0]['intensity_hole'] * \
-                res[0]['spread_x_hole']*res[0]['spread_y_hole']
-
-        res[0]['center_x'], res[0]['center_y'] = my_center[0], my_center[1]  # to draw
-        res[0]["photometry0"], res[0]["photometry1"] = photometry0, photometry1
-
-    res[0]["my_photometry0"], res[0]["my_photometry1"] = res[0]["photometry_fit0"], res[0]["photometry_fit1"]
 
     return res
 
