@@ -29,10 +29,21 @@ def run_async(*argument):
     """
     from threading import Thread
     import sys
+    from abism.util import str_pretty
+    class StrehlMeter:
+        """StrehlMeter: object interface to Abism
+        state   <- abism state frontend is sharing with backend
+        root    <- root tk widget (i.e. gui window)
+        util    <- function you could need
+        answers <- the last answer list from backend (belongs to state)
+        """
+        __repr__ = str_pretty
+
     class AbismAsync(Thread):
         """Asynchronous launch"""
         def __init__(self):
-            self.root = None
+            self.sm = StrehlMeter()
+            self.sm.root = None
 
             # Start thread
             # with super -> AssertionError: group argument must be None for now
@@ -41,18 +52,18 @@ def run_async(*argument):
 
             # Give info to caller
             import abism.util
-            self.util = abism.util
+            self.sm.util = abism.util
             import abism.front.util_front
-            self.front_util = abism.front.util_front
+            self.sm.front_util = abism.front.util_front
 
-            self.state = self.util.get_state()
-            self.answers = self.state.answers
+            self.sm.state = self.sm.util.get_state()
+            self.sm.answers = self.sm.state.answers
 
         def quit(self):
-            self.root.quit()
+            self.sm.root.quit()
 
         def run(self):
-            _run_helper(self)
+            _run_helper(self.sm)
 
     def clear_all_cache():
         # pylint: disable = protected-access
@@ -83,4 +94,4 @@ def run_async(*argument):
     print('<--- Abism GUI is running')
 
     # Return to caller
-    return abism_async
+    return abism_async.sm

@@ -1,6 +1,5 @@
 """
-    Util functions
-    Include answer.py in scope (see import at bottom)
+    Abism util functions
 """
 
 # Standard
