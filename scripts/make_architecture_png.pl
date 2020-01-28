@@ -51,6 +51,7 @@ sub transform{
 
     # Replace main
     $in =~ s/^.*\babism___main__\s*\[.*$/node_main()/gme;
+    $in =~ s/^.*\babism_run\s*\[.*$/node_run()/gme;
 
     # Remove empty lines
     $in =~ s/^\s*\n//gm;
@@ -114,6 +115,9 @@ digraph G {
           rank="min",
 	];
 	edge [ overlap=true, color="#000000",  ]
+    {rank = same;
+    abism___main__ ->  abism_run;
+    }
 EOF
 }
 
@@ -169,6 +173,15 @@ EOF
 
 # Main
 sub node_main{ <<'EOF';
-    abism___main__ [label="ABISM\n\1. sh> abism\l2. sh> python path/to/clone/abism.py\l3. sh> python -m abism\l4. py> from abism import __main__\l", shape=box, fillcolor="#ffffff",fontcolor="#000000"];
+    abism___main__ [label="ABISM\nsh> abism\lsh> python path/to/clone/abism.py\lsh> python -m abism\lpy> from abism import __main__\l",
+        shape=box, fillcolor="#ffffff",fontcolor="#000000"];
+EOF
+}
+
+
+# Run
+sub node_run{ <<'EOF';
+    abism_run [label="run\npy>from abism.run import run_sync; run_sync()\lipy>from abism.run import run_async; sm = run_async()\l",
+        shape=box, fillcolor="#ffffff",fontcolor="#000000"];
 EOF
 }
