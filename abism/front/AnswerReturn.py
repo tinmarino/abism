@@ -422,13 +422,13 @@ def print_binary():
     text.configure(state=DISABLED)
 
 
-def print_statistic():
+def print_statistic(rectangle):
     """Print statistics from a rectangle selection
     Also get them
     """
     # Get stat <- subarray
-    W.r = IF.Order4(W.r)
-    sub_array = get_state().image.im0[W.r[0]:W.r[1], W.r[2]:W.r[3]]
+    rectangle = IF.Order4(rectangle)
+    sub_array = get_state().image.im0[rectangle[0]:rectangle[1], rectangle[2]:rectangle[3]]
     dicr = get_array_stat(sub_array)
 
     # Clear answer frame
@@ -439,7 +439,7 @@ def print_statistic():
 
     lst = [
         ["DIM X*DIM Y:\t", "%.1f x %.1f" %
-         (abs(W.r[0]-W.r[1]), abs(W.r[2]-W.r[3]))],
+         (abs(rectangle[0]-rectangle[1]), abs(rectangle[2]-rectangle[3]))],
         ["MIN:\t", "%.1f" % dicr["min"]],
         ["MAX:\t", "%.1f" % dicr["max"]],
         ["SUM:\t", "%.1f" % dicr["sum"]],

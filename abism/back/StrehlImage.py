@@ -59,9 +59,10 @@ class Fit(ABC):
 
 class PsfFit(Fit):
     """Fit Point Spread Function of a single source"""
-    def __init__(self, grid, center=(0, 0), my_max=1):
+    def __init__(self, grid, rectangle, center=(0, 0), my_max=1):
         super().__init__(grid)
 
+        self.rectangle = rectangle
         self.center = center
         self.my_max = my_max
 
@@ -90,7 +91,7 @@ class PsfFit(Fit):
 
     def get_xy_IX_eIX(self):
         # In center and bound
-        (rx1, rx2, ry1, ry2) = list(map(int, W.r))
+        (rx1, rx2, ry1, ry2) = list(map(int, self.rectangle))
         log(3, "PsfFit: ", rx1, rx2, ry1, ry2, 'center :', self.center)
 
         # Get working grid
@@ -729,7 +730,7 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
 # Helpers
 ######################################################################
 
-def Photometry(grid, background):
+def Photometry(grid, background, rectangle=None):
     """Make photometry of region
     In: center, r99
         Only one reading variable photometric type
@@ -776,7 +777,7 @@ def Photometry(grid, background):
 
     # MANUAL
     elif get_state().phot_type == 'manual':
-        stat = get_state().image.RectanglePhot(W.r)
+        stat = get_state().image.RectanglePhot(rectangle)
         total = stat.sum
         number_count = stat.number_count
         photometry = total  - number_count * background
@@ -785,7 +786,7 @@ def Photometry(grid, background):
     return photometry, total, number_count
 
 
-def Background(grid):
+def Background(grid, rectangle):
     # Log
     background_type = get_state().noise_type
     log(3, 'Getting Background with type', background_type)
@@ -794,7 +795,7 @@ def Background(grid):
 
     # BAckground and rms
     dic = W.strehl
-    r = W.r
+    r = rectangle
 
     # IN RECT
     if get_state().noise_type == 'in_rectangle':  # change noise  from fit

@@ -11,13 +11,11 @@ from abism.front.matplotlib_extension import center_handler
 from abism.front import AnswerReturn as AR
 
 from abism.back import Strehl
-import abism.back.util_back as W
 
 from abism.util import log, get_root, get_state
 
 # TODO remove
 from abism.back import ImageFunction as IF
-from abism.front import util_front as G
 
 
 
@@ -65,6 +63,7 @@ class Pick(ABC):
         self.canvas = get_root().frame_image.get_canvas()
         self.figure = get_root().frame_image.get_figure()
         self.ax = self.figure.axes[0]
+        self.rectangle = None
 
     @abstractmethod
     def connect(self): pass
@@ -92,9 +91,9 @@ class Pick(ABC):
                 "the same point")
             return
 
-        # TODO remove that
-        W.r = (int(get_state().image.click[1]), int(get_state().image.release[1]),
-               int(get_state().image.click[0]), int(get_state().image.release[0]))
+        self.rectangle = (
+            int(get_state().image.click[1]), int(get_state().image.release[1]),
+            int(get_state().image.click[0]), int(get_state().image.release[0]))
 
         # Work
         self.work(None)
@@ -121,8 +120,9 @@ class Pick(ABC):
             return
 
         # Save bounds <- click +/- 15
-        W.r = [event.ydata - 15, event.ydata + 15,
-               event.xdata - 15, event.xdata + 15]
+        self.rectangle = (
+            event.ydata - 15, event.ydata + 15,
+            event.xdata - 15, event.xdata + 15)
 
         self.work(None)
 
@@ -176,7 +176,7 @@ class PickOne(Pick):
 
     def work(self, obj):
         """obj is None"""
-        Strehl.StrehlMeter()
+        Strehl.StrehlMeter(self.rectangle)
         AR.show_answer()
         # we transport star center, because if it is bad, it is good to know,
         # this star center was det by iterative grav center  the fit image
@@ -296,7 +296,7 @@ class PickStat(Pick):
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
     def work(self, obj):
-        AR.print_statistic()
+        AR.print_statistic(self.rectangle)
 
 
 class PickBinary(Pick):

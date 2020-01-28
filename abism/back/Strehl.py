@@ -11,7 +11,7 @@ from abism.util import log, get_root, get_state, EA
 import abism.back.util_back as W
 
 
-def StrehlMeter():  # receive W.r, means a cut of the image
+def StrehlMeter(rectangle):
     """ Note : this should just be a caller
         this is the first written, strehlMeter for pick one,
         I putted more for ellipse and binary
@@ -20,10 +20,10 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     W.strehl = {"theta": 99}
     ##########################
     # FIND   THE   CENTER  AND FWHM
-    W.r = IF.Order4(W.r)
+    rectangle = IF.Order4(rectangle)
     # IF.FindBadPixel(get_state().image.im0,(rx1,rx2,ry1,ry2))
-    star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=W.r)  # GravityCenter
-    star_center = IF.FindMaxWithBin(get_state().image.im0, W.r)  # GravityCenter
+    star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=rectangle)  # GravityCenter
+    star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)  # GravityCenter
     tmp = IF.LocalMax(get_state().image.im0, center=star_center, size=3)
     star_max, star_center = tmp[2], (tmp[0], tmp[1])
     W.FWHM = IF.FWHM(get_state().image.im0, star_center)
@@ -34,8 +34,8 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     start_time = time.time()
 
     o_psf = SI.PsfFit(
-        get_state().image.im0, center=star_center,
-        my_max=star_max)
+        get_state().image.im0, rectangle,
+        center=star_center, my_max=star_max)
 
     W.psf_fit = psf_fit = o_psf.get_result()
 
@@ -47,7 +47,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
     get_state().add_answer(EA.INTENSITY, intensity)
 
     # Get Background && SAve
-    back_dic = SI.Background(get_state().image.im0)
+    back_dic = SI.Background(get_state().image.im0, rectangle)
     background = back_dic['my_background']
     rms = back_dic['rms']
     get_state().add_answer(EA.BACKGROUND, background)
@@ -55,7 +55,7 @@ def StrehlMeter():  # receive W.r, means a cut of the image
 
     # Get photometry && Save
     photometry, _, number_count = \
-        SI.Photometry(get_state().image.im0, background)
+        SI.Photometry(get_state().image.im0, background, rectangle=rectangle)
     get_state().add_answer(EA.PHOTOMETRY, photometry)
 
     # Get Signal on noise && Save
