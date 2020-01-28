@@ -160,154 +160,6 @@ def PsfFit(grid, center=(0, 0), max=1, full_answer=True):
     return res
 
 
-def Photometry(grid, background):
-    """Make photometry of region
-    In: center, r99
-        Only one reading variable photometric type
-        background
-    Returns: photometry, total, number_count
-             1. total phtotometric adu (backgound subtracted)
-             Other. to estimate error
-    Note Background must be called before
-    """
-    photometry = total = number_count = 0
-
-    r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
-    r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
-    theta = W.strehl.get('theta', 0)
-
-    x0, y0 = W.strehl['center_x'], W.strehl['center_y']
-    ax1, ax2 = int(x0-r99x), int(x0+r99x)
-    ay1, ay2 = int(y0-r99y), int(y0+r99y)
-
-    # FIT
-    if get_state().phot_type == 'fit':
-        W.strehl["my_photometry"] = W.strehl["photometry_fit"]
-        log(3, "doing fit  phot in ImageFunction.py ")
-
-    # Rectangle apperture
-    elif get_state().phot_type == 'encircled_energy':
-        log(3, 'Photometry <- encircled energy (i.e. rectangle)')
-        total = np.sum(grid[ax1:ax2, ay1:ay2])
-        number_count = 4 * r99x * r99y
-        photometry = total - number_count * background
-
-    # Elliptical apperture
-    elif get_state().phot_type == 'elliptical_aperture':
-        log(3, 'Photometry <- elliptical aperture')
-        ellipse_dic = {"center_x": x0, "center_y": y0,
-                       "ru": r99u, "rv": r99v, "theta": theta}
-        bol = IF.EllipticalAperture(grid, dic=ellipse_dic)["bol"]
-        image_elliptic = grid[bol]
-
-        stat = get_array_stat(image_elliptic)
-        number_count = stat.number_count
-        total = stat.sum
-        photometry = total  - number_count * background
-
-    # MANUAL
-    elif get_state().phot_type == 'manual':
-        stat = get_state().image.RectanglePhot(W.r)
-        total = stat.sum
-        number_count = stat.number_count
-        photometry = total  - number_count * background
-
-
-    return photometry, total, number_count
-
-
-def Background(grid):
-    # Log
-    background_type = get_state().noise_type
-    log(3, 'Getting Background with type', background_type)
-
-    res = 0
-
-    # BAckground and rms
-    dic = W.strehl
-    r = W.r
-
-    # IN RECT
-    if get_state().noise_type == 'in_rectangle':  # change noise  from fit
-        dic['my_background'] = back / back_count
-        rms = 0.
-        for i in listrms:
-            rms += (i-dic['my_background'])**2
-        rms = np.sqrt(rms/(len(listrms)-1))
-        dic['rms'] = rms
-
-    # 8 RECTS
-    elif get_state().noise_type == '8rects':
-        xtmp, ytmp = dic['center_x'], dic['center_y']
-        r99x, r99y = dic["r99x"], dic["r99y"]
-        restmp = IF.EightRectangleNoise(
-            grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
-        dic['my_background'], dic['rms'] = restmp["background"], restmp['rms']
-        log(3, "ImageFunction.py : Background, I am in 8 rects ")
-
-    # MANUAL
-    elif get_state().noise_type == "manual":
-        dic["my_background"] = get_state().i_background
-        dic["rms"] = 0
-
-    # FIT
-    elif get_state().noise_type == 'fit':
-        if get_state().fit_type == "None":
-            log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
-            param = param.copy()
-            param.update({"noise": "annulus"})
-            return Background(get_state().image.im0, param=param)
-        try:
-            dic['rms'] = W.psf_fit[1]['background']
-        except:
-            dic['rms'] = ["No_in_fit"]
-        dic['my_background'] = dic["background"]
-
-    # NONE
-    elif get_state().noise_type == 'None':
-        dic['my_background'] = dic['my_background'] = 0
-        # dic['rms'] = 0
-
-    # ELLIPTICAL ANNULUS
-    elif get_state().noise_type == "elliptical_annulus":
-        W.ell_inner_ratio, W.ell_outer_ratio = 1.3, 1.6
-        rui, rvi = 1.3 * W.strehl["r99u"], 1.3 * W.strehl["r99v"]
-        ruo, rvo = 1.6 * W.strehl["r99u"], 1.6 * W.strehl["r99v"]
-
-        # CUT
-        myrad = max(ruo, rvo) + 2  # In case
-        ax1 = int(W.strehl["center_x"] - myrad)
-        ax2 = int(W.strehl["center_x"] + myrad)
-        ay1 = int(W.strehl["center_y"] - myrad)
-        ay2 = int(W.strehl["center_y"] + myrad)
-        image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
-
-        bol_i = IF.EllipticalAperture(
-            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
-                            "rv": rvi, "theta": W.strehl["theta"]})["bol"]
-
-        bol_o = IF.EllipticalAperture(
-            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
-                            "rv": rvo, "theta": W.strehl["theta"]})["bol"]
-
-        bol_a = bol_o ^ bol_i
-
-        iminfo_cut = ImageInfo(image_cut[bol_a])
-        tmp = iminfo_cut.sky()
-        dic['rms'] = tmp["rms"]
-        dic['my_background'] = tmp["mean"]
-
-    else:
-        dic['rms'] = -99
-        dic['my_background'] = -99
-
-    return dic
-
-    ###############
-    # BINARY
-    ###############
-
-
 class Fit(ABC):
     """Bas class to perform a Fit"""
     def __init__(self, grid):
@@ -858,6 +710,154 @@ def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
 
 # Helpers
 ######################################################################
+
+def Photometry(grid, background):
+    """Make photometry of region
+    In: center, r99
+        Only one reading variable photometric type
+        background
+    Returns: photometry, total, number_count
+             1. total phtotometric adu (backgound subtracted)
+             Other. to estimate error
+    Note Background must be called before
+    """
+    photometry = total = number_count = 0
+
+    r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
+    r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
+    theta = W.strehl.get('theta', 0)
+
+    x0, y0 = W.strehl['center_x'], W.strehl['center_y']
+    ax1, ax2 = int(x0-r99x), int(x0+r99x)
+    ay1, ay2 = int(y0-r99y), int(y0+r99y)
+
+    # FIT
+    if get_state().phot_type == 'fit':
+        W.strehl["my_photometry"] = W.strehl["photometry_fit"]
+        log(3, "doing fit  phot in ImageFunction.py ")
+
+    # Rectangle apperture
+    elif get_state().phot_type == 'encircled_energy':
+        log(3, 'Photometry <- encircled energy (i.e. rectangle)')
+        total = np.sum(grid[ax1:ax2, ay1:ay2])
+        number_count = 4 * r99x * r99y
+        photometry = total - number_count * background
+
+    # Elliptical apperture
+    elif get_state().phot_type == 'elliptical_aperture':
+        log(3, 'Photometry <- elliptical aperture')
+        ellipse_dic = {"center_x": x0, "center_y": y0,
+                       "ru": r99u, "rv": r99v, "theta": theta}
+        bol = IF.EllipticalAperture(grid, dic=ellipse_dic)["bol"]
+        image_elliptic = grid[bol]
+
+        stat = get_array_stat(image_elliptic)
+        number_count = stat.number_count
+        total = stat.sum
+        photometry = total  - number_count * background
+
+    # MANUAL
+    elif get_state().phot_type == 'manual':
+        stat = get_state().image.RectanglePhot(W.r)
+        total = stat.sum
+        number_count = stat.number_count
+        photometry = total  - number_count * background
+
+
+    return photometry, total, number_count
+
+
+def Background(grid):
+    # Log
+    background_type = get_state().noise_type
+    log(3, 'Getting Background with type', background_type)
+
+    res = 0
+
+    # BAckground and rms
+    dic = W.strehl
+    r = W.r
+
+    # IN RECT
+    if get_state().noise_type == 'in_rectangle':  # change noise  from fit
+        dic['my_background'] = back / back_count
+        rms = 0.
+        for i in listrms:
+            rms += (i-dic['my_background'])**2
+        rms = np.sqrt(rms/(len(listrms)-1))
+        dic['rms'] = rms
+
+    # 8 RECTS
+    elif get_state().noise_type == '8rects':
+        xtmp, ytmp = dic['center_x'], dic['center_y']
+        r99x, r99y = dic["r99x"], dic["r99y"]
+        restmp = IF.EightRectangleNoise(
+            grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
+        dic['my_background'], dic['rms'] = restmp["background"], restmp['rms']
+        log(3, "ImageFunction.py : Background, I am in 8 rects ")
+
+    # MANUAL
+    elif get_state().noise_type == "manual":
+        dic["my_background"] = get_state().i_background
+        dic["rms"] = 0
+
+    # FIT
+    elif get_state().noise_type == 'fit':
+        if get_state().fit_type == "None":
+            log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
+            param = param.copy()
+            param.update({"noise": "annulus"})
+            return Background(get_state().image.im0, param=param)
+        try:
+            dic['rms'] = W.psf_fit[1]['background']
+        except:
+            dic['rms'] = ["No_in_fit"]
+        dic['my_background'] = dic["background"]
+
+    # NONE
+    elif get_state().noise_type == 'None':
+        dic['my_background'] = dic['my_background'] = 0
+        # dic['rms'] = 0
+
+    # ELLIPTICAL ANNULUS
+    elif get_state().noise_type == "elliptical_annulus":
+        W.ell_inner_ratio, W.ell_outer_ratio = 1.3, 1.6
+        rui, rvi = 1.3 * W.strehl["r99u"], 1.3 * W.strehl["r99v"]
+        ruo, rvo = 1.6 * W.strehl["r99u"], 1.6 * W.strehl["r99v"]
+
+        # CUT
+        myrad = max(ruo, rvo) + 2  # In case
+        ax1 = int(W.strehl["center_x"] - myrad)
+        ax2 = int(W.strehl["center_x"] + myrad)
+        ay1 = int(W.strehl["center_y"] - myrad)
+        ay2 = int(W.strehl["center_y"] + myrad)
+        image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
+
+        bol_i = IF.EllipticalAperture(
+            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
+                            "rv": rvi, "theta": W.strehl["theta"]})["bol"]
+
+        bol_o = IF.EllipticalAperture(
+            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
+                            "rv": rvo, "theta": W.strehl["theta"]})["bol"]
+
+        bol_a = bol_o ^ bol_i
+
+        iminfo_cut = ImageInfo(image_cut[bol_a])
+        tmp = iminfo_cut.sky()
+        dic['rms'] = tmp["rms"]
+        dic['my_background'] = tmp["mean"]
+
+    else:
+        dic['rms'] = -99
+        dic['my_background'] = -99
+
+    return dic
+
+    ###############
+    # BINARY
+    ###############
+
 
 
 # TODO refactor all that in the discriminator
