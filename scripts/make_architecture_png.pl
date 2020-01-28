@@ -12,6 +12,7 @@ my $fp1 = '/tmp/abism_1.dot';
 my $fp2 = '/tmp/abism_2.dot';
 my $fp3 = '/tmp/abism.svg';
 my $in; my $do_pydep; my $do_transform; my $do_convert;
+my @last_node;
 
 GetOptions(
     'pydep' => \$do_pydep,
@@ -45,17 +46,18 @@ sub transform{
     $in =~ s/^[\s\S]*node \[.*\];\n*//;
 
     # Remove util
-    $in =~ s/^.*\babism_(front_|back_)?util.*$//gm;
+    $in =~ s/^.*\babism_(front_|back_)?(util|answer).*$//gm;
 
     # Remove empty lines
     $in =~ s/^\s*\n//gm;
-    print $in;
 
     # Create output
     my $out = header();
     $out .= front_cluster();
     $out .= back_cluster();
     $out .= plugin_cluster();
+    # Prettify pllugin cluster (not same rank)
+    $out .= '    ' . join(' -> ', @last_node) . " [style=invis];\n";
     $out .= $in;
 
     # Write
@@ -75,9 +77,13 @@ EOF
 
 
 sub nodes{
-    my $name = shift; my @res = ();
-    while ($in =~ s/(^\s*$name\w* \[.*\n)//m){
+    my $name = shift;
+    my @res = ();
+    @last_node = ();
+    
+    while ($in =~ s/(^\s*($name\w*) \[.*\n)//m){
         push @res, $1;
+        push @last_node, $2;
     }
     my $res = join "\n", @res;
     # Remove empty lines
