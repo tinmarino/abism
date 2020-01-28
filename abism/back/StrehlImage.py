@@ -859,7 +859,6 @@ def Background(grid):
     ###############
 
 
-
 # TODO refactor all that in the discriminator
 def enhance_fit_type(name):  # strange but works
     fit_type = name
