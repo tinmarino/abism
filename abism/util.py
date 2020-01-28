@@ -80,6 +80,23 @@ def parse_argument():
         default='bone',
         help='Colormap for the image')
 
+    parser.add_argument(
+        '--stretch', metavar='StretchFunction', type=str, nargs='?', action='store',
+        default='log',
+        help='Stretch function of the displayed image '
+             '(linear, sqrt, square, log, arcsinh')
+
+    parser.add_argument(
+        '--cut-type', metavar='CutType', type=str, nargs='?', action='store',
+        default='percent',
+        help='Type of cut min and max value for image display scale '
+             '(percent, sigma_clip, None')
+
+    parser.add_argument(
+        '--cut-value', metavar='CutValue', type=int, nargs='?', action='store',
+        default=99,
+        help='Cut value, depending on the cut type (percentage or sigma)')
+
     # Custom
     try:
         # Parse from sys args
@@ -276,9 +293,9 @@ class AbismState(DotDic):
 
         # UI image
         self.s_image_color_map = parse_argument().cmap
-        self.s_image_stretch = get_stretch_list()[0][2]
-        self.s_image_cut = get_cut_list()[0][1]  # fct
-        self.i_image_cut = get_cut_list()[0][3]  # param
+        self.s_image_stretch = parse_argument().stretch
+        self.s_image_cut = parse_argument().cut_type
+        self.i_image_cut = parse_argument().cut_value
         self.i_image_min_cut = 0
         self.i_image_max_cut = 0
         self.b_image_contour = False
