@@ -1,8 +1,9 @@
 # Next task
 
 1. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
+  * Clasify the parameters building
 
-2. Refactor: AnswerReturn and Pick  (then every oth todo will be easyier)
+3. Refactor: AnswerReturn and Pick  (then every oth todo will be easyier)
   * Add other info to Text
   * PlotStat dans AnswerReturn 520, make it in answer frame and not plot
   * Get Ellipse in legacy
@@ -10,7 +11,7 @@
     * And make ellipse work
     * 
 
-3. Pick -> pick.Pick, a class with pick information for gui.
+4. Pick -> pick.Pick, a class with pick information for gui.
   Then answer Return must be divided
         Old * Move Profile in analisys
 
