@@ -185,7 +185,7 @@ class ColorScheme:
 
     def init_light(self):
         """Solarized light"""
-        self.bg                 = self.solarized_base3
+        self.bg                 = "#ffffff"  # self.solarized_base3
         self.fg                 = self.solarized_base03
         self.bu                 = self.solarized_base2
         self.bu_hi              = self.solarized_base3
