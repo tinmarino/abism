@@ -24,6 +24,7 @@
 
 # Feature
 
+* Get commit date
 * Ellipse and Annulus Pick (maybe in tool)
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice

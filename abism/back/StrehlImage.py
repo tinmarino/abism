@@ -417,36 +417,35 @@ class TightBinaryPsf(BinaryPsf):
     def get_bounds(self):
         (x1, y1), (x2, y2) = self.star1, self.star2
 
-        cut1 = get_state().image.im0[x1-2: x1+2, y1-2: y1+2]
+        cut1 = get_state().image.im0[
+            int(x1-2): int(x1+2), int(y1-2): int(y1+2)]
         min1 = np.median(cut1)
         max1 = np.max(cut1)
         max1 = 2*max1 - min1
 
-        cut2 = get_state().image.im0[x2-2: x2+2, y2-2: y2+2]
+        cut2 = get_state().image.im0[
+            int(x2-2): int(x2+2), int(y2-2): int(y2+2)]
         min2 = np.median(cut2)
         max2 = np.max(cut2)
         max2 = 2*max2 - min2
+
+        bounds = super().get_bounds()
         # we put the intensity positive because in a binary fit situation
         # ... you know.... who knows
-        James = {
+        bounds.update({
             'x0': (x1-2, x1+2),
             'x1': (x2-2, x2+2),
             'y0': (y1-2, y1+2),
             'y1': (y2-2, y2+2),
-            'spread_x0': (-0.1, None),
-            'spread_x1': (-0.1, None),
-            'spread_y0': (-0.1, None),
-            'spread_y1': (-0.1, None),
-            'intensity0': (min1, max1),
-            'intensity1': (min2, max2),
-            'background': (None, None),
-            "theta": (-0.1, 3.24)}
+            'intensity0': (min1, None),
+            'intensity1': (min2, None)
+        })
 
         if "Moffat" in self.fit_type:
-            James['b0'] = (1, 3)
-            James['b1'] = (1, 3)
+            bounds['b0'] = (1, 3)
+            bounds['b1'] = (1, 3)
 
-        return James
+        return bounds
 
 
 
@@ -683,6 +682,7 @@ def Background(grid, rectangle):
         ax2 = int(W.strehl["center_x"] + myrad)
         ay1 = int(W.strehl["center_y"] - myrad)
         ay2 = int(W.strehl["center_y"] + myrad)
+        ax1, ax2, ay1, ay2 = IF.Order4((ax1, ax2, ay1, ay2), grid=grid)
         image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
 
         bol_i = IF.EllipticalAperture(
