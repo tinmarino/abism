@@ -4,22 +4,40 @@
 #       work with /tmp 
 
 use v5.26;
+use File::Basename qw/dirname/;
+use Getopt::Long qw(GetOptions);
 use File::Slurp qw/read_file write_file/;
 
 my $fp1 = '/tmp/abism_1.dot';
 my $fp2 = '/tmp/abism_2.dot';
-my $in;
+my $fp3 = '/tmp/abism.svg';
+my $in; my $do_pydep; my $do_transform; my $do_convert;
+
+GetOptions(
+    'pydep' => \$do_pydep,
+    'transform' => \$do_transform,
+    'convert' => \$do_convert
+    ) or die usage();
+
+pydep() if $do_pydep;
+transform() if $do_transform;
+convert() if $do_convert;
+
+
+sub usage{
+    "Usage: $0 [--pydep] [--transform] [--convert]\n";
+}
 
 # Create dot
 sub pydep{
     system <<EOF;
-pydeps  $0/../abism --rmprefix abism.front. abism.back. abism.plugin. abism. --exclude-exact abism.front abism.back abism.plugin --show-dot --reverse  --max-bacon=1 --cluster --noshow > $fp1
+pydeps  ${\dirname($0)}/../abism --rmprefix abism.front. abism.back. abism.plugin. abism. --exclude-exact abism.front abism.back abism.plugin --show-dot --reverse  --max-bacon=1 --cluster --noshow > $fp1
 EOF
 }
 
 
-# Convert dot
-sub convert{
+# Transform dot
+sub transform{
     # Read
     $in = read_file $fp1;
 
@@ -37,8 +55,19 @@ sub convert{
     $out .= $in;
 
     # Write
-    write_file 'abism_2.dot', $out;
+    write_file $fp2, $out;
 }
+
+# Convert ot png
+sub convert{
+    system <<EOF,
+dot -Tsvg $fp2  > $fp3 && xdg-open $fp3
+EOF
+}
+
+
+
+
 
 
 sub nodes{
@@ -48,7 +77,6 @@ sub nodes{
     }
     my $res = join "\n", @res;
     $res =~ s/^\s*$//mg;
-    print $res;
     return $res;
 }
 
