@@ -317,8 +317,8 @@ class Fit:
 
 
 class BinaryPsf(Fit):
-    def __init__(self, grid, star1, star2, search=False):
-        """search = True means we search the maximum """
+    """Fit two star function together"""
+    def __init__(self, grid, star1, star2):
         super().__init__(grid)
         ########
         # " FIRST GUESS
