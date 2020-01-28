@@ -47,6 +47,10 @@ sub transform{
     # Remove util
     $in =~ s/^.*\babism_(front_|back_)?util.*$//gm;
 
+    # Remove empty lines
+    $in =~ s/^\s*\n//gm;
+    print $in;
+
     # Create output
     my $out = header();
     $out .= front_cluster();
@@ -72,11 +76,12 @@ EOF
 
 sub nodes{
     my $name = shift; my @res = ();
-    while ($in =~ s/(^\s*$name\w* \[.*$)//m){
+    while ($in =~ s/(^\s*$name\w* \[.*\n)//m){
         push @res, $1;
     }
     my $res = join "\n", @res;
-    $res =~ s/^\s*$//mg;
+    # Remove empty lines
+    $res =~ s/^\s*\n//gms;
     return $res;
 }
 
@@ -114,7 +119,7 @@ subgraph cluster_back {
 	label = "BackEnd";
 	color=red;
     penwidth=5;
-	rank="min";
+    rank="min";
 
 ${\nodes('abism_back')}
 }
