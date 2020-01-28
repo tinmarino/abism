@@ -196,7 +196,7 @@ class EA(Enum):
     Center:   # sky -> ra, dec; detector -> x, y
     """
     from abism.answer import AnswerNum, AnswerLuminosity, AnswerFwhm, \
-        AnswerPosition, AnswerDistance, AnswerObject
+        AnswerPosition, AnswerDistance, AnswerObject, AnswerAngle
 
     # Main
     STREHL = ['Strehl', AnswerNum]
@@ -219,7 +219,6 @@ class EA(Enum):
     ERR_STREHL = ['Strehl Error', AnswerNum]
     ERR_STREHL_EQ = ['Strehl Equivalent Error', AnswerNum]
 
-
     # Binary
     BINARY = ['Binary', AnswerObject]
     STAR1 = ['1 Star', AnswerPosition]
@@ -228,6 +227,7 @@ class EA(Enum):
     PHOTOMETRY2 = ['Phot2', AnswerLuminosity]
     FLUX_RATIO = ['Flux ratio', AnswerNum]
     SEPARATION = ['Separation', AnswerDistance]
+    ORIENTATION = ['Orientation', AnswerAngle]
     STREHL1 = ['Strehl1', AnswerNum]
     STREHL2 = ['Strehl2', AnswerNum]
 

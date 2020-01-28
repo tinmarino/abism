@@ -22,7 +22,6 @@ from abism.front.AnswerReturn import PlotStar2
 
 # Back
 from abism.back.ImageFunction import PixelMax
-import abism.back.util_back as W
 
 from abism.util import log, get_root, get_state
 
@@ -184,6 +183,9 @@ class ImageFrame(PlotFrame):
         # Label && Canvas
         self.init_label("Image")
         self.init_canvas(self._fig)
+
+        self.north_direction = [0, 0]
+        self.east_direction = [0, 0]
 
 
     def extend_matplotlib(self):
@@ -386,9 +388,9 @@ class ImageFrame(PlotFrame):
         if not (("CD1_2" in vars(get_root().header)) and ("CD2_1" in vars(get_root().header))):
             get_root().header.CD1_2, get_root().header.CD2_1 = 0, 0
 
-        north_direction = [-get_root().header.CD1_2, -get_root().header.CD1_1] / \
+        self.north_direction = [-get_root().header.CD1_2, -get_root().header.CD1_1] / \
             sqrt(get_root().header.CD1_1**2 + get_root().header.CD1_2**2)
-        east_direction = [-get_root().header.CD2_2, -get_root().header.CD2_1] / \
+        self.east_direction = [-get_root().header.CD2_2, -get_root().header.CD2_1] / \
             sqrt(get_root().header.CD2_1**2 + get_root().header.CD2_2**2)
 
         # CALCULATE ARROW SIZE
@@ -396,22 +398,20 @@ class ImageFrame(PlotFrame):
         if coord_type == "axes fraction":    # for the arrow in the image, axes fraction
             arrow_center = [0.95, 0.1]  # in figura fraction
             # -  because y is upside down       think raw collumn
-            north_point = arrow_center + north_direction / 10
-            east_point = arrow_center + east_direction / 15
+            north_point = arrow_center + self.north_direction / 10
+            east_point = arrow_center + self.east_direction / 15
 
         # for the arrow IN the image coords can be "data" or "figure fraction"
         elif coord_type == "data":
             # in figure fraction
             arrow_center = [0.945 * len(im0), 0.1 * len(im0)]
             # -  because y is upside down       think raw collumn
-            north_point = [arrow_center + north_direction / 20 * len(im0),
-                           arrow_center - north_direction / 20 * len(im0)]
-            east_point = [north_point[1] + east_direction / 20 * len(im0),
+            north_point = [arrow_center + self.north_direction / 20 * len(im0),
+                           arrow_center - self.north_direction / 20 * len(im0)]
+            east_point = [north_point[1] + self.east_direction / 20 * len(im0),
                           north_point[1]]
-        W.north_direction = north_direction
-        W.east_direction = east_direction
         log(3, "north", north_point, east_point,
-            arrow_center, north_direction, east_direction)
+            arrow_center, self.north_direction, self.east_direction)
 
         #################
         # 2/ DRAW        0 is the end of the arrow

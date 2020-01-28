@@ -364,10 +364,10 @@ def print_binary():
     answer = get_state().add_answer(EA.FLUX_RATIO, phot0 / phot1)
     text.insert_answer(answer)
 
-    # TODO
-    # im_angle = separation_dic["im_angle"]
-    # sky_angle = separation_dic["sky_angle"]
-    # ["Orientation: ", im_angle, "%.2f" % im_angle + u'\xb0'],
+    # Orientation angle
+    xy_angle = separation_dic["xy_angle"]
+    answer = get_state().add_answer(EA.ORIENTATION, xy_angle)
+    text.insert_answer(answer)
 
     # Strehl 1
     answer = get_state().add_answer(EA.STREHL1, strehl0, unit=' %')
@@ -830,35 +830,22 @@ def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
     """
     point1, point2 = point[0], point[1]
     err_point1, err_point2 = err[0], err[1]
-    x0, x1, y0, y1 = point1[0],  point1[1], point2[0],  point2[1]
-    dx0, dx1, dy0, dy1 = err_point1[0],  err_point1[1], err_point2[0],  err_point2[1]
+    x0, x1, y0, y1 = point1[0], point1[1], point2[0], point2[1]
+    dx0, dx1, dy0, dy1 = err_point1[0], err_point1[1], err_point2[0], err_point2[1]
 
-    ##########
-    # SEPARATION DISTANCE
+    # Get separation distance <- Pythagora
     dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
 
-    # ERR
+    # Get error
     dist_err = np.sqrt(dx0**2 + dx1**2)
     dx0 = np.sqrt(err_point1[0]**2 + err_point1[1]**2)
     dx1 = np.sqrt(err_point2[0]**2 + err_point2[1]**2)
 
-    #############
-    # SEPARATION ANGLE
+    # Get angle
     angle = np.array([(y1-y0),   (x1-x0)])
     angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
 
-    im_angle = np.arccos(angle[1]) * 57.295779  # 360/2pi
-    sign = np.sign(angle[0])
-    im_angle = im_angle + (sign-1)*(-90)
-
-    sky_angle = np.arccos(
-        angle[1]*W.north_direction[1] + angle[0] *
-        W.north_direction[0]) * 57.295779  # inverted angle and not north
-    sign = np.sign(angle[0]*W.east_direction[0] + angle[1]*W.east_direction[1])
-    sky_angle = sky_angle + (sign-1)*(-90)
-
-    res = {"im_angle": im_angle,
-           "sky_angle": sky_angle,
+    res = {"xy_angle": angle,
            "dist": dist, "dist_err": dist_err,
            }
     return res

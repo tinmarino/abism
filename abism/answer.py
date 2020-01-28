@@ -61,9 +61,6 @@ class AnswerNum(AnswerSky):
 class AnswerPosition(AnswerSky):
     """A position on image: x, y or ra/dec
     Stored as x, y and a ref to wcs
-        my_wcs = wcs.all_pix2world(
-        np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
-            W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
     """
     def __init__(self, text, xy):
         super().__init__(text, xy)
@@ -138,7 +135,7 @@ class AnswerFwhm(AnswerSky):
 
 
 class AnswerDistance(AnswerSky):
-    """NUmber of pixel or angular distance"""
+    """Number of pixel or angular distance"""
     def str_sky(self):
         # Get pixel scale
         pxll = get_pixel_scale()
@@ -149,7 +146,35 @@ class AnswerDistance(AnswerSky):
         return f'{self.value:.2f}'
 
 
+class AnswerAngle(AnswerSky):
+    """Get a tuple (vector), returns its angle to the top
+    Ex: x=0.02, y =10 => angle = 0
+"%.2f" % im_angle + u'\xb0'],
+["Orientation: ", sky_angle, "%.2f" % sky_angle + u'\xb0'],
+    # 360/2pi
 
+    """
+    def __init__(self, text, xy):
+        super().__init__(text, xy)
+        self.unit = u'\xb0'
+
+    def str_detector(self):
+        im_angle = np.arccos(self.value[1]) * 57.295779
+        sign = np.sign(self.value[0])
+        im_angle = im_angle + (sign-1)*(-90)
+        return f'{im_angle:.2f}'
+
+    def str_sky(self):
+        from abism.util import get_root
+        # inverted angle and not north
+        sky_angle = np.arccos(
+            self.value[1] * get_root().frame_image.north_direction[1]
+            + self.value[0] * get_root().frame_image.north_direction[0]) * 57.295779
+        sign = np.sign(
+            self.value[0] * get_root().frame_image.north_direction[0]
+            + self.value[1] * get_root().frame_image.east_direction[1])
+        sky_angle = sky_angle + (sign-1)*(-90)
+        return f'{sky_angle:.2f}'
 
 # Helpers to transform coordinate
 

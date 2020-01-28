@@ -3,7 +3,6 @@
 """
 
 import numpy as np
-import tkinter as tk
 
 from abism.back import ImageFunction as IF
 from abism.back.image_info import get_array_stat
