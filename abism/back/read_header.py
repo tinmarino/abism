@@ -69,6 +69,10 @@ def parse_header(header):
 
     return Header(header)
 
+class WCSDefault:
+    def all_pix2world(self, x, y):
+        return np.array([[float('nan'), float('nan')]])
+
 
 class Header:
     """Container"""
@@ -83,7 +87,7 @@ class Header:
 
         self.exptime = 1.     # sec
         self.zpt = 0.
-        self.wcs = None
+        self.wcs = WCSDefault()
 
         # Doc
         self.telescope = 'UNKNOWN telescope'

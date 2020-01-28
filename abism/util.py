@@ -203,7 +203,7 @@ class EA(Enum):
     STREHL_EQ = [u'Eq. SR(2.17\u03bcm)', AnswerNum]
 
     # Detail
-    CENTER = ['Center', AnswerNum]
+    CENTER = ['Center', AnswerPosition]
     FWHM_ABE = ['FWHM a,b,e', AnswerFwhm]
     PHOTOMETRY = ['Photometry', AnswerLuminosity]
     BACKGROUND = ['Sky', AnswerLuminosity]

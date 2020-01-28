@@ -194,18 +194,11 @@ def print_one():
         error=get_state().get_answer_obj(EA.ERR_STREHL_EQ))
 
 
-    # # Center (need to inverse)
-    # line = AnswerImageSky(
-    #     "Center x,y: ",
-    #     (W.strehl["center_y"], W.strehl["center_x"]),
-    #     MyFormat(W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f"),
-    #     "%s , %s" % (format_sky(W.strehl['center_ra'], W.strehl['center_dec']))
-    #     )
-    # W.tmp.lst.append(line)
+    # Center
+    text.insert_answer(get_state().get_answer_obj(EA.CENTER))
 
-    # FWHM
+    # Fwhm
     text.insert_answer(get_state().get_answer_obj(EA.FWHM_ABE))
-
 
     # Photometry
     text.insert_answer(get_state().get_answer_obj(EA.PHOTOMETRY))
@@ -220,9 +213,6 @@ def print_one():
 
     # Peak of detection
     text.insert_answer(get_state().get_answer_obj(EA.INTENSITY))
-
-    # text.insert_answer(
-    # W.tmp.lst.extend(answer_warning())
 
     # Warnings
     text.insert_warnings()

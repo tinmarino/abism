@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
+
 class AnswerSky(ABC):
     """Abism answer from BackEnd, base class
     Variables:
@@ -60,14 +61,19 @@ class AnswerNum(AnswerSky):
 class AnswerPosition(AnswerSky):
     """A position on image: x, y or ra/dec
     Stored as x, y and a ref to wcs
+        my_wcs = wcs.all_pix2world(
+        np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
+            W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0][0], my_wcs[0][1]
     """
-    def __init__(self, text, xy, converter=None):
+    def __init__(self, text, xy):
         super().__init__(text, xy)
-        self.converter = converter
+        self.unit = [' [pxl]', ' [ra, dec]']
 
     def str_sky(self):
-        if self.converter is None: return self.str_detector()
-        ra, dec = self.converter(np.array([self.value]), 0)
+        from abism.util import get_root
+        x, y = self.value
+        wcs = get_root().header.wcs
+        ra, dec = wcs.all_pix2world(np.array([[x, y]]), 0)[0]
         s_ra, s_dec = format_sky(ra, dec)
         return s_ra + ' , ' + s_dec
 

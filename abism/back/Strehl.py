@@ -29,7 +29,9 @@ def StrehlMeter(rectangle):
     W.FWHM = IF.FWHM(get_state().image.im0, star_center)
     W.background = 0
 
+
     # Delegate fit
+    ############################################################
     import time
     start_time = time.time()
 
@@ -43,6 +45,10 @@ def StrehlMeter(rectangle):
     W.strehl.update(W.psf_fit[0])
 
     # Save what it take
+    center = psf_fit[0]['center_x'], psf_fit[0]['center_y']
+    get_state().add_answer(EA.CENTER, center)
+
+
     intensity = psf_fit[0]['intensity']
     get_state().add_answer(EA.INTENSITY, intensity)
 
