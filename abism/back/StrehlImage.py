@@ -418,200 +418,199 @@ class BinaryPsf(Fit):
         return self.result
 
 
-def TightBinaryPsf(grid, star1, star2, search=False):  # slowlyer
-    """search = True means we search the maximum """
+def TightBinaryPsf(BinaryPsf):
+        """Slower than binary psf"""
+        fit_type = get_state().fit_type
+        fit_type = enhance_fit_type(fit_type)
 
-    fit_type = get_state().fit_type
-    fit_type = enhance_fit_type(fit_type)
+        # Declare discriminated answer (for lint)
+        photometry = 0
 
-    # Declare discriminated answer (for lint)
-    photometry = 0
+        ########
+        # " FIRST GUESS
+        max0 = star1
+        max1 = star2
 
-    ########
-    # " FIRST GUESS
-    max0 = star1
-    max1 = star2
+        # distance between two pooints
+        star_distance = np.sqrt((max0[0]-max1[0])**2 + (max0[1]-max1[1])**2)
+        my_center = [(max0[0]+max1[0])/2, (max0[1]+max1[1])/2]
+        dist0 = min(IF.FWHM(grid, max0), star_distance / 2)
+        dist1 = min(IF.FWHM(grid, max1), star_distance / 2)
 
-    # distance between two pooints
-    star_distance = np.sqrt((max0[0]-max1[0])**2 + (max0[1]-max1[1])**2)
-    my_center = [(max0[0]+max1[0])/2, (max0[1]+max1[1])/2]
-    dist0 = min(IF.FWHM(grid, max0), star_distance / 2)
-    dist1 = min(IF.FWHM(grid, max1), star_distance / 2)
+        ###########
+        # make limits od fit
+        bd_x0 = (max0[0] - star_distance/2, max0[0] + star_distance/2)
+        bd_y0 = (max0[1] - star_distance/2, max0[1] + star_distance/2)
 
-    ###########
-    # make limits od fit
-    bd_x0 = (max0[0] - star_distance/2, max0[0] + star_distance/2)
-    bd_y0 = (max0[1] - star_distance/2, max0[1] + star_distance/2)
+        bd_x1 = (max1[0] - star_distance/2, max1[0] + star_distance/2)
+        bd_y1 = (max1[1] - star_distance/2, max1[1] + star_distance/2)
 
-    bd_x1 = (max1[0] - star_distance/2, max1[0] + star_distance/2)
-    bd_y1 = (max1[1] - star_distance/2, max1[1] + star_distance/2)
+        ########
+        # DEFINE fitting space
+        fit_range = star_distance + 5 * max(dist0, dist1)  # range of the fit
+        # the error
+        rx1 = int(my_center[0] - fit_range / 2)
+        rx2 = int(my_center[0] + 1 + fit_range / 2)
+        ry1 = int(my_center[1] - fit_range / 2)
+        ry2 = int(my_center[1] + 1 + fit_range / 2)
+        log(3, "----->IF.BinaryPSF :",
+            "The fit is done between points ",
+            (rx1, ry1), " and ", (rx2, ry2),
+            "with fit", fit_type)
+        X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
+        y, x = np.meshgrid(Y, X)
+        IX = grid[rx1:rx2+1, ry1:ry2+1]
+        IX, mIX = IF.FindBadPixel(IX)  # ,r=r)
+        eIX = (IX-mIX).std()
+        eIX *= np.ones(IX.shape)
 
-    ########
-    # DEFINE fitting space
-    fit_range = star_distance + 5 * max(dist0, dist1)  # range of the fit
-    # the error
-    rx1 = int(my_center[0] - fit_range / 2)
-    rx2 = int(my_center[0] + 1 + fit_range / 2)
-    ry1 = int(my_center[1] - fit_range / 2)
-    ry2 = int(my_center[1] + 1 + fit_range / 2)
-    log(3, "----->IF.BinaryPSF :",
-          "The fit is done between points ",
-          (rx1, ry1), " and ", (rx2, ry2),
-          "with fit", fit_type)
-    X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
-    y, x = np.meshgrid(Y, X)
-    IX = grid[rx1:rx2+1, ry1:ry2+1]
-    IX, mIX = IF.FindBadPixel(IX)  # ,r=r)
-    eIX = (IX-mIX).std()
-    eIX *= np.ones(IX.shape)
+        log(9, "Where is inf, nan ?????", IX)
 
-    log(9, "Where is inf, nan ?????", IX)
+        i_x1, i_y1 = int(max0[0]), int(max0[1])
+        i_x2, i_y2 = int(max1[0]), int(max1[1])
 
-    i_x1, i_y1 = int(max0[0]), int(max0[1])
-    i_x2, i_y2 = int(max1[0]), int(max1[1])
+        ###################
+        ## Supposed params and bounds #
+        ###################
+        W.suposed_param = {
+            'x0': max0[0],
+            'x1': max1[0],
+            'y0': max0[1],
+            'y1': max1[1],
+            'spread_x0': 0.83*(dist0),
+            'spread_x1': 0.83*dist1,
+            'spread_y0': 0.83*(dist0),
+            'spread_y1': 0.83*dist1,
+            'intensity0': grid[i_x1][i_y1],
+            'intensity1': grid[i_x2][i_y2],
+            'background': 0,
+            "theta": 1}
 
-    ###################
-    ## Supposed params and bounds #
-    ###################
-    W.suposed_param = {
-        'x0': max0[0],
-        'x1': max1[0],
-        'y0': max0[1],
-        'y1': max1[1],
-        'spread_x0': 0.83*(dist0),
-        'spread_x1': 0.83*dist1,
-        'spread_y0': 0.83*(dist0),
-        'spread_y1': 0.83*dist1,
-        'intensity0': grid[i_x1][i_y1],
-        'intensity1': grid[i_x2][i_y2],
-        'background': 0,
-        "theta": 1}
+        cut1 = get_state().image.im0[i_x1-2: i_x1+2, i_y1-2: i_y1+2]
+        min1 = np.median(cut1)
+        max1 = np.max(cut1)
+        max1 = 2*max1 - min1
 
-    cut1 = get_state().image.im0[i_x1-2: i_x1+2, i_y1-2: i_y1+2]
-    min1 = np.median(cut1)
-    max1 = np.max(cut1)
-    max1 = 2*max1 - min1
+        cut2 = get_state().image.im0[i_x2-2: i_x2+2, i_y2-2: i_y2+2]
+        min2 = np.median(cut2)
+        max2 = np.max(cut2)
+        max2 = 2*max2 - min2
+        # we put the intensity positive because in a binary fit situation
+        # ... you know.... who knows
+        James = {
+            'x0': (star1[0]-2, star1[0]+2),
+            'x1': (star2[0]-2, star2[0]+2),
+            'y0': (star1[1]-2, star1[1]+2),
+            'y1': (star2[1]-2, star2[1]+2),
+            'spread_x0': (-0.1, None),
+            'spread_x1': (-0.1, None),
+            'spread_y0': (-0.1, None),
+            'spread_y1': (-0.1, None),
+            'intensity0': (min1, max1),
+            'intensity1': (min2, max2),
+            'background': (None, None),
+            "theta": (-0.1, 3.24)}
 
-    cut2 = get_state().image.im0[i_x2-2: i_x2+2, i_y2-2: i_y2+2]
-    min2 = np.median(cut2)
-    max2 = np.max(cut2)
-    max2 = 2*max2 - min2
-    # we put the intensity positive because in a binary fit situation
-    # ... you know.... who knows
-    James = {
-        'x0': (star1[0]-2, star1[0]+2),
-        'x1': (star2[0]-2, star2[0]+2),
-        'y0': (star1[1]-2, star1[1]+2),
-        'y1': (star2[1]-2, star2[1]+2),
-        'spread_x0': (-0.1, None),
-        'spread_x1': (-0.1, None),
-        'spread_y0': (-0.1, None),
-        'spread_y1': (-0.1, None),
-        'intensity0': (min1, max1),
-        'intensity1': (min2, max2),
-        'background': (None, None),
-        "theta": (-0.1, 3.24)}
+        ###########
+        # DO NOT FIT, dic_for_fit
+        if "Bessel" in fit_type:
+            log(0, "WARNING : no bessel 2pt fit type now,fit type is set to gaussian")
+            fit_type = "Gaussian"
 
-    ###########
-    # DO NOT FIT, dic_for_fit
-    if "Bessel" in fit_type:
-        log(0, "WARNING : no bessel 2pt fit type now,fit type is set to gaussian")
-        fit_type = "Gaussian"
-
-    if "Moffat" in fit_type:
-        W.suposed_param['b0'], W.suposed_param['b1'] = 1.8, 1.8
-        James['b0'] = (1, 3)
-        James['b1'] = (1, 3)
-
-    doNotFit = []
-    dic_for_fit = {"same_psf": get_state().b_same_psf, "aniso": 0}
-    if "2D" in fit_type:
-        dic_for_fit["aniso"] = 1
-
-    if get_state().b_same_psf:
-        doNotFit.append("spread_x1")
-        doNotFit.append("spread_y1")
-        if not get_state().b_aniso:
-            doNotFit.append("spread_y0")
-            doNotFit.append("theta")
         if "Moffat" in fit_type:
-            doNotFit.append("b1")
-    else:  # not same psf
-        if not get_state().b_aniso:
-            doNotFit.append("spread_y0")
+            W.suposed_param['b0'], W.suposed_param['b1'] = 1.8, 1.8
+            James['b0'] = (1, 3)
+            James['b1'] = (1, 3)
+
+        doNotFit = []
+        dic_for_fit = {"same_psf": get_state().b_same_psf, "aniso": 0}
+        if "2D" in fit_type:
+            dic_for_fit["aniso"] = 1
+
+        if get_state().b_same_psf:
+            doNotFit.append("spread_x1")
             doNotFit.append("spread_y1")
-            doNotFit.append("theta")
+            if not get_state().b_aniso:
+                doNotFit.append("spread_y0")
+                doNotFit.append("theta")
+            if "Moffat" in fit_type:
+                doNotFit.append("b1")
+        else:  # not same psf
+            if not get_state().b_aniso:
+                doNotFit.append("spread_y0")
+                doNotFit.append("spread_y1")
+                doNotFit.append("theta")
 
-    ##########
-    # print()
-    log(3, "Binary FiT, supposed parameters : ", W.suposed_param)
-    log(3, "fit type is : ", fit_type)
-    log(3, "anisoplanetism=" +
-              str(bool(dic_for_fit["aniso"])), "same_psf="+str(bool(dic_for_fit["same_psf"])))
+        ##########
+        # print()
+        log(3, "Binary FiT, supposed parameters : ", W.suposed_param)
+        log(3, "fit type is : ", fit_type)
+        log(3, "anisoplanetism=" +
+                str(bool(dic_for_fit["aniso"])), "same_psf="+str(bool(dic_for_fit["same_psf"])))
 
-    #####################
-    # FIT FIT  ahora si que si
-    res = leastsqFit(
-        lambda x, y: vars(BF)[fit_type.replace(
-            "2D", "")+"2pt"](x, y, dic=dic_for_fit),
-        (x, y), W.suposed_param, IX,
-        err=eIX, doNotFit=doNotFit,
-        bounds=James,
-        verbose=get_state().verbose > 0,
-    )
+        #####################
+        # FIT FIT  ahora si que si
+        res = leastsqFit(
+            lambda x, y: vars(BF)[fit_type.replace(
+                "2D", "")+"2pt"](x, y, dic=dic_for_fit),
+            (x, y), W.suposed_param, IX,
+            err=eIX, doNotFit=doNotFit,
+            bounds=James,
+            verbose=get_state().verbose > 0,
+        )
 
-    ##############
-    # Restore not fitted variables
-    def Restore(list, to_change, reference):
-        list[0][to_change] = list[0][reference]
-        list[1][to_change] = list[1][reference]
-        return list
+        ##############
+        # Restore not fitted variables
+        def Restore(list, to_change, reference):
+            list[0][to_change] = list[0][reference]
+            list[1][to_change] = list[1][reference]
+            return list
 
-    if get_state().b_same_psf:
-        res = Restore(res, "spread_x1", "spread_x0")
-        res = Restore(res, "spread_y1", "spread_y0")
-        if not "2D" in fit_type:
-            res = Restore(res, "spread_y0", "spread_x0")
-        if "Moffat" in fit_type:
-            res = Restore(res, "b1", "b0")
-    else:  # not same psf
-        if not "2D" in fit_type:
-            res = Restore(res, "spread_y0", "spread_x0")
-            res = Restore(res, "spread_y1", "spread_x1")
+        if get_state().b_same_psf:
+            res = Restore(res, "spread_x1", "spread_x0")
+            res = Restore(res, "spread_y1", "spread_y0")
+            if not "2D" in fit_type:
+                res = Restore(res, "spread_y0", "spread_x0")
+            if "Moffat" in fit_type:
+                res = Restore(res, "b1", "b0")
+        else:  # not same psf
+            if not "2D" in fit_type:
+                res = Restore(res, "spread_y0", "spread_x0")
+                res = Restore(res, "spread_y1", "spread_x1")
 
-    # BACKKUP DIC
-    tmp = {}
-    tmp.update(res[0])
-    res[0]["fit_dic"] = tmp
+        # BACKKUP DIC
+        tmp = {}
+        tmp.update(res[0])
+        res[0]["fit_dic"] = tmp
 
-    # FWHM , Photo < from fit
-    dic_copy0 = res[0].copy()
-    dic_copy1 = res[0].copy()
-    for key in res[0].keys():
-        if "0" in key:
-            dic_copy0[key.replace("0", "")] = dic_copy0[key]
-        elif "1" in key:
-            dic_copy1[key.replace("1", "")] = dic_copy1[key]
-        # nevermind the center x0 and x1
-    dic_copy0["exponent"] = dic_copy0["b0"]
-    dic_copy1["exponent"] = dic_copy1["b1"]
+        # FWHM , Photo < from fit
+        dic_copy0 = res[0].copy()
+        dic_copy1 = res[0].copy()
+        for key in res[0].keys():
+            if "0" in key:
+                dic_copy0[key.replace("0", "")] = dic_copy0[key]
+            elif "1" in key:
+                dic_copy1[key.replace("1", "")] = dic_copy1[key]
+            # nevermind the center x0 and x1
+        dic_copy0["exponent"] = dic_copy0["b0"]
+        dic_copy1["exponent"] = dic_copy1["b1"]
 
-    tmp = IF.FwhmFromFit(dic_copy0, fit_type)
-    res[0].update({"fwhm_x0": tmp["fwhm_x"],
-                   "fwhm_y0": tmp["fwhm_y"],
-                   "photometry_fit0": tmp["photometry_fit"],
-                   })
-    tmp = IF.FwhmFromFit(dic_copy1, fit_type)
-    res[0].update({"fwhm_x1": tmp["fwhm_x"],
-                   "fwhm_y1": tmp["fwhm_y"],
-                   "photometry_fit1": tmp["photometry_fit"]
-                   })
+        tmp = IF.FwhmFromFit(dic_copy0, fit_type)
+        res[0].update({"fwhm_x0": tmp["fwhm_x"],
+                    "fwhm_y0": tmp["fwhm_y"],
+                    "photometry_fit0": tmp["photometry_fit"],
+                    })
+        tmp = IF.FwhmFromFit(dic_copy1, fit_type)
+        res[0].update({"fwhm_x1": tmp["fwhm_x"],
+                    "fwhm_y1": tmp["fwhm_y"],
+                    "photometry_fit1": tmp["photometry_fit"]
+                    })
 
-    return res
+        return res
 
-    ################
-    # ELLIPSE CANVAS
-    ###############
+        ################
+        # ELLIPSE CANVAS
+        ###############
 
 
 
@@ -878,7 +877,7 @@ def Background(grid, rectangle):
     ###############
 
 
-# TODO refactor all that in the discriminator
+# TODO refactor all that in the caller discriminator
 def enhance_fit_type(name):  # strange but works
     fit_type = name
     try:
@@ -894,5 +893,3 @@ def enhance_fit_type(name):  # strange but works
 
     log(0, 'Fit Type = ' + fit_type)
     return fit_type
-
-
