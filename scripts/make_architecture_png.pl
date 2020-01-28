@@ -2,6 +2,7 @@
 # TODO: abism.sh, abism.py
 #       get script path
 #       work with /tmp 
+# Color combination https://color.adobe.com/fr/create?fbclid=IwAR3bPaJcPqxONgHms2YtJv4-gMK9CrijpLd6qNU2fpfeyF79YOXc4GJP9Nk
 
 use v5.26;
 use File::Basename qw/dirname/;
@@ -48,6 +49,9 @@ sub transform{
     # Remove util
     $in =~ s/^.*\babism_(front_|back_)?(util|answer).*$//gm;
 
+    # Replace main
+    $in =~ s/^.*\babism___main__\s*\[.*$/node_main()/gme;
+
     # Remove empty lines
     $in =~ s/^\s*\n//gm;
 
@@ -75,14 +79,18 @@ EOF
 
 
 
-
 sub nodes{
     my $name = shift;
+    my $repl = shift // {};
     my @res = ();
     @last_node = ();
     
     while ($in =~ s/(^\s*($name\w*) \[.*\n)//m){
-        push @res, $1;
+        my $line = $1;
+        for my $key (keys %{$repl}){
+            $line =~ s/$key="[^"]*"/$key="$repl->{$key}"/g
+        }
+        push @res, $line;
         push @last_node, $2;
     }
     my $res = join "\n", @res;
@@ -98,6 +106,8 @@ digraph G {
     concentrate = true;
 	splines = ortho;
   	compound = true;
+    label = "ABISM\nAdaptative Background Interactive Strehl Meter"
+    labelloc = top;
 
     node [style=filled,fillcolor="#ffffff",
 		  fontcolor="#000000",fontname=Helvetica,fontsize=10,
@@ -111,10 +121,14 @@ EOF
 sub front_cluster{ "\n\n" . <<EOF;
 subgraph cluster_front {
 	label = "FrontEnd";
-	color=blue;
+	fontcolor="#520C04";
+	color="#520C04";
     penwidth=5;
 
-${\nodes('abism_front')}
+${\nodes('abism_front', {
+    'fillcolor' => '#D48A7D',
+    'fontcolor' => '#000000'
+})}
 }
 EOF
 }
@@ -123,11 +137,15 @@ EOF
 sub back_cluster{ "\n\n" . <<EOF;
 subgraph cluster_back {
 	label = "BackEnd";
-	color=red;
+	fontcolor="#003B46";
+	color="#003B46";
     penwidth=5;
     rank="min";
 
-${\nodes('abism_back')}
+${\nodes('abism_back', {
+    'fillcolor' => '#BF9EDE',
+    'fontcolor' => '#000000'
+})}
 }
 EOF
 }
@@ -136,11 +154,21 @@ EOF
 sub plugin_cluster{ "\n\n" . <<EOF;
 subgraph cluster_plugin {
 	label = "Puglin";
-	color=green;
+	fontcolor="#34075E";
+	color="#34075E";
     penwidth=5;
 	rank="min";
 	
-${\nodes('abism_plugin')}
+${\nodes('abism_plugin', {
+    'fillcolor' => '#7FB6C7',
+    'fontcolor' => '#000000'
+})}
 }
+EOF
+}
+
+# Main
+sub node_main{ <<'EOF';
+    abism___main__ [label="ABISM\n\1. sh> abism\l2. sh> python path/to/clone/abism.py\l3. sh> python -m abism\l4. py> from abism import __main__\l", shape=box, fillcolor="#ffffff",fontcolor="#000000"];
 EOF
 }
