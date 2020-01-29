@@ -144,6 +144,72 @@ class FileMenu(ButtonMenu):
         return 'File'
 
 
+class AnalysisMenu(ButtonMenu):
+    """Fit, Pick <- Choose Star analysis method"""
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.index_more = 0
+
+        self.add_fit_menu()
+        self.add_pick_menu()
+
+    def add_fit_menu(self):
+        self.menu.add_command(
+            label="Fit Type", bg=None, state=tk.DISABLED)
+
+        def on_change_fit(string_var):
+            s_in = string_var.get()
+            log(5, 'Change Fit to', s_in)
+            get_state().fit_type = s_in
+
+        # Add radio but
+        string_var = tk.StringVar()
+        string_var.set(get_state().fit_type)
+        for text in get_fit_list():
+            self.menu.add_radiobutton(
+                label=text,
+                command=lambda: on_change_fit(string_var),
+                variable=string_var, value=text)
+
+        def on_more():
+            get_root().frame_option.toogle_more_analysis(parent=self)
+
+        # Add button more options
+        self.menu.add_command(
+            label=u"\u25be More Options",
+            command=on_more)
+        self.index_more = self.menu.index(tk.END)
+
+        self.menu.add_command(columnbreak=1)
+
+    def add_pick_menu(self):
+        self.menu.add_command(
+            label="Pick Object(s)", bg=None, state=tk.DISABLED)
+
+        lst2 = [
+            ["PickOne", "one", lambda: pick.RefreshPick("one")],
+            ["Binary Fit", "binary", lambda: pick.RefreshPick("binary")],
+            ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary")],
+            ["No Pick", "nopick", lambda: pick.RefreshPick("nopick")],
+        ]
+
+        for text, tag, callback in lst2:
+            self.menu.add_radiobutton(
+                label=text, command=callback,
+                variable=get_state().tk_pick, value=tag)
+
+    def get_text(self):
+        return 'Analysis'
+
+    def toogle_more_options(self):
+        """More photometry options frame"""
+        if get_root().frame_option.is_more_analysis_visible():
+            self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
+        else:
+            self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
+
+
 class ViewMenu(ButtonMenu):
     """Color, Cut, Scale <- Appearance of image"""
     def __init__(self, parent):
@@ -270,72 +336,6 @@ class ViewMenu(ButtonMenu):
 
         # Add break
         self.menu.add_command(columnbreak=1)
-
-
-class AnalysisMenu(ButtonMenu):
-    """Fit, Pick <- Choose Star analysis method"""
-    def __init__(self, parent):
-        super().__init__(parent)
-
-        self.index_more = 0
-
-        self.add_fit_menu()
-        self.add_pick_menu()
-
-    def add_fit_menu(self):
-        self.menu.add_command(
-            label="Fit Type", bg=None, state=tk.DISABLED)
-
-        def on_change_fit(string_var):
-            s_in = string_var.get()
-            log(5, 'Change Fit to', s_in)
-            get_state().fit_type = s_in
-
-        # Add radio but
-        string_var = tk.StringVar()
-        string_var.set(get_state().fit_type)
-        for text in get_fit_list():
-            self.menu.add_radiobutton(
-                label=text,
-                command=lambda: on_change_fit(string_var),
-                variable=string_var, value=text)
-
-        def on_more():
-            get_root().frame_option.toogle_more_analysis(parent=self)
-
-        # Add button more options
-        self.menu.add_command(
-            label=u"\u25be More Options",
-            command=on_more)
-        self.index_more = self.menu.index(tk.END)
-
-        self.menu.add_command(columnbreak=1)
-
-    def add_pick_menu(self):
-        self.menu.add_command(
-            label="Pick Object(s)", bg=None, state=tk.DISABLED)
-
-        lst2 = [
-            ["PickOne", "one", lambda: pick.RefreshPick("one")],
-            ["Binary Fit", "binary", lambda: pick.RefreshPick("binary")],
-            ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary")],
-            ["No Pick", "nopick", lambda: pick.RefreshPick("nopick")],
-        ]
-
-        for text, tag, callback in lst2:
-            self.menu.add_radiobutton(
-                label=text, command=callback,
-                variable=get_state().tk_pick, value=tag)
-
-    def get_text(self):
-        return 'Analysis'
-
-    def toogle_more_options(self):
-        """More photometry options frame"""
-        if get_root().frame_option.is_more_analysis_visible():
-            self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
-        else:
-            self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
 
 
 class ToolMenu(ButtonMenu):
