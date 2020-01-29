@@ -10,7 +10,6 @@ from functools import lru_cache
 from enum import Enum
 
 import tkinter as tk
-from tkinter.filedialog import askopenfilename
 
 from abism.util import root_path, log, get_root, DotDic, get_state
 
@@ -504,6 +503,15 @@ def system_open(path=""):
     log(0, "ERROR pdf viewer : need to be implemented ")
 
 
+def abism_askopenfilename(**args):
+    # TODO for non gtk of course
+    # from tkinter.filedialog import askopenfilename
+    from abism.plugin.gtk_window_open import gtk_askopenfilename
+    fname = gtk_askopenfilename(**args)
+    log(0, "GTK returned:", fname)
+    return fname
+
+
 def open_file():
     """Open an image file
     A click on this button will open a window.
@@ -520,7 +528,7 @@ def open_file():
         initialdir = os.getcwd()
 
     # Pop window to ask for a file
-    s_file = askopenfilename(
+    s_file = abism_askopenfilename(
         title="Open a FITS image",
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")],
         initialdir=initialdir)
@@ -549,7 +557,7 @@ def show_header():
 def open_backgroud_and_substract():
     """Subtract A background image"""
     # Ask for background
-    fp_sky = askopenfilename(
+    fp_sky = abism_askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
 
     # Substract and Redraw

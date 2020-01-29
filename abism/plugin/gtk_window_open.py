@@ -7,20 +7,22 @@ import os
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 
 class GtkDialog(Gtk.FileChooserDialog):
     """The dialog to open a fits image"""
-    def __init__(self, title='', filetypes=None, initialdir=''):
+    def __init__(self, parent=None, title='', filetypes=None, initialdir=''):
         super().__init__(
             title=title,
-            parent=None,
+            parent=parent,
             action=Gtk.FileChooserAction.OPEN)
 
         self.add_buttons(
             Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
             Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+
+        self.connect("destroy", Gtk.main_quit)
 
         if initialdir:
             self.set_current_folder(os.path.abspath(initialdir))
@@ -29,18 +31,17 @@ class GtkDialog(Gtk.FileChooserDialog):
             self.add_one_filter(text_n_regex)
 
 
-
-
     def get_response(self):
         """Born, Work and die"""
+        fname = ''
         # Metro
-        response = self.run()
+        from_gtk = self.run()
         # Boulot
-        if response == Gtk.ResponseType.OK:
+        if from_gtk == Gtk.ResponseType.OK:
             fname = self.get_filename()
-        elif response == Gtk.ResponseType.CANCEL:
-            fname = ''
         self.destroy()
+        Gtk.main_quit()
+        GLib.timeout_add(100, Gtk.main_quit)
         # Dodo
         return fname
 
@@ -53,13 +54,14 @@ class GtkDialog(Gtk.FileChooserDialog):
         self.add_filter(filter_text)
 
 
-
 def gtk_askopenfilename(**args):
     """Returns filename given by user"""
-    dialog = GtkDialog(**args)
+    #win = Gtk.Window(title="test")
+    dialog = GtkDialog(parent=None, **args)
     res = dialog.get_response()
+    #Gtk.main_quit()
+    Gtk.main()
     return res
-
 
 
 def test():
