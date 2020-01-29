@@ -317,57 +317,54 @@ def set_figure_skin(figure, in_skin):
 ####################################################################
 
 
-class HoverInfo(tk.Menu):
+class HoverInfo:
     """Helper class to show a label when mouse on a widget
+    also called toolTip byt its author
     From: https://stackoverflow.com/questions/20399243/
           ... display-message-when-hovering-over-something-
           ... with-mouse-cursor-in-python
     """
-    def __init__(self, parent, text, command=None):
+    def __init__(self, widget):
+        self.widget = widget
+        self.text = ''
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        "Display text in tooltip window"
         # Check in
-        if not isinstance(text, str):
-            raise TypeError(
-                'Trying to initialise a Hover Menu '
-                'with a non string type: ' + text.__class__.__name__)
+        self.text = text
+        if self.tipwindow or not self.text:
+            return
 
-        # Init param
-        self._com = command
-        self._displayed = False
-        self.parent = parent
+        x, y, _, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 57
+        y = y + cy + self.widget.winfo_rooty() +27
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(
+            tw, text=self.text, justify=tk.LEFT,
+            background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+            font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
 
-        # Super Ctor
-        super().__init__(self.parent, tearoff=0)
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
 
-        # Add text
-        toktext = re.split('\n', text)
-        for t in toktext:
-            self.add_command(label=t)
 
-        self.parent.bind("<Enter>", self.display_hover)
-        self.parent.bind("<Leave>", self.remove_hover)
-
-    def __del__(self):
-        self.parent.unbind("<Enter>")
-        self.parent.unbind("<Leave>")
-
-    def display_hover(self, event):
-        if self._displayed: return
-        self._displayed = True
-        self.post(event.x_root, event.y_root)
-        if self._com is not None:
-            self.parent.unbind_all("<Return>")
-            self.parent.bind_all("<Return>", self.click_hover)
-
-    def remove_hover(self, _):
-        if not self._displayed: return
-        self._displayed = False
-        self.unpost()
-        if self._com is not None:
-            self.unbind_all("<Return>")
-
-    def click_hover(self, _):
-        self._com()
-
+def set_hover_info(widget, text):
+    toolTip = HoverInfo(widget)
+    def enter(_):
+        toolTip.showtip(text)
+    def leave(_):
+        toolTip.hidetip()
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
 
 @lru_cache(1)
 def photo_up():

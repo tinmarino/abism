@@ -18,7 +18,7 @@ from abism.plugin.histogram import histopopo
 from abism.front import pick
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, change_root_scheme, Scheme, skin, HoverInfo
+    open_file, change_root_scheme, Scheme, skin, set_hover_info
 
 from abism.util import log, get_root, get_state, quit_process, \
     get_colormap_list, get_stretch_list, get_cut_list, get_fit_list
@@ -77,7 +77,7 @@ class AbismMenu(ButtonMenu):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.hover = HoverInfo(
+        set_hover_info(
             self, 'while hovering press return \n for an exciting msg')
 
         self.menu.add_command(
