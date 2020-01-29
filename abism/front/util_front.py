@@ -332,8 +332,8 @@ class HoverInfo:
         if self.tipwindow or not self.text:
             return
         x, y, _, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 57
-        y = y + cy + self.widget.winfo_rooty() + 27
+        x = x + self.widget.winfo_rootx() + 130
+        y = y + cy + self.widget.winfo_rooty() + 20
         if index is not None:
             x += self.widget.xposition(index)
             y += self.widget.yposition(index)
@@ -394,6 +394,7 @@ def add_entry_info(self, text):
     self.bind("<<MenuSelect>>", lambda event: on_menu_hover(self))
     self.bind("<Leave>", lambda _: self.hover_info.hide())
     self.bind("<FocusOut>", lambda _: self.hover_info.hide())
+    self.bind("<FocusIn>", lambda _: self.activate(40))
 
 
 # Create Menu add_entry_info function member
