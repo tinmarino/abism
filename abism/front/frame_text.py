@@ -762,6 +762,10 @@ class ButtonFrame(tk.Frame):
         self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toogle_image_parameter, **opts)
+        self.bu_manual.set_hover_info(
+            "<C-P>: Show/Hide Image parameters\n"
+            "necessaries for Strehl mesurement (λ, pxl scale, diam, obstr)\n"
+            "or to give sky coordinates (zpt, exposure)")
 
         # Grid
         self.columnconfigure(0, weight=1)

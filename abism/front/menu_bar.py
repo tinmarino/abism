@@ -62,9 +62,6 @@ class ButtonMenu(tk.Menubutton):
         # Otherwise, dropdown not working
         self['menu'] = self.menu
 
-        # Grid me <- parent does it: I can't auto increment col
-        # self.grid(row=0, sticky="nsew")
-
     @abstractmethod
     def get_text(self):
         return ''
@@ -74,8 +71,6 @@ class AbismMenu(ButtonMenu):
     """ABISM"""
     def __init__(self, parent):
         super().__init__(parent)
-
-        self.set_hover_info('while hovering press return \n for an exciting msg')
 
         self.menu.add_command(
             label='About',

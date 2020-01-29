@@ -129,6 +129,10 @@ class WindowRoot(tk.Tk):
             "<Control-h>",
             lambda _: show_header())
 
+        self.bind_all(
+            "<Control-p>",
+            lambda _: self.frame_option.toogle_image_parameter())
+
     @staticmethod
     def init_state():
         # Create tk var
