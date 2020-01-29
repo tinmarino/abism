@@ -318,14 +318,18 @@ def set_figure_skin(figure, in_skin):
 
 
 class HoverInfo(tk.Menu):
-    """Helper class to show a label when mouse on a widget"""
+    """Helper class to show a label when mouse on a widget
+    From: https://stackoverflow.com/questions/20399243/
+          ... display-message-when-hovering-over-something-
+          ... with-mouse-cursor-in-python
+    """
     def __init__(self, parent, text, command=None):
-        self._com = command
-        super().__init__(self, parent, tearoff=0)
         if not isinstance(text, str):
             raise TypeError(
                 'Trying to initialise a Hover Menu '
                 'with a non string type: ' + text.__class__.__name__)
+        self._com = command
+        super().__init__(parent, tearoff=0)
         toktext = re.split('\n', text)
         for t in toktext:
             self.add_command(label=t)

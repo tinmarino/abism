@@ -6,9 +6,6 @@ import re
 import tkinter as tk
 from abc import abstractmethod
 
-from abism.front.util_front import system_open, about_window, \
-    open_file, change_root_scheme, Scheme, skin
-
 from abism.plugin.window_header import spawn_header_window
 
 # For tool
@@ -17,7 +14,11 @@ from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.histogram import histopopo
 
 # TODO remove
-from abism.front import pick  # to connect PickOne per defautl
+  # to connect PickOne per defautl
+from abism.front import pick
+
+from abism.front.util_front import system_open, about_window, \
+    open_file, change_root_scheme, Scheme, skin, HoverInfo
 
 from abism.util import log, get_root, get_state, quit_process, \
     get_colormap_list, get_stretch_list, get_cut_list, get_fit_list
@@ -75,6 +76,10 @@ class AbismMenu(ButtonMenu):
     """ABISM"""
     def __init__(self, parent):
         super().__init__(parent)
+
+        self.hover = HoverInfo(
+            self, 'while hovering press return \n for an exciting msg')
+
         self.menu.add_command(
             label='About',
             command=about_window)
