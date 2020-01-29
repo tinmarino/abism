@@ -77,8 +77,7 @@ class AbismMenu(ButtonMenu):
     def __init__(self, parent):
         super().__init__(parent)
 
-        set_hover_info(
-            self, 'while hovering press return \n for an exciting msg')
+        self.set_hover_info('while hovering press return \n for an exciting msg')
 
         self.menu.add_command(
             label='About',

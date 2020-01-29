@@ -365,6 +365,8 @@ def set_hover_info(widget, text):
         toolTip.hidetip()
     widget.bind('<Enter>', enter)
     widget.bind('<Leave>', leave)
+tk.Widget.set_hover_info = set_hover_info
+
 
 @lru_cache(1)
 def photo_up():
