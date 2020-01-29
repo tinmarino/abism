@@ -1,5 +1,7 @@
 """
     Utilities for Abism GUI
+    Could be called tk_extension for most of it
+    Must refactor all as class extension (I did not know the possibility)
 """
 import os
 
@@ -330,13 +332,15 @@ class HoverInfo:
 
     def show(self, text, index=None):
         """Get param in and launch display timer"""
-        print("Showing")
+        # Check in: do not work twice
         if self.on_work: return
         self.on_work = True
-
         self.text = text
+
+        # Check in: do not work for nothing
         if self.tipwindow or not self.text:
             return
+
         # Calculate position
         self.x, self.y, cx, cy = self.widget.bbox("insert")
         self.x += cx + self.widget.winfo_rootx() + 130
@@ -345,26 +349,18 @@ class HoverInfo:
             self.x += self.widget.xposition(index)
             self.y += self.widget.yposition(index)
 
-        self.widget.after(1000, self.show_now)
-        print("Launched after")
-        #from threading import Thread
-        #thread = Thread(
-        #    target=self.widget.after,
-        #    args=(1000, self.show_now()))
-        #thread.start()
-        # Regenerate event to highlight the button
-        # if isinstance(self.widget, tk.Menu):
-        #     self.widget.unbind("<<MenuSelect>>")
-        #     self.widget.event_generate("<<MenuSelect>>", when="tail")
+        # Launch worker: "may the winds be favorable to you"
+        self.widget.after(300, self.show_now)
 
     def show_now(self):
         """Display text in tooltip window"""
-        # Create widget toplevel
-        print("------------------->After")
+        # Check in: maybe too late, if user left -> hide triggered
         if not self.on_work: return
-        print("------------------->After, see me")
 
+        # Hide my bro
         self.hide()
+
+        # Create widget toplevel
         self.tipwindow = tk.Toplevel(self.widget)
         self.tipwindow.wm_overrideredirect(1)
         self.tipwindow.wm_geometry("+%d+%d" % (self.x, self.y))
@@ -377,19 +373,14 @@ class HoverInfo:
         label.pack(ipadx=1)
 
     def hide(self):
+        """Hide hover info window"""
+        # Block tip creation until new event
         self.on_work = False
-        print("Hiding")
-        #if not self.on_work: return
-        print("Hiding For reaal")
-        #self.widget.bind("<<MenuSelect>>")
-        # if isinstance(self.widget, tk.Menu):
-        #     self.widget.bind("<<MenuSelect>>", lambda _: self.widget.on_menu_hover())
-        if self.tipwindow:
-            print("Hiding Destroying")
-            self.tipwindow.destroy()
-            self.tipwindow = None
-        #self.tipwindow = None
-        # Remove ?
+
+        # If feasable, destroy tip window
+        if not self.tipwindow: return
+        self.tipwindow.destroy()
+        self.tipwindow = None
 
 
 def bind_widget_hover(self):
