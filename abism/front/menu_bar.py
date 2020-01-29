@@ -6,8 +6,6 @@ import re
 import tkinter as tk
 from abc import abstractmethod
 
-from abism.plugin.window_header import spawn_header_window
-
 # For tool
 from abism.plugin.debug_console import debug_console
 from abism.plugin.xterm_console import jupyter_window
@@ -18,7 +16,7 @@ from abism.plugin.histogram import histopopo
 from abism.front import pick
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, change_root_scheme, Scheme, skin
+    open_file, change_root_scheme, Scheme, skin, show_header
 
 from abism.util import log, get_root, get_state, quit_process, \
     get_colormap_list, get_stretch_list, get_cut_list, get_fit_list
@@ -129,15 +127,15 @@ class FileMenu(ButtonMenu):
         self.menu.add_command(
             label='Open',
             command=open_file)
+        self.menu.add_entry_info(
+            "<C-O>: Open file dialog\nChoose fits image path")
 
         # Show header
         self.menu.add_command(
             label='Display Header',
-            command=lambda: spawn_header_window(
-                get_state().image.name,
-                get_root().header.header.tostring(sep="\n"),
-                save=get_root().saved_children,
-            ))
+            command=show_header)
+        self.menu.add_entry_info(
+            "<C-H>: Open Header viewer window")
 
 
     def get_text(self):

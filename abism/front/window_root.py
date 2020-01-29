@@ -115,6 +115,7 @@ class WindowRoot(tk.Tk):
 
     def set_shortcut(self):
         """Shortcuts with ctrl"""
+        from abism.front.util_front import show_header
 
         self.bind_all(
             "<Control-o>",
@@ -124,9 +125,12 @@ class WindowRoot(tk.Tk):
             "<Control-r>",
             lambda _: restart())
 
+        self.bind_all(
+            "<Control-h>",
+            lambda _: show_header())
+
     @staticmethod
     def init_state():
         # Create tk var
         get_state().tk_pick = tk.StringVar()
         get_state().tk_pick.set(get_state().pick_type)
-

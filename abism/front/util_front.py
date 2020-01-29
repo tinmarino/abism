@@ -502,6 +502,14 @@ def open_file():
     get_root().title('Abism (' + fname + ')')
 
 
+def show_header():
+    from abism.plugin.window_header import spawn_header_window
+    spawn_header_window(
+        get_state().image.name,
+        get_root().header.header.tostring(sep="\n"),
+        save=get_root().saved_children)
+
+
 def open_backgroud_and_substract():
     """Subtract A background image"""
     # Ask for background
