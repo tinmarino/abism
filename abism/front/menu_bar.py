@@ -57,7 +57,7 @@ class ButtonMenu(tk.Menubutton):
         super().__init__(parent, **l_args)
 
         # Create my menu drowpdown
-        self.menu = tk.Menu(self, **skin().fg_and_bg)
+        self.menu = tk.Menu(self, tearoff=False, **skin().fg_and_bg)
 
         # Otherwise, dropdown not working
         self['menu'] = self.menu
@@ -179,11 +179,9 @@ class AnalysisMenu(ButtonMenu):
             command=on_more)
         self.index_more = self.menu.index(tk.END)
 
-        self.menu.add_command(columnbreak=1)
-
     def add_pick_menu(self):
         self.menu.add_command(
-            label="Pick Object(s)", bg=None, state=tk.DISABLED)
+            label="Pick Object(s)", bg=None, state=tk.DISABLED, columnbreak=1)
 
         lst2 = [
             ["PickOne", "one", lambda: pick.RefreshPick("one"),
@@ -280,13 +278,11 @@ class ViewMenu(ButtonMenu):
             label='Reverse',
             command=on_change_reverse)
 
-        # Add column break
-        self.menu.add_command(columnbreak=1)
-
 
     def add_scale_column(self):
         """Scale of image drop"""
-        self.menu.add_command(label="FCT", bg=None, state=tk.DISABLED)
+        self.menu.add_command(label="FCT", bg=None, state=tk.DISABLED,
+                              columnbreak=1)
 
         # Create tk var
         string_var = tk.StringVar()
@@ -306,13 +302,11 @@ class ViewMenu(ButtonMenu):
                 command=lambda: on_change_stretch(string_var),
                 variable=string_var, value=i[2])
 
-        # Add break
-        self.menu.add_command(columnbreak=1)
-
 
     def add_cut_column(self):
         """Cut min max of the iamge scale"""
-        self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED)
+        self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED,
+                              columnbreak=1)
 
         # Define callback
         def on_change_cut(s_in, value):
