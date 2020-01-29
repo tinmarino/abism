@@ -93,7 +93,7 @@ def parse_argument():
              '(percent, sigma_clip, None')
 
     parser.add_argument(
-        '--cut-value', metavar='CutValue', type=int, nargs='?', action='store',
+        '--cut-value', metavar='CutValue', type=float, nargs='?', action='store',
         default=99,
         help='Cut value, depending on the cut type (percentage or sigma)')
 

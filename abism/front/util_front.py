@@ -2,6 +2,7 @@
     Utilities for Abism GUI
 """
 import os
+import re
 
 # Standard
 from functools import lru_cache
@@ -314,6 +315,45 @@ def set_figure_skin(figure, in_skin):
 
 # Utilities
 ####################################################################
+
+
+class HoverInfo(tk.Menu):
+    """Helper class to show a label when mouse on a widget"""
+    def __init__(self, parent, text, command=None):
+        self._com = command
+        super().__init__(self, parent, tearoff=0)
+        if not isinstance(text, str):
+            raise TypeError(
+                'Trying to initialise a Hover Menu '
+                'with a non string type: ' + text.__class__.__name__)
+        toktext = re.split('\n', text)
+        for t in toktext:
+            self.add_command(label=t)
+            self._displayed = False
+            self.master.bind("<Enter>", self.display_hover)
+            self.master.bind("<Leave>", self.remove_hover)
+
+    def __del__(self):
+        self.master.unbind("<Enter>")
+        self.master.unbind("<Leave>")
+
+    def display_hover(self, event):
+        if not self._displayed:
+            self._displayed = True
+            self.post(event.x_root, event.y_root)
+            if self._com is not None:
+                self.master.unbind_all("<Return>")
+                self.master.bind_all("<Return>", self.click_hover)
+
+    def remove_hover(self, _):
+        if self._displayed:
+            self._displayed = False
+            self.unpost()
+            if self._com is not None:
+                self.unbind_all("<Return>")
+
+    def click_hover(self, _):
+        self._com()
 
 
 @lru_cache(1)
