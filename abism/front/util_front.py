@@ -391,9 +391,9 @@ def add_entry_info(self, text):
         self.idx_text = {}
         self.hover_info = HoverInfo(self)
     self.idx_text.update({idx: text})
-    self.bind(
-        "<<MenuSelect>>",
-        lambda event: on_menu_hover(self))
+    self.bind("<<MenuSelect>>", lambda event: on_menu_hover(self))
+    self.bind("<Leave>", lambda _: self.hover_info.hide())
+    self.bind("<FocusOut>", lambda _: self.hover_info.hide())
 
 
 # Create Menu add_entry_info function member
