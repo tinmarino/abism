@@ -325,23 +325,35 @@ class HoverInfo:
         self.tipwindow = None
         self.id = None
         self.text = ''
+        self.x = self.y = 0
+        self.on_work = False
 
     def show(self, text, index=None):
-        """Display text in tooltip window"""
+        """Get param in and launch display timer"""
+        if self.on_work: return
+        self.on_work = True
+
         self.text = text
         if self.tipwindow or not self.text:
             return
-        x, y, _, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 130
-        y = y + cy + self.widget.winfo_rooty() + 20
+        self.x, self.y, cx, cy = self.widget.bbox("insert")
+        self.x += cx + self.widget.winfo_rootx() + 130
+        self.y += cy + self.widget.winfo_rooty() + 20
         if index is not None:
-            x += self.widget.xposition(index)
-            y += self.widget.yposition(index)
+            self.x += self.widget.xposition(index)
+            self.y += self.widget.yposition(index)
 
+        self.widget.after(200, self.show_now())
+        # Regenerate event to highlight the button
+        #self.widget.unbind("<<MenuSelect>>")
+        #self.widget.event_generate("<<MenuSelect>>", when="tail")
+
+    def show_now(self):
+        """Display text in tooltip window"""
         # Create widget toplevel
         self.tipwindow = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
-        tw.wm_geometry("+%d+%d" % (x, y))
+        tw.wm_geometry("+%d+%d" % (self.x, self.y))
 
         # Pack label
         label = tk.Label(
@@ -351,6 +363,9 @@ class HoverInfo:
         label.pack(ipadx=1)
 
     def hide(self):
+        self.on_work = False
+        #self.widget.bind("<<MenuSelect>>")
+        #self.widget.bind("<<MenuSelect>>", lambda event: self.on_menu_hover())
         tw = self.tipwindow
         self.tipwindow = None
         if tw:
@@ -391,7 +406,7 @@ def add_entry_info(self, text):
         self.idx_text = {}
         self.hover_info = HoverInfo(self)
     self.idx_text.update({idx: text})
-    self.bind("<<MenuSelect>>", lambda event: on_menu_hover(self))
+    self.bind("<<MenuSelect>>", lambda event: self.on_menu_hover())
     self.bind("<Leave>", lambda _: self.hover_info.hide())
     self.bind("<FocusOut>", lambda _: self.hover_info.hide())
     self.bind("<FocusIn>", lambda _: self.activate(40))
@@ -399,6 +414,7 @@ def add_entry_info(self, text):
 
 # Create Menu add_entry_info function member
 tk.Menu.add_entry_info = add_entry_info
+tk.Menu.on_menu_hover = on_menu_hover
 
 
 @lru_cache(1)
