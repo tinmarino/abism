@@ -38,6 +38,9 @@ def RefreshPick(label):
         ["No Pick", "nopick", NoPick],
     ])
 
+    # Set tk var
+    get_state().tk_pick.set(label)
+
     # Get obj from list switch <- degueulasse
     get_state().pick_old = get_state().pick_type
     index = list(lst[:, 1]).index(label)

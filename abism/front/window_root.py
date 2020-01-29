@@ -12,13 +12,13 @@ import tkinter as tk
 from abism.front.menu_bar import MenuBar
 from abism.front.frame_text import LeftFrame
 from abism.front.frame_plot import RightFrame
-from abism.front.util_front import skin, icon_path, open_file
+from abism.front.util_front import skin, icon_path
 
 # Variables
 from abism.back.image_info import ImageInfo
 
 
-from abism.util import log, set_root, restart, parse_argument, get_state
+from abism.util import log, set_root, parse_argument, get_state
 
 
 
@@ -43,7 +43,6 @@ class WindowRoot(tk.Tk):
 
         # Set icon && shortcut
         self.set_icon()
-        self.set_shortcut()
 
         # 1 Menu: Pack
         MenuBar(self)
@@ -67,7 +66,6 @@ class WindowRoot(tk.Tk):
         right = RightFrame(self, self.paned_root, right_width, height)
         self.paned_root.add(right)
 
-        # Init image
         self.set_image(parse_argument().image)
 
     def set_image(self, filepath):
@@ -112,26 +110,6 @@ class WindowRoot(tk.Tk):
             log(3, "->you have no beautiful icon "
                 "because you didn't set the PATH in Abism.py")
 
-
-    def set_shortcut(self):
-        """Shortcuts with ctrl"""
-        from abism.front.util_front import show_header
-
-        self.bind_all(
-            "<Control-o>",
-            lambda _: open_file())
-
-        self.bind_all(
-            "<Control-r>",
-            lambda _: restart())
-
-        self.bind_all(
-            "<Control-h>",
-            lambda _: show_header())
-
-        self.bind_all(
-            "<Control-p>",
-            lambda _: self.frame_option.toogle_image_parameter())
 
     @staticmethod
     def init_state():

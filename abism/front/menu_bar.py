@@ -122,6 +122,7 @@ class FileMenu(ButtonMenu):
         self.menu.add_command(
             label='Open',
             command=open_file)
+        get_root().bind_all("<Control-o>", lambda _: open_file())
         self.menu.add_entry_info(
             "<C-O>: Open file dialog\nChoose fits image path")
 
@@ -129,6 +130,7 @@ class FileMenu(ButtonMenu):
         self.menu.add_command(
             label='Display Header',
             command=show_header)
+        self.bind_all("<Control-h>", lambda _: show_header())
         self.menu.add_entry_info(
             "<C-H>: Open Header viewer window")
 
@@ -180,21 +182,27 @@ class AnalysisMenu(ButtonMenu):
 
         lst2 = [
             ["PickOne", "one", lambda: pick.RefreshPick("one"),
-             "Draw a rectangle around one star\n"
-             "The fit is performed in this rectangle"],
+             "<C-P>O: Draw a rectangle around one star\n"
+             "The fit is performed in this rectangle",
+             "<Control-p>o"],
             ["Binary Fit", "binary", lambda: pick.RefreshPick("binary"),
-             "Make one click per star\n"
-             "Its are the initial guess of a fit"],
+             "<C-P>B: Make one click per star\n"
+             "Its are the initial guess of a fit",
+             "<Control-p>b"],
             ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary"),
-             ""],
+             "<C-P>T: Stricter bounds",
+             "<Control-p>t"],
             ["No Pick", "nopick", lambda: pick.RefreshPick("nopick"),
-             ""],
+             "Disable abism click (to use matplotlib, explore the image)",
+             "<Control-p>n"],
         ]
 
-        for text, tag, callback, info in lst2:
+        for text, tag, callback, info, keys in lst2:
             self.menu.add_radiobutton(
                 label=text, command=callback,
                 variable=get_state().tk_pick, value=tag)
+            self.menu.add_entry_info(info)
+            get_root().bind_all(keys, lambda _, callback=callback: callback())
             self.menu.add_entry_info(info)
 
 
@@ -342,25 +350,50 @@ class ToolMenu(ButtonMenu):
         """
         super().__init__(parent)
 
-        # Add radio
-        lst = [
-            ["Profile", 'profile', lambda: pick.RefreshPick("profile")],
-            ["Stat", 'stat', lambda: pick.RefreshPick("stat")]]
-        for text, tag, cmd in lst:
-            self.menu.add_radiobutton(
-                label=text, command=cmd,
-                variable=get_state().tk_pick, value=tag)
+        # Profile
+        cmd = lambda: pick.RefreshPick("profile")
+        self.menu.add_radiobutton(
+            label='Profile', command=cmd,
+            variable=get_state().tk_pick, value='profile')
+        get_root().bind_all("<Control-p>p", lambda _: pick.RefreshPick("profile"))
+        self.menu.add_entry_info(
+            "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
-        lst = [
-            ["Histogram", lambda: histopopo(
-                get_root().frame_fit.get_figure(),
-                get_state().image.sort,
-                skin=skin())],
-            ["Legacy Console", debug_console],
-            ["Jupyter Console", jupyter_window]]
-        for text, cmd in lst:
-            self.menu.add_command(label=text, command=cmd)
+        # Stat
+        self.menu.add_radiobutton(
+            label='Stat', command=lambda: pick.RefreshPick('stat'),
+            variable=get_state().tk_pick, value='stat')
+        get_root().bind_all("<Control-p>s", lambda _: pick.RefreshPick('stat'))
+        self.menu.add_entry_info(
+            "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
+
+        # Histogram
+        self.menu.add_radiobutton(label='Histogram', command=open_histogram)
+        get_root().bind_all("<Control-t>h", lambda _: open_histogram())
+        self.menu.add_entry_info(
+            "<C-T>H: Display image intensity histogram")
+
+        # Legacy tk
+        self.menu.add_radiobutton(label='Legacy Console', command=debug_console)
+        get_root().bind_all("<Control-t>d", lambda _: debug_console())
+        self.menu.add_entry_info(
+            "<C-T>D: Open debug console window")
+
+        # Jupyter
+        self.menu.add_radiobutton(label='Jupyter Console', command=jupyter_window)
+        get_root().bind_all("<Control-t>j", lambda _: jupyter_window())
+        self.menu.add_entry_info(
+            "<C-T>J: Open jupyter console window\n"
+            "Requires: xterm, jupyter")
 
 
     def get_text(self):
         return 'Tools'
+
+
+def open_histogram():
+    print("Calling histogram")
+    histopopo(
+        get_root().frame_fit.get_figure(),
+        get_state().image.sort,
+        skin=skin())

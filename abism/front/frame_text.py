@@ -756,14 +756,19 @@ class ButtonFrame(tk.Frame):
         bu_restart = tk.Button(
             self, text='RESTART',
             command=restart, **opts)
+        get_root().bind_all("<Control-r>", lambda _: restart())
+        bu_restart.set_hover_info(
+            "<C-R>: Restart Absim with the same command line")
 
         # Create Expand Image Parameter
         opts.update({'background':skin().color.parameter1})
         self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toogle_image_parameter, **opts)
+        get_root().bind_all(
+            "<Control-m>", lambda _: get_root().frame_option.toogle_image_parameter())
         self.bu_manual.set_hover_info(
-            "<C-P>: Show/Hide Image parameters\n"
+            "<C-M>: Show/Hide Image parameters\n"
             "necessaries for Strehl mesurement (λ, pxl scale, diam, obstr)\n"
             "or to give sky coordinates (zpt, exposure)")
 
