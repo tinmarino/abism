@@ -2,7 +2,6 @@
     Utilities for Abism GUI
 """
 import os
-import re
 
 # Standard
 from functools import lru_cache
@@ -319,53 +318,86 @@ def set_figure_skin(figure, in_skin):
 
 class HoverInfo:
     """Helper class to show a label when mouse on a widget
-    also called toolTip byt its author
-    From: https://stackoverflow.com/questions/20399243/
-          ... display-message-when-hovering-over-something-
-          ... with-mouse-cursor-in-python
+    Alais toolTip by its author
     """
     def __init__(self, widget):
         self.widget = widget
-        self.text = ''
         self.tipwindow = None
         self.id = None
-        self.x = self.y = 0
+        self.text = ''
 
-    def showtip(self, text):
-        "Display text in tooltip window"
-        # Check in
+    def show(self, text, index=None):
+        """Display text in tooltip window"""
         self.text = text
         if self.tipwindow or not self.text:
             return
-
         x, y, _, cy = self.widget.bbox("insert")
         x = x + self.widget.winfo_rootx() + 57
-        y = y + cy + self.widget.winfo_rooty() +27
+        y = y + cy + self.widget.winfo_rooty() + 27
+        if index is not None:
+            x += self.widget.xposition(index)
+            y += self.widget.yposition(index)
+
+        # Create widget toplevel
         self.tipwindow = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
         tw.wm_geometry("+%d+%d" % (x, y))
+
+        # Pack label
         label = tk.Label(
             tw, text=self.text, justify=tk.LEFT,
             background="#ffffe0", relief=tk.SOLID, borderwidth=1,
             font=("tahoma", "8", "normal"))
         label.pack(ipadx=1)
 
-    def hidetip(self):
+    def hide(self):
         tw = self.tipwindow
         self.tipwindow = None
         if tw:
             tw.destroy()
 
 
-def set_hover_info(widget, text):
-    toolTip = HoverInfo(widget)
+def set_hover_info(self, text):
+    """Set hover info to widget"""
+    hover_info = HoverInfo(self)
     def enter(_):
-        toolTip.showtip(text)
+        hover_info.show(text)
     def leave(_):
-        toolTip.hidetip()
-    widget.bind('<Enter>', enter)
-    widget.bind('<Leave>', leave)
+        hover_info.hide()
+    self.bind('<Enter>', enter)
+    self.bind('<Leave>', leave)
+
+# Create widget member function to add info on hover
 tk.Widget.set_hover_info = set_hover_info
+
+
+def on_menu_hover(self):
+    """Callback: On <<MenuSelect>>
+    called by add_entry_info
+    """
+    index_active = self.index(tk.ACTIVE)
+    if index_active in self.idx_text:
+        text = self.idx_text[index_active]
+        self.hover_info.hide()
+        self.hover_info.show(text, index=index_active)
+    elif self.hover_info:
+        self.hover_info.hide()
+
+
+def add_entry_info(self, text):
+    """Add info to last entry"""
+    idx = self.index(tk.END)
+    if not 'idx_text' in vars(self):
+        self.idx_text = {}
+        self.hover_info = HoverInfo(self)
+    self.idx_text.update({idx: text})
+    self.bind(
+        "<<MenuSelect>>",
+        lambda event: on_menu_hover(self))
+
+
+# Create Menu add_entry_info function member
+tk.Menu.add_entry_info = add_entry_info
 
 
 @lru_cache(1)

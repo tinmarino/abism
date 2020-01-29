@@ -18,7 +18,7 @@ from abism.plugin.histogram import histopopo
 from abism.front import pick
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, change_root_scheme, Scheme, skin, set_hover_info
+    open_file, change_root_scheme, Scheme, skin
 
 from abism.util import log, get_root, get_state, quit_process, \
     get_colormap_list, get_stretch_list, get_cut_list, get_fit_list
@@ -188,16 +188,24 @@ class AnalysisMenu(ButtonMenu):
             label="Pick Object(s)", bg=None, state=tk.DISABLED)
 
         lst2 = [
-            ["PickOne", "one", lambda: pick.RefreshPick("one")],
-            ["Binary Fit", "binary", lambda: pick.RefreshPick("binary")],
-            ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary")],
-            ["No Pick", "nopick", lambda: pick.RefreshPick("nopick")],
+            ["PickOne", "one", lambda: pick.RefreshPick("one"),
+             "Draw a rectangle around one star\n"
+             "The fit is performed in this rectangle"],
+            ["Binary Fit", "binary", lambda: pick.RefreshPick("binary"),
+             "Make one click per star\n"
+             "Its are the initial guess of a fit"],
+            ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary"),
+             ""],
+            ["No Pick", "nopick", lambda: pick.RefreshPick("nopick"),
+             ""],
         ]
 
-        for text, tag, callback in lst2:
+        for text, tag, callback, info in lst2:
             self.menu.add_radiobutton(
                 label=text, command=callback,
                 variable=get_state().tk_pick, value=tag)
+            self.menu.add_entry_info(info)
+
 
     def get_text(self):
         return 'Analysis'
