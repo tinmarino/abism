@@ -52,6 +52,7 @@ state.fit_type -> s_fit_type, same with others
 
 
 # Idea
+######################################################################
 
 * Theta profile, profile along the major axis, 
 * Contrast Map, image with constrat as intensity

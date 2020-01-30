@@ -545,6 +545,11 @@ def open_file():
 
     get_root().frame_image.draw_image()
 
+    # Connect first pick
+    if get_state().pick is not None:
+        get_state().pick.disconnect()
+        get_state().pick.connect()
+
     # Change title
     fname = get_state().image.name.split('/')[-1]
     get_root().title('Abism (' + fname + ')')

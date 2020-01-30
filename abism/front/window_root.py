@@ -68,6 +68,11 @@ class WindowRoot(tk.Tk):
 
         self.set_image(parse_argument().image)
 
+        # Default PickOne (TODO argument ?)
+        import abism.front.pick as pick
+        refresh_pick('one', pick.PickOne)
+
+
     def set_image(self, filepath):
         if not filepath: return
 
@@ -93,12 +98,6 @@ class WindowRoot(tk.Tk):
         if self.frame_option.see_image_parameter:
             self.frame_option.close_image_parameter()
             self.frame_option.open_image_parameter()
-
-
-        # Default PickOne (TODO argument ?)
-        import abism.front.pick as pick
-        refresh_pick('one', pick.PickOne)
-
 
 
     def set_title(self):
