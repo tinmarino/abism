@@ -208,30 +208,6 @@ class PickEllipse(Pick):
         AR.show_answer()
 
 
-class PickAnnulus(Pick):
-    """Not used"""
-    def __init__(self):
-        super().__init__()
-        self.artist_annulus = None
-
-    def connect(self):
-        self.artist_annulus = artist.Annulus(
-            self.figure,
-            self.ax,
-            array=get_state().image.im0,
-            callback=self.work
-        )
-
-    def disconnect(self):
-        if self.artist_annulus:
-            self.artist_annulus.Disconnect()
-            self.artist_annulus.RemoveArtist()
-            self.artist_annulus = None
-
-    def work(self, obj):
-        IF.AnnulusEventPhot(obj)
-
-
 class PickProfile(Pick):
     """Linear Profile, cutted shape of a source
     Draw a line on the image. Some basic statistics on the pixels cutted by
