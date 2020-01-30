@@ -1,5 +1,62 @@
 import numpy as np
-from scipy.special import jn
+from scipy.special import jn  # pylint: disable=no-name-in-module
+
+from abism.util import get_state, log
+
+
+
+# TODO refactor all that in the caller discriminator
+def get_fit_function():
+    if 'binary' in get_state().pick_type:
+        fit_fct = get_binary_fct()
+    else:
+        fit_fct = get_one_fct()
+
+    return fit_fct
+
+
+def get_binary_fct():
+    """Enhance for binary fit"""
+    # Get side
+    fit_type = get_state().fit_type
+    aniso = get_state().b_aniso
+    same_psf = get_state().b_same_psf
+
+    # Check not Bessel
+    if "Gaussian" not in fit_type and "Moffat" not in fit_type:
+        log(0, "WARNING : There is no Bessel, None, and Gaussian hole fit "
+            "type for binary fit, fit type is set to Gaussian")
+        fit_type = "Gaussian"
+
+    # Set function pointer
+    fct_base = globals()[fit_type.replace("2D", "") + "2pt"]
+
+    # Set function named params (aniso and same_psf)
+    fit_fct = lambda points, params: fct_base(
+        points, params, aniso=aniso, same_psf=same_psf)
+
+    # Log
+    log(0, 'Fit function:', fct_base, ' <- aniso=', aniso, 'same_psf:', same_psf)
+
+    return fit_fct
+
+
+
+def get_one_fct():
+    """Enhance for fit one star"""
+    fit_type = get_state().fit_type
+    aniso = get_state().b_aniso
+
+    if aniso: fit_type += '2D'
+
+    fit_fct = globals()[fit_type]
+
+    # Log
+    log(0, 'Fit Function:', fit_fct)
+
+    return fit_fct
+
+
 
 
 ##########################
@@ -91,10 +148,8 @@ def Moffat2pt(points, params, aniso=True, same_psf=True):
 
 ##########
 # GAUSSIAN
-def Gaussian(points, params):  # param contains   center, spread, amplitude, background
-    ""
-# max = I(+cst) ; integral = pi I alpha**2  (sure)
-# R99 = 2.14 * alpha
+def Gaussian(points, params):
+    """param contains   center, spread, amplitude, background"""
     x, y = points
     x0 = params['center_x']
     y0 = params['center_y']
@@ -107,14 +162,6 @@ def Gaussian(points, params):  # param contains   center, spread, amplitude, bac
 
 def Gaussian2D(xy, params):
     """params: center_x,center_y,theta,backgroudn,intensity,spread_x,spread_y """
-
-    # prevent theta from rotating crazy return cst fct
-    # if (params["theta"]<-0.1) :
-    #   return xy*10 * (1+ np.log10(-params["theta"]) )
-    # if (params["theta"]>3.24) :
-    #   return xy*params["theta"] # *(1+ np.log10(params["theta"])  )
-    #theta= params["theta"]%3.1415926
-
     xt = xy[0]
     yt = xy[1]
     # tested the next thing
@@ -127,7 +174,10 @@ def Gaussian2D(xy, params):
     return res
 
 
-def Gaussian_hole(points, params):    # If there is a negative gaussian in the center, a hole
+def Gaussian_hole(points, params):
+    """If there is a negative gaussian in the center, a hole
+    TODO remove '2D' and get as named argument
+    """
     xt, yt = points
     x0, y0, t = params['center_x'], params['center_y'], params['theta']
     if params["same_center"] == 1:
@@ -175,8 +225,10 @@ def Moffat2D(xy, params):
     xp = (xt-x0)*np.cos(theta)-(yt-y0)*np.sin(theta)
     yp = (xt-x0)*np.sin(theta)+(yt-y0)*np.cos(theta)
     res = params['background']
-    res += params['intensity']*(1 + xp**2/params['spread_x']
-                                ** 2 + yp**2/params['spread_y']**2)**(-params['exponent'])
+    res += (params['intensity']
+            * (1 + xp**2 / params['spread_x']**2
+               + yp**2 / params['spread_y']**2)
+            **(-params['exponent']))
     return res
 
 
@@ -188,12 +240,11 @@ def Bessel1(points, params):
     x0 = params['center_x']
     y0 = params['center_y']
     a = params['spread_x']
-    I = params['intensity']
-    cst = params['background']
     # nb : r is directly divided by a
     r = np.sqrt(((x-x0)**2 + (y-y0)**2)/a**2)
     res = np.nan_to_num(2*jn(1, r)/r)**2 + np.float_(np.array(r) == 0)
-    res = I*res
+    res *= params['intensity']
+    res += params['background']
     return res
 
 
@@ -238,7 +289,7 @@ def DiffractionPatern(points, params):
 
 ##########
 #
-def LogScale(min, max, bin):
+def LogScale(i_min, i_max, i_bin):
     res = np.zeros(())
     for i in range(1, i_bin+1):
         res[i] = i_min + 10**(i/i_bin)*(i_max-i_min)

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+import time
 import numpy as np
 
 from abism.back import ImageFunction as IF
@@ -10,7 +11,7 @@ from abism.back.image_info import ImageInfo, get_array_stat
 
 from abism.util import log, get_state, EA
 import abism.back.util_back as W
-from abism.back.util_back import enhance_fit_type
+#from abism.back.util_back import enhance_fit_type
 
 
 class Fit(ABC):
@@ -18,9 +19,10 @@ class Fit(ABC):
     def __init__(self, grid):
         self.grid = grid
 
-        # Retrieve fit_type
+        # Retrieve fit function
         self.fit_type = get_state().fit_type
-        self.fit_type = enhance_fit_type(self.fit_type)
+        self.fit_fct = BF.get_fit_function()
+        self.b_aniso = get_state().b_aniso
 
         # Retrieve verbose
         self.verbose = get_state().verbose > 0
@@ -28,8 +30,11 @@ class Fit(ABC):
         self.result = []
 
     def do_fit(self):
+        start_time = time.time()
+
         (x, y), IX, eIX = self.get_xy_IX_eIX()
-        log(3, "fit type is : ", self.fit_type)
+
+        # Fit
         self.result = leastsqFit(
             self.get_function(), (x, y), self.get_supposed_parameters(), IX,
             err=eIX,
@@ -37,6 +42,12 @@ class Fit(ABC):
             bounds=self.get_bounds(),
             verbose=self.verbose
         )
+
+        # Log
+        log(0, "Fit efectuated in %f seconds" % (time.time() - start_time),
+            "with function:\n", self.fit_fct, '(if lambda, look above fit log)'
+            )
+
         return self
 
     @abstractmethod
@@ -70,7 +81,7 @@ class PsfFit(Fit):
         self.fwhm = IF.FWHM(self.grid, self.center)
 
         # Change call if no fit
-        if self.fit_type == "None":
+        if self.fit_fct is None:
             self.do_fit = self.no_fit
 
 
@@ -101,7 +112,7 @@ class PsfFit(Fit):
 
 
     def get_function(self):
-        return vars(BF)[self.fit_type]
+        return self.fit_fct
 
     def get_supposed_parameters(self):
         x0, y0 = self.center
@@ -113,40 +124,44 @@ class PsfFit(Fit):
             'background': 0
         }
 
-        if self.fit_type == "Gaussian2D":
+        if self.fit_fct is BF.Gaussian2D:
             tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
             suposed_param.update(tmp)
 
-        elif self.fit_type == 'Gaussian':
+        elif self.fit_fct is BF.Gaussian:
             pass
 
-        elif self.fit_type == 'Moffat':  # 1.5 = /np.sqrt(1/2**(-1/b)-1)
+        elif self.fit_fct is BF.Moffat:
+            # 1.5 = /np.sqrt(1/2**(-1/b)-1)
             suposed_param.update({'spread_x': 1.5 * self.fwhm, 'exponent': 2})
 
-        elif self.fit_type == "Moffat2D":    # 0.83 = sqrt(ln(2))
+        elif self.fit_fct is BF.Moffat2D:
+            # 0.83 = sqrt(ln(2))
             tmp = {
                 "spread_y": suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
             suposed_param.update(tmp)
 
-        elif self.fit_type == 'Bessel1':
+        elif self.fit_fct is BF.Bessel1:
             pass
 
-        elif self.fit_type == "Bessel12D":    # 0.83 = sqrt(ln(2))
+        elif self.fit_fct is BF.Bessel12D:
+            # 0.83 = sqrt(ln(2))
             tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
             suposed_param.update(tmp)
 
         # we consider 2D or not, same_center or not
-        elif "Gaussian_hole" in self.fit_type:
+        elif self.fit_fct is BF.Gaussian_hole:
             suposed_param.update({
                 'center_x_hole': x0, 'center_y_hole': y0,
                 'spread_x_hole': 0.83*(self.fwhm)/2,
                 'spread_y_hole': 0.83*self.fwhm/2,
                 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
-            if not "2D" in self.fit_type:
+            if not get_state().b_aniso:
                 suposed_param["2D"] = 0
-            else:
+            else:  # aniso
                 suposed_param["2D"] = 1
-            if "same_center" in self.fit_type:
+
+            if get_state().b_same_center:
                 suposed_param["same_center"] = 1
 
         return suposed_param
@@ -156,8 +171,8 @@ class PsfFit(Fit):
         doNotFit = []
         if get_state().noise_type == 'None' or get_state().noise_type == 'manual':
             doNotFit.append('background')
-        elif ("Gaussian_hole" in self.fit_type):
-            if not ("2D" in self.fit_type):
+        elif self.fit_fct is not BF.Gaussian_hole:
+            if not get_state().b_aniso:
                 doNotFit.append("theta")
                 doNotFit.append("theta_hole")
                 doNotFit.append("spread_y")
@@ -182,6 +197,10 @@ class PsfFit(Fit):
             "background": [None, self.my_max],
             "instensity": [local_median, 2.3 * self.my_max - local_median]}
 
+        # Bound theta
+        if get_state().b_aniso:
+            fit_bounds['theta'] = [-0.1, 3.24]
+
         return fit_bounds
 
 
@@ -190,7 +209,7 @@ class PsfFit(Fit):
 
         ######
         # DICTIONARY , backup and star improving
-        do_improve = not get_state().b_aniso and not self.fit_type == 'None'
+        do_improve = not get_state().b_aniso and self.fit_fct is not None
         if do_improve:
             try:
                 self.result[0]["spread_y"], self.result[0]["spread_x"] = \
@@ -205,12 +224,12 @@ class PsfFit(Fit):
 
         #############
         # FWHM, and PHOT <- from fit
-        log(9,"\n\n\n\nPstFit  calling phot")
-        self.result[0].update(IF.FwhmFromFit(self.result[0], self.fit_type))
+        log(9, "\n\n\n\nPstFit  calling phot")
+        self.result[0].update(IF.FwhmFromFit(self.result[0]))
 
         # UPDATE R99X
         (r99x, r99y), (r99u, r99v) = IF.EnergyRadius(
-            self.grid, self.fit_type, dic=self.result[0])
+            self.grid, dic=self.result[0])
         self.result[0]["number_count"] = r99x * r99y
         self.result[0]["r99x"], self.result[0]["r99y"] = r99x, r99y
         self.result[0]["r99u"], self.result[0]["r99v"] = r99u, r99v
@@ -226,12 +245,6 @@ class BinaryPsf(Fit):
         super().__init__(grid)
         self.star1 = star1
         self.star2 = star2
-
-        # Check not Bessel
-        if (not "Gaussian" in self.fit_type) and (not "Moffat" in self.fit_type):
-            log(0, "WARNING : There is no bessel, None, and Gaussian hole fit "
-                "type for binary fi, fit type is set to gaussian")
-            self.fit_type = "Gaussian"
 
         # Calculate distance between two pooints
         (x1, y1), (x2, y2) = self.star1, self.star2
@@ -272,15 +285,16 @@ class BinaryPsf(Fit):
 
     def get_function(self):
         """vars(BF)[self.fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)"""
-        aniso = get_state().b_aniso
-        same_psf = get_state().b_same_psf
-        fct_base = vars(BF)[self.fit_type.replace("2D", "")+"2pt"]
-        log(3, 'Fit function:', fct_base, "\n",
-            'anisoplanetism:', aniso, "\n",
-            'same_psf:', same_psf, "\n",
-            )
-        return lambda points, params: fct_base(
-            points, params, aniso=aniso, same_psf=same_psf)
+        # aniso = get_state().b_aniso
+        # same_psf = get_state().b_same_psf
+        # fct_base = vars(BF)[self.fit_type.replace("2D", "")+"2pt"]
+        # log(3, 'Fit function:', fct_base, "\n",
+        #     'anisoplanetism:', aniso, "\n",
+        #     'same_psf:', same_psf, "\n",
+        #     )
+        # return lambda points, params: fct_base(
+        #     points, params, aniso=aniso, same_psf=same_psf)
+        return self.fit_fct
 
 
     def get_supposed_parameters(self):
@@ -306,13 +320,13 @@ class BinaryPsf(Fit):
         if get_state().b_same_psf:
             doNotFit.append("spread_x1")
             doNotFit.append("spread_y1")
-            if not "2D" in self.fit_type:
+            if not self.b_aniso:
                 doNotFit.append("spread_y0")
                 doNotFit.append("theta")
             if "Moffat" in self.fit_type:
                 doNotFit.append("b1")
         else:  # not same psf
-            if not "2D" in self.fit_type:
+            if not self.b_aniso:
                 doNotFit.append("spread_y0")
                 doNotFit.append("spread_y1")
                 doNotFit.append("theta")
@@ -361,12 +375,12 @@ class BinaryPsf(Fit):
         if get_state().b_same_psf:
             self.result = restore(self.result, "spread_x1", "spread_x0")
             self.result = restore(self.result, "spread_y1", "spread_y0")
-            if not "2D" in self.fit_type:
+            if not self.b_aniso:
                 self.result = restore(self.result, "spread_y0", "spread_x0")
             if "Moffat" in self.fit_type:
                 self.result = restore(self.result, "b1", "b0")
         else:  # not same psf
-            if not "2D" in self.fit_type:
+            if not self.b_aniso:
                 self.result = restore(self.result, "spread_y0", "spread_x0")
                 self.result = restore(self.result, "spread_y1", "spread_x1")
 
@@ -393,13 +407,13 @@ class BinaryPsf(Fit):
         except:
             pass
 
-        tmp = IF.FwhmFromFit(dic_copy0, self.fit_type)
+        tmp = IF.FwhmFromFit(dic_copy0)
         self.result[0].update({
             "fwhm_x0": tmp["fwhm_x"],
             "fwhm_y0": tmp["fwhm_y"],
             "photometry_fit0": tmp["photometry_fit"],})
 
-        tmp = IF.FwhmFromFit(dic_copy1, self.fit_type)
+        tmp = IF.FwhmFromFit(dic_copy1)
         self.result[0].update({
             "fwhm_x1": tmp["fwhm_x"],
             "fwhm_y1": tmp["fwhm_y"],

@@ -16,7 +16,6 @@ import abism.front.util_front as G
 from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
 import abism.back.util_back as W
-from abism.back.util_back import enhance_fit_type
 
 # Plugin
 from abism.util import log, get_root, get_state, get_aa, EA
@@ -278,8 +277,7 @@ def PlotOneStar1D():
     params = W.strehl
     log(3, 'center=', center)
 
-    s_fit_fct = enhance_fit_type(get_state().fit_type)
-    fit_fct = vars(BF)[s_fit_fct]
+    fit_fct = BF.get_fit_function()
 
     # Get ax
     ax = get_root().frame_fit.reset_figure_ax(
@@ -422,8 +420,7 @@ def PlotOneStar2D():
 
     def plot_fit(ax):
         fit_type = get_state().fit_type
-        s_fit_fct = enhance_fit_type(fit_type)
-        fit_fct = vars(BF)[s_fit_fct]
+        fit_fct = BF.get_fit_function()
         if "Gaussian_hole" in fit_type:
             fit_type = "Gaussian_hole"
         ax.imshow(

@@ -32,22 +32,15 @@ def StrehlMeter(rectangle):
 
     # Delegate fit
     ############################################################
-    import time
-    start_time = time.time()
-
     o_psf = SI.PsfFit(
         get_state().image.im0, rectangle,
         center=star_center, my_max=star_max)
-
     W.psf_fit = psf_fit = o_psf.do_fit().get_result()
-
-    log(0, "Fit efectuated in %f seconds" % (time.time() - start_time))
     W.strehl.update(W.psf_fit[0])
 
     # Save what it take
     center = psf_fit[0]['center_x'], psf_fit[0]['center_y']
-    get_state().add_answer(EA.CENTER, center)
-
+    set_aa(EA.CENTER, center)
 
     intensity = psf_fit[0]['intensity']
     set_aa(EA.INTENSITY, intensity)
