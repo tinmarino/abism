@@ -504,11 +504,14 @@ def system_open(path=""):
 
 
 def abism_askopenfilename(**args):
-    # TODO for non gtk of course
-    # from tkinter.filedialog import askopenfilename
-    from abism.plugin.gtk_window_open import gtk_askopenfilename
-    fname = gtk_askopenfilename(**args)
-    log(0, "GTK returned:", fname)
+    try:
+        from abism.plugin.gtk_window_open import gtk_askopenfilename
+        fname = gtk_askopenfilename(**args)
+        log(3, "Open: GTK returned:", fname)
+    except:
+        from tkinter.filedialog import askopenfilename
+        fname = askopenfilename(**args)
+        log(3, "Open: TK returned:", fname)
     return fname
 
 
@@ -530,7 +533,7 @@ def open_file():
     # Pop window to ask for a file
     s_file = abism_askopenfilename(
         title="Open a FITS image",
-        filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")],
+        filetypes=[("FITS", "*.fits"), ("allfiles", "*")],
         initialdir=initialdir)
     if not s_file: return
 
