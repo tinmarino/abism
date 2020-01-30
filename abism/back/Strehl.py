@@ -77,25 +77,31 @@ def StrehlMeter(rectangle):
 
 
 def StrehlRatio():
+    # Read from global
     bessel_integer = get_bessel_integer()
     photometry = get_state().get_answer(EA.PHOTOMETRY)
     intensity = get_state().get_answer(EA.INTENSITY)
+    wavelength = get_root().header.wavelength
 
     # Get theoretical intensity && Save
     Ith = photometry / bessel_integer
     get_state().add_answer(EA.INTENSITY_THEORY, Ith)
 
-    # Get strehl (finally)
-    strehl = intensity / Ith * 100
+    # Save strehl (finally)
+    strehl = intensity / Ith
+    get_state().add_answer(EA.STREHL, 100 * strehl, unit=' %')
+
+    # Save equivalent Strehl ratio
+    strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
+    get_state().add_answer(EA.STREHL_EQ, 100 * strehl_eq, unit=' %')
 
     # Save
-    get_state().add_answer(EA.STREHL, strehl, unit=' %')
     W.strehl["Ith"] = Ith  # used for error
     W.strehl["bessel_integer"] = bessel_integer   # used for error
 
 
 def get_bessel_integer():
-    """From image statistics"""
+    """Read wavelenght, pixel_scale, diameter, obstruction"""
     bessel_integer = get_root().header.wavelength * \
         10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \
@@ -141,6 +147,13 @@ def StrehlError():
     # TODO move me in caller
     res = dSr * 3  # because I calculated the best error
     get_state().add_answer(EA.ERR_STREHL, res)
+
+    # Save Equivelent err = err * eq/real (unreadable, sorry)
+    strehl_eq_err = get_state().get_answer(EA.ERR_STREHL)
+    strehl_eq_err *= get_state().get_answer(EA.STREHL_EQ)
+    strehl_eq_err /= get_state().get_answer(EA.STREHL)
+    get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err, unit=' %')
+
 
 
 
@@ -199,4 +212,4 @@ def get_equivalent_strehl_ratio(strehl, wavelength):
 
     factor = - (factor * 2 * np.pi / 2.17)**2
 
-    return 100 * np.exp(factor)
+    return np.exp(factor)

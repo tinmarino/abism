@@ -24,9 +24,6 @@ import abism.back.util_back as W
 # Plugin
 from abism.util import log, get_root, get_state, abism_val, EA
 
-# new
-from abism.back.Strehl import get_equivalent_strehl_ratio
-
 
 def tktext_insert_answer(self, answer, error=None, tags=None):
     """Insert an answer in a tktext"""
@@ -163,25 +160,7 @@ def get_new_text_frame():
 
 
 def print_one():
-    # <- Calculate Equivalent strehl2.2 and error
-    strehl = get_state().get_answer(EA.STREHL) / 100
-    wavelength = get_root().header.wavelength
-
-    # Get equivalent Strehl ratio
-    strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
-
-    # Save it
-    get_state().add_answer(EA.STREHL_EQ, strehl_eq, unit=' %')
-
-    # Get Error on equivalent strehl
-    strehl_eq_err = get_state().get_answer(EA.ERR_STREHL)
-    strehl_eq_err *= strehl_eq / (strehl * 100)
-
-    # Save it
-    get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err, unit=' %')
-
-
-    # TODO move all preceding in back
+    # Grid tk text
     text = get_new_text_frame()
 
     # Strehl
@@ -223,7 +202,6 @@ def print_one():
 
 
 def print_ellipse():
-    """TODO clean + not working anymore due to W.tmp.lst"""
     # Get new frame
     text = get_new_text_frame()
 
@@ -345,11 +323,11 @@ def print_binary():
 
 
 def PlotStar():
+    """Discriminate 1 or 2 object"""
     pick_type = get_state().tk_pick.get()
-    # Binary plot profile
     if pick_type in ("binary", "tightbinary"):
         PlotBinaryStar1D()
-    else:  # including only one star  (ie : not binary)
+    else:
         PlotOneStar1D()
         PlotStar2()
 
@@ -589,8 +567,6 @@ def PlotOneStar2D():
     ax2.set_yticklabels((str(int(r[0])), str(int(r[1]))))
     ax2.set_xticks((0, r[3]-r[2]))
     ax2.set_xticklabels((str(int(r[2])), str(int(r[3]))))
-    #plt.xticks( (r[0],r[1] ) )
-    #plt.xticks( (r[2],r[3] ) )
     ax1.set_xticks(())
     ax1.set_yticks(())
 
@@ -641,13 +617,15 @@ def PlotBinaryStar2D():
     get_root().frame_result.redraw()
     return
 
-    ############
-    # OTHERS
-    ############
+############
+# OTHERS
+############
 
 
 def CallContrastMap():
-    """Not called"""
+    """Not called
+    Shoudl I clean that ??!
+    """
     G.contrast_fig = matplotlib.figure.Figure()
     ax = G.contrast_fig.add_subplot(111)
 
