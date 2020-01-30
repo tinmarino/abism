@@ -199,7 +199,7 @@ class AnalysisMenu(ButtonMenu):
         ]
 
         for text, tag, cls, info, keys in lst2:
-            cmd = lambda cls=cls: refresh_pick(cls)
+            cmd = lambda cls=cls: refresh_pick(tag, cls)
             self.menu.add_radiobutton(
                 label=text, command=cmd,
                 variable=get_state().tk_pick, value=tag)
@@ -353,22 +353,31 @@ class ToolMenu(ButtonMenu):
         super().__init__(parent)
 
         # Profile
-        cmd = lambda: refresh_pick(pick.PickProfile)
+        cmd = lambda: refresh_pick('profile', pick.PickProfile)
         self.menu.add_radiobutton(
             label='Profile', command=cmd,
             variable=get_state().tk_pick, value='profile')
-        get_root().bind_all("<Control-p>p", lambda _: cmd)
+        get_root().bind_all("<Control-p>p", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
         # Stat
-        cmd = lambda: refresh_pick(pick.PickStat)
+        cmd = lambda: refresh_pick('stat', pick.PickStat)
         self.menu.add_radiobutton(
-            label='Stat', command=lambda: cmd,
+            label='Stat', command=cmd,
             variable=get_state().tk_pick, value='stat')
-        get_root().bind_all("<Control-p>s", lambda _: cmd)
+        get_root().bind_all("<Control-p>s", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
+
+        # Ellipse
+        cmd = lambda: refresh_pick('ellipse', pick.PickEllipse)
+        self.menu.add_radiobutton(
+            label='Ellipse', command=cmd,
+            variable=get_state().tk_pick, value='ellipse')
+        get_root().bind_all("<Control-p>e", lambda _: cmd())
+        self.menu.add_entry_info(
+            "<C-P>E: Draw an ellipse where photometry is performed")
 
         # Histogram
         self.menu.add_radiobutton(label='Histogram', command=open_histogram)
@@ -402,8 +411,11 @@ def open_histogram():
         skin=skin())
 
 
-def refresh_pick(cls):
+def refresh_pick(tag, cls):
     """Disconnect old pick event and connect new one"""
+    log(3, 'Changing pick type to ', cls.__name__)
+    get_state().tk_pick.set(tag)
+
     # Dicconnect old
     if get_state().pick:
         get_state().pick.disconnect()

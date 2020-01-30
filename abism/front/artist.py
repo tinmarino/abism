@@ -33,8 +33,8 @@ class Annulus(Artist):
     like knowing the instrument, you know the PSF FWHM and can auto create the
     aperture, you play with that and then, if its works well, you can auto
     detect stars and make a completely automatic ABism (ie, without opening
-    image)  , see in Abism
-    0.5, 0.6
+    image)  , see in Abism 0.5, 0.6
+    Note 2020: Well in your dream !
     """
     def __init__(self, figure, ax, array=None, callback=None):
         super().__init__(figure, ax, array=array, callback=callback)
@@ -67,16 +67,19 @@ class Annulus(Artist):
         """matplotlib connections, the connections are "self"
         because we need to disconnect it (replace connect by disconnect)
         """
-        # MOTION
+        # Motion
         self.cid_motion = self.fig.canvas.mpl_connect(
             'motion_notify_event', self.on_motion)
-        # KEY
+
+        # Key
         self.cid_key_press = self.fig.canvas.mpl_connect(
             'key_press_event', self.on_press)
-        # CLICK
+
+        # Click
         self.cid_button_press = self.fig.canvas.mpl_connect(
             'button_press_event', self.on_click)
-        # ZOOM
+
+        # Zoom
         self.cid_zoom = self.fig.canvas.mpl_connect(
             'draw_event', self.Init)
 
@@ -277,17 +280,21 @@ class Ellipse(Artist):
     def Connect(self):
         """matplotlib connections, the connections are "self" because
         we need to disconnect it (replace connect by disconnect) """
+        log(9, "Ellipse connecting")
 
-        # MOTION
+        # Motion
         self.cid_motion = self.fig.canvas.mpl_connect(
             'motion_notify_event', self.on_motion)
-        # KEY
+
+        # Key
         self.cid_key_press = self.fig.canvas.mpl_connect(
             'key_press_event', self.on_press)
-        # CLICK
+
+        # Click
         self.cid_button_press = self.fig.canvas.mpl_connect(
             'button_press_event', self.on_click)
-        # ZOOM
+
+        # Zoom
         self.cid_zoom = self.fig.canvas.mpl_connect(
             'draw_event', self.on_zoom)
 
@@ -305,60 +312,77 @@ class Ellipse(Artist):
         self.callback()
 
     def on_press(self, event):
-        # pylint: disable = too-many-branches
+        # pylint: disable = too-many-locals
+        log(5, 'Ellipse receive:', event)
         self.zoom_bool = True
 
-        if event.key == "R":
-            self.ru += 1
-            self.rv += 1
-            self.Draw()
-        elif event.key == "r":
-            self.ru -= 1
-            self.rv -= 1
-            self.Draw()
+        def a_inc(): self.ru += 1; self.rv += 1
+        def a_dec(): self.ru -= 1; self.rv -= 1
 
-        elif event.key == "U":
-            self.ru += 1
-            self.Draw()
-        elif event.key == "u":
-            self.ru -= 1
-            self.Draw()
+        def u_inc(): self.ru += 1
+        def u_dec(): self.ru -= 1
 
-        elif event.key == "V":
-            self.rv += 1
-            self.Draw()
-        elif event.key == "v":
-            self.rv -= 1
-            self.Draw()
+        def v_inc(): self.rv += 1
+        def v_dec(): self.rv -= 1
 
-        # THETA ANGLE
-        elif event.key == ("t" or "a"):
-            self.theta += 0.174  # 10 degree in rad
-            self.Draw()
-        elif event.key == ("T" or "A"):
-            self.theta -= 0.174
-            self.Draw()
+        def r_inc(): self.theta -= 0.174  # 10 degree in rad
+        def r_dec(): self.theta += 0.174  # 10 degree in rad
 
-        # POSITION
-        elif event.key == "up":
-            self.x0 -= 1
-            self.Draw()
-        elif event.key == "down":
-            self.x0 += 1
-            self.Draw()
-        elif event.key == "left":
-            self.y0 -= 1
-            self.Draw()
-        elif event.key == "right":
-            self.y0 += 1
-            self.Draw()
+        def up(): self.x0 -= 1
+        def down(): self.x0 += 1
+        def left(): self.y0 -= 1
+        def right(): self.y0 += 1
 
-        # KNOW
-        elif event.key == "p":
-            log(0, vars(self))
-            self.Draw()
+        def prt(): log(0, vars(self))
 
+        press_dic = {
+            # eXpand
+            "X": a_inc,
+            "x": a_dec,
+
+            # U axe
+            "U": u_inc,
+            "u": u_dec,
+
+            # V axe
+            "V": v_inc,
+            "v": v_dec,
+
+            # ROtate
+            "R": r_inc,
+            "O": r_inc,
+            "r": r_dec,
+            "o": r_dec,
+
+            # position
+            "up": up,
+            "k": up,
+            "J": up,
+
+            "down": down,
+            "j": down,
+            "K": down,
+
+            "left": left,
+            "h": left,
+            "L": left,
+
+            "right": right,
+            "l": right,
+            "H": right,
+
+            # Print, like Photon, it is its own anti-command
+            "p": prt,
+            "P": prt,
+        }
+
+        if event.key in press_dic:
+            press_dic[event.key]()
+
+        self.Draw()
         self.zoom_bool = False
+
+        return press_dic
 
     def on_zoom(self, _):
         if self.zoom_bool: return

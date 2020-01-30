@@ -97,8 +97,7 @@ class WindowRoot(tk.Tk):
 
         # Default PickOne (TODO argument ?)
         import abism.front.pick as pick
-        get_state().tk_pick.set('one')
-        refresh_pick(pick.PickOne)
+        refresh_pick('one', pick.PickOne)
 
 
 

@@ -167,19 +167,41 @@ class PickEllipse(Pick):
         super().__init__()
         self.artist_ellipse = None
 
+        self.bind_enter_id = None
+
+
     def connect(self):
+        log(0, "\n\n\n________________________________\n"
+            "|Pick Ellipse| : draw an ellipse around isolated object\n"
+            "ABISM will perform the photometry in this ellipse\n"
+            "Bind: eXpand, ROtate, changeU, changeV (minor a major axes)\n"
+            "      left, down, up, right or h, j, k, l\n"
+            "      Upper case to increase, lower to decrease")
+
         self.artist_ellipse = artist.Ellipse(
             self.figure,
             self.ax,
             array=get_state().image.im0,
-            callback=self.work
+            callback=lambda: self.work(None)
         )
 
+        # Bind mouse enter -> focus (for key)
+        tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
+        self.bind_enter_id = tk_fig.bind('<Enter>', lambda _: tk_fig.focus_set())
+
+
     def disconnect(self):
+        # Undraw
         if self.artist_ellipse:
             self.artist_ellipse.Disconnect()
             self.artist_ellipse.RemoveArtist()
             self.artist_ellipse = None
+
+        # Unbind
+        if self.bind_enter_id:
+            tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
+            tk_fig.unbind('<Enter>', self.bind_enter_id)
+
 
     def work(self, _):
         Strehl.EllipseEventStrehl()

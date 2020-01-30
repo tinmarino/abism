@@ -241,6 +241,9 @@ def PlotEllipse():
         G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
         G.lb_answer_type["text"] = "In detector units"
 
+        log(9, 'Ellipse answer Strehl:', W.strehl)
+        log(9, 'Ellipse answer Answer:', get_state)
+
         W.tmp.lst = [
             ["Strehl: ", get_state().get_answer(EA.STREHL), MyFormat(
                 get_state().get_answer(EA.STREHL), 1, "f") + " +/- " + MyFormat(get_state().get_answer(EA.ERR_STREHL), 1, "f") + " %"],
