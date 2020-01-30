@@ -545,23 +545,31 @@ def InBorder(grid, r):  # to check if r is in the grid
 
 
 def RadialLine(grid, point1_and_point2, return_point=0):
-    """Returns profile one a line: 2 vectors x and y"""
+    """Returns profile one a line: 2 vectors x and y
+    Param: return_point, boolean if callr want point (usually yes)
+    """
+    # Parse in
     (x1, y1), (x2, y2) = point1_and_point2
+
+    # Calculate line lenght
     vect_r = ((x2-x1), (y2-y1))
-    lenght = np.sqrt(vect_r[1]**2+vect_r[0]**2)  # of the line
-    # the extreme points of the line
+    lenght = np.sqrt(vect_r[1]**2+vect_r[0]**2)
+
+    # Get the extreme points of the line on grid
     xmin, xmax, ymin, ymax = Order4((x1, x2, y1, y2), grid=grid)
     xmin, xmax, ymin, ymax = int(xmin), int(xmax), int(ymin), int(ymax)
 
-    # should put int otherwise mismatch with array
-    x, y = np.arange(xmin-1, xmax+1), np.arange(ymin-1, ymax+1)
+    x, y = np.arange(xmin, xmax+1), np.arange(ymin, ymax+1)
     Y, X = np.meshgrid(y, x)
-    array = grid[xmin-1:xmax+1, ymin-1:ymax+1]
+    array = grid[xmin:xmax+1, ymin:ymax+1]
 
-    R = ((X-x1)*(x2-x1)+(Y-y1)*(y2-y1))/lenght
+    # Radial array, cos of scalar product
+    R = ((X-x1)*(x2-x1) + (Y-y1)*(y2-y1)) / lenght
+    # Sin of scalar product
     # the distance of (X,Y) to x1,y1 projected on the line
     d = (R*(x2-x1)/lenght-(X-x1))**2 + (R*(y2-y1)/lenght-(Y-y1))**2
 
+    # Flaten all
     # the square distance of the point from the line
     R, d, array = R.flatten(), d.flatten(), array.flatten()
     X, Y = X.flatten(), Y.flatten()
@@ -570,12 +578,15 @@ def RadialLine(grid, point1_and_point2, return_point=0):
     ab[d < 0.25] = R[d < 0.25]   # ab like abscisse
     od[d < 0.25] = array[d < 0.25]
     X, Y = X[d < 0.25], Y[d < 0.25]
+
     # good idea also :  od = [od for (Y,od) in sorted(zip(Y,od))]
+    # Remove zeros
     ab = ab[od.nonzero()]  # why do we have so many zero ?
     od = od[od.nonzero()]  # think, but it works
     res = sorted(zip(ab, od))
     res = np.array(res)
     #res[np.abs(IX-mIX)>(method[2]-1)*mIX] = mIX[np.abs(IX-mIX)>(method[2]-1)*mIX]
+
     if return_point:
         X, Y = X[od.nonzero()], Y[od.nonzero()]
         res2 = sorted(zip(ab, X, Y))
@@ -583,8 +594,8 @@ def RadialLine(grid, point1_and_point2, return_point=0):
         res2 = np.array(res2)
         # abscice ordonate, points in array
         return res[:, 0], res[:, 1], (res2[:, 1].astype("int"), res2[:, 2].astype("int"))
-    else:
-        return res[:, 0], res[:, 1]  # abscice ordonate
+
+    return res[:, 0], res[:, 1]  # abscice ordonate
 
 
 # we supose that r is ordere for the display og the strahl funciton
