@@ -271,14 +271,16 @@ class BinaryPsf(Fit):
 
 
     def get_function(self):
-        dic_for_fit = {
-            "same_psf": get_state().b_same_psf,
-            "aniso": get_state().b_aniso,
-        }
-        log(3, "anisoplanetism=" + str(bool(dic_for_fit["aniso"])),
-            "same_psf="+str(bool(dic_for_fit["same_psf"])))
-        return lambda x, y: \
-            vars(BF)[self.fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)
+        """vars(BF)[self.fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)"""
+        aniso = get_state().b_aniso
+        same_psf = get_state().b_same_psf
+        fct_base = vars(BF)[self.fit_type.replace("2D", "")+"2pt"]
+        log(3, 'Fit function:', fct_base, "\n",
+            'anisoplanetism:', aniso, "\n",
+            'same_psf:', same_psf, "\n",
+            )
+        return lambda points, params: fct_base(
+            points, params, aniso=aniso, same_psf=same_psf)
 
 
     def get_supposed_parameters(self):

@@ -554,7 +554,8 @@ def PlotBinaryStar2D():
     elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
 
-    fit_fct = vars(BF)[stg]
+    fit_fct = lambda points, params: vars(BF)[stg](
+        points, params, aniso=get_state().b_aniso, same_psf=get_state().b_same_psf)
 
     ax2 = get_root().frame_result.get_figure().add_subplot(122)
     ax2.imshow(

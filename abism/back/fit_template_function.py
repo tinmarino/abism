@@ -7,23 +7,24 @@ from scipy.special import jn
 ##########################
 
 
-def Gaussian2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
+def Gaussian2pt(points, params, aniso=True, same_psf=True):
     x, y = points
     x0, y0 = params['x0'], params['y0']
     x1, y1 = params['x1'], params['y1']
     I0, I1 = params['intensity0'], params['intensity1']
     bck = params['background']
 
-    if dic["aniso"] == 0:
+    if not aniso:
         a0, a1 = params['spread_x0'], params['spread_x1']
-        if dic["same_psf"] == 1:
+        if same_psf:
             res = I0*np.exp(- ((x-x0)**2+(y-y0)**2)/a0**2) + \
                 I1*np.exp(- ((x-x1)**2+(y-y1)**2)/a0**2) + bck
         else:  # including same_fit =0
             res = I0*np.exp(- ((x-x0)**2+(y-y0)**2)/a0**2) + \
                 I1*np.exp(- ((x-x1)**2+(y-y1)**2)/a1**2) + bck
 
-    else:  # including aniso =1
+
+    else:  # Aniso
         a0x, a1x = params['spread_x0'], params['spread_x1']
         a0y, a1y = params['spread_y0'], params['spread_y1']
 
@@ -33,7 +34,7 @@ def Gaussian2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
         x1p = (x-x1)*np.cos(params['theta'])-(y-y1)*np.sin(params['theta'])
         y1p = (x-x1)*np.sin(params['theta'])+(y-y1)*np.cos(params['theta'])
 
-        if dic["same_psf"] == 1:
+        if same_psf:
           #           xp(-(xp**2/params['spread_x']**2+yp**2/params['spread_y']**2))
             res = I0*np.exp(- (x0p/a0x)**2 - (y0p/a0y)**2) + \
                 I1*np.exp(- (x1p/a0x)**2 - (y1p/a0y)**2) + bck
@@ -43,7 +44,7 @@ def Gaussian2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
     return res
 
 
-def Moffat2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
+def Moffat2pt(points, params, aniso=True, same_psf=True):
     x, y = points
     x0, y0 = params['x0'], params['y0']
     x1, y1 = params['x1'], params['y1']
@@ -53,10 +54,10 @@ def Moffat2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
     except:
         bck = 0
 
-    if not dic["aniso"]:        # Circular psf
+    if not aniso:        # Circular psf
         a0, a1 = params['spread_x0'], params['spread_x1']
         b0, b1 = params['b0'], params['b1']
-        if dic["same_psf"] == 1:  # here we don't fit a1 nor b1
+        if same_psf:  # here we don't fit a1 nor b1
             res = I0 * (1 + ((x-x0)**2+(y-y0)**2)/a0**2)**(-b0)
             res += I1 * (1 + ((x-x1)**2+(y-y1)**2)/a0**2)**(-b0)+bck
         else:                     # including different psf
@@ -74,10 +75,10 @@ def Moffat2pt(points, params, dic={"aniso": 1, "same_psf": 1}):
         x1p = (x-x1)*np.cos(params['theta'])-(y-y1)*np.sin(params['theta'])
         y1p = (x-x1)*np.sin(params['theta'])+(y-y1)*np.cos(params['theta'])
 
-        if dic["same_psf"] == 1:
+        if same_psf:
             res = I0 * (1 + (x0p**2/a0x**2 + y0p**2/a0y**2))**(-b0)
             res += I1 * (1 + (x1p**2/a0x**2 + y1p**2/a0y**2))**(-b0) + bck
-        else:      # including same_fit =0
+        else:      # including not same psf
             res = I0 * (1 + (x0p**2/a0x**2 + y0p**2/a0y**2))**(-b0)
             res += I1 * (1 + (x1p**2/a1x**2 + y1p**2/a1y**2))**(-b1)+bck
     return res
