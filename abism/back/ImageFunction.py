@@ -545,24 +545,28 @@ def InBorder(grid, r):  # to check if r is in the grid
 
 
 def RadialLine(grid, point1_and_point2, return_point=0):
-    # we get profile around a line, return 2 vectors
+    """Returns profile one a line: 2 vectors x and y"""
     (x1, y1), (x2, y2) = point1_and_point2
     vect_r = ((x2-x1), (y2-y1))
     lenght = np.sqrt(vect_r[1]**2+vect_r[0]**2)  # of the line
-    (xmin, xmax), (ymin, ymax) = Order2(x1, x2), Order2(
-        y1, y2)  # the extreme points of the line
+    # the extreme points of the line
+    xmin, xmax, ymin, ymax = Order4((x1, x2, y1, y2), grid=grid)
+    xmin, xmax, ymin, ymax = int(xmin), int(xmax), int(ymin), int(ymax)
+
     # should put int otherwise mismatch with array
-    x, y = np.arange(int(xmin-1), int(xmax+1)
-                     ), np.arange(int(ymin-1), int(ymax+1))
+    x, y = np.arange(xmin-1, xmax+1), np.arange(ymin-1, ymax+1)
     Y, X = np.meshgrid(y, x)
-    array = grid[int(xmin-1):int(xmax+1), int(ymin-1):int(ymax+1)]
+    array = grid[xmin-1:xmax+1, ymin-1:ymax+1]
+
     R = ((X-x1)*(x2-x1)+(Y-y1)*(y2-y1))/lenght
     # the distance of (X,Y) to x1,y1 projected on the line
     d = (R*(x2-x1)/lenght-(X-x1))**2 + (R*(y2-y1)/lenght-(Y-y1))**2
+
     # the square distance of the point from the line
     R, d, array = R.flatten(), d.flatten(), array.flatten()
     X, Y = X.flatten(), Y.flatten()
     ab, od = np.zeros(len(array)), np.zeros(len(array))
+
     ab[d < 0.25] = R[d < 0.25]   # ab like abscisse
     od[d < 0.25] = array[d < 0.25]
     X, Y = X[d < 0.25], Y[d < 0.25]
