@@ -718,14 +718,10 @@ class AnswerFrame(TextFrame):
         log(5, 'Answer, Resize text:', event)
         event.widget.configure(tabs=(event.width/2, tk.LEFT))
 
-    def grid_text_answer(self, add_coord=False):
+    def grid_text_answer(self):
         """Grid tk text for results
         Retunrs tk text to be filled
         """
-        # Clear previous
-        get_root().frame_answer.set_fit_type_text(get_state().fit_type)
-        get_root().frame_answer.clear()
-
         # Create text
         text = tk.Text(self, **skin().text_dic)
 
@@ -739,36 +735,6 @@ class AnswerFrame(TextFrame):
 
         return text
 
-
-    def grid_button_change_coord(self):
-        # Declare button info
-        if get_state().s_answer_unit == "detector":
-            s_button = u"\u21aa"+'To sky     '
-            s_label = "In detector units"
-        else:
-            s_button = u"\u21aa"+'To detector'
-            s_label = "In sky units"
-
-        def callback():
-            if get_state().s_answer_unit == 'detector':
-                get_state().s_answer_unit = 'sky'
-            else:
-                get_state().s_answer_unit = 'detector'
-            show_answer()
-
-        button = Button(
-            get_root().frame_answer, background='Khaki', borderwidth=1,
-            text=s_button, **skin().button_dic,
-            command=callback)
-
-        label = Label(
-            get_root().frame_answer,
-            justify=LEFT, anchor="nw", **skin().fg_and_bg,
-            text=s_label)
-
-        # Grid Buttons
-        button.grid(column=1, sticky="wnse")
-        label.grid(column=0, sticky="wnse")
 
 
 class ButtonFrame(tk.Frame):
