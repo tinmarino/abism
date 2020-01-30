@@ -419,6 +419,7 @@ def refresh_pick(tag, cls):
     """Disconnect old pick event and connect new one"""
     log(3, 'Changing pick type to ', cls.__name__)
     get_state().tk_pick.set(tag)
+    get_state().pick_type = tag
 
     # Dicconnect old
     if get_state().pick:
