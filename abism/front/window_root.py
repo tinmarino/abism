@@ -18,7 +18,7 @@ from abism.front.util_front import skin, icon_path
 from abism.back.image_info import ImageInfo
 
 
-from abism.util import log, set_root, parse_argument, get_state
+from abism.util import log, set_root, parse_argument, get_state, EPick
 
 
 
@@ -35,7 +35,7 @@ class WindowRoot(tk.Tk):
         self.geometry(parse_argument().gui_geometry)
 
         # Variables for my children
-        self.init_state()
+        # TODO then I don't rop completion
         set_root(self)
 
         # Save spawned children
@@ -68,9 +68,8 @@ class WindowRoot(tk.Tk):
 
         self.set_image(parse_argument().image)
 
-        # Default PickOne (TODO argument ?)
-        import abism.front.pick as pick
-        refresh_pick('one', pick.PickOne)
+        # Default PickOne
+        refresh_pick(EPick.ONE)
 
 
     def set_image(self, filepath):
@@ -114,10 +113,3 @@ class WindowRoot(tk.Tk):
         else:
             log(3, "->you have no beautiful icon "
                 "because you didn't set the PATH in Abism.py")
-
-
-    @staticmethod
-    def init_state():
-        # Create tk var
-        get_state().tk_pick = tk.StringVar()
-        get_state().tk_pick.set(get_state().pick_type)

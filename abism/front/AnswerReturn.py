@@ -18,7 +18,7 @@ import abism.back.fit_template_function as BF
 import abism.back.util_back as W
 
 # Plugin
-from abism.util import log, get_root, get_state, get_aa, EA
+from abism.util import log, get_root, get_state, get_aa, EA, EPick
 
 
 def tktext_insert_answer(self, answer, error=None, tags=None):
@@ -81,7 +81,7 @@ def tktext_insert_warnings(self):
         stg += "!!! UNDER-SAMPLED !!! Use FWHM\n (SR under-estimated)\n"
 
     # Binary too far
-    if get_state().pick_type == "binary":
+    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
         max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
                        W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
         sep = (W.strehl["x0"] - W.strehl["x1"])**2
@@ -262,8 +262,7 @@ def print_binary():
 
 def PlotStar():
     """Discriminate 1 or 2 object"""
-    pick_type = get_state().tk_pick.get()
-    if pick_type in ("binary", "tightbinary"):
+    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
         PlotBinaryStar1D()
     else:
         PlotOneStar1D()
@@ -390,10 +389,9 @@ def PlotBinaryStar1D():
 
 def PlotStar2():
     """the two images colormesh"""
-    pick_type = get_state().tk_pick.get()
-    if pick_type == "one":
+    if get_state().e_pick_type == EPick.ONE:
         PlotOneStar2D()
-    elif pick_type in ("binary", 'tightbinary'):
+    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
         PlotBinaryStar2D()
 
 

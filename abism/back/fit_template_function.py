@@ -1,13 +1,13 @@
 import numpy as np
 from scipy.special import jn  # pylint: disable=no-name-in-module
 
-from abism.util import get_state, log
+from abism.util import get_state, log, EPick
 
 
 
 # TODO refactor all that in the caller discriminator
 def get_fit_function():
-    if 'binary' in get_state().pick_type:
+    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
         fit_fct = get_binary_fct()
     else:
         fit_fct = get_one_fct()

@@ -3,7 +3,7 @@
 
 functions: run_sync, run_async
 """
-from abism.util import parse_argument, log
+from abism.util import parse_argument
 
 def _run_helper(obj):
     """Returns: fill obj with some cool members"""
@@ -20,7 +20,7 @@ def run_sync():
     class Namespace:
         """Cheat"""
     parse_argument()
-    log(0, 'Parsed initially:', parse_argument())
+    print('Parsed initially:', parse_argument())
 
     _run_helper(Namespace())
     print('Bye')

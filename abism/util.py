@@ -266,10 +266,23 @@ class EA(Enum):
     ERR_SEPARATION = ['Separation Error', AnswerDistance]
 
 
+class EPick(Enum):
+    """Pick type -> class in pick"""
+    NO = 1
+    ONE = 2
+    BINARY = 3
+    TIGHT = 4
+    STAT = 5
+    PROFILE = 6
+    ELLIPSE = 7
+
+
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
     def __init__(self):
+        import tkinter as tk
+
         self.verbose = parse_argument().verbose
 
         # IamgeInfo cutom type, setted when open_file
@@ -280,9 +293,10 @@ class AbismState(DotDic):
 
         # The last pick string, to dissconnect
         # TODO better be an object
-        self.pick_type = 'one'
+        self.e_pick_type = EPick.ONE
         self.pick = None
-        self.tk_pick = None
+        self.tk_pick = tk.StringVar()
+        self.tk_pick.set(self.e_pick_type)
 
         # Type
         self.fit_type = get_fit_list()[1]

@@ -547,6 +547,7 @@ def open_file():
 
     # Connect first pick
     if get_state().pick is not None:
+        log(9, 'Reconnecting pick:', get_state().pick)
         get_state().pick.disconnect()
         get_state().pick.connect()
 

@@ -11,15 +11,14 @@ from abism.plugin.debug_console import debug_console
 from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.histogram import histopopo
 
-# TODO remove
-  # to connect PickOne per defautl
-from abism.front import pick
 
 from abism.front.util_front import system_open, about_window, \
     open_file, change_root_scheme, Scheme, skin, show_header
 
-from abism.util import log, get_root, get_state, quit_process, \
-    get_colormap_list, get_stretch_list, get_cut_list, get_fit_list
+from abism.util import (
+    log, get_root, get_state, quit_process, get_colormap_list,
+    get_stretch_list, get_cut_list, get_fit_list, EPick
+)
 
 
 class MenuBar(tk.Frame):
@@ -186,27 +185,27 @@ class AnalysisMenu(ButtonMenu):
             label="Pick Object(s)", bg=None, state=tk.DISABLED, columnbreak=1)
 
         lst2 = [
-            ["PickOne", "one", pick.PickOne,
+            ["PickOne", EPick.ONE,
              "<C-P>O: Draw a rectangle around one star\n"
              "The fit is performed in this rectangle",
              "<Control-p>o"],
-            ["Binary Fit", "binary", pick.PickBinary,
+            ["Binary Fit", EPick.BINARY,
              "<C-P>B: Make one click per star\n"
              "Its are the initial guess of a fit",
              "<Control-p>b"],
-            ["Tight Binary", "tightbinary", pick.PickTightBinary,
+            ["Tight Binary", EPick.TIGHT,
              "<C-P>T: Stricter bounds",
              "<Control-p>t"],
-            ["No Pick", "nopick", pick.NoPick,
+            ["No Pick", EPick.NO,
              "<C-P>N: Disable abism click (to use matplotlib, explore the image)",
              "<Control-p>n"],
         ]
 
-        for text, tag, cls, info, keys in lst2:
-            cmd = lambda tag=tag, cls=cls: refresh_pick(tag, cls)
+        for text, enum, info, keys in lst2:
+            cmd = lambda enum=enum: refresh_pick(enum)
             self.menu.add_radiobutton(
                 label=text, command=cmd,
-                variable=get_state().tk_pick, value=tag)
+                variable=get_state().tk_pick, value=enum)
             self.menu.add_entry_info(info)
             get_root().bind_all(keys, lambda _, cmd=cmd: cmd())
             self.menu.add_entry_info(info)
@@ -357,28 +356,28 @@ class ToolMenu(ButtonMenu):
         super().__init__(parent)
 
         # Profile
-        cmd = lambda: refresh_pick('profile', pick.PickProfile)
+        cmd = lambda: refresh_pick(EPick.PROFILE)
         self.menu.add_radiobutton(
             label='Profile', command=cmd,
-            variable=get_state().tk_pick, value='profile')
+            variable=get_state().tk_pick, value=EPick.PROFILE)
         get_root().bind_all("<Control-p>p", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
         # Stat
-        cmd = lambda: refresh_pick('stat', pick.PickStat)
+        cmd = lambda: refresh_pick(EPick.STAT)
         self.menu.add_radiobutton(
             label='Stat', command=cmd,
-            variable=get_state().tk_pick, value='stat')
+            variable=get_state().tk_pick, value=EPick.STAT)
         get_root().bind_all("<Control-p>s", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
 
         # Ellipse
-        cmd = lambda: refresh_pick('ellipse', pick.PickEllipse)
+        cmd = lambda: refresh_pick(EPick.ELLIPSE)
         self.menu.add_radiobutton(
             label='Ellipse', command=cmd,
-            variable=get_state().tk_pick, value='ellipse')
+            variable=get_state().tk_pick, value=EPick.ELLIPSE)
         get_root().bind_all("<Control-p>e", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-P>E: Draw an ellipse where photometry is performed")
@@ -415,11 +414,24 @@ def open_histogram():
         skin=skin())
 
 
-def refresh_pick(tag, cls):
+def refresh_pick(enum):
     """Disconnect old pick event and connect new one"""
+    import abism.front.pick as pick
+
+    pick_dic = {
+        EPick.NO: pick.PickNo,
+        EPick.ONE: pick.PickOne,
+        EPick.BINARY: pick.PickBinary,
+        EPick.TIGHT: pick.PickTightBinary,
+        EPick.STAT: pick.PickStat,
+        EPick.PROFILE: pick.PickProfile,
+        EPick.ELLIPSE: pick.PickEllipse,
+    }
+
+    cls = pick_dic[enum]
     log(3, 'Changing pick type to ', cls.__name__)
-    get_state().tk_pick.set(tag)
-    get_state().pick_type = tag
+    get_state().tk_pick.set(enum)
+    get_state().e_pick_type = enum
 
     # Dicconnect old
     if get_state().pick:

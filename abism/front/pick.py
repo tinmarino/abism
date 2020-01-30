@@ -17,9 +17,6 @@ from abism.plugin.profile_line import show_profile
 
 from abism.util import log, get_root, get_state
 
-# TODO remove
-from abism.back import ImageFunction as IF
-
 
 class Pick(ABC):
     """Class for a connection:
@@ -36,7 +33,12 @@ class Pick(ABC):
         self.rectangle = None
 
     @abstractmethod
-    def connect(self): pass
+    def connect(self):
+        """Canvas may have changed"""
+        log(3, 'Pick: connecting a', self.__class__.__name__, 'instance')
+        self.canvas = get_root().frame_image.get_canvas()
+        self.figure = get_root().frame_image.get_figure()
+        self.ax = self.figure.axes[0]
 
     @abstractmethod
     def disconnect(self): pass
@@ -97,7 +99,7 @@ class Pick(ABC):
         self.work(None)
 
 
-class NoPick(Pick):
+class PickNo(Pick):
     """Void class to do nothing"""
     def connect(self): pass
     def disconnect(self): pass
@@ -129,6 +131,7 @@ class PickOne(Pick):
         self.id_callback = None
 
     def connect(self):
+        super().connect()
         log(0, "\n\n\n________________________________\n|Pick One|:\n"
             "    1/Draw a rectangle around your star with left button\n"
             "    2/Click on star 'center' with right button")
@@ -139,7 +142,7 @@ class PickOne(Pick):
                            alpha=0.5, fill=True),
             button=[1],  # 1/left, 2/center , 3/right
         )
-        self.id_callback = self.canvas.mpl_connect(
+        self.canvas.mpl_connect(
             'button_press_event', self.pick_event)
 
     def disconnect(self):
@@ -173,10 +176,11 @@ class PickBinary(Pick):
         self.is_parent = False
 
     def connect(self):
+        super().connect()
         if not self.is_parent:
             log(0, "\n\n\n______________________________________\n"
                 "|Binary| : Make 2 clicks, one per star-------------------")
-        self.id_callback = get_root().frame_image.get_canvas().mpl_connect(
+        self.id_callback = self.canvas.mpl_connect(
             'button_press_event', self.connect_second)
         self.canvas.get_tk_widget()["cursor"] = "target"
 
@@ -267,6 +271,7 @@ class PickStat(Pick):
             self.rectangle_selector = None
 
     def connect(self):
+        super().connect()
         log(0, "\n\n\n________________________________\n"
             "|Pick Stat| : draw a rectangle around a region and ABISM "
             "will give you some statistical information "
@@ -296,6 +301,7 @@ class PickProfile(Pick):
         self.point1 = self.point2 = (0, 0)
 
     def connect(self):
+        super().connect()
         self.artist_profile = artist.Profile(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
@@ -324,6 +330,7 @@ class PickEllipse(Pick):
 
 
     def connect(self):
+        super().connect()
         log(0, "\n\n\n________________________________\n"
             "|Pick Ellipse| : draw an ellipse around isolated object\n"
             "ABISM will perform the photometry in this ellipse\n"
@@ -339,7 +346,7 @@ class PickEllipse(Pick):
         )
 
         # Bind mouse enter -> focus (for key)
-        tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
+        tk_fig = self.canvas.get_tk_widget()
         self.bind_enter_id = tk_fig.bind('<Enter>', lambda _: tk_fig.focus_set())
 
 
@@ -352,10 +359,9 @@ class PickEllipse(Pick):
 
         # Unbind
         if self.bind_enter_id:
-            tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
+            tk_fig = self.canvas.get_tk_widget()
             tk_fig.unbind('<Enter>', self.bind_enter_id)
 
 
     def work(self, _):
         Strehl.EllipseEventStrehl(self.artist_ellipse)
-        AR.show_answer()
