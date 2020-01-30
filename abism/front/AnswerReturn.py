@@ -422,12 +422,12 @@ def PlotOneStar2D():
 
     def plot_fit(ax):
         fit_type = get_state().fit_type
+        s_fit_fct = enhance_fit_type(fit_type)
+        fit_fct = vars(BF)[s_fit_fct]
         if "Gaussian_hole" in fit_type:
             fit_type = "Gaussian_hole"
-        fct_name = enhance_fit_type(fit_type)
-        fct = vars(BF)[fct_name]
         ax.imshow(
-            fct((X, Y), W.strehl),
+            fit_fct((X, Y), W.strehl),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
@@ -519,6 +519,7 @@ def PlotOneStar2D():
 
 
 def PlotBinaryStar2D():
+
     x0, y0 = W.strehl["x0"], W.strehl["y0"]
     x1, y1 = W.strehl["x1"], W.strehl["y1"]
     xr, yr = 3*abs(x0-x1), 3*abs(y0-y1)  # ditances
@@ -535,11 +536,14 @@ def PlotBinaryStar2D():
     # IMAGES draw
     # TRUE
     get_root().frame_result.get_figure().clf()
+    cmap = get_state().s_image_color_map
+
+
     ax1 = get_root().frame_result.get_figure().add_subplot(121)
     ax1.imshow(
         get_state().image.im0[r[0]:r[1], r[2]:r[3]],
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-        cmap=G.cbar.mappable.get_cmap().name, origin='lower')
+        cmap=cmap, origin='lower')
 
     # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
     ax1.format_coord = lambda x, y: "%.1f" % get_state().image.im0[y, x]
@@ -549,11 +553,14 @@ def PlotBinaryStar2D():
         stg = "Moffat2pt"
     elif "Gaussian" in get_state().fit_type:
         stg = "Gaussian2pt"
+
+    fit_fct = vars(BF)[stg]
+
     ax2 = get_root().frame_result.get_figure().add_subplot(122)
     ax2.imshow(
-        vars(BF)[stg]((X, Y), W.strehl),
+        fit_fct((X, Y), W.strehl),
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-        cmap=G.cbar.mappable.get_cmap().name, origin='lower',
+        cmap=cmap, origin='lower',
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
         )  # need to comment the extent other wise too crowded and need to change rect positio
     #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
