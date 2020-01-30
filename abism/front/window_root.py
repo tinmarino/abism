@@ -9,7 +9,7 @@ from os.path import isfile
 import tkinter as tk
 
 # Gui
-from abism.front.menu_bar import MenuBar
+from abism.front.menu_bar import MenuBar, refresh_pick
 from abism.front.frame_text import LeftFrame
 from abism.front.frame_plot import RightFrame
 from abism.front.util_front import skin, icon_path
@@ -93,6 +93,13 @@ class WindowRoot(tk.Tk):
         if self.frame_option.see_image_parameter:
             self.frame_option.close_image_parameter()
             self.frame_option.open_image_parameter()
+
+
+        # Default PickOne (TODO argument ?)
+        import abism.front.pick as pick
+        get_state().tk_pick.set('one')
+        refresh_pick(pick.PickOne)
+
 
 
     def set_title(self):

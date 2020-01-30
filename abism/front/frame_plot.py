@@ -15,10 +15,8 @@ from abism.front.util_front import photo_up, photo_down, skin, TitleLabel, \
     set_figure_skin
 import abism.front.util_front as G
 
-# TODO must be remooved
-from abism.front import pick
-from abism.front.AnswerReturn import PlotStar2
 # TODO this should not be here
+from abism.front.AnswerReturn import PlotStar2
 
 # Back
 from abism.back.ImageFunction import PixelMax
@@ -265,11 +263,6 @@ class ImageFrame(PlotFrame):
         # Draw
         #self._fig.canvas.draw()
 
-        #####################
-        ###  SOME  CLICKS #
-        #####################
-        # TODO move me ::
-        pick.RefreshPick("one")  # assuming that the default PIck is setted yet
 
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables

@@ -1,10 +1,10 @@
 """
     Pick star and call back
+    Used by menu_bar.py
 """
 from abc import ABC, abstractmethod
 
 import matplotlib
-import numpy as np
 
 from abism.front import artist
 from abism.front.matplotlib_extension import center_handler
@@ -19,42 +19,6 @@ from abism.util import log, get_root, get_state
 
 # TODO remove
 from abism.back import ImageFunction as IF
-
-
-
-# TODO rewrite totally at end of refactoring
-def RefreshPick(label):
-    """The exported routine
-    In function of the name of G.connect_var, we call the good one.
-    Disconnect old pick event and connect the new one """
-    lst = np.array([
-        ["PickOne", "one", PickOne],
-        ["Binary Fit", "binary", PickBinary],
-        ["Tight Binary", "tightbinary", PickTightBinary],
-        ["Profile", "profile", PickProfile],
-        ["Stat", "stat", PickStat],
-        ["Annulus", "annulus", PickAnnulus],
-        ["Ellipse", "ellipse", PickEllipse],
-        ["No Pick", "nopick", NoPick],
-    ])
-
-    # Set tk var
-    get_state().tk_pick.set(label)
-
-    # Get obj from list switch <- degueulasse
-    get_state().pick_old = get_state().pick_type
-    index = list(lst[:, 1]).index(label)
-    get_state().pick_type = label
-
-    # Dicconnect old
-    pick_old = get_state().pick
-    if pick_old:
-        pick_old.disconnect()
-
-    # Connect new
-    pick = lst[index, 2]()
-    pick.connect()
-    get_state().pick = pick
 
 
 class Pick(ABC):

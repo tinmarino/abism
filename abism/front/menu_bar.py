@@ -149,6 +149,7 @@ class AnalysisMenu(ButtonMenu):
         self.add_fit_menu()
         self.add_pick_menu()
 
+
     def add_fit_menu(self):
         self.menu.add_command(
             label="Fit Type", bg=None, state=tk.DISABLED)
@@ -181,28 +182,29 @@ class AnalysisMenu(ButtonMenu):
             label="Pick Object(s)", bg=None, state=tk.DISABLED, columnbreak=1)
 
         lst2 = [
-            ["PickOne", "one", lambda: pick.RefreshPick("one"),
+            ["PickOne", "one", pick.PickOne,
              "<C-P>O: Draw a rectangle around one star\n"
              "The fit is performed in this rectangle",
              "<Control-p>o"],
-            ["Binary Fit", "binary", lambda: pick.RefreshPick("binary"),
+            ["Binary Fit", "binary", pick.PickBinary,
              "<C-P>B: Make one click per star\n"
              "Its are the initial guess of a fit",
              "<Control-p>b"],
-            ["Tight Binary", "tightbinary", lambda: pick.RefreshPick("tightbinary"),
+            ["Tight Binary", "tightbinary", pick.PickTightBinary,
              "<C-P>T: Stricter bounds",
              "<Control-p>t"],
-            ["No Pick", "nopick", lambda: pick.RefreshPick("nopick"),
+            ["No Pick", "nopick", pick.NoPick,
              "Disable abism click (to use matplotlib, explore the image)",
              "<Control-p>n"],
         ]
 
-        for text, tag, callback, info, keys in lst2:
+        for text, tag, cls, info, keys in lst2:
+            cmd = lambda cls=cls: refresh_pick(cls)
             self.menu.add_radiobutton(
-                label=text, command=callback,
+                label=text, command=cmd,
                 variable=get_state().tk_pick, value=tag)
             self.menu.add_entry_info(info)
-            get_root().bind_all(keys, lambda _, callback=callback: callback())
+            get_root().bind_all(keys, lambda _, cmd=cmd: cmd())
             self.menu.add_entry_info(info)
 
 
@@ -351,19 +353,20 @@ class ToolMenu(ButtonMenu):
         super().__init__(parent)
 
         # Profile
-        cmd = lambda: pick.RefreshPick("profile")
+        cmd = lambda: refresh_pick(pick.PickProfile)
         self.menu.add_radiobutton(
             label='Profile', command=cmd,
             variable=get_state().tk_pick, value='profile')
-        get_root().bind_all("<Control-p>p", lambda _: pick.RefreshPick("profile"))
+        get_root().bind_all("<Control-p>p", lambda _: cmd)
         self.menu.add_entry_info(
             "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
         # Stat
+        cmd = lambda: refresh_pick(pick.PickStat)
         self.menu.add_radiobutton(
-            label='Stat', command=lambda: pick.RefreshPick('stat'),
+            label='Stat', command=lambda: cmd,
             variable=get_state().tk_pick, value='stat')
-        get_root().bind_all("<Control-p>s", lambda _: pick.RefreshPick('stat'))
+        get_root().bind_all("<Control-p>s", lambda _: cmd)
         self.menu.add_entry_info(
             "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
 
@@ -397,3 +400,14 @@ def open_histogram():
         get_root().frame_fit.get_figure(),
         get_state().image.sort,
         skin=skin())
+
+
+def refresh_pick(cls):
+    """Disconnect old pick event and connect new one"""
+    # Dicconnect old
+    if get_state().pick:
+        get_state().pick.disconnect()
+
+    # Connect new
+    get_state().pick = cls()
+    get_state().pick.connect()
