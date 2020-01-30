@@ -10,6 +10,7 @@ from functools import lru_cache
 from enum import Enum
 
 import tkinter as tk
+import tkinter.font
 
 from abism.util import root_path, log, get_root, DotDic, get_state
 

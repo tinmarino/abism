@@ -5,8 +5,7 @@
 
 from threading import Thread, currentThread
 
-from tkinter import *
-from tkinter import font as tkFont
+import tkinter as tk
 import numpy as np
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
@@ -18,22 +17,29 @@ import abism.front.util_front as G
 # Back
 from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
-from abism.back.image_info import get_array_stat
 import abism.back.util_back as W
+from abism.back.util_back import enhance_fit_type
 
 # Plugin
-from abism.util import log, get_root, get_state, abism_val, EA
+from abism.util import log, get_root, get_state, get_aa, EA
 
 
 def tktext_insert_answer(self, answer, error=None, tags=None):
     """Insert an answer in a tktext"""
-    # Get name
-    stg = answer.text + ":\t"
-
-    # Convert unit && Convert tag
+    # Clean in
+    # # Convert answer
+    if isinstance(answer, EA):
+        answer = get_state().get_answer_obj(answer)
+    # # Convert error
+    if isinstance(error, EA):
+        error = get_state().get_answer_obj(error)
+    # # Convert unit && Convert tag
     if not isinstance(answer.unit, (list, tuple)):
         answer.unit = answer.unit, answer.unit
     if not tags: tags = []
+
+    # Get name
+    stg = answer.text + ":\t"
 
     # Get value and error
     if get_state().s_answer_unit == 'detector':
@@ -51,8 +57,8 @@ def tktext_insert_answer(self, answer, error=None, tags=None):
     stg += "\n"
 
     # Insert
-    self.insert(END, stg, tags)
-Text.insert_answer = tktext_insert_answer
+    self.insert(tk.END, stg, tags)
+tk.Text.insert_answer = tktext_insert_answer
 
 
 def tktext_insert_warnings(self):
@@ -92,8 +98,19 @@ def tktext_insert_warnings(self):
             stg += "Tight Binary\nmay be unreliable\n"
 
     # Insert
-    self.insert(END, stg, ['tag-important', 'tag-center'])
-Text.insert_warnings = tktext_insert_warnings
+    self.insert(tk.END, stg, ['tag-important', 'tag-center'])
+tk.Text.insert_warnings = tktext_insert_warnings
+
+
+def tktext_insert_answer_list(self, lst):
+    """answer, error, tags"""
+    for ans in lst:
+        l = len(ans)
+        answer = ans[0]
+        error = ans[1] if l > 1 else None
+        tags = ans[2] if l > 2 else None
+        self.insert_answer(answer, error=error, tags=tags)
+tk.Text.insert_answer_list = tktext_insert_answer_list
 
 
 def show_answer():  # CALLER
@@ -131,14 +148,14 @@ def grid_button_change_coord():
             get_state().s_answer_unit = 'detector'
         show_answer()
 
-    button = Button(
+    button = tk.Button(
         get_root().frame_answer, background='Khaki', borderwidth=1,
         text=s_button, **skin().button_dic,
         command=callback)
 
-    label = Label(
+    label = tk.Label(
         get_root().frame_answer,
-        justify=LEFT, anchor="nw", **skin().fg_and_bg,
+        justify=tk.LEFT, anchor="nw", **skin().fg_and_bg,
         text=s_label)
 
     # Grid Buttons
@@ -163,158 +180,82 @@ def print_one():
     # Grid tk text
     text = get_new_text_frame()
 
-    # Strehl
-    text.insert_answer(
-        get_state().get_answer_obj(EA.STREHL),
-        error=get_state().get_answer_obj(EA.ERR_STREHL),
-        tags=['tag-important'])
+    # Declare return list
+    lst = [
+        [EA.STREHL, EA.ERR_STREHL, ['tag-important']],
+        [EA.STREHL_EQ, EA.ERR_STREHL_EQ],
+        [EA.CENTER],
+        [EA.FWHM_ABE],
+        [EA.PHOTOMETRY],
+        [EA.BACKGROUND, EA.NOISE],
+        [EA.SN],
+        [EA.INTENSITY],
+    ]
+    # Insert element in text
+    text.insert_answer_list(lst)
 
-    # Equivalent Strehl Ratio
-    text.insert_answer(
-        get_state().get_answer_obj(EA.STREHL_EQ),
-        error=get_state().get_answer_obj(EA.ERR_STREHL_EQ))
-
-    # Center
-    text.insert_answer(get_state().get_answer_obj(EA.CENTER))
-
-    # Fwhm
-    text.insert_answer(get_state().get_answer_obj(EA.FWHM_ABE))
-
-    # Photometry
-    text.insert_answer(get_state().get_answer_obj(EA.PHOTOMETRY))
-
-    # Background
-    text.insert_answer(
-        get_state().get_answer_obj(EA.BACKGROUND),
-        error=get_state().get_answer_obj(EA.NOISE))
-
-    # Signal / Noise ratio
-    text.insert_answer(get_state().get_answer_obj(EA.SN))
-
-    # Peak of detection
-    text.insert_answer(get_state().get_answer_obj(EA.INTENSITY))
-
-    # Warnings
+    # Insert Warnings
     text.insert_warnings()
 
     # Disable edit
-    text.configure(state=DISABLED)
+    text.configure(state=tk.DISABLED)
 
 
 def print_ellipse():
-    # Get new frame
+    # Grid tk text
     text = get_new_text_frame()
 
-    text.insert_answer(
-        get_state().get_answer_obj(EA.STREHL),
-        # TODO
-        #error=get_state().get_answer_obj(EA.ERR_STREHL),
-        tags=['tag-important'])
+    # Declare return list
+    lst = [
+        # TODO error
+        [EA.STREHL, None, ['tag-important']],
+        [EA.CENTER],
+        [EA.PHOTOMETRY],
+        # TODO error rms (easy win), callled noise
+        [EA.BACKGROUND],
+        [EA.INTENSITY],
+    ]
 
-    # Center
-    text.insert_answer(get_state().get_answer_obj(EA.CENTER))
-
-    # Photometry
-    text.insert_answer(get_state().get_answer_obj(EA.PHOTOMETRY))
-
-    # Background
-    text.insert_answer(
-        get_state().get_answer_obj(EA.BACKGROUND))
-        # TODO
-        # error=get_state().get_answer_obj(EA.NOISE))
-
-    # Peak of detection
-    text.insert_answer(get_state().get_answer_obj(EA.INTENSITY))
+    # Insert element in text
+    text.insert_answer_list(lst)
 
     # Warnings TODO W.Sthrel dependant
     # text.insert_warnings()
 
     # Disable edit
-    text.configure(state=DISABLED)
+    text.configure(state=tk.DISABLED)
 
 
 def print_binary():
-    # pylint: disable = too-many-locals
-    # Some lookup due to move
-    x0, x1, y0, y1 = W.strehl["x0"], W.strehl["x1"], W.strehl["y0"], W.strehl["y1"]
-    dx0, dx1 = W.psf_fit[1]["x0"], W.psf_fit[1]["x1"]
-    dy0, dy1 = W.psf_fit[1]["y0"], W.psf_fit[1]["y1"]
-
-    # Get separation
-    separation_dic = Separation(point=((x0, x1), (y0, y1)), err=((dx0, dx1), (dy0, dy1)))
-    separation = separation_dic["dist"]
-    sep_err = separation_dic["dist_err"]
-
-    # STREHL
-    # Some math TODO move
-    phot0, phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
-    bessel_integer = get_root().header.wavelength * \
-        10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
-    bessel_integer = bessel_integer**2 * 4 * \
-        np.pi / (1-(get_root().header.obstruction/100)**2)
-    Ith0, Ith1 = phot0/bessel_integer, phot1/bessel_integer
-    strehl0 = W.strehl["intensity0"] / Ith0 * 100
-    strehl1 = W.strehl["intensity1"] / Ith1 * 100
-
-    ##############
-    # IMAGE COORD
-    # TODO move that math to back
-
+    # Grid tk text
     text = get_new_text_frame()
 
-    # Fit type
-    answer = get_state().add_answer(EA.BINARY, get_state().fit_type)
-    text.insert_answer(answer)
+    # Declare return list
+    lst = [
+        [EA.STREHL1, None, ['tag-important']],
+        [EA.STREHL2, None, ['tag-important']],
+        [EA.BINARY],
+        [EA.STAR1],
+        [EA.STAR2],
+        [EA.SEPARATION, EA.ERR_SEPARATION],
+        [EA.PHOTOMETRY1],
+        [EA.PHOTOMETRY2],
+        [EA.FLUX_RATIO],
+        [EA.ORIENTATION],
+    ]
 
-    # Star 1
-    answer = get_state().add_answer(EA.STAR1, (y0, x0))
-    text.insert_answer(answer)
+    # Insert elements in text
+    text.insert_answer_list(lst)
 
-    # Star 2
-    answer = get_state().add_answer(EA.STAR2, (y1, x1))
-    text.insert_answer(answer)
-
-    # Separation
-    o_answer_separation = get_state().add_answer(EA.SEPARATION, separation)
-    o_answer_err_separation = get_state().add_answer(EA.ERR_SEPARATION, sep_err)
-    text.insert_answer(
-        o_answer_separation,
-        error=o_answer_err_separation)
-
-    # Photometry 1
-    answer = get_state().add_answer(EA.PHOTOMETRY1, phot0)
-    text.insert_answer(answer)
-
-    # Photometry 2
-    answer = get_state().add_answer(EA.PHOTOMETRY2, phot1)
-    text.insert_answer(answer)
-
-    # Flux ratio
-    answer = get_state().add_answer(EA.FLUX_RATIO, phot0 / phot1)
-    text.insert_answer(answer)
-
-    # Orientation angle
-    xy_angle = separation_dic["xy_angle"]
-    answer = get_state().add_answer(EA.ORIENTATION, xy_angle)
-    text.insert_answer(answer)
-
-    # Strehl 1
-    answer = get_state().add_answer(EA.STREHL1, strehl0, unit=' %')
-    text.insert_answer(answer)
-
-    # Strehl 2
-    answer = get_state().add_answer(EA.STREHL2, strehl1, unit=' %')
-    text.insert_answer(answer)
-
-    # Warnings
+    # Insert Warnings
     text.insert_warnings()
 
     # Disable edit
-    text.configure(state=DISABLED)
+    text.configure(state=tk.DISABLED)
 
 
 
-# "
+###############
 #   1D 1D 1D
 ###############
 
@@ -339,6 +280,9 @@ def PlotOneStar1D():
     params = W.strehl
     log(3, 'center=', center)
 
+    s_fit_fct = enhance_fit_type(get_state().fit_type)
+    fit_fct = vars(BF)[s_fit_fct]
+
     # Get ax
     ax = get_root().frame_fit.reset_figure_ax(
         xlabel='Pixel', ylabel='Intensity')
@@ -361,18 +305,18 @@ def PlotOneStar1D():
     ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
 
     # Plot Fit
-    if not get_state().fit_type == 'None':
-        I_theory = vars(BF)[get_state().fit_type]((a, params['center_y']), params)
+    if get_state().fit_type != 'None':
+        I_theory = fit_fct((a, params['center_y']), params)
         ax.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
 
-    # Plot perfect diffraction pattern
+    # Plot perfect diffraction pattern <- putain de if
     if not get_root().header.wavelength*1e-6/get_root().header.diameter/(get_root().header.pixel_scale/206265) < 2:
         params2 = {'diameter': get_root().header.diameter,
                    'lambda': get_root().header.wavelength,
                    'center_x': params['center_x'],
                    'center_y': params['center_y'],
                    'pixelscale': get_root().header.pixel_scale,
-                   'phot': abism_val(EA.PHOTOMETRY),
+                   'phot': get_aa(EA.PHOTOMETRY),
                    'obstruction': get_root().header.obstruction/100,
                    }
         bessel = BF.DiffractionPatern((a, params['center_y']), params2)
@@ -382,8 +326,8 @@ def PlotOneStar1D():
     # Draw Legend
     ax.legend(loc=1, prop={'size': 8})
 
-   #  def Percentage(y):  # y is the intensity
-   #      res = 100*(max(MyBessel)-get_state().get_answer(EA.BACKGROUND))*y
+    #  def Percentage(y):  # y is the intensity
+    #      res = 100*(max(MyBessel)-get_state().get_answer(EA.BACKGROUND))*y
     ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
 
     # Update skin && Draw
@@ -469,7 +413,7 @@ def PlotOneStar2D():
     x, y = np.arange(r[0], r[1]), np.arange(r[2], r[3])
     Y, X = np.meshgrid(y, x)
 
-    def Data(ax):
+    def plot_data(ax):
         ax.imshow(
             get_state().image.im0[r[0]:r[1], r[2]:r[3]],
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
@@ -478,12 +422,14 @@ def PlotOneStar2D():
         #G.ax31.format_coord=lambda x,y: "%.1f"%get_state().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
 
-    def Fit(ax):
+    def plot_fit(ax):
         fit_type = get_state().fit_type
         if "Gaussian_hole" in fit_type:
             fit_type = "Gaussian_hole"
+        fct_name = enhance_fit_type(fit_type)
+        fct = vars(BF)[fct_name]
         ax.imshow(
-            vars(BF)[fit_type]((X, Y), W.strehl),
+            fct((X, Y), W.strehl),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
@@ -499,13 +445,13 @@ def PlotOneStar2D():
     get_root().frame_result.update_skin()
 
     # Plot first image (data)
-    Data(ax1)
+    plot_data(ax1)
 
     # Plot second image (fit)
     if get_state().fit_type != "None":
-        Fit(ax2)
+        plot_fit(ax2)
     else:
-        Data(ax2)
+        plot_data(ax2)
 
     # APERTTURES
     params = W.strehl
@@ -722,7 +668,7 @@ def FigurePlot(x, y, dic={}):
     log(3, 50 * '_', "\n", currentThread().getName(),
         "Starting------------------\n")
 
-    global ax
+    #global ax
     G.contrast_fig.clf()
     # tfig.canvas.set_window_title(dic["title"])
 
@@ -753,31 +699,3 @@ def MyFormat(value, number, letter):
     stg = "{:,"
     stg += "." + str(number) + letter + "}"
     return stg.format(value).replace(",", " ")
-
-
-def Separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
-    """point1i  (and 2) : list of 2 float = (x,y)= row, column
-    err_point1 = 2 float = x,y )
-    read north position in W
-    """
-    point1, point2 = point[0], point[1]
-    err_point1, err_point2 = err[0], err[1]
-    x0, x1, y0, y1 = point1[0], point1[1], point2[0], point2[1]
-    dx0, dx1, dy0, dy1 = err_point1[0], err_point1[1], err_point2[0], err_point2[1]
-
-    # Get separation distance <- Pythagora
-    dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
-
-    # Get error
-    dist_err = np.sqrt(dx0**2 + dx1**2)
-    dx0 = np.sqrt(err_point1[0]**2 + err_point1[1]**2)
-    dx1 = np.sqrt(err_point2[0]**2 + err_point2[1]**2)
-
-    # Get angle
-    angle = np.array([(y1-y0),   (x1-x0)])
-    angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
-
-    res = {"xy_angle": angle,
-           "dist": dist, "dist_err": dist_err,
-           }
-    return res

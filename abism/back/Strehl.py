@@ -6,7 +6,7 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root, get_state, EA
+from abism.util import log, get_root, get_state, EA, get_aa, set_aa
 
 import abism.back.util_back as W
 
@@ -50,23 +50,23 @@ def StrehlMeter(rectangle):
 
 
     intensity = psf_fit[0]['intensity']
-    get_state().add_answer(EA.INTENSITY, intensity)
+    set_aa(EA.INTENSITY, intensity)
 
     # Get Background && SAve
     back_dic = SI.Background(get_state().image.im0, rectangle)
     background = back_dic['my_background']
     rms = back_dic['rms']
-    get_state().add_answer(EA.BACKGROUND, background)
-    get_state().add_answer(EA.NOISE, rms)
+    set_aa(EA.BACKGROUND, background)
+    set_aa(EA.NOISE, rms)
 
     # Get photometry && Save
     photometry, _, number_count = \
         SI.Photometry(get_state().image.im0, background, rectangle=rectangle)
-    get_state().add_answer(EA.PHOTOMETRY, photometry)
+    set_aa(EA.PHOTOMETRY, photometry)
 
     # Get Signal on noise && Save
     signal_on_noise = photometry / background / np.sqrt(number_count)
-    get_state().add_answer(EA.SN, signal_on_noise)
+    set_aa(EA.SN, signal_on_noise)
 
     # Save:  Side effect of course
     save_fwhm()
@@ -79,21 +79,26 @@ def StrehlMeter(rectangle):
 def StrehlRatio():
     # Read from global
     bessel_integer = get_bessel_integer()
-    photometry = get_state().get_answer(EA.PHOTOMETRY)
-    intensity = get_state().get_answer(EA.INTENSITY)
+    photometry = get_aa(EA.PHOTOMETRY)
+    intensity = get_aa(EA.INTENSITY)
     wavelength = get_root().header.wavelength
+    log(5, 'Calculating Strehl with', "\n"
+        'intensity =', intensity, "\n"
+        'photometry =', photometry, "\n"
+        'bessel_integer =', bessel_integer, "\n"
+        'wavelength =', wavelength, "\n")
 
     # Get theoretical intensity && Save
     Ith = photometry / bessel_integer
-    get_state().add_answer(EA.INTENSITY_THEORY, Ith)
+    set_aa(EA.INTENSITY_THEORY, Ith)
 
     # Save strehl (finally)
     strehl = intensity / Ith
-    get_state().add_answer(EA.STREHL, 100 * strehl, unit=' %')
+    set_aa(EA.STREHL, 100 * strehl, unit=' %')
 
     # Save equivalent Strehl ratio
     strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
-    get_state().add_answer(EA.STREHL_EQ, 100 * strehl_eq, unit=' %')
+    set_aa(EA.STREHL_EQ, 100 * strehl_eq, unit=' %')
 
     # Save
     W.strehl["Ith"] = Ith  # used for error
@@ -169,12 +174,51 @@ def BinaryStrehl(star1, star2):
     binary_psf = SI.BinaryPsf(get_state().image.im0, star1, star2)
     W.psf_fit = binary_psf.do_fit().get_result()
     W.strehl = W.psf_fit[0]
+    append_binary_info(W.psf_fit[0], W.psf_fit[1])
 
 
 def TightBinaryStrehl(star1, star2):
     tight_psf = SI.TightBinaryPsf(get_state().image.im0, star1, star2)
     W.psf_fit = tight_psf.do_fit().get_result()
     W.strehl = W.psf_fit[0]
+    append_binary_info(W.psf_fit[0], W.psf_fit[1])
+
+
+def append_binary_info(fit_dic, err_dic):
+    """Read
+    Write: Separatation"""
+    # Fit type
+    answer = set_aa(EA.BINARY, get_state().fit_type)
+
+    # Some lookup due to move
+    x0, x1, y0, y1 = W.strehl["x0"], W.strehl["x1"], W.strehl["y0"], W.strehl["y1"]
+    dx0, dx1 = W.psf_fit[1]["x0"], W.psf_fit[1]["x1"]
+    dy0, dy1 = W.psf_fit[1]["y0"], W.psf_fit[1]["y1"]
+
+    set_aa(EA.STAR1, (y0, x0))
+    set_aa(EA.STAR2, (y1, x1))
+
+    # Get separation
+    separation_dic = get_separation(point=((x0, x1), (y0, y1)), err=((dx0, dx1), (dy0, dy1)))
+    separation = separation_dic["dist"]
+    sep_err = separation_dic["dist_err"]
+    xy_angle = separation_dic["xy_angle"]
+    set_aa(EA.ORIENTATION, xy_angle)
+    set_aa(EA.SEPARATION, separation)
+    set_aa(EA.ERR_SEPARATION, sep_err)
+
+    phot0, phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
+    set_aa(EA.PHOTOMETRY1, phot0)
+    set_aa(EA.PHOTOMETRY2, phot1)
+    set_aa(EA.FLUX_RATIO, phot0 / phot1)
+
+    # Strehl
+    bessel_integer = get_bessel_integer()
+    Ith0, Ith1 = phot0/bessel_integer, phot1/bessel_integer
+    strehl0 = W.strehl["intensity0"] / Ith0
+    strehl1 = W.strehl["intensity1"] / Ith1
+    set_aa(EA.STREHL1, 100 * strehl0, unit=' %')
+    set_aa(EA.STREHL2, 100 * strehl1, unit=' %')
 
 
 def EllipseEventStrehl(ellipse):
@@ -213,3 +257,31 @@ def get_equivalent_strehl_ratio(strehl, wavelength):
     factor = - (factor * 2 * np.pi / 2.17)**2
 
     return np.exp(factor)
+
+
+def get_separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
+    """point1i  (and 2) : list of 2 float = (x,y)= row, column
+    err_point1 = 2 float = x,y )
+    read north position in W
+    """
+    point1, point2 = point[0], point[1]
+    err_point1, err_point2 = err[0], err[1]
+    x0, x1, y0, y1 = point1[0], point1[1], point2[0], point2[1]
+    dx0, dx1, dy0, dy1 = err_point1[0], err_point1[1], err_point2[0], err_point2[1]
+
+    # Get separation distance <- Pythagora
+    dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
+
+    # Get error
+    dist_err = np.sqrt(dx0**2 + dx1**2)
+    dx0 = np.sqrt(err_point1[0]**2 + err_point1[1]**2)
+    dx1 = np.sqrt(err_point2[0]**2 + err_point2[1]**2)
+
+    # Get angle
+    angle = np.array([(y1-y0),   (x1-x0)])
+    angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
+
+    res = {"xy_angle": angle,
+           "dist": dist, "dist_err": dist_err,
+           }
+    return res

@@ -8,9 +8,9 @@ import abism.back.fit_template_function as BF
 from abism.back.image_info import ImageInfo, get_array_stat
 
 
-from abism.util import log, get_root, get_state, EA
+from abism.util import log, get_state, EA
 import abism.back.util_back as W
-
+from abism.back.util_back import enhance_fit_type
 
 
 class Fit(ABC):
@@ -204,7 +204,8 @@ class PsfFit(Fit):
                     self.result[1]["spread_x"], self.result[1]["spread_x"]
 
         #############
-        # FWHM, and PHOT < from fit
+        # FWHM, and PHOT <- from fit
+        log(9,"\n\n\n\nPstFit  calling phot")
         self.result[0].update(IF.FwhmFromFit(self.result[0], self.fit_type))
 
         # UPDATE R99X
@@ -573,6 +574,7 @@ def Photometry(grid, background, rectangle=None):
     Note Background must be called before
     """
     photometry = total = number_count = 0
+    phot_type = get_state().phot_type
 
     r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
     r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
@@ -583,19 +585,20 @@ def Photometry(grid, background, rectangle=None):
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
     # FIT
-    if get_state().phot_type == 'fit':
-        W.strehl["my_photometry"] = W.strehl["photometry_fit"]
-        log(3, "doing fit  phot in ImageFunction.py ")
+    if phot_type == 'fit':
+        log(3, "Photometry <- fit")
+        photometry = W.strehl["photometry_fit"]
+        number_count = r99u * r99y
 
     # Rectangle apperture
-    elif get_state().phot_type == 'encircled_energy':
+    elif phot_type == 'encircled_energy':
         log(3, 'Photometry <- encircled energy (i.e. rectangle)')
         total = np.sum(grid[ax1:ax2, ay1:ay2])
         number_count = 4 * r99x * r99y
         photometry = total - number_count * background
 
     # Elliptical apperture
-    elif get_state().phot_type == 'elliptical_aperture':
+    elif phot_type == 'elliptical_aperture':
         log(3, 'Photometry <- elliptical aperture')
         ellipse_dic = {"center_x": x0, "center_y": y0,
                        "ru": r99u, "rv": r99v, "theta": theta}
@@ -608,12 +611,15 @@ def Photometry(grid, background, rectangle=None):
         photometry = total  - number_count * background
 
     # MANUAL
-    elif get_state().phot_type == 'manual':
+    elif phot_type == 'manual':
+        log(3, "Photometry <- manual")
         stat = get_state().image.RectanglePhot(rectangle)
         total = stat.sum
         number_count = stat.number_count
         photometry = total  - number_count * background
 
+    else:
+        log(0, "Error: Photometry do not know tipe:", phot_type)
 
     return photometry, total, number_count
 
@@ -709,21 +715,3 @@ def Background(grid, rectangle):
     ###############
     # BINARY
     ###############
-
-
-# TODO refactor all that in the caller discriminator
-def enhance_fit_type(name):  # strange but works
-    fit_type = name
-    try:
-        if get_state().b_aniso and not '2D' in fit_type:
-            fit_type += '2D'
-        elif not get_state().b_aniso:
-            fit_type = fit_type.replace('2D', '')
-    except BaseException:
-        if fit_type.find('2D') == -1:
-            fit_type += '2D'
-    if not fit_type.find('None') == -1:
-        fit_type = 'None'
-
-    log(0, 'Fit Type = ' + fit_type)
-    return fit_type

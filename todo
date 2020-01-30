@@ -20,6 +20,8 @@
 
 # Feature
 
+* Add bounds to theta in fit or ti keeps roating
+* When opening new image, reconnect the pick
 * Ellipse and Annulus Pick (maybe in tool)
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice

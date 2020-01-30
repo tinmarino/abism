@@ -373,7 +373,8 @@ def EnergyRadius(grid, fit_type, dic={}):
     return (r99x, r99y), (r99u, r99v)
 
 
-def FwhmFromFit(param, fit_type):  # and phot  all explicit  return fwhm_x, fwhm_y (0 or 1)
+def FwhmFromFit(param, fit_type):
+    """and phot  all explicit  return fwhm_x, fwhm_y (0 or 1)"""
     """from spread and exponent and fit_type, that is explicit"""
 
     # "
@@ -431,6 +432,7 @@ def FwhmFromFit(param, fit_type):  # and phot  all explicit  return fwhm_x, fwhm
         photometry = 99
         fwhm_x, fwhm_y = 99, 99
 
+    log(3, 'Fit: photometry, estimated from', fit_type, 'is', photometry)
     return {"fwhm_x": fwhm_x, "fwhm_y": fwhm_y, "photometry_fit": photometry}
 
 

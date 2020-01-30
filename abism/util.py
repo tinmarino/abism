@@ -166,8 +166,14 @@ def get_fit_list():
     return ["Gaussian", "Moffat", "Bessel1", "None"]
 
 
-def abism_val(enum_answer):
+def get_aa(enum_answer):
+    """Get Abism Answer, shortcut"""
     return get_state().get_answer(enum_answer)
+
+
+def set_aa(enum_answer, value, *arg, unit=None, **args):
+    """Set Abism Answer shortcut"""
+    return get_state().add_answer(enum_answer, value, *arg, unit=unit, **args)
 
 
 def str_pretty(obj, indent=2, depth=4, rec=0, key=''):
