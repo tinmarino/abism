@@ -22,8 +22,6 @@ class GtkDialog(Gtk.FileChooserDialog):
             Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
             Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
-        self.connect("destroy", Gtk.main_quit)
-
         if initialdir:
             self.set_current_folder(os.path.abspath(initialdir))
 
@@ -40,7 +38,6 @@ class GtkDialog(Gtk.FileChooserDialog):
         if from_gtk == Gtk.ResponseType.OK:
             fname = self.get_filename()
         self.destroy()
-        Gtk.main_quit()
         GLib.timeout_add(100, Gtk.main_quit)
         # Dodo
         return fname
@@ -56,10 +53,8 @@ class GtkDialog(Gtk.FileChooserDialog):
 
 def gtk_askopenfilename(**args):
     """Returns filename given by user"""
-    #win = Gtk.Window(title="test")
     dialog = GtkDialog(parent=None, **args)
     res = dialog.get_response()
-    #Gtk.main_quit()
     Gtk.main()
     return res
 
