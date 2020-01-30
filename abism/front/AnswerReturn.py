@@ -115,7 +115,7 @@ def plot_result():
         print_binary(); return
 
     if pick == 'ellipse':
-        PlotEllipse(); return
+        print_ellipse(); return
 
 
 def grid_button_change_coord():
@@ -149,7 +149,7 @@ def grid_button_change_coord():
     label.grid(column=0, sticky="wnse")
 
 
-def print_one():
+def get_new_text_frame():
     # Pack fit type in Frame
     get_root().frame_answer.set_fit_type_text(get_state().fit_type)
     get_root().frame_answer.clear()
@@ -157,6 +157,12 @@ def print_one():
     # Button to change cord
     grid_button_change_coord()
 
+    text = get_root().frame_answer.grid_text_answer()
+
+    return text
+
+
+def print_one():
     # <- Calculate Equivalent strehl2.2 and error
     strehl = get_state().get_answer(EA.STREHL) / 100
     wavelength = get_root().header.wavelength
@@ -176,8 +182,7 @@ def print_one():
 
 
     # TODO move all preceding in back
-
-    text = get_root().frame_answer.grid_text_answer()
+    text = get_new_text_frame()
 
     # Strehl
     text.insert_answer(
@@ -189,7 +194,6 @@ def print_one():
     text.insert_answer(
         get_state().get_answer_obj(EA.STREHL_EQ),
         error=get_state().get_answer_obj(EA.ERR_STREHL_EQ))
-
 
     # Center
     text.insert_answer(get_state().get_answer_obj(EA.CENTER))
@@ -218,97 +222,41 @@ def print_one():
     text.configure(state=DISABLED)
 
 
-def PlotEllipse():
+def print_ellipse():
     """TODO clean + not working anymore due to W.tmp.lst"""
-    rms = get_root().header.wavelength / 2/np.pi * \
-        np.sqrt(-np.log(get_state().get_answer(EA.STREHL)/100))
-    W.strehl["strehl2_2"] = 100 * np.exp(-(rms*2*np.pi/2.17)**2)
-    # <- CAlculate Equivalent strehl2.2
+    # Get new frame
+    text = get_new_text_frame()
 
-    ########
-    # BUTTON
-    # to fill th ecolumn on th epossible space
-    get_root().frame_answer.columnconfigure(0, weight=1)
-    G.bu_answer_type = Button(
-        get_root().frame_answer, text='useless', background='Khaki', borderwidth=1, width=9)
-    G.lb_answer_type = Label(
-        get_root().frame_answer, text="useless", justify=LEFT, anchor="nw", **skin().fg_and_bg)
+    text.insert_answer(
+        get_state().get_answer_obj(EA.STREHL),
+        # TODO
+        #error=get_state().get_answer_obj(EA.ERR_STREHL),
+        tags=['tag-important'])
 
-    ############
-    # IMAGE COORD
-    if get_state().s_answer_unit == "detector":
-        G.bu_answer_type["text"] = u"\u21aa"+'To sky     '
-        G.bu_answer_type["command"] = lambda: PlotAnswer(unit="sky")
-        G.lb_answer_type["text"] = "In detector units"
+    # Center
+    text.insert_answer(get_state().get_answer_obj(EA.CENTER))
 
-        log(9, 'Ellipse answer Strehl:', W.strehl)
-        log(9, 'Ellipse answer Answer:', get_state)
+    # Photometry
+    text.insert_answer(get_state().get_answer_obj(EA.PHOTOMETRY))
 
-        W.tmp.lst = [
-            ["Strehl: ", get_state().get_answer(EA.STREHL), MyFormat(
-                get_state().get_answer(EA.STREHL), 1, "f") + " +/- " + MyFormat(get_state().get_answer(EA.ERR_STREHL), 1, "f") + " %"],
-            ["Intensity: ", W.strehl["intensity"], MyFormat(
-                W.strehl["intensity"], 1, "f") + " [adu]"],
-            ["Background: ", get_state().get_answer(EA.BACKGROUND), MyFormat(
-                get_state().get_answer(EA.BACKGROUND), 1, "f") + ' +/- ' + MyFormat(W.strehl['rms'], 1, "f") + "[adu]"],
-            ["Photometry: ", W.strehl["my_photometry"], MyFormat(
-                W.strehl["my_photometry"], 1, "f") + " [adu]"],
-            #["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f") ],
-            ["Eq. SR(2.17"+u"\u03bc" + "m): ", W.strehl["strehl2_2"],
-                MyFormat(W.strehl["strehl2_2"], 1, "f") + " %"],
-            ["Center x,y: ", (W.strehl["center_y"], W.strehl["center_x"]), MyFormat(
-                W.strehl["center_y"], 3, "f") + " , " + MyFormat(W.strehl['center_x'], 3, "f")],  # need to inverse
-        ]
+    # Background
+    text.insert_answer(
+        get_state().get_answer_obj(EA.BACKGROUND))
+        # TODO
+        # error=get_state().get_answer_obj(EA.NOISE))
 
-    ##################
-    # SKY COORD
-    # including unit = sky :    not =  detector  get_state().s_answer_unit=="sky":
-    else:
-        G.bu_answer_type["text"] = u"\u21aa"+'To detector'
-        G.bu_answer_type["command"] = lambda: PlotAnswer(unit="detector")
-        G.lb_answer_type["text"] = "In sky units"
+    # Peak of detection
+    text.insert_answer(get_state().get_answer_obj(EA.INTENSITY))
 
-        ###
-        # WCS
-        try:
-            # if len( W.hdulist[0].data.shape ) == 3: # if cube,  just cut the WCS object, see antoine
-            #   my_wcs = ProjectWcs(get_root().header.wcs).all_pix2world( np.array([[ W.strehl["center_y"],W.strehl["center_x"] ]]), 0 )
-            # else : # not cube
-            my_wcs = get_root().header.wcs.all_pix2world(
-                np.array([[W.strehl["center_y"], W.strehl["center_x"]]]), 0)
-        except:
-            import traceback
-            traceback.print_exc()
-            print("WARNING I did not manage to get WCS")
-            my_wcs = np.array([[99, 99], [99, 99]])
-        W.strehl["center_ra"], W.strehl["center_dec"] = my_wcs[0, 0], my_wcs[0, 1]
+    # Warnings TODO W.Sthrel dependant
+    # text.insert_warnings()
 
-        W.tmp.lst = [
-            ["Strehl: ", get_state().get_answer(EA.STREHL), "%.1f" %
-                (get_state().get_answer(EA.STREHL)) + " +/- "+"%.1f" % get_state().get_answer(EA.ERR_STREHL)+" %"],
-            ["Intensity: ", W.strehl["intensity"],  "%.1f" % (
-                get_root().header.zpt-2.5*np.log10(W.strehl["intensity"]/get_root().header.exptime)) + " [mag]"],
-            ["Background: ", get_state().get_answer(EA.BACKGROUND), "%.2f" % (get_root().header.zpt-2.5*np.log10(
-                get_state().get_answer(EA.BACKGROUND)/get_root().header.exptime)) + '| rms: ' + "%.2f" % (get_root().header.zpt-2.5*np.log10(W.strehl['rms'])) + " [mag]"],
-            ["Photometry: ", W.strehl["my_photometry"], "%.2f" % (
-                get_root().header.zpt-2.5*np.log10(W.strehl["my_photometry"]/get_root().header.exptime)) + " [mag]"],
-            #["S/N: "           , W.strehl["snr"]    ,MyFormat(W.strehl["snr"],1,"f")  ],
-            ["Eq. SR 2.17"+u"\u03bc" + "m: ", W.strehl["strehl2_2"], "%.1f" %
-                W.strehl["strehl2_2"] + "%"],
-            ["Center RA,Dec: ", (W.strehl["center_ra"], W.strehl["center_dec"]),
-             "%.8f" % W.strehl["center_ra"]+","+"%.8f" % W.strehl['center_dec']],
-        ]  # label , variable, value as string
+    # Disable edit
+    text.configure(state=DISABLED)
 
 
 def print_binary():
     # pylint: disable = too-many-locals
-    # Pack fit type in Frame
-    get_root().frame_answer.set_fit_type_text(get_state().fit_type)
-    get_root().frame_answer.clear()
-
-    # Button to change cord
-    grid_button_change_coord()
-
     # Some lookup due to move
     x0, x1, y0, y1 = W.strehl["x0"], W.strehl["x1"], W.strehl["y0"], W.strehl["y1"]
     dx0, dx1 = W.psf_fit[1]["x0"], W.psf_fit[1]["x1"]
@@ -334,7 +282,7 @@ def print_binary():
     # IMAGE COORD
     # TODO move that math to back
 
-    text = get_root().frame_answer.grid_text_answer()
+    text = get_new_text_frame()
 
     # Fit type
     answer = get_state().add_answer(EA.BINARY, get_state().fit_type)

@@ -71,7 +71,15 @@ def StrehlMeter(rectangle):
     # Save:  Side effect of course
     save_fwhm()
 
+    # Math
+    StrehlRatio()
+    StrehlError()
+
+
+def StrehlRatio():
     bessel_integer = get_bessel_integer()
+    photometry = get_state().get_answer(EA.PHOTOMETRY)
+    intensity = get_state().get_answer(EA.INTENSITY)
 
     # Get theoretical intensity && Save
     Ith = photometry / bessel_integer
@@ -84,8 +92,6 @@ def StrehlMeter(rectangle):
     get_state().add_answer(EA.STREHL, strehl, unit=' %')
     W.strehl["Ith"] = Ith  # used for error
     W.strehl["bessel_integer"] = bessel_integer   # used for error
-
-    StrehlError()
 
 
 def get_bessel_integer():
@@ -114,7 +120,7 @@ def StrehlError():
     # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
     get_state().phot_type = "fit"
     log(3, "\n\n WARNING: StrehlError changed the aperture type "
-            "to fit because not ellipse pick it shouldn't matter ")
+           "to fit because not ellipse pick it shouldn't matter ")
 
     # INTENSITY
     if get_state().phot_type and get_state().fit_type != "None":
@@ -158,20 +164,30 @@ def TightBinaryStrehl(star1, star2):
     W.strehl = W.psf_fit[0]
 
 
-def EllipseEventStrehl():
+def EllipseEventStrehl(ellipse):
+    """Main ellipse worker,
+    Param: ellipse artist with ru, rv, position
+    """
     W.strehl = {}
     if get_state().phot_type == "fit":
-        return
+        log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
-    else:  # including aperture = ellipse you've drawn
-        SI.EllipseEventBack()  # Update
-        # TODO bass background instead of global
-        # TODO brefore:  check if used
-        SI.EllipseEventPhot()  # Update  with ellipse, number count needed
-        SI.EllipseEventMax()  # Update
-        StrehlRatio()
-        StrehlError()
-        return
+    # Background
+    back_stat = SI.EllipseEventBack(ellipse)
+    background = back_stat.mean
+    get_state().add_answer(EA.BACKGROUND, background)
+
+    # Photometry
+    photometry, _, _ = SI.EllipseEventPhot(ellipse, background)
+    get_state().add_answer(EA.PHOTOMETRY, photometry)
+
+    # Get maximum (side effect)
+    SI.EllipseEventMax(ellipse)
+
+    # Math
+    StrehlRatio()
+    # TODO refactor StrehlError lying on W.strehl
+    #StrehlError()
 
 
 def get_equivalent_strehl_ratio(strehl, wavelength):

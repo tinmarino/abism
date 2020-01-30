@@ -449,12 +449,12 @@ class TightBinaryPsf(BinaryPsf):
 
 
 
-# Not used
+# Ellipse
 ######################################################################
 
 
 def EllipseEventBack(obj):
-    """Return: background from ellipse <int(adu)>"""
+    """Return: background from ellipse <stat obj>"""
     rui, rvi = obj.ru, obj.rv     # inner annulus
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
@@ -471,13 +471,13 @@ def EllipseEventBack(obj):
     # annulus  inside out but not inside in
     bol_a = ell_o["bol"] ^ ell_i["bol"]
 
-    image_cut = get_root().im0[bol_a]
+    image_cut = get_state().image.im0[bol_a]
     stat = get_array_stat(image_cut)
 
-    stat["mean"]
+    return stat
 
 
-def EllipseEventPhot(obj):
+def EllipseEventPhot(obj, sky):
     """Elliptical phot
     Returns: photometry, total, number_count
     """
@@ -490,30 +490,30 @@ def EllipseEventPhot(obj):
         obj.array, dic=dic, full_answer=True)
 
     number_count, total = ellipse_stat['sum'], ellipse_stat['number_count']
-    photometry = total - get_state().get_answer(EA.BACKGROUND)
+    photometry = total - number_count * sky
 
-    # SAve photo
+    # Save photo
     get_state().add_answer(EA.PHOTOMETRY, photometry)
     return photometry, total, number_count
 
 
-def EllipseEventMax(obj):  # receive EllipseEvent
-
+def EllipseEventMax(obj):
+    """Param: ellipse artist
+    With bad pixel filter
+    Side Returns: local maximum, cetner <- answers
+    """
     rad = max(obj.ru, obj.rv)
     r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
-    local_max = IF.LocalMax(get_state().image.im0, r=r)  # With bad pixel filter
+    local_max = IF.LocalMax(get_state().image.im0, r=r)
 
-    ######
-    # Update
-    W.strehl.update({"center_x": local_max[0],
-                     "center_y": local_max[1],
-                     "intensity": local_max[2],
-                     })
-    return
+    # Save
+    get_state().add_answer(EA.CENTER, local_max[:2])
+    get_state().add_answer(EA.INTENSITY, local_max[2])
 
-    ###############
-    # ANNULUS CANVAS
-    #################
+
+###############
+# ANNULUS CANVAS
+#################
 
 
 def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
