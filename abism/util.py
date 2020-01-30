@@ -275,7 +275,6 @@ class AbismState(DotDic):
         # The last pick string, to dissconnect
         # TODO better be an object
         self.pick_type = 'one'
-        self.pick_old = ''
         self.pick = None
         self.tk_pick = None
 

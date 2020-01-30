@@ -106,7 +106,7 @@ def show_answer():  # CALLER
 
 def plot_result():
     """Discirminate according to pick"""
-    pick = get_state().pick_type
+    pick = get_state().tk_pick.get()
 
     if pick == 'one':
         print_one(); return
@@ -394,8 +394,9 @@ def print_binary():
 
 
 def PlotStar():
+    pick_type = get_state().tk_pick.get()
     # Binary plot profile
-    if (get_state().pick_type == "binary") or (get_state().pick_type == "tightbinary"):
+    if pick_type in ("binary", "tightbinary"):
         PlotBinaryStar1D()
     else:  # including only one star  (ie : not binary)
         PlotOneStar1D()
@@ -518,10 +519,12 @@ def PlotBinaryStar1D():
 ####################
 
 
-def PlotStar2():   # the two images colormesh
-    if (get_state().pick_type == "one") or (get_state().pick_type[0] == "many"):
+def PlotStar2():
+    """the two images colormesh"""
+    pick_type = get_state().tk_pick.get()
+    if pick_type == "one":
         PlotOneStar2D()
-    elif get_state().pick_type == "binary":
+    elif pick_type in ("binary", 'tightbinary'):
         PlotBinaryStar2D()
 
 
