@@ -240,23 +240,6 @@ def DiffractionPatern(points, params):
 #
 def LogScale(min, max, bin):
     res = np.zeros(())
-    for i in range(1, bin+1):
-        res[i] = min + 10**(i/bin)*(max-min)
-    return res
-# def moffat(
-
-
-def AnnulusSize(ins, out):
-    return (3.14*(out**2-ins**2))
-
-
-def MultiAnnulusSize(x):  # take a 1d array  /RETURN: annulus entre i-1 y i
-    lenght = len(x)
-    tmp = np.zeros(lenght)
-    res = np.zeros(lenght)
-    for i in range(lenght):
-        tmp[i] = np.pi*x[i]**2
-        res[i] = tmp[i]
-        if tmp[i-1]:
-            res[i] -= tmp[i-1]
+    for i in range(1, i_bin+1):
+        res[i] = i_min + 10**(i/i_bin)*(i_max-i_min)
     return res
