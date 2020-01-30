@@ -175,6 +175,10 @@ class AnalysisMenu(ButtonMenu):
         self.menu.add_command(
             label=u"\u25be More Options",
             command=on_more)
+        self.menu.add_entry_info("<C-M>: Display additional frame for more options")
+        get_root().bind_all("<Control-m>", lambda _: on_more())
+
+        # Keep index to change label
         self.index_more = self.menu.index(tk.END)
 
     def add_pick_menu(self):
@@ -194,12 +198,12 @@ class AnalysisMenu(ButtonMenu):
              "<C-P>T: Stricter bounds",
              "<Control-p>t"],
             ["No Pick", "nopick", pick.NoPick,
-             "Disable abism click (to use matplotlib, explore the image)",
+             "<C-P>N: Disable abism click (to use matplotlib, explore the image)",
              "<Control-p>n"],
         ]
 
         for text, tag, cls, info, keys in lst2:
-            cmd = lambda cls=cls: refresh_pick(tag, cls)
+            cmd = lambda tag=tag, cls=cls: refresh_pick(tag, cls)
             self.menu.add_radiobutton(
                 label=text, command=cmd,
                 variable=get_state().tk_pick, value=tag)

@@ -282,7 +282,6 @@ class AbismState(DotDic):
         self.fit_type = get_fit_list()[1]
         self.phot_type = 'elliptical_aperture'
         self.noise_type = 'elliptical_annulus'
-        self.aperture_type = 'fit'
         self.b_aniso = True
         self.b_same_psf = True
         self.b_same_center = True

@@ -545,7 +545,7 @@ class OptionFrame(TextFrame):
             menu_phot = tk.Menubutton(
                 frame, text=u'\u25be '+'Photometry',
                 relief=tk.RAISED, **skin().button_dic)
-            menu_phot.menu = tk.Menu(menu_phot)
+            menu_phot.menu = tk.Menu(menu_phot, tearoff=False)
             menu_phot['menu'] = menu_phot.menu
 
             lst = [
@@ -556,6 +556,7 @@ class OptionFrame(TextFrame):
             ]
 
             def set_phot(i):
+                log(3, 'Setting photometric aperture mesurement to', i)
                 get_state().phot_type = i
 
             # Add radio buttons:
@@ -576,7 +577,7 @@ class OptionFrame(TextFrame):
             menu = tk.Menubutton(
                 frame, text=u'\u25be '+'Background',
                 relief=tk.RAISED, **skin().button_dic)
-            menu.menu = tk.Menu(menu)
+            menu.menu = tk.Menu(menu, tearoff=False)
             menu['menu'] = menu.menu
 
 
@@ -589,6 +590,7 @@ class OptionFrame(TextFrame):
             ]
 
             def set_noise(i):
+                log(3, 'Setting background mesurement to', i)
                 get_state().noise_type = i
 
             string_var = tk.StringVar()
@@ -766,9 +768,9 @@ class ButtonFrame(tk.Frame):
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toogle_image_parameter, **opts)
         get_root().bind_all(
-            "<Control-m>", lambda _: get_root().frame_option.toogle_image_parameter())
+            "<Control-i>", lambda _: get_root().frame_option.toogle_image_parameter())
         self.bu_manual.set_hover_info(
-            "<C-M>: Show/Hide Image parameters\n"
+            "<C-i>: Show/Hide Image parameters\n"
             "necessaries for Strehl mesurement (λ, pxl scale, diam, obstr)\n"
             "or to give sky coordinates (zpt, exposure)")
 

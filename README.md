@@ -47,6 +47,32 @@ print(sm.state)
 ```
 
 
+
+## Shortcuts
+
+| KeyBind  | Command     | Comment |
+| ---      | ---         | --- |
+| `<C-H>`  | open Header | Popup |
+| `<C-I>`  | Image Param | Toogle Frame |
+| `<C-M>`  | More Option | Toogle Frame |
+| `<C-O>`  | Open file   | Popup |
+| `<C-R>`  | Restart     | !! Irreversible !! |
+
+
+| KeyBind  | Command        | Comment |
+| ---      | ---            | --- |
+| `<C-P>B` | Pick Binary    | Mpl binding |
+| `<C-P>N` | Pick None      | Mpl binding |
+| `<C-P>P` | Pick One       | Mpl binding |
+| `<C-P>P` | Pick Profile   | Mpl binding |
+| `<C-P>S` | Pick Stat      | Mpl binding |
+| `<C-P>T` | Pick Tight     | Mpl binding |
+| `<C-T>D` | Tool Debug     | Popup (legacy) |
+| `<C-T>H` | Tool Histogram | Work and display |
+| `<C-T>J` | Tool Jupyter   | Popup (futur) |
+
+
+
 License: Do whatever you want with the code
 
 Julien Girard, Martin Tourneboeuf.

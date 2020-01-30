@@ -112,12 +112,12 @@ def StrehlError():
     dPhot = dBack * np.sqrt(W.strehl["number_count"])
 
     # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
-    get_state().aperture_type = "fit"
+    get_state().phot_type = "fit"
     log(3, "\n\n WARNING: StrehlError changed the aperture type "
             "to fit because not ellipse pick it shouldn't matter ")
 
     # INTENSITY
-    if get_state().aperture_type and get_state().fit_type != "None":
+    if get_state().phot_type and get_state().fit_type != "None":
         dI = W.psf_fit[1]["intensity"]
     else:
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
@@ -160,7 +160,7 @@ def TightBinaryStrehl(star1, star2):
 
 def EllipseEventStrehl():
     W.strehl = {}
-    if get_state().aperture_type == "fit":
+    if get_state().phot_type == "fit":
         return
 
     else:  # including aperture = ellipse you've drawn
