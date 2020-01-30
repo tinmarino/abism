@@ -97,6 +97,13 @@ class Pick(ABC):
         self.work(None)
 
 
+class NoPick(Pick):
+    """Void class to do nothing"""
+    def connect(self): pass
+    def disconnect(self): pass
+    def work(self, obj): pass
+
+
 class PickOne(Pick):
     """Pick One Star
     This button should be green and the zoom button of the image toolbar
@@ -152,119 +159,6 @@ class PickOne(Pick):
         # this star center was det by iterative grav center  the fit image
         # is a W.psf_fit[0][3]
         AR.PlotStar()
-
-
-class NoPick(Pick):
-    """Void class to do nothing"""
-    def connect(self): pass
-    def disconnect(self): pass
-    def work(self, obj): pass
-
-
-class PickEllipse(Pick):
-    """Not used"""
-    def __init__(self):
-        super().__init__()
-        self.artist_ellipse = None
-
-        self.bind_enter_id = None
-
-
-    def connect(self):
-        log(0, "\n\n\n________________________________\n"
-            "|Pick Ellipse| : draw an ellipse around isolated object\n"
-            "ABISM will perform the photometry in this ellipse\n"
-            "Bind: eXpand, ROtate, changeU, changeV (minor a major axes)\n"
-            "      left, down, up, right or h, j, k, l\n"
-            "      Upper case to increase, lower to decrease")
-
-        self.artist_ellipse = artist.Ellipse(
-            self.figure,
-            self.ax,
-            array=get_state().image.im0,
-            callback=lambda: self.work(None)
-        )
-
-        # Bind mouse enter -> focus (for key)
-        tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
-        self.bind_enter_id = tk_fig.bind('<Enter>', lambda _: tk_fig.focus_set())
-
-
-    def disconnect(self):
-        # Undraw
-        if self.artist_ellipse:
-            self.artist_ellipse.Disconnect()
-            self.artist_ellipse.RemoveArtist()
-            self.artist_ellipse = None
-
-        # Unbind
-        if self.bind_enter_id:
-            tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
-            tk_fig.unbind('<Enter>', self.bind_enter_id)
-
-
-    def work(self, _):
-        Strehl.EllipseEventStrehl(self.artist_ellipse)
-        AR.show_answer()
-
-
-class PickProfile(Pick):
-    """Linear Profile, cutted shape of a source
-    Draw a line on the image. Some basic statistics on the pixels cutted by
-    your line will be displayed in the 'star frame'. And a Curve will be
-    displayed on the 'fit frame'. A pixel is included if the distance of its
-    center is 0.5 pixel away from the line. This is made to prevent to many
-    pixels stacking at the same place of the line\n\n." Programmers, an
-    'improvement' can be made including pixels more distant and making a mean
-    of the stacked pixels for each position on the line."
-    """
-    def __init__(self):
-        super().__init__()
-        self.artist_profile = None
-        self.point1 = self.point2 = (0, 0)
-
-    def connect(self):
-        self.artist_profile = artist.Profile(
-            get_root().frame_image.get_figure(),
-            get_root().frame_image.get_figure().axes[0],
-            callback=self.work
-        )
-
-    def disconnect(self):
-        if self.artist_profile:
-            self.artist_profile.Disconnect()
-            self.artist_profile.RemoveArtist()
-            self.artist_profile = None
-
-    def work(self, obj):
-        self.point2 = [obj.point2[0], obj.point2[1]]
-        self.point1 = [obj.point1[0], obj.point1[1]]
-        show_profile(self.point1, self.point2)
-
-
-class PickStat(Pick):
-    """Draw a rectangle"""
-    def __init__(self):
-        super().__init__()
-        self.rectangle_selector = None
-
-    def disconnect(self):
-        if self.rectangle_selector:
-            self.rectangle_selector.set_active(False)
-            self.rectangle_selector = None
-
-    def connect(self):
-        log(0, "\n\n\n________________________________\n"
-            "|Pick Stat| : draw a rectangle around a region and ABISM "
-            "will give you some statistical information "
-            "computed in the region-------------------")
-        self.rectangle_selector = matplotlib.widgets.RectangleSelector(
-            self.ax,
-            self.on_rectangle, drawtype='box',
-            rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
-
-    def work(self, obj):
-        show_statistic(self.rectangle)
 
 
 class PickBinary(Pick):
@@ -359,3 +253,109 @@ class PickTightBinary(PickBinary):
         AR.show_answer()
         AR.PlotStar2()
         AR.PlotStar()
+
+
+class PickStat(Pick):
+    """Draw a rectangle"""
+    def __init__(self):
+        super().__init__()
+        self.rectangle_selector = None
+
+    def disconnect(self):
+        if self.rectangle_selector:
+            self.rectangle_selector.set_active(False)
+            self.rectangle_selector = None
+
+    def connect(self):
+        log(0, "\n\n\n________________________________\n"
+            "|Pick Stat| : draw a rectangle around a region and ABISM "
+            "will give you some statistical information "
+            "computed in the region-------------------")
+        self.rectangle_selector = matplotlib.widgets.RectangleSelector(
+            self.ax,
+            self.on_rectangle, drawtype='box',
+            rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
+
+    def work(self, obj):
+        show_statistic(self.rectangle)
+
+
+class PickProfile(Pick):
+    """Linear Profile, cutted shape of a source
+    Draw a line on the image. Some basic statistics on the pixels cutted by
+    your line will be displayed in the 'star frame'. And a Curve will be
+    displayed on the 'fit frame'. A pixel is included if the distance of its
+    center is 0.5 pixel away from the line. This is made to prevent to many
+    pixels stacking at the same place of the line\n\n." Programmers, an
+    'improvement' can be made including pixels more distant and making a mean
+    of the stacked pixels for each position on the line."
+    """
+    def __init__(self):
+        super().__init__()
+        self.artist_profile = None
+        self.point1 = self.point2 = (0, 0)
+
+    def connect(self):
+        self.artist_profile = artist.Profile(
+            get_root().frame_image.get_figure(),
+            get_root().frame_image.get_figure().axes[0],
+            callback=self.work
+        )
+
+    def disconnect(self):
+        if self.artist_profile:
+            self.artist_profile.Disconnect()
+            self.artist_profile.RemoveArtist()
+            self.artist_profile = None
+
+    def work(self, obj):
+        self.point2 = [obj.point2[0], obj.point2[1]]
+        self.point1 = [obj.point1[0], obj.point1[1]]
+        show_profile(self.point1, self.point2)
+
+
+class PickEllipse(Pick):
+    """Not used"""
+    def __init__(self):
+        super().__init__()
+        self.artist_ellipse = None
+
+        self.bind_enter_id = None
+
+
+    def connect(self):
+        log(0, "\n\n\n________________________________\n"
+            "|Pick Ellipse| : draw an ellipse around isolated object\n"
+            "ABISM will perform the photometry in this ellipse\n"
+            "Bind: eXpand, ROtate, changeU, changeV (minor a major axes)\n"
+            "      left, down, up, right or h, j, k, l\n"
+            "      Upper case to increase, lower to decrease")
+
+        self.artist_ellipse = artist.Ellipse(
+            self.figure,
+            self.ax,
+            array=get_state().image.im0,
+            callback=lambda: self.work(None)
+        )
+
+        # Bind mouse enter -> focus (for key)
+        tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
+        self.bind_enter_id = tk_fig.bind('<Enter>', lambda _: tk_fig.focus_set())
+
+
+    def disconnect(self):
+        # Undraw
+        if self.artist_ellipse:
+            self.artist_ellipse.Disconnect()
+            self.artist_ellipse.RemoveArtist()
+            self.artist_ellipse = None
+
+        # Unbind
+        if self.bind_enter_id:
+            tk_fig = get_root().frame_image.get_canvas().get_tk_widget()
+            tk_fig.unbind('<Enter>', self.bind_enter_id)
+
+
+    def work(self, _):
+        Strehl.EllipseEventStrehl(self.artist_ellipse)
+        AR.show_answer()
