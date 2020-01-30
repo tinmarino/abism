@@ -46,6 +46,13 @@
 * frame_text, optionFrame many function, create subclass like optionElement
 * frame_tex, base class has getten big
 
+
+# Idea
+
+* Theta profile, profile along the major axis, 
+* Contrast Map, image with constrat as intensity
+* Recursive annulus phot
+
 # Always possible
 ################################################################################
 

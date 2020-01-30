@@ -10,7 +10,6 @@ from abism.back.image_info import get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
 from abism.util import log
-import abism.front.util_front as G  # check variables
 
 
 
@@ -631,13 +630,9 @@ def FindNStars(grid, N, binfact=3, separation=30):
     return res
 
 
-# We take the profile in theta direction.
-def ThetaProfile(grid, center, radius, theta):
-    return
-
-    ##################
-    # DIRECT INTERACT WITH EVENT
-    ##################
+##################
+# DIRECT INTERACT WITH EVENT
+##################
 
 
 # photomtery, return bol or dic
@@ -713,108 +708,3 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=T
             res["coord_y"] = Y[bol]
 
     return res
-
-
-def ContrastMap(grid, center, interp=True, xmin=1, xmax=50, step=2, dic={"theta": 0, "ru": 1, "rv": 1}, background=0):
-    """ xmin,xmax in pixels the size to spread the aperture
-    step float in pixels  is the step between two annulus (circular  apertures)
-    center (2 floats)
-    dic I just use theta and rv/ru
-    an elliptical aperture could be implemented
-    return x,y,dic
-    """
-    in_dic = dic
-
-    x = np.arange(xmin, xmax, step)
-    y = []
-    ell_dic = {"center_x": center[0],
-               "center_y": center[1], "theta": in_dic["theta"]}
-    ratio = in_dic["rv"] / in_dic["ru"]
-
-    log(3, "ContrastMap initiated ")
-    for xi in x:
-        ell_dic.update({"ru": xi, "rv": ratio*xi})
-        # photomtery, return bol or dic
-        yi = EllipticalAperture(
-            grid, dic=ell_dic, interp=False, full_answer=True)
-        # if xi < 2 :
-        #   yi = EllipticalAperture(grid,dic=ell_dic,interp=True ,full_answer=True) # photomtery, return bol or dic
-        # else :
-        #   yi = EllipticalAperture(grid,dic=ell_dic,interp=False,full_answer=True) # photomtery, return bol or dic
-        #yi = yi["sum"]/yi["number_count"] - background
-        yi = np.std(grid[yi["bol"]])
-        yi = np.nan_to_num(yi)
-
-        y.append(yi)
-
-    y = np.array(y)  # /W.strehl["intensity"]
-
-    tdic = {"logx": 1,
-            "logy": 1,
-            "title": "Contrast Map",
-            "xlabel": "Distance [Pixel]",
-            "ylabel": "Value [Normalised]",
-            }
-    G.tmp_x = x
-    G.tmp_y = y
-    G.tmp_tdic = tdic
-    log(3, "Contrast Map :", x, y, tdic)
-    return x, y, tdic
-
-
-# we will get the max by a Iterative garvity center and then a cubic interpolation
-def GetMaxEllipse(grid, bol=None, dic={}):
-    return
-
-
-def ContrastForDimitri(grid, step=2, center=(0, 0), limit=30):
-    """the step is the size of the annulus , growing we will take,
-    the limit is the farther pixl we take
-    RETURN abscisse ordonate
-    """
-
-
-def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
-    res = {}
-
-    center_x = obj.x0  # from image to array but coord in array type
-    center_y = obj.y0
-    theta = obj.theta
-
-    if obj.outter_u < obj.inner_u:  # put outter radius after inner
-        tmp = obj.inner_u
-    obj.inner_u = obj.outter_u
-    obj.outter_u = tmp
-
-    # DEIFINE THE Bollean of being inside the elliptical aperture
-    ru = obj.ru
-    rv = obj.ru * obj.rapport
-    bol_e = EllipticalAperture(obj.array, dic={"center_x": center_x, "center_y": center_y, "ru": ru, "rv": rv, "theta": theta})[
-        "bol"]  # ellipse , photomretry
-
-    ru, rv = obj.inner_u, obj.inner_u*obj.rapport
-    bol_i = EllipticalAperture(obj.array, dic={
-                               "center_x": center_x, "center_y": center_y, "ru": ru, "rv": rv, "theta": theta})["bol"]  # inner
-
-    ru, rv = obj.outter_u, obj.outter_u*obj.rapport
-    bol_o = EllipticalAperture(obj.array, dic={
-                               "center_x": center_x, "center_y": center_y, "ru": ru, "rv": rv, "theta": theta})["bol"]  # outter
-
-    bol_a = bol_o ^ (bol_i)  # annulus  inside out but not inside in
-    phot, number_count = np.sum(obj.array[bol_e]), len(obj.array[bol_e])
-    back, number_back = np.sum(obj.array[bol_a]), len(obj.array[bol_a])
-
-    # PHOT and back
-    res["background_dic"] = Stat.Sky(obj.array[bol_a])
-    res["my_background"] = res["background_dic"]["mean"]
-    res["phot"] = np.sum(obj.array[bol_e])
-    # todo , remove bad pixels at least,
-    res["my_photometry"] = res["phot"] - \
-        len(obj.array[bol_e])*res["my_background"]
-
-    log(2, "phot1 :", res["phot"])
-    log(2, "phot2 :", res["my_photometry"])
-    log(2, "back :", res["my_background"], "\n")
-
-
-
