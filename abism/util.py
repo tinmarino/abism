@@ -169,24 +169,26 @@ def set_aa(enum_answer, value, *arg, unit=None, **args):
     return get_state().add_answer(enum_answer, value, *arg, unit=unit, **args)
 
 
-def str_pretty(obj, indent=2, depth=4, rec=0, key=''):
+def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
     """Returns: pretty str of an object
     obj    <- object to print
     indent <- indent per depth
     depth  <- maximum recursion depth
     rec, key <- used in recursion
+    silent <- str name of class OR variable to not recurse
     """
+    # pylint: disable = too-many-arguments, dangerous-default-value
     # Check in: recursion depth
     if rec >= depth: return ''
 
     # Init
     s_indent = ' ' * indent * rec
-    items = {}
     stg = s_indent
 
     if key != '': stg += str(key) + ': '
 
     # Discriminate && Check if final
+    items = {}
     if isinstance(obj, list):
         items = enumerate(obj)
     elif isinstance(obj, dict):
@@ -199,8 +201,11 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key=''):
     # Recurse
     stg += '(' + type(obj).__name__ + ')\n'
     items = dict(sorted(items)).items()
-    for k, v in items:
-        stg += str_pretty(v, indent=indent, rec=rec+1, key=k) + "\n"
+    if str(key) not in silent and type(obj).__name__ not in silent:
+        for k, v in items:
+            stg += str_pretty(v, indent=indent, rec=rec+1, key=k, silent=silent) + "\n"
+    else:
+        stg += ' ' * (indent) * (rec + 1) + "Silenced !\n"
 
     # Return without empty lines
     return re.sub(r'\n\s*\n', '\n', stg)[:-1]
@@ -349,6 +354,10 @@ class AbismState(DotDic):
     def get_answer(self, enum_answer):
         """Get only the value"""
         return self.get_answer_obj(enum_answer).value
+
+    def __repr__(self):
+        l_silent = ['pick', 'tk_pick', 'tk_root']
+        return str_pretty(self, silent=l_silent)
 
 
 @lru_cache(1)

@@ -17,7 +17,9 @@ from re import match
 from threading import Thread
 from queue import Queue
 
-from abism.util import log
+# pylint: disable = unused-wildcard-import, wildcard-import, unused-import
+import abism.util as util
+from abism.util import *
 
 
 def create_console_window():
