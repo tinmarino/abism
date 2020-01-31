@@ -1,22 +1,6 @@
 """
     Helper console to run python code in the loop
-    For devloppers now (maybe one day embed jupyter kernel in main window
-
-    In 2006, Iwrote that:
-
-    This file and function must import everyone I cound need,
-    It is an interactive console, made for debugging purpose, using a tk Frame
-    and the eval (or exec) function, to be able to acces Gui and Work varaibles
-    while the program is executing, without a true debugger.
-
-    Before 2016, I wrote that :
-
-    A text window is opened, write python command and click on run. These
-    commands know the variables presents in MyGui.py and the module it imports
-    (like WorkVariable, W or GuiVariable, G) , the secret is just a: \n exec
-    string in globals() locals(); \n\nTip : To know if a variable is in W or G
-    : \nfor i in vars(W) : \n  if 'pixel_scale' in i : print(i, vars(i) \n
-                                                             ",)
+    For devloppers now (maybe one day embed jupyter kernel in main window)
 """
 import tkinter as tk
 
