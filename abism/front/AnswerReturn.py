@@ -117,15 +117,15 @@ def show_answer():  # CALLER
 
 def plot_result():
     """Discirminate according to pick"""
-    pick = get_state().tk_pick.get()
+    pick = get_state().e_pick_type
 
-    if pick == 'one':
+    if pick == EPick.ONE:
         print_one(); return
 
-    if pick in ('binary', 'tightbinary'):
+    if pick in (EPick.BINARY, EPick.TIGHT):
         print_binary(); return
 
-    if pick == 'ellipse':
+    if pick == EPick.ELLIPSE:
         print_ellipse(); return
 
 
