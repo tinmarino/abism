@@ -173,7 +173,7 @@ class LabelFrame(TextFrame):
         """
         # pylint: disable = too-many-statements, too-many-branches
         # Declare list of label (text, properties)
-        text_and_props = []
+        text_n_props = []
 
         # Get company
         company = 'ESO' if get_root().header.company == "ESO" else 'NOT ESO'
@@ -185,7 +185,7 @@ class LabelFrame(TextFrame):
             instrument = get_root().header.instrument
         telescope = re.sub("-U.", "",
                            get_root().header.telescope.replace("ESO-", ""))
-        text_and_props.append((company + " / " + telescope + " / " + instrument, {}))
+        text_n_props.append((company + " / " + telescope + " / " + instrument, {}))
 
         # Get is_reduced
         if "reduced_type" in vars(get_root().header):
@@ -200,14 +200,14 @@ class LabelFrame(TextFrame):
             lbl += "%i x %i x %i" % (shape[0], shape[1], shape[2])
         else:
             lbl += "%i x %i " % (shape[0], shape[1])
-        text_and_props.append((lbl, {}))
+        text_n_props.append((lbl, {}))
 
         # WCS
         if get_root().header.wcs is not None:
             lbl = "WCS detected"
         else:
             lbl = "WCS NOT detected"
-        text_and_props.append((lbl, {}))
+        text_n_props.append((lbl, {}))
 
         # Header reads Strehl variables ?
         from math import isnan
@@ -217,11 +217,11 @@ class LabelFrame(TextFrame):
         bolt = bolt or isnan(get_root().header.pixel_scale)
         if bolt:
             lbl = "WARNING: some parameters not found"
-            text_and_props.append((lbl, {"fg": "red"}))
+            text_n_props.append((lbl, {"fg": "red"}))
             get_root().frame_option.toogle_image_parameter()
         else:
             lbl = "Parameters read from header"
-            text_and_props.append((lbl, {"fg": "blue"}))
+            text_n_props.append((lbl, {"fg": "blue"}))
 
         # UNDERSAMPLED
         bol1 = get_root().header.wavelength * 1e-6
@@ -235,18 +235,12 @@ class LabelFrame(TextFrame):
         bolt = bol1 or bol2
         if bolt:
             lbl = "!!! SPATIALLY UNDERSAMPLED !!!"
-            text_and_props.append((lbl, {"fg": "red"}))
+            text_n_props.append((lbl, {"fg": "red"}))
 
         # Grid labels
-        row = 0
-        for i in text_and_props:
-            arg = {}
-            if isinstance(i, (list, tuple)):
-                arg.update(i[1])
-            i = i[0]
-            tk.Label(self, text=i, justify=tk.CENTER).grid(
-                row=row, column=0, sticky="nsew")
-            row += 1
+        for text, props in text_n_props:
+            label = tk.Label(self, text=text, justify=tk.CENTER, **props)
+            label.grid(column=0, sticky="nsew")
 
         # Show me
         self.init_will_toogle()
