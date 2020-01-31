@@ -68,9 +68,6 @@ class WindowRoot(tk.Tk):
 
         self.set_image(parse_argument().image)
 
-        # Default PickOne
-        refresh_pick(EPick.ONE)
-
 
     def set_image(self, filepath):
         if not filepath: return

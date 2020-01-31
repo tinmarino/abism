@@ -10,9 +10,9 @@ from functools import lru_cache
 from enum import Enum
 
 import tkinter as tk
-import tkinter.font
+import tkinter.font  # pylint: disable = unused-import
 
-from abism.util import root_path, log, get_root, DotDic, get_state
+from abism.util import root_path, log, get_root, DotDic, get_state, EPick
 
 
 class Font:
@@ -545,11 +545,16 @@ def open_file():
 
     get_root().frame_image.draw_image()
 
-    # Connect first pick
+    # Reconnect
     if get_state().pick is not None:
         log(9, 'Reconnecting pick:', get_state().pick)
         get_state().pick.disconnect()
         get_state().pick.connect()
+    # Or connect one
+    else:
+        from abism.front.menu_bar import refresh_pick
+        refresh_pick(EPick.ONE)
+
 
     # Change title
     fname = get_state().image.name.split('/')[-1]
