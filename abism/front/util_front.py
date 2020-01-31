@@ -12,7 +12,7 @@ import tkinter as tk
 
 from abism.util import root_path, log, get_root, get_state
 
-from abism.front.tk_extension import scheme
+import abism.front.tk_extension as tk_ext
 
 
 # Skin
@@ -30,16 +30,15 @@ def update_widget_skin(widget):
         log(9, 'And is instance of PlotFrame ------------')
     else:
         widget.configure(
-            bg=scheme.bg,
-            fg=scheme.fg
+            bg=tk_ext.scheme.bg,
+            fg=tk_ext.scheme.fg
         )
 
 
 def change_root_scheme(in_scheme):
     # pylint: disable = global-statement
-    global scheme
     root = get_root()
-    scheme = in_scheme
+    tk_ext.scheme = tk_ext.ColorScheme(in_scheme)
     for widget in (root, *root.saved_children):
         children_do(widget, update_widget_skin)
 
@@ -55,8 +54,8 @@ def children_do(widget, callback):
 
 def set_figure_skin(figure):
     """Update skin, caller must redraw"""
-    fg = scheme.fg
-    bg = scheme.bg
+    fg = tk_ext.scheme.fg
+    bg = tk_ext.scheme.bg
 
     # Figure
     figure.set_facecolor(bg)

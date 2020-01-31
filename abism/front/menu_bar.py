@@ -13,7 +13,7 @@ from abism.plugin.histogram import histopopo
 
 from abism.front.util_front import system_open, about_window, \
     open_file, change_root_scheme, show_header
-from abism.front.tk_extension import Scheme
+import abism.front.tk_extension as tk_ext
 
 from abism.util import (
     log, get_root, get_state, quit_process, get_colormap_list,
@@ -100,11 +100,11 @@ class AbismMenu(ButtonMenu):
 
         menu.add_radiobutton(
             label='Dark Solarized',
-            command=lambda: change_root_scheme(Scheme.DARK_SOLARIZED))
+            command=lambda: change_root_scheme(tk_ext.Scheme.DARK_SOLARIZED))
 
         menu.add_radiobutton(
             label='Light Solarized',
-            command=lambda: change_root_scheme(Scheme.LIGHT_SOLARIZED))
+            command=lambda: change_root_scheme(tk_ext.Scheme.LIGHT_SOLARIZED))
 
         return menu
 

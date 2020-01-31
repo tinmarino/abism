@@ -12,7 +12,7 @@ import tkinter as tk
 
 from abism.front.util_front import photo_up, photo_down, \
     open_backgroud_and_substract
-from abism.front.tk_extension import scheme, TitleLabel
+import abism.front.tk_extension as tk_ext
 
 from abism.util import log, get_root, quit_process, restart, get_state
 
@@ -77,7 +77,7 @@ class TextFrame(tk.Frame):
 
         # Place a label for the eye
         if add_title:
-            TitleLabel(self, text=self._label_text).place(x=0, y=0)
+            tk_ext.TitleLabel(self, text=self._label_text).place(x=0, y=0)
 
         # Place last widget
         self.update_last_widget()
@@ -320,7 +320,7 @@ class OptionFrame(TextFrame):
         self.frame_image_parameter.grid(sticky='nsew')
 
         # Pack title
-        tl = TitleLabel(self.frame_image_parameter, text='Parameters')
+        tl = tk_ext.TitleLabel(self.frame_image_parameter, text='Parameters')
         tl.pack(side=tk.TOP, anchor="w")
 
         # Pack grid frame
@@ -388,7 +388,7 @@ class OptionFrame(TextFrame):
         self.frame_manual_cut.grid(sticky='nsew')
 
         # Pack title
-        lt = TitleLabel(self.frame_manual_cut, text="Cut image scale")
+        lt = tk_ext.TitleLabel(self.frame_manual_cut, text="Cut image scale")
         lt.pack(side=tk.TOP, anchor="w")
 
         # Pack rest
@@ -513,7 +513,7 @@ class OptionFrame(TextFrame):
         self.frame_more_analysis.grid(sticky='nsew')
 
         # Pack title
-        label_more = TitleLabel(self.frame_more_analysis, text="More Options")
+        label_more = tk_ext.TitleLabel(self.frame_more_analysis, text="More Options")
         label_more.pack(side=tk.TOP, anchor="w")
 
         # Pack rest
@@ -711,7 +711,7 @@ class AnswerFrame(TextFrame):
 
         # Configure Text
         text.bind("<Configure>", self.on_resize_text)
-        text.tag_configure('tag-important', foreground=scheme.important)
+        text.tag_configure('tag-important', foreground=tk_ext.scheme.important)
         text.tag_configure('tag-center', justify=tk.CENTER)
 
         # Grid text
@@ -732,13 +732,13 @@ class ButtonFrame(tk.Frame):
         opts = {}
 
         # Create Quit
-        opts.update({'background': scheme.quit})
+        opts.update({'background': tk_ext.scheme.quit})
         bu_quit = tk.Button(
             self, text='QUIT',
             command=quit_process, **opts)
 
         # Create Restart
-        opts.update({'background': scheme.restart})
+        opts.update({'background': tk_ext.scheme.restart})
         bu_restart = tk.Button(
             self, text='RESTART',
             command=restart, **opts)
@@ -747,7 +747,7 @@ class ButtonFrame(tk.Frame):
             "<C-R>: Restart Absim with the same command line")
 
         # Create Expand Image Parameter
-        opts.update({'background': scheme.parameter1})
+        opts.update({'background': tk_ext.scheme.parameter1})
         self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toogle_image_parameter, **opts)
@@ -766,11 +766,11 @@ class ButtonFrame(tk.Frame):
         self.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
     def config_button_image_less(self):
-        self.bu_manual['background'] = scheme.parameter2
+        self.bu_manual['background'] = tk_ext.scheme.parameter2
         self.bu_manual['text'] = u'\u25b4 ImageParameters'
 
     def config_button_image_more(self):
-        self.bu_manual['background'] = scheme.parameter1
+        self.bu_manual['background'] = tk_ext.scheme.parameter1
         self.bu_manual['text'] = u'\u25be ImageParameters'
 
 
@@ -797,7 +797,7 @@ class ButtonFrame(tk.Frame):
         # Conf && ad title
         for i in range(3):
             self.frame_cube.columnconfigure(i, weight=1)
-        lt = TitleLabel(self.frame_cube, text="Cube Number")
+        lt = tk_ext.TitleLabel(self.frame_cube, text="Cube Number")
         lt.grid(row=0, column=0, columnspan=3, sticky="w")
 
         # Define tk variable

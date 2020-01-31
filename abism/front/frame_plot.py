@@ -14,6 +14,7 @@ from abism.front.matplotlib_extension import DraggableColorbar, MyNormalize, zoo
 from abism.front.util_front import photo_up, photo_down, \
     set_figure_skin
 from abism.front.tk_extension import scheme, TitleLabel
+import abism.front.tk_extension as tk_ext
 import abism.front.util_front as G
 
 # TODO this should not be here
@@ -81,10 +82,10 @@ class PlotFrame(tk.Frame):
         Toolbar requires canvas
         """
         # Figure
-        fig.set_facecolor(scheme.bg)
+        fig.set_facecolor(tk_ext.scheme.bg)
 
         self._canvas = FigureCanvas(fig, master=self)
-        self._canvas.get_tk_widget()['bg'] = scheme.bg
+        self._canvas.get_tk_widget()['bg'] = tk_ext.scheme.bg
         # No borders: used to locate focus
         self._canvas.get_tk_widget()["highlightthickness"] = 0
         self._canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
@@ -93,14 +94,14 @@ class PlotFrame(tk.Frame):
         self._toolbar_frame = tk.Frame(self)
         self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
         self._toolbar = NavigationToolbar2Tk(self._canvas, self._toolbar_frame)
-        self._toolbar["bg"] = scheme.bg
+        self._toolbar["bg"] = tk_ext.scheme.bg
         for i in self._toolbar.winfo_children():
-            i["bg"] = scheme.bg
+            i["bg"] = tk_ext.scheme.bg
         self._toolbar.grid(row=0, column=0, sticky="nsew")
 
     def init_label(self, s_label):
         """Create label bottom left"""
-        TitleLabel(self, text=s_label).place(x=0, y=0)
+        tk_ext.TitleLabel(self, text=s_label).place(x=0, y=0)
 
     def init_toolbar_button(self):
         """Create toolbar button"""
@@ -149,7 +150,7 @@ class PlotFrame(tk.Frame):
     def update_skin(self):
         """Update skin, appearance"""
         # Update parameters
-        set_figure_skin(self._fig, skin())
+        set_figure_skin(self._fig)
         self.redraw()
 
     def reset_figure_ax(

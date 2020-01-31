@@ -163,6 +163,7 @@ tk.Menubutton = from_dic(tk.Menubutton, lambda: {
 })
 
 tk.Checkbutton = from_dic(tk.Checkbutton, lambda: {
+    **get_button_dic(),
     'bg': scheme.bg, 'anchor': 'w', 'selectcolor': scheme.bg_extreme
 })
 
