@@ -118,7 +118,7 @@ def launch_kernel():
     thread.start()
 
 
-def jupyter_window():
+def create_jupyter_console():
     launch_kernel()
     create_console_window()
 

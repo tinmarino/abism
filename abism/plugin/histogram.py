@@ -5,10 +5,9 @@ this could even be in real time.
 """
 
 from abism.util import get_state
-from abism.front.util_front import set_figure_skin
 
 
-def histopopo(figure, image_sorted, skin=None):
+def histopopo(figure, image_sorted):
     """Single (useless) method for a single (useless) functionality
     figure: matplotlib figure
     image_sorted: 1D sorted array of pixel value
@@ -30,10 +29,6 @@ def histopopo(figure, image_sorted, skin=None):
 
     # Caclulate histogram
     ax.hist(image_sorted, 100, log=True)  # n, bin, patches
-
-    # Set skin
-    if skin:
-        set_figure_skin(figure, skin)
 
     # Fraw
     figure.canvas.draw()

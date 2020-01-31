@@ -8,7 +8,7 @@ import tkinter as tk
 import abism.util as util
 from abism.util import *
 
-def debug_console():
+def create_debug_console():
     # Create root
     root = tk.Tk()
     root.title('Python console in tk')

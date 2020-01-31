@@ -13,15 +13,6 @@ from abism.util import root_path, log, get_root, get_state
 import abism.front.tk_extension as tk_ext  # pylint: disable = unused-import
 
 
-def children_do(widget, callback):
-    """Recurse and call callback for all tk descendant
-    callback: function(widget)
-    """
-    for item in widget.winfo_children():
-        callback(item)
-        children_do(item, callback)
-
-
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""

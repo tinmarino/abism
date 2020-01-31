@@ -7,12 +7,12 @@ import tkinter as tk
 from abc import abstractmethod
 
 # For tool
-from abism.plugin.debug_console import debug_console
-from abism.plugin.xterm_console import jupyter_window
+from abism.plugin.window_debug import create_debug_console
+from abism.plugin.window_xterm import create_jupyter_console
 from abism.plugin.histogram import histopopo
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, change_root_scheme, show_header
+    open_file, show_header
 import abism.front.tk_extension as tk_ext
 
 from abism.util import (
@@ -100,11 +100,11 @@ class AbismMenu(ButtonMenu):
 
         menu.add_radiobutton(
             label='Dark Solarized',
-            command=lambda: change_root_scheme(tk_ext.Scheme.DARK_SOLARIZED))
+            command=lambda: tk_ext.change_root_scheme(tk_ext.Scheme.DARK_SOLARIZED))
 
         menu.add_radiobutton(
             label='Light Solarized',
-            command=lambda: change_root_scheme(tk_ext.Scheme.LIGHT_SOLARIZED))
+            command=lambda: tk_ext.change_root_scheme(tk_ext.Scheme.LIGHT_SOLARIZED))
 
         return menu
 
@@ -390,14 +390,14 @@ class ToolMenu(ButtonMenu):
             "<C-T>H: Display image intensity histogram")
 
         # Legacy console (tk)
-        cmd = debug_console
+        cmd = create_debug_console
         self.menu.add_radiobutton(label='Legacy Console', command=cmd)
         get_root().bind_all("<Control-t>d", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-T>D: Open debug console window")
 
         # Jupyter
-        cmd = jupyter_window
+        cmd = create_jupyter_console
         self.menu.add_radiobutton(label='Jupyter Console', command=cmd)
         get_root().bind_all("<Control-t>j", lambda _: cmd())
         self.menu.add_entry_info(
