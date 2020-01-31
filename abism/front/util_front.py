@@ -207,7 +207,6 @@ class Skin:
         self.font = Font()
         self.color = ColorScheme()
 
-        self.button_dic = ButtonDic(self.color)
         self.paned_dic = PanedDic(self.color)
         self.frame_dic = FrameDic(self.color)
         self.label_title_dic = LabelTitleDic(self.color)
@@ -226,22 +225,22 @@ def update_widget_skin(widget):
     if callable(custom_call):
         custom_call()
         log(9, 'And is instance of PlotFrame ------------')
-    elif isinstance(widget, tk.Button):
-        # Do not change favourites buttons ...
-        if widget['bg'] in (
-                skin().color.quit,
-                skin().color.restart,
-                skin().color.parameter1,
-                skin().color.parameter2,
-                ):
-            return
-        widget.configure(skin().button_dic)
+    # elif isinstance(widget, tk.Button):
+    #     # Do not change favourites buttons ...
+    #     if widget['bg'] in (
+    #             skin().color.quit,
+    #             skin().color.restart,
+    #             skin().color.parameter1,
+    #             skin().color.parameter2,
+    #             ):
+    #         return
+    #     widget.configure(skin().button_dic)
     elif isinstance(widget, tk.Checkbutton):
         widget.configure(skin().checkbutton_dic)
     elif isinstance(widget, tk.PanedWindow):
         widget.configure(skin().paned_dic)
-    elif isinstance(widget, tk.Frame):
-        widget.configure(skin().frame_dic)
+    # elif isinstance(widget, tk.Frame):
+    #     widget.configure(skin().frame_dic)
     elif isinstance(widget, TitleLabel):
         widget.configure(skin().label_title_dic)
     # Scrollbar and Canvas have no fg

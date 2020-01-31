@@ -12,6 +12,8 @@ from enum import Enum
 
 import tkinter as tk
 
+from abism.util import log
+
 
 class Scheme(Enum):
     """The colorscheme available"""
@@ -83,38 +85,30 @@ class ColorScheme:
 scheme = ColorScheme(Scheme.LIGHT_SOLARIZED)
 
 
+def from_dic(victim, dic_getter):
+    """Factory: class from a dic for tk class proxy
+    Usurpating a victim (proxified) class calling it in my init
+    victim: class proxified
+    dic_getter: funtion to get a dic, if a dic itself: not updatable
+    """
+    name = 'Abism_' + victim.__name__
+    bases = (victim,)
 
-
-class Button(tk.Button):
-    """Button arguments"""
-    def __init__(self, *args, **kw):
-        dic = get_button_dic()
+    def init_proxy(obj, *args, **kw):
+        dic = dic_getter()
         dic.update(kw)
-        super().__init__(*args, **dic)
-tk.Button = Button
+        victim.__init__(obj, *args, **dic)
 
+    def update_skin(obj):
+        log(5, "Updating skin", victim, 'with', dic_getter())
+        obj.configure(**dic_getter())
 
-class Menubutton(tk.Menubutton):
-    """MenuButton arguments"""
-    def __init__(self, *args, **kw):
-        dic = dict(
-            # Cutom
-            highlightcolor=scheme.bu_hi,
-            bg=scheme.bu,
-            fg=scheme.fg,
+    fct_dic = {
+        '__init__': init_proxy,
+        'update_skin': update_skin
+    }
+    return type(name, bases, fct_dic)
 
-            # Always
-            bd=3,
-            padx=0,
-            pady=0,
-            highlightthickness=0,
-        )
-        dic.update(kw)
-        super().__init__(*args, **dic)
-tk.Menubutton = Menubutton
-
-
-# Helpers
 
 def get_button_dic():
     return dict(
@@ -128,4 +122,32 @@ def get_button_dic():
         padx=0,
         pady=0,
         highlightthickness=0,
-        )
+    )
+
+
+class Button(tk.Button):
+    """Button arguments"""
+    def __init__(self, *args, **kw):
+        dic = get_button_dic()
+        dic.update(kw)
+        super().__init__(*args, **dic)
+
+    def update_skin(self):
+        # Do not change favourites buttons ...
+        if self['bg'] in (
+                scheme.quit,
+                scheme.restart,
+                scheme.parameter1,
+                scheme.parameter2,
+                ):
+            return
+        self.configure(get_button_dic())
+
+
+
+tk.Button = Button
+
+tk.Menubutton = from_dic(tk.Menubutton, get_button_dic)
+
+tk.Frame = from_dic(tk.Frame, lambda: {'bg': scheme.bg})
+# Helpers
