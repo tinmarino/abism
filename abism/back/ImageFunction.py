@@ -136,7 +136,7 @@ def GravityCenter(grid, center=None, rad=None, r=None, bol=None):
         x = np.arange(-my_r, my_r+1)
         y = np.arange(-my_r, my_r+1)
     else:
-        tmp = Order4(r)
+        tmp = Order4(r, grid)
         rx1, rx2, ry1, ry2 = int(tmp[0]),  int(
             tmp[1]), int(tmp[2]), int(tmp[3])
         x = np.arange(rx1, rx2+1)
@@ -200,7 +200,8 @@ def DecreasingGravityCenter(grid, r=None, binfact=2, radiusmin=4):
     elif r[1]-r[0] <= radiusmin:  # now we can leave the function
         return gravity_center
 
-    return DecreasingGravityCenter(grid, r=(rx1, rx2, ry1, ry2))
+    r = Order4((rx1, rx2, ry1, ry2), grid)
+    return DecreasingGravityCenter(grid, r=r)
 
 
 # Find one of the half Maximum without precision  in direction (x,-x,y,-y)
