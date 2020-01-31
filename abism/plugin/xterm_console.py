@@ -18,6 +18,7 @@ def create_console_window():
     # Init
     root = tk.Tk()
     queue = Queue()
+    root.title('Python console in xterm')
 
     # Pack main frame
     termf = tk.Frame(root, width=800, height=800)
@@ -104,7 +105,7 @@ def launch_kernel():
     # Import
     try:
         from background_zmq_ipython import init_ipython_kernel
-    except ImportError(e):
+    except ImportError as e:
         log(0, "Error: cannot import background_zmq_ipython,\n"
             "install: background_zmq_ipython and xterm\n"
             "and try again", e)

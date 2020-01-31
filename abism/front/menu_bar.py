@@ -388,15 +388,17 @@ class ToolMenu(ButtonMenu):
         self.menu.add_entry_info(
             "<C-T>H: Display image intensity histogram")
 
-        # Legacy tk
-        self.menu.add_radiobutton(label='Legacy Console', command=debug_console)
-        get_root().bind_all("<Control-t>d", lambda _: debug_console())
+        # Legacy console (tk)
+        cmd = debug_console
+        self.menu.add_radiobutton(label='Legacy Console', command=cmd)
+        get_root().bind_all("<Control-t>d", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-T>D: Open debug console window")
 
         # Jupyter
-        self.menu.add_radiobutton(label='Jupyter Console', command=jupyter_window)
-        get_root().bind_all("<Control-t>j", lambda _: jupyter_window())
+        cmd = jupyter_window
+        self.menu.add_radiobutton(label='Jupyter Console', command=cmd)
+        get_root().bind_all("<Control-t>j", lambda _: cmd())
         self.menu.add_entry_info(
             "<C-T>J: Open jupyter console window\n"
             "Requires: xterm, jupyter")

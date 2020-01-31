@@ -22,7 +22,7 @@ from abism.util import log, parse_argument, get_state
 
 
 
-class WindowRoot(tk.Tk):
+class WindowRoot(tk.old_Tk):
     """Main window app object
     May one day destroy util_front ...
     Call me like Tk:
@@ -35,7 +35,6 @@ class WindowRoot(tk.Tk):
         self.geometry(parse_argument().gui_geometry)
 
         # Variables for my children
-        # TODO then I don't rop completion
         get_state().tk_root = self
 
         # Save spawned children

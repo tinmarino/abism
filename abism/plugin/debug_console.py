@@ -27,7 +27,7 @@ from abism.front.util_front import skin
 def debug_console():
     # Create root
     root = tk.Tk()
-    root.title('Python console')
+    root.title('Python console in tk')
 
     # Pack text
     frame = tk.Frame(root)
@@ -84,3 +84,5 @@ def debug_console():
 
     # Go
     root.mainloop()
+
+    return root

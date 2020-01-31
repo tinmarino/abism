@@ -12,7 +12,11 @@ from enum import Enum
 import tkinter as tk
 import tkinter.font  # pylint: disable = unused-import
 
-from abism.util import root_path, log, get_root, DotDic, get_state, EPick
+from abism.util import root_path, log, get_root, DotDic, get_state
+
+
+# Skin
+####################################################################
 
 
 class Font:
@@ -314,8 +318,23 @@ def set_figure_skin(figure, in_skin):
         ax.title.set_color(fg)
 
 
-# Utilities
+# Tkinter extension
 ####################################################################
+
+
+# Replace Tk to keep a refrence to change color (very important)
+tk.old_Tk = tk.Tk
+def tk_Tk():
+    root = tk.old_Tk()
+    def on_close():
+        print('Trying to remove', root)
+        get_root().saved_children.remove(root)
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_close)
+    get_root().saved_children.append(root)
+    return root
+tk.Tk = tk_Tk
 
 
 class HoverInfo:
@@ -436,6 +455,10 @@ tk.Menu.add_entry_info = add_entry_info
 tk.Menu.on_menu_hover = on_menu_hover
 
 
+# Utilities
+####################################################################
+
+
 @lru_cache(1)
 def photo_up():
     """Return path of arrow_up icon"""
@@ -461,7 +484,6 @@ def about_window():
     from abism import __version__
     # Init
     root = tk.Tk()
-    get_root().saved_children.append(root)
 
     # Conf
     root.title("About Abism")
@@ -550,8 +572,7 @@ def show_header():
     from abism.plugin.window_header import spawn_header_window
     spawn_header_window(
         get_state().image.name,
-        get_root().header.header.tostring(sep="\n"),
-        save=get_root().saved_children)
+        get_root().header.header.tostring(sep="\n"))
 
 
 def open_backgroud_and_substract():
