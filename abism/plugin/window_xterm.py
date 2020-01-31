@@ -1,9 +1,15 @@
 """
--l  log
--lc unicode
--lf +file descriptor: to log to file
--sb scrollback ability on
--c  +command: send command (just spawn, no exec like -e)
+    Create:
+        1. Jupyter kernel <- in current state
+        2. Xterm console <- in new tk window
+        3. Jupyter clien <- in xterm
+
+    Xterm arguments:
+        -l  log
+        -lc unicode
+        -lf +file descriptor: to log to file
+        -sb scrollback ability on
+        -c  +command: send command (just spawn, no exec like -e)
 """
 import tkinter as tk
 import subprocess as sp
@@ -38,12 +44,12 @@ def create_console_window():
         """-e /bin/bash -c "ps -o tt=;bash" """
         r'| tee'
     )
-    log(2,'Launching:', cmd)
+    log(3, 'Launching:', cmd)
 
     # Spawn Xterm
     process = sp.Popen(
         cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    log(2,'Xterm pid:', process.pid)
+    log(3, 'Xterm pid:', process.pid)
 
     # Get pts
     thread = Thread(target=lambda: get_xterm_pts(termf, process, queue))
@@ -60,13 +66,13 @@ def on_resize(event, queue):
     """On resize: send escape sequence to pts"""
     # Magic && Check
     magic_x, magic_y = 6.1, 13
-    log(2,'Resize (w, h):', event.width, event.height)
+    log(3, 'Resize (w, h):', event.width, event.height)
     if not queue.queue: return
 
     # Calculate
     width = int(event.width / magic_x)
     height = int(event.height / magic_y)
-    log(2,'To (lin,col):', height, width)
+    log(3, 'To (lin,col):', height, width)
     ctl = f"\u001b[8;{height};{width}t"
 
     # Send to pts
@@ -78,12 +84,12 @@ def get_xterm_pts(parent, process, queue):
     """Retrieve pts(`process`) -> `queue`"""
     while True:
         out = process.stdout.readline().decode()
-        log(2,'Xterm out' + out)
+        log(3, 'Xterm out' + out)
 
         match_pts = match(r'pts/\d+', out)
         if match_pts:
             pts = '/dev/' + match_pts.group(0)
-            log(2,'-----------> pts:', pts)
+            log(3, '-----------> pts:', pts)
             queue.put(pts)
             break
 
