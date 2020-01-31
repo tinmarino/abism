@@ -10,8 +10,9 @@ import re
 
 import tkinter as tk
 
-from abism.front.util_front import photo_up, photo_down, skin, \
-    TitleLabel, open_backgroud_and_substract
+from abism.front.util_front import photo_up, photo_down, \
+    open_backgroud_and_substract
+from abism.front.tk_extension import scheme, TitleLabel
 
 from abism.util import log, get_root, quit_process, restart, get_state
 
@@ -24,7 +25,7 @@ class LeftFrame(tk.Frame):
         super().__init__(parent)
 
         # Create Paned && Save
-        text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
+        text_paned = tk.PanedWindow(self, orient=tk.VERTICAL)
         root.paned_text = text_paned
 
         # Add LabelFrame
@@ -239,12 +240,11 @@ class LabelFrame(TextFrame):
         # Grid labels
         row = 0
         for i in text_and_props:
-            arg = skin().fg_and_bg.copy()
-            arg.update({"justify": tk.CENTER})
+            arg = {}
             if isinstance(i, (list, tuple)):
                 arg.update(i[1])
             i = i[0]
-            tk.Label(self, text=i, **arg).grid(
+            tk.Label(self, text=i, justify=tk.CENTER).grid(
                 row=row, column=0, sticky="nsew")
             row += 1
 
@@ -348,14 +348,13 @@ class OptionFrame(TextFrame):
 
             # Grid label
             label = tk.Label(
-                frame_manual_grid, text=text, font=skin().font.answer,
-                justify=tk.LEFT, anchor="nw", **skin().fg_and_bg)
+                frame_manual_grid, text=text,
+                justify=tk.LEFT, anchor="nw")
             label.grid(row=row, column=0, sticky="NSEW")
 
             # Create entry <- string_var
             entry = tk.Entry(
-                frame_manual_grid, width=10, font=skin().font.answer,
-                bd=0, **skin().fg_and_bg,
+                frame_manual_grid, width=10,
                 textvariable=string_var)
             # Color entry
             if vars(get_root().header)[key] == value:
@@ -391,7 +390,7 @@ class OptionFrame(TextFrame):
 
     def open_manual_cut(self):
         # Grid main
-        self.frame_manual_cut = tk.Frame(self, bg=skin().color.bg)
+        self.frame_manual_cut = tk.Frame(self)
         self.frame_manual_cut.grid(sticky='nsew')
 
         # Pack title
@@ -399,7 +398,7 @@ class OptionFrame(TextFrame):
         lt.pack(side=tk.TOP, anchor="w")
 
         # Pack rest
-        parent = tk.Frame(self.frame_manual_cut, bg=skin().color.bg)
+        parent = tk.Frame(self.frame_manual_cut)
         parent.pack(side=tk.TOP, expand=0, fill=tk.X)
         parent.columnconfigure(0, weight=1)
         parent.columnconfigure(1, weight=1)
@@ -418,18 +417,14 @@ class OptionFrame(TextFrame):
                ["Min cut", get_state().i_image_min_cut]]
         for text, value in lst:
             # Label
-            l = tk.Label(
-                parent, text=text,
-                font=skin().font.answer, **skin().fg_and_bg)
+            l = tk.Label(parent, text=text)
             l.grid(column=0, sticky="snew")
 
             # Entry
             string_var = tk.StringVar()
             string_var.set("%.1f" % value)
             string_vars.append(string_var)
-            e = tk.Entry(
-                parent, width=10, bd=0, **skin().fg_and_bg, font=skin().font.answer,
-                textvariable=string_var)
+            e = tk.Entry(parent, width=10, textvariable=string_var)
             e.grid(column=1, sticky="nsew")
             e.bind('<Return>', set_cuts)
 
@@ -649,8 +644,7 @@ class OptionFrame(TextFrame):
         get_state().noise_type = "manual"
 
         # Grid root
-        self.frame_manual_background = tk.Frame(
-            get_root().frame_option, bg=skin().color.bg)
+        self.frame_manual_background = tk.Frame(self)
         self.frame_manual_background.grid(sticky='nsew')
         self.frame_manual_background.columnconfigure(0, weight=1)
         self.frame_manual_background.columnconfigure(1, weight=1)
@@ -662,17 +656,14 @@ class OptionFrame(TextFrame):
 
         # Grid label
         label = tk.Label(
-            self.frame_manual_background,
-            font=skin().font.param, **skin().fg_and_bg,
-            text="Background value:")
+            self.frame_manual_background, text="Background value:")
         label.grid(row=0, column=0, sticky="snew")
 
         # Grid entry
         string_var = tk.StringVar()
         string_var.set(get_state().i_background)
         entry = tk.Entry(
-            self.frame_manual_background,
-            font=skin().font.param, width=10, bd=0, **skin().fg_and_bg,
+            self.frame_manual_background, width=10,
             textvariable=string_var)
         entry.grid(row=0, column=1, sticky="nsew")
         entry.bind('<Return>', lambda event: on_enter(string_var))
@@ -703,8 +694,7 @@ class AnswerFrame(TextFrame):
     def init_after(self, add_title=False):
         """Add fit type label"""
         self._fit_type_label = tk.Label(
-            self, justify=tk.CENTER, **skin().fg_and_bg,
-            text=get_state().fit_type)
+            self, justify=tk.CENTER, text=get_state().fit_type)
         self._fit_type_label.grid(sticky='nsew')
         # Add also standard above
         super().init_after(add_title=add_title)
@@ -723,11 +713,11 @@ class AnswerFrame(TextFrame):
         Retunrs tk text to be filled
         """
         # Create text
-        text = tk.Text(self, **skin().text_dic)
+        text = tk.Text(self)
 
         # Configure Text
         text.bind("<Configure>", self.on_resize_text)
-        text.tag_configure('tag-important', foreground=skin().color.important)
+        text.tag_configure('tag-important', foreground=scheme.important)
         text.tag_configure('tag-center', justify=tk.CENTER)
 
         # Grid text
@@ -748,13 +738,13 @@ class ButtonFrame(tk.Frame):
         opts = {}
 
         # Create Quit
-        opts.update({'background':skin().color.quit})
+        opts.update({'background': scheme.quit})
         bu_quit = tk.Button(
             self, text='QUIT',
             command=quit_process, **opts)
 
         # Create Restart
-        opts.update({'background':skin().color.restart})
+        opts.update({'background': scheme.restart})
         bu_restart = tk.Button(
             self, text='RESTART',
             command=restart, **opts)
@@ -763,7 +753,7 @@ class ButtonFrame(tk.Frame):
             "<C-R>: Restart Absim with the same command line")
 
         # Create Expand Image Parameter
-        opts.update({'background':skin().color.parameter1})
+        opts.update({'background': scheme.parameter1})
         self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toogle_image_parameter, **opts)
@@ -782,11 +772,11 @@ class ButtonFrame(tk.Frame):
         self.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
     def config_button_image_less(self):
-        self.bu_manual['background'] = skin().color.parameter2
+        self.bu_manual['background'] = scheme.parameter2
         self.bu_manual['text'] = u'\u25b4 ImageParameters'
 
     def config_button_image_more(self):
-        self.bu_manual['background'] = skin().color.parameter1
+        self.bu_manual['background'] = scheme.parameter1
         self.bu_manual['text'] = u'\u25be ImageParameters'
 
 
@@ -821,7 +811,7 @@ class ButtonFrame(tk.Frame):
         int_var.set(get_state().image.cube_num + 1)
 
         # callback
-        def callback(i_click):
+        def scroll_cube(i_click):
             """Callback for cube button + -"""
             if i_click == 0:
                 get_state().image.cube_num = int_var.get()
@@ -835,18 +825,17 @@ class ButtonFrame(tk.Frame):
         # Button left
         bu_left = tk.Button(
             self.frame_cube, text='<-',
-            command=lambda: callback(-1))
+            command=lambda: scroll_cube(-1))
         bu_left.grid(row=1, column=0, sticky="nsew")
 
         # Entry
         entry = tk.Entry(
-            self.frame_cube, width=10, justify=tk.CENTER,
-            textvariable=int_var, bd=0, **skin().fg_and_bg)
-        entry.bind("<Return>", lambda x: callback(0))
+            self.frame_cube, width=10, justify=tk.CENTER, textvariable=int_var)
+        entry.bind("<Return>", lambda x: scroll_cube(0))
         entry.grid(row=1, column=1, sticky="nsew")
 
         # Button right
         bu_right = tk.Button(
             self.frame_cube, text='->',
-            command=lambda: callback(1))
+            command=lambda: scroll_cube(1))
         bu_right.grid(row=1, column=2, sticky="nsew")

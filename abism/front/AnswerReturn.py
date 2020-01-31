@@ -9,7 +9,6 @@ import numpy as np
 import matplotlib
 
 # Front
-from abism.front.util_front import skin
 import abism.front.util_front as G
 
 # Back
@@ -151,9 +150,7 @@ def grid_button_change_coord():
         command=callback)
 
     label = tk.Label(
-        get_root().frame_answer,
-        justify=tk.LEFT, anchor="nw", **skin().fg_and_bg,
-        text=s_label)
+        get_root().frame_answer, text=s_label, justify=tk.LEFT, anchor="nw")
 
     # Grid Buttons
     button.grid(column=1, sticky="wnse")
@@ -326,7 +323,6 @@ def PlotOneStar1D():
     ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
 
     # Update skin && Draw
-    get_root().frame_fit.update_skin()
     get_root().frame_fit.get_canvas().draw()
 
 
@@ -435,7 +431,6 @@ def PlotOneStar2D():
     figure.clf()
     ax1 = figure.add_subplot(121)
     ax2 = figure.add_subplot(122)
-    get_root().frame_result.update_skin()
 
     # Plot first image (data)
     plot_data(ax1)

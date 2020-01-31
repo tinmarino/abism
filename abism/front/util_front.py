@@ -7,165 +7,17 @@ import os
 
 # Standard
 from functools import lru_cache
-from enum import Enum
 
 import tkinter as tk
-import tkinter.font  # pylint: disable = unused-import
 
-from abism.util import root_path, log, get_root, DotDic, get_state
+from abism.util import root_path, log, get_root, get_state
 
-from abism.front import tk_extension
+from abism.front.tk_extension import scheme
 
 
 # Skin
 ####################################################################
 
-
-class Font:
-    """Font for skin"""
-    def __init__(self):
-        self.small = tk.font.Font(size=6)
-        self.answer = tk.font.Font(size=12)   # all answer in AnswerFrame
-        self.strehl = tk.font.Font(size=12)  # just strehl answer
-        self.warning = tk.font.Font(size=12)  # just strehl answer
-        self.param = tk.font.Font(size=11)  # Image parameters
-        self.big = tk.font.Font(size=16)
-
-
-class PanedDic(DotDic):
-    """The sas is the little between windows "glissiere", to resize"""
-    def __init__(self, color):
-        super().__init__()
-        self.bg = color.sash
-
-        self.sashwidth = 2
-        self.sashpad = 0
-        self.showhandle = 0
-        self.borderwidth = 0
-        self.sashrelief = tk.RAISED
-
-
-class TextDic(DotDic):
-    """For tk Text widgets"""
-    def __init__(self, color):
-        super().__init__()
-        self.background = color.bg
-        self.foreground = color.fg
-
-        self.font = tk.font.Font(size=12)
-        self.padx = 12
-        self.pady = 12
-
-        self.highlightthickness = 0
-        self.borderwidth = 0
-        self.relief = tk.FLAT
-
-
-class LabelTitleDic(DotDic):
-    """Label titles on top of each text_frame (left)
-    OLD:    "fg": "blue", "bg": "white", "font": tkFont.Font(size=10),
-        "padx": 3,
-        "highlightbackground": "black", "highlightcolor": "black", "highlightthickness": 1,
-        "padx": 3,
-    """
-    def __init__(self, color):
-        super().__init__()
-        self.bg = color.label_title_bg
-        self.fg = color.label_title_fg
-        self.font = tk.font.Font(size=10)
-        self.padx = 3
-        self.highlightbackground = color.label_title_fg
-        self.highlightcolor = color.label_title_fg
-        self.highlightthickness = 1
-
-
-class TitleLabel(tk.Label):
-    """Label on left frame where title of the frame"""
-    def __init__(self, parent, **args):
-        args.update(skin().label_title_dic)
-        super().__init__(parent, **args)
-
-
-class Scheme(Enum):
-    """The colorscheme available"""
-    DARK_SOLARIZED = 1
-    LIGHT_SOLARIZED = 2
-
-# Global waiting for a better idea
-scheme = Scheme.LIGHT_SOLARIZED
-
-
-class ColorScheme:
-    """Colors"""
-    # pylint: disable=bad-whitespace
-    # pylint: disable=attribute-defined-outside-init
-    def __init__(self):
-        self.set_solarized_var()
-        self.init_solarized_default()
-        if scheme == Scheme.DARK_SOLARIZED:
-            self.init_dark()
-        elif scheme == Scheme.LIGHT_SOLARIZED:
-            self.init_light()
-
-    def set_solarized_var(self):
-        """Init solarized varaibles"""
-        self.solarized_base03   = "#002b36"
-        self.solarized_base02   = "#073642"
-        self.solarized_base01   = "#586e75"
-        self.solarized_base00   = "#657b83"
-        self.solarized_base0    = "#839496"
-        self.solarized_base1    = "#93a1a1"
-        self.solarized_base2    = "#eee8d5"
-        self.solarized_base3    = "#fdf6e3"
-        self.solarized_yellow   = "#b58900"
-        self.solarized_orange   = "#cb4b16"
-        self.solarized_red      = "#dc322f"
-        self.solarized_magenta  = "#d33682"
-        self.solarized_violet   = "#6c71c4"
-        self.solarized_blue     = "#268bd2"
-        self.solarized_cyan     = "#2aa198"
-        self.solarized_green    = "#859900"
-
-    def init_solarized_default(self):
-        """Dark and light"""
-        self.sash               = self.solarized_blue
-        self.quit               = self.solarized_red
-        self.important          = self.solarized_red
-        self.restart            = self.solarized_cyan
-        self.parameter1         = self.solarized_blue
-        self.parameter2         = self.solarized_green
-        self.label_title_fg     = self.solarized_blue
-
-    def init_dark(self):
-        """Solarized dark"""
-        self.bg                 = self.solarized_base02
-        self.fg                 = self.solarized_base2
-        self.bu                 = self.solarized_base01
-        self.bu_hi              = self.solarized_base00
-        self.label_title_bg     = self.solarized_base03
-        self.bg_extreme         = "#000000"
-
-    def init_light(self):
-        """Solarized light"""
-        self.bg                 = "#ffffff"  # self.solarized_base3
-        self.fg                 = self.solarized_base03
-        self.bu                 = self.solarized_base2
-        self.bu_hi              = self.solarized_base3
-        self.label_title_bg     = self.solarized_base3
-        self.bg_extreme         = "#ffffff"
-
-
-class Skin:
-    """Skin to put all default apperance"""
-    def __init__(self):
-        self.font = Font()
-        self.color = ColorScheme()
-
-        self.paned_dic = PanedDic(self.color)
-        self.label_title_dic = LabelTitleDic(self.color)
-        self.text_dic = TextDic(self.color)
-
-        self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
 
 
 def update_widget_skin(widget):
@@ -176,47 +28,20 @@ def update_widget_skin(widget):
     if callable(custom_call):
         custom_call()
         log(9, 'And is instance of PlotFrame ------------')
-    elif isinstance(widget, tk.PanedWindow):
-        widget.configure(skin().paned_dic)
-    elif isinstance(widget, TitleLabel):
-        widget.configure(skin().label_title_dic)
-    # Scrollbar and Canvas have no fg
-    elif isinstance(widget, (tk.Canvas, tk.Scrollbar)):
-        widget.configure(bg=skin().color.bg)
     else:
         widget.configure(
-            bg=skin().color.bg,
-            fg=skin().color.fg
+            bg=scheme.bg,
+            fg=scheme.fg
         )
 
 
-def change_scheme(root, in_scheme):
-    """Dark skin"""
-    reset_skin(in_scheme)
+def change_root_scheme(in_scheme):
+    # pylint: disable = global-statement
+    global scheme
+    root = get_root()
+    scheme = in_scheme
     for widget in (root, *root.saved_children):
         children_do(widget, update_widget_skin)
-
-
-def change_root_scheme(in_scheme):
-    change_scheme(get_root(), in_scheme)
-
-
-@lru_cache(1)
-def skin():
-    """Singleton trick"""
-    log(3, 'Skin requested')
-    return Skin()
-
-
-def reset_skin(in_scheme):
-    """Invalidate skin cache
-    Used if skin has been updated from callers (the world)
-    """
-    # pylint: disable=global-statement
-    global scheme
-    scheme = in_scheme
-    skin.cache_clear()
-    skin()
 
 
 def children_do(widget, callback):
@@ -228,10 +53,10 @@ def children_do(widget, callback):
         children_do(item, callback)
 
 
-def set_figure_skin(figure, in_skin):
+def set_figure_skin(figure):
     """Update skin, caller must redraw"""
-    fg = in_skin.color.fg
-    bg = in_skin.color.bg
+    fg = scheme.fg
+    bg = scheme.bg
 
     # Figure
     figure.set_facecolor(bg)
@@ -428,7 +253,7 @@ def about_window():
            "ABISM version " + __version__ + " (2013 -- 2020) \n"
            "Authors: Girard Julien, Tourneboeuf Martin\n"
            "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
-    label = tk.Label(root, text=txt, **skin().fg_and_bg)
+    label = tk.Label(root, text=txt)
     label.pack(expand=True, fill=tk.BOTH)
 
     # Go

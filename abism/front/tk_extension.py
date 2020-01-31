@@ -11,6 +11,7 @@ link: https://github.com/fgirault/tkcode <- tkcode a ttk text editor (pretty)
 from enum import Enum
 
 import tkinter as tk
+import tkinter.font  # pylint: disable = unused-import
 
 from abism.util import log
 
@@ -145,6 +146,16 @@ class Button(tk.Button):
 
 
 
+TitleLabel = from_dic(tk.Label, lambda: {
+    'bg': scheme.label_title_bg,
+    'fg': scheme.label_title_fg,
+    'font': tk.font.Font(size=10),
+    'padx': 3,
+    'highlightbackground': scheme.label_title_fg,
+    'highlightcolor': scheme.label_title_fg,
+    'highlightthickness': 1,
+})
+
 tk.Button = Button
 
 tk.Menubutton = from_dic(tk.Menubutton, lambda: {
@@ -156,4 +167,26 @@ tk.Checkbutton = from_dic(tk.Checkbutton, lambda: {
 })
 
 tk.Frame = from_dic(tk.Frame, lambda: {'bg': scheme.bg})
-# Helpers
+
+tk.PanedWindow = from_dic(tk.PanedWindow, lambda: {
+    'bg': scheme.sash, 'sashwidth': 2, 'sashpad': 0,
+    'showhandle': 0, 'borderwidth': 0, 'sashrelief': tk.RAISED
+})
+
+tk.Text = from_dic(tk.Text, lambda: {
+    'bg': scheme.bg, 'fg': scheme.fg, 'font': tk.font.Font(size=12),
+    'padx': 12, 'pady': 12,
+    'highlightthickness': 0, 'borderwidth': 0, 'relief': tk.FLAT,
+})
+
+tk.Scrollbar = from_dic(tk.Scrollbar, lambda: {'bg': scheme.bu})
+
+tk.Canvas = from_dic(tk.Canvas, lambda: {'bg': scheme.bu})
+
+tk.Entry = from_dic(tk.Entry, lambda: {
+    'bg': scheme.bg, 'fg': scheme.fg, 'bd': 0
+})
+
+tk.Label = from_dic(tk.Label, lambda: {
+    'bg': scheme.bg, 'fg': scheme.fg
+})

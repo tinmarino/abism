@@ -11,9 +11,9 @@ from abism.plugin.debug_console import debug_console
 from abism.plugin.xterm_console import jupyter_window
 from abism.plugin.histogram import histopopo
 
-
 from abism.front.util_front import system_open, about_window, \
-    open_file, change_root_scheme, Scheme, skin, show_header
+    open_file, change_root_scheme, show_header
+from abism.front.tk_extension import Scheme
 
 from abism.util import (
     log, get_root, get_state, quit_process, get_colormap_list,
@@ -21,11 +21,12 @@ from abism.util import (
 )
 
 
+
 class MenuBar(tk.Frame):
     """Full Menu Bar, autopack, the only one exported"""
     def __init__(self, parent):
         """Create the menu bar (autopack top)"""
-        super().__init__(parent, bg=skin().color.bg)
+        super().__init__(parent)
 
         # Pack at top
         self.pack(side=tk.TOP, expand=0, fill=tk.X)
@@ -56,7 +57,7 @@ class ButtonMenu(tk.Menubutton):
         super().__init__(parent, **l_args)
 
         # Create my menu drowpdown
-        self.menu = tk.Menu(self, tearoff=False, **skin().fg_and_bg)
+        self.menu = tk.Menu(self, tearoff=False)
 
         # Otherwise, dropdown not working
         self['menu'] = self.menu
@@ -412,8 +413,7 @@ def open_histogram():
     print("Calling histogram")
     histopopo(
         get_root().frame_fit.get_figure(),
-        get_state().image.sort,
-        skin=skin())
+        get_state().image.sort)
 
 
 def refresh_pick(enum):

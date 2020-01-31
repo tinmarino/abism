@@ -4,8 +4,6 @@
 
 import tkinter as tk
 
-from abism.front.util_front import skin
-
 find_num = [0]
 find_list = []
 # Previous string
@@ -82,11 +80,11 @@ def spawn_header_window(image_name, s_text):
         head_frame.columnconfigure(i, weight=1)
 
     # tk.Scrollbar
-    scroll = tk.Scrollbar(root, bg=skin().color.bu)
+    scroll = tk.Scrollbar(root)
     scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
     # tk.Text
-    text = tk.Text(root, **skin().fg_and_bg)
+    text = tk.Text(root)
     text.insert(tk.END, s_text)
     text.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
     text.configure(yscrollcommand=scroll.set)
@@ -94,11 +92,11 @@ def spawn_header_window(image_name, s_text):
 
     # tk.Label Find
     label_find = tk.Label(
-        head_frame, text='Find expression: ', **skin().fg_and_bg)
+        head_frame, text='Find expression: ')
     label_find.grid(row=0, column=0, sticky='nsew')
 
     # tk.Texttk.Entry search
-    edit = tk.Entry(head_frame, **skin().fg_and_bg)
+    edit = tk.Entry(head_frame)
     edit.bind("<Return>", lambda event: Scroll(text, exit, "+"))
     edit.grid(row=0, column=1, sticky="nsew")
     edit.focus_set()

@@ -4,8 +4,6 @@
 """
 import tkinter as tk
 
-from abism.front.util_front import skin
-
 # pylint: disable = unused-wildcard-import, wildcard-import, unused-import
 import abism.util as util
 from abism.util import *
@@ -18,7 +16,7 @@ def debug_console():
     # Pack text
     frame = tk.Frame(root)
     frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-    text_user = tk.Text(frame, bg=skin().color.bg, fg=skin().color.fg)
+    text_user = tk.Text(frame)
     text_user.insert(tk.INSERT, "print(get_state())")
     text_user.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     text_user.focus_force()
@@ -56,7 +54,7 @@ def debug_console():
         text_user.delete('1.0', tk.END)
 
     button = tk.Button(
-        bu_frame, text="Clear", **skin().fg_and_bg,
+        bu_frame, text="Clear",
         command=on_clear)
     but_list.append(button)
 

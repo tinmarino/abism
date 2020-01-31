@@ -12,7 +12,7 @@ import tkinter as tk
 from abism.front.menu_bar import MenuBar
 from abism.front.frame_text import LeftFrame
 from abism.front.frame_plot import RightFrame
-from abism.front.util_front import skin, icon_path
+from abism.front.util_front import icon_path
 
 # Variables
 from abism.back.image_info import ImageInfo
@@ -50,7 +50,7 @@ class WindowRoot(tk.old_Tk):
         # I can rezie it with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
         self.paned_root = tk.PanedWindow(
-            self, orient=tk.HORIZONTAL, **skin().paned_dic)
+            self, orient=tk.HORIZONTAL)
         self.paned_root.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # 2 Left: Add
