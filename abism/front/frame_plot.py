@@ -11,9 +11,7 @@ from numpy import sqrt, float32
 
 # Front
 from abism.front.matplotlib_extension import DraggableColorbar, MyNormalize, zoom_handler
-from abism.front.util_front import photo_up, photo_down, \
-    set_figure_skin
-from abism.front.tk_extension import scheme, TitleLabel
+from abism.front.util_front import photo_up, photo_down
 import abism.front.tk_extension as tk_ext
 import abism.front.util_front as G
 
@@ -146,12 +144,6 @@ class PlotFrame(tk.Frame):
 
     def redraw(self):
         self._fig.canvas.draw()
-
-    def update_skin(self):
-        """Update skin, appearance"""
-        # Update parameters
-        set_figure_skin(self._fig)
-        self.redraw()
 
     def reset_figure_ax(
             self,
