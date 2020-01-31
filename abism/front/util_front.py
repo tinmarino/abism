@@ -327,7 +327,6 @@ tk.old_Tk = tk.Tk
 def tk_Tk():
     root = tk.old_Tk()
     def on_close():
-        print('Trying to remove', root)
         get_root().saved_children.remove(root)
         root.destroy()
 
