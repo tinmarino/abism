@@ -71,7 +71,7 @@ class TextFrame(tk.Frame):
         # Place button to resize
         if self._index is not None:
             self._arrow = tk.Button(
-                self, command=self.toogle, image=photo_up(), **skin().button_dic)
+                self, command=self.toogle, image=photo_up())
             self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
@@ -436,7 +436,7 @@ class OptionFrame(TextFrame):
         # Grid close
         bu_close = tk.Button(
             parent, text=u'\u25b4 ' + 'Close',
-            command=self.close_manual_cut, **skin().button_dic)
+            command=self.close_manual_cut)
         bu_close.grid(column=0, columnspan=2)
 
         # Redraw
@@ -537,14 +537,14 @@ class OptionFrame(TextFrame):
         # Grid button: substract background
         bu_subtract_bg = tk.Button(
             frame_more_grid, text='SubstractBackground',
-            command=open_backgroud_and_substract, **skin().button_dic)
+            command=open_backgroud_and_substract)
         bu_subtract_bg.grid(row=0, column=0, columnspan=2, sticky="nswe")
 
         # Grid Menu: set photometric type
         def create_phot_menu(frame):
             menu_phot = tk.Menubutton(
                 frame, text=u'\u25be '+'Photometry',
-                relief=tk.RAISED, **skin().button_dic)
+                relief=tk.RAISED)
             menu_phot.menu = tk.Menu(menu_phot, tearoff=False)
             menu_phot['menu'] = menu_phot.menu
 
@@ -576,7 +576,7 @@ class OptionFrame(TextFrame):
             # Root
             menu = tk.Menubutton(
                 frame, text=u'\u25be '+'Background',
-                relief=tk.RAISED, **skin().button_dic)
+                relief=tk.RAISED)
             menu.menu = tk.Menu(menu, tearoff=False)
             menu['menu'] = menu.menu
 
@@ -615,7 +615,7 @@ class OptionFrame(TextFrame):
 
         bu_close = tk.Button(
             frame_more_grid, text=u'\u25b4 '+'Close',
-            command=self.toogle_more_analysis, **skin().button_dic)
+            command=self.toogle_more_analysis)
         bu_close.grid(column=0, columnspan=2)
 
         # Show me
@@ -679,7 +679,7 @@ class OptionFrame(TextFrame):
 
         # Grid close button
         button = tk.Button(
-            self.frame_manual_background, **skin().button_dic,
+            self.frame_manual_background,
             text=u'\u25b4 ' + 'Close',
             command=self.close_manual_background)
         button.grid(row=1, column=0, columnspan=2)
@@ -745,7 +745,7 @@ class ButtonFrame(tk.Frame):
         self.frame_cube = None
 
         # Define button option
-        opts = skin().button_dic.copy()
+        opts = {}
 
         # Create Quit
         opts.update({'background':skin().color.quit})
@@ -835,7 +835,7 @@ class ButtonFrame(tk.Frame):
         # Button left
         bu_left = tk.Button(
             self.frame_cube, text='<-',
-            command=lambda: callback(-1), **skin().button_dic)
+            command=lambda: callback(-1))
         bu_left.grid(row=1, column=0, sticky="nsew")
 
         # Entry
@@ -848,5 +848,5 @@ class ButtonFrame(tk.Frame):
         # Button right
         bu_right = tk.Button(
             self.frame_cube, text='->',
-            command=lambda: callback(1), **skin().button_dic)
+            command=lambda: callback(1))
         bu_right.grid(row=1, column=2, sticky="nsew")

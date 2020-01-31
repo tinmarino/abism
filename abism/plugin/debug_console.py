@@ -42,7 +42,7 @@ def debug_console():
     but_list = []
 
     # Prepare button list
-    opts = skin().button_dic.copy()
+    opts = {}
     opts.update({'background': 'DeepSkyBlue'})
 
     # Append Run

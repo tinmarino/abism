@@ -14,6 +14,8 @@ import tkinter.font  # pylint: disable = unused-import
 
 from abism.util import root_path, log, get_root, DotDic, get_state
 
+from abism.front import tk_extension
+
 
 # Skin
 ####################################################################

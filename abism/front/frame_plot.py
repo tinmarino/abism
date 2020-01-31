@@ -104,7 +104,7 @@ class PlotFrame(tk.Frame):
     def init_toolbar_button(self):
         """Create toolbar button"""
         self._arrow = tk.Button(
-            self, command=self.toogle_toolbar, image=photo_up(), **skin().button_dic)
+            self, command=self.toogle_toolbar, image=photo_up())
         self._arrow.place(relx=1., rely=1., anchor="se")
         self.toogle_toolbar()
 

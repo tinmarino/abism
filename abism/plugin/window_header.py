@@ -105,13 +105,13 @@ def spawn_header_window(image_name, s_text):
 
     # - Previous
     tk.Button(
-        head_frame, text='<-', **skin().button_dic,
+        head_frame, text='<-',
         command=lambda: Scroll(text, edit, "-")
         ).grid(row=0, column=2, sticky="nsew")
 
     # + Next
     tk.Button(
-        head_frame, text='->', **skin().button_dic,
+        head_frame, text='->',
         command=lambda: Scroll(text, edit, "+")
         ).grid(row=0, column=3, sticky="nsew")
 

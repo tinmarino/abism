@@ -147,7 +147,7 @@ def grid_button_change_coord():
 
     button = tk.Button(
         get_root().frame_answer, background='Khaki', borderwidth=1,
-        text=s_button, **skin().button_dic,
+        text=s_button,
         command=callback)
 
     label = tk.Label(
