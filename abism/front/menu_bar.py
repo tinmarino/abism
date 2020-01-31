@@ -50,7 +50,7 @@ class ButtonMenu(tk.Menubutton):
     """Base class for a top menu button (with a dropdown)"""
     def __init__(self, parent):
         # Prepare argument dic
-        l_args = {**skin().menu_dic, 'text': u"\u25be" + self.get_text()}
+        l_args = {'text': u"\u25be" + self.get_text()}
 
         # Init
         super().__init__(parent, **l_args)

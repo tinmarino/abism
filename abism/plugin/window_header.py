@@ -76,7 +76,7 @@ def spawn_header_window(image_name, s_text):
     root.geometry("1000x1000+0+0")
 
     # Head
-    head_frame = tk.Frame(root, **skin().frame_dic)
+    head_frame = tk.Frame(root)
     head_frame.pack(side=tk.TOP, fill=tk.X)
     for i in range(4):
         head_frame.columnconfigure(i, weight=1)

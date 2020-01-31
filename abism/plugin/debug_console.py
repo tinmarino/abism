@@ -37,7 +37,7 @@ def debug_console():
             exec(cmd, globals())
 
     # Pack button frame && Init configure
-    bu_frame = tk.Frame(root, **skin().frame_dic)
+    bu_frame = tk.Frame(root)
     bu_frame.pack(side=tk.BOTTOM, expand=0, fill=tk.X)
     but_list = []
 

@@ -32,34 +32,6 @@ class Font:
         self.big = tk.font.Font(size=16)
 
 
-class ButtonDic(DotDic):
-    """Button arguments"""
-    def __init__(self, color):
-        super().__init__(self)
-        # Cutom
-        self.highlightcolor = color.bu_hi
-        self.bg = color.bu
-        self.fg = color.fg
-
-        # Always
-        self.bd = 3
-        self.padx = 0
-        self.pady = 0
-        self.highlightthickness = 0
-
-
-class CheckButtonDic(ButtonDic):
-    """For check and radio button
-    Just a button with image at anchor (here west)
-    """
-    def __init__(self, color):
-        super().__init__(color)
-        # look more like a frame than a button (see more analysis)
-        self.bg = color.bg
-        self.anchor = 'w'
-        self.selectcolor = color.bg_extreme
-
-
 class PanedDic(DotDic):
     """The sas is the little between windows "glissiere", to resize"""
     def __init__(self, color):
@@ -71,13 +43,6 @@ class PanedDic(DotDic):
         self.showhandle = 0
         self.borderwidth = 0
         self.sashrelief = tk.RAISED
-
-
-class FrameDic(DotDic):
-    """Just a bg"""
-    def __init__(self, color):
-        super().__init__()
-        self.bg = color.bg
 
 
 class TextDic(DotDic):
@@ -93,17 +58,6 @@ class TextDic(DotDic):
 
         self.highlightthickness = 0
         self.borderwidth = 0
-        self.relief = tk.FLAT
-
-
-class MenuDic(DotDic):
-    """Skin for menu buttons"""
-    def __init__(self, color):
-        super().__init__()
-        self.background = color.bg
-        self.foreground = color.fg
-
-        self.width = 8
         self.relief = tk.FLAT
 
 
@@ -208,11 +162,8 @@ class Skin:
         self.color = ColorScheme()
 
         self.paned_dic = PanedDic(self.color)
-        self.frame_dic = FrameDic(self.color)
         self.label_title_dic = LabelTitleDic(self.color)
         self.text_dic = TextDic(self.color)
-        self.menu_dic = MenuDic(self.color)
-        self.checkbutton_dic = CheckButtonDic(self.color)
 
         self.fg_and_bg = {'fg':self.color.fg, 'bg':self.color.bg}
 
@@ -225,22 +176,8 @@ def update_widget_skin(widget):
     if callable(custom_call):
         custom_call()
         log(9, 'And is instance of PlotFrame ------------')
-    # elif isinstance(widget, tk.Button):
-    #     # Do not change favourites buttons ...
-    #     if widget['bg'] in (
-    #             skin().color.quit,
-    #             skin().color.restart,
-    #             skin().color.parameter1,
-    #             skin().color.parameter2,
-    #             ):
-    #         return
-    #     widget.configure(skin().button_dic)
-    elif isinstance(widget, tk.Checkbutton):
-        widget.configure(skin().checkbutton_dic)
     elif isinstance(widget, tk.PanedWindow):
         widget.configure(skin().paned_dic)
-    # elif isinstance(widget, tk.Frame):
-    #     widget.configure(skin().frame_dic)
     elif isinstance(widget, TitleLabel):
         widget.configure(skin().label_title_dic)
     # Scrollbar and Canvas have no fg

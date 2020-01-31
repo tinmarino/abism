@@ -21,7 +21,7 @@ class LeftFrame(tk.Frame):
     """Full Container"""
     def __init__(self, root, parent):
         # Append self -> parent
-        super().__init__(parent, **skin().frame_dic)
+        super().__init__(parent)
 
         # Create Paned && Save
         text_paned = tk.PanedWindow(self, orient=tk.VERTICAL, **skin().paned_dic)
@@ -50,7 +50,7 @@ class TextFrame(tk.Frame):
     children <- are grided
     """
     def __init__(self, parent, label_text='Frame', index=None):
-        super().__init__(parent, skin().frame_dic)
+        super().__init__(parent)
 
         # Prepare grid attributes
         self.columnconfigure(0, weight=1)
@@ -86,7 +86,7 @@ class TextFrame(tk.Frame):
         # Last widget
         if self._last is not None:
             self._last.destroy()
-        self._last = tk.Label(self, height=0, width=0, **skin().frame_dic)
+        self._last = tk.Label(self, height=0, width=0)
         self._last.grid()
 
     def toogle(self, visible=None):
@@ -322,7 +322,7 @@ class OptionFrame(TextFrame):
 
     def open_image_parameter(self):
         # Grid new frame
-        self.frame_image_parameter = tk.Frame(self, **skin().frame_dic)
+        self.frame_image_parameter = tk.Frame(self)
         self.frame_image_parameter.grid(sticky='nsew')
 
         # Pack title
@@ -508,7 +508,7 @@ class OptionFrame(TextFrame):
         for (text, var, fct) in text_n_var_n_fct:
             int_var = tk.IntVar(value=var)
             check = tk.Checkbutton(
-                frame, text=text, variable=int_var, **skin().checkbutton_dic,
+                frame, text=text, variable=int_var,
                 command=lambda fct=fct, int_var=int_var: fct(int_var))
             check.grid(column=0, columnspan=2, sticky='nwse')
 
@@ -520,7 +520,7 @@ class OptionFrame(TextFrame):
         """Create More Frame"""
         # Grid root
         self.frame_more_analysis = tk.Frame(
-            get_root().frame_option, **skin().frame_dic)
+            get_root().frame_option)
         self.frame_more_analysis.grid(sticky='nsew')
 
         # Pack title
@@ -529,7 +529,7 @@ class OptionFrame(TextFrame):
 
         # Pack rest
         frame_more_grid = tk.Frame(
-            self.frame_more_analysis, **skin().frame_dic)
+            self.frame_more_analysis)
         frame_more_grid.pack(side=tk.TOP, expand=0, fill=tk.X)
         frame_more_grid.columnconfigure(0, weight=1)
         frame_more_grid.columnconfigure(1, weight=1)
@@ -807,7 +807,7 @@ class ButtonFrame(tk.Frame):
 
     def open_cube(self):
         # Gird Frame
-        self.frame_cube = tk.Frame(self, **skin().frame_dic)
+        self.frame_cube = tk.Frame(self)
         self.frame_cube.grid(sticky='nsew', columnspan=2)
 
         # Conf && ad title

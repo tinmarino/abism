@@ -56,7 +56,7 @@ class RightFrame(tk.PanedWindow):
 class PlotFrame(tk.Frame):
     """Frame with a mpl figure"""
     def __init__(self, parent):
-        super().__init__(parent, skin().frame_dic)
+        super().__init__(parent)
 
         # Grid stuff
         self.rowconfigure(0, weight=100)
@@ -89,7 +89,7 @@ class PlotFrame(tk.Frame):
         self._canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
 
         # TOOLBAR
-        self._toolbar_frame = tk.Frame(self, **skin().frame_dic)
+        self._toolbar_frame = tk.Frame(self)
         self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
         self._toolbar = NavigationToolbar2Tk(self._canvas, self._toolbar_frame)
         self._toolbar["bg"] = skin().color.bg

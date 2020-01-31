@@ -147,7 +147,13 @@ class Button(tk.Button):
 
 tk.Button = Button
 
-tk.Menubutton = from_dic(tk.Menubutton, get_button_dic)
+tk.Menubutton = from_dic(tk.Menubutton, lambda: {
+    'bg': scheme.bg, 'fg': scheme.fg, 'width': 8, 'relief': tk.FLAT
+})
+
+tk.Checkbutton = from_dic(tk.Checkbutton, lambda: {
+    'bg': scheme.bg, 'anchor': 'w', 'selectcolor': scheme.bg_extreme
+})
 
 tk.Frame = from_dic(tk.Frame, lambda: {'bg': scheme.bg})
 # Helpers
