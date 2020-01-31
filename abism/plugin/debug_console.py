@@ -4,9 +4,11 @@
 """
 import tkinter as tk
 
-from abism.util import log
 from abism.front.util_front import skin
 
+# pylint: disable = unused-wildcard-import, wildcard-import, unused-import
+import abism.util as util
+from abism.util import *
 
 def debug_console():
     # Create root
@@ -17,16 +19,9 @@ def debug_console():
     frame = tk.Frame(root)
     frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     text_user = tk.Text(frame, bg=skin().color.bg, fg=skin().color.fg)
-    text_user.insert(tk.INSERT, "")
+    text_user.insert(tk.INSERT, "print(get_state())")
     text_user.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     text_user.focus_force()
-
-    # Pack button frame && Init configure
-    bu_frame = tk.Frame(root, bg="purple")
-    bu_frame.pack(side=tk.BOTTOM, expand=0, fill=tk.X)
-    but_list = []
-    opts = skin().button_dic.copy()
-    opts.update({'background': 'DeepSkyBlue'})
 
     # Append run
     def on_run():
@@ -41,6 +36,16 @@ def debug_console():
         else:
             exec(cmd, globals())
 
+    # Pack button frame && Init configure
+    bu_frame = tk.Frame(root, **skin().frame_dic)
+    bu_frame.pack(side=tk.BOTTOM, expand=0, fill=tk.X)
+    but_list = []
+
+    # Prepare button list
+    opts = skin().button_dic.copy()
+    opts.update({'background': 'DeepSkyBlue'})
+
+    # Append Run
     button = tk.Button(
         bu_frame, text="Run", **opts,
         command=on_run)
@@ -48,7 +53,7 @@ def debug_console():
 
     # Append clear
     def on_clear():
-        text_user.pack_forget()
+        text_user.delete('1.0', tk.END)
 
     button = tk.Button(
         bu_frame, text="Clear", **skin().fg_and_bg,
@@ -64,7 +69,7 @@ def debug_console():
 
     # Pack all
     for bu in but_list:
-        bu.pack(side=tk.LEFT, expand=1, fill=tk.X)
+        bu.pack(side=tk.LEFT, expand=1, fill=tk.BOTH)
 
     # Go
     root.mainloop()
