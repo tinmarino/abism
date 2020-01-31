@@ -14,13 +14,6 @@ from enum import Enum
 
 _parsed_args = None  # Arguments from argparse
 
-# Keep a trace
-# this global removes others
-_root = None
-
-
-
-
 
 @lru_cache(1)
 def parse_argument():
@@ -285,11 +278,14 @@ class AbismState(DotDic):
 
         self.verbose = parse_argument().verbose
 
-        # IamgeInfo cutom type, setted when open_file
+        # ImageInfo cutom type, setted when open_file
         self.image = None
 
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}
+
+        # Record the root gui for get_root
+        self.tk_root = None
 
         # The last pick string, to dissconnect
         # TODO better be an object
@@ -361,12 +357,7 @@ def get_state():
 
 
 def get_root():
-    return _root
-
-
-def set_root(root):
-    # pylint: disable=global-statement
-    global _root; _root = root
+    return get_state().tk_root
 
 
 def quit_process():

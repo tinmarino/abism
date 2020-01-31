@@ -9,7 +9,7 @@ from os.path import isfile
 import tkinter as tk
 
 # Gui
-from abism.front.menu_bar import MenuBar, refresh_pick
+from abism.front.menu_bar import MenuBar
 from abism.front.frame_text import LeftFrame
 from abism.front.frame_plot import RightFrame
 from abism.front.util_front import skin, icon_path
@@ -18,7 +18,7 @@ from abism.front.util_front import skin, icon_path
 from abism.back.image_info import ImageInfo
 
 
-from abism.util import log, set_root, parse_argument, get_state, EPick
+from abism.util import log, parse_argument, get_state
 
 
 
@@ -36,7 +36,7 @@ class WindowRoot(tk.Tk):
 
         # Variables for my children
         # TODO then I don't rop completion
-        set_root(self)
+        get_state().tk_root = self
 
         # Save spawned children
         self.saved_children = []
@@ -94,6 +94,18 @@ class WindowRoot(tk.Tk):
         if self.frame_option.see_image_parameter:
             self.frame_option.close_image_parameter()
             self.frame_option.open_image_parameter()
+
+        # Reconnect
+        if get_state().pick is not None:
+            log(9, 'Reconnecting pick:', get_state().pick)
+            get_state().pick.disconnect()
+            get_state().pick.connect()
+        # Or connect one
+        else:
+            from abism.front.menu_bar import refresh_pick
+            from abism.util import EPick
+            refresh_pick(EPick.ONE)
+
 
 
     def set_title(self):

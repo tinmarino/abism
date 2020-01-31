@@ -538,27 +538,12 @@ def open_file():
         initialdir=initialdir)
     if not s_file: return
 
-    # Stringify && Log && Cache
+    # Stringify && Log
     s_file = str(s_file)
     log(0, "Opening file : " + s_file)
+
+    # Set and draw
     get_root().set_image(s_file)
-
-    get_root().frame_image.draw_image()
-
-    # Reconnect
-    if get_state().pick is not None:
-        log(9, 'Reconnecting pick:', get_state().pick)
-        get_state().pick.disconnect()
-        get_state().pick.connect()
-    # Or connect one
-    else:
-        from abism.front.menu_bar import refresh_pick
-        refresh_pick(EPick.ONE)
-
-
-    # Change title
-    fname = get_state().image.name.split('/')[-1]
-    get_root().title('Abism (' + fname + ')')
 
 
 def show_header():
