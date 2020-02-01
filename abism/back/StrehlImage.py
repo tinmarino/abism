@@ -526,54 +526,6 @@ def EllipseEventMax(obj):
     get_state().add_answer(EA.INTENSITY, local_max[2])
 
 
-###############
-# ANNULUS CANVAS
-#################
-
-
-def AnnulusEventPhot(obj):  # Called by Gui/Event...py  Event object
-    res = {}
-
-    center_x = obj.x0  # from image to array but coord in array type
-    center_y = obj.y0
-    theta = obj.theta
-
-    if obj.outter_u < obj.inner_u:  # put outter radius after inner
-        tmp = obj.inner_u
-        obj.inner_u = obj.outter_u
-        obj.outter_u = tmp
-
-    # DEIFINE THE Bollean of being inside the elliptical aperture
-    ru = obj.ru
-    rv = obj.ru * obj.rapport
-    bol_e = EllipticalAperture(obj.array, dic={"center_x": center_x, "center_y": center_y, "ru": ru, "rv": rv, "theta": theta})[
-        "bol"]  # ellipse , photomretry
-
-    ru, rv = obj.inner_u, obj.inner_u*obj.rapport
-    bol_i = EllipticalAperture(obj.array, dic={
-                               "center_x": center_x, "center_y": center_y, "ru": ru, "rv": rv, "theta": theta})["bol"]  # inner
-
-    ru, rv = obj.outter_u, obj.outter_u*obj.rapport
-    bol_o = EllipticalAperture(obj.array, dic={
-                               "center_x": center_x, "center_y": center_y, "ru": ru, "rv": rv, "theta": theta})["bol"]  # outter
-
-    bol_a = bol_o ^ (bol_i)  # annulus  inside out but not inside in
-    phot, number_count = np.sum(obj.array[bol_e]), len(obj.array[bol_e])
-    back, number_back = np.sum(obj.array[bol_a]), len(obj.array[bol_a])
-
-    # PHOT and back
-    iminfo_cut = ImageInfo(obj.array[bol_a])
-    res["background_dic"] = iminfo_cut.sky()
-    res["my_background"] = res["background_dic"]["mean"]
-    res["phot"] = np.sum(obj.array[bol_e])
-    res["my_photometry"] = res["phot"] - \
-        len(obj.array[bol_e])*res["my_background"]
-
-    log(2, "phot1 :", res["phot"])
-    log(2, "phot2 :", res["my_photometry"])
-    log(2, "back :", res["my_background"], "\n")
-
-
 # Helpers
 ######################################################################
 
