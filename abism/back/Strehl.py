@@ -17,7 +17,6 @@ def StrehlMeter(rectangle):
         I putted more for ellipse and binary
     """
 
-    W.strehl = {"theta": 99}
     ##########################
     # FIND   THE   CENTER  AND FWHM
     rectangle = IF.Order4(rectangle)
