@@ -135,7 +135,6 @@ def StrehlError():
     dIth = dPhot / bessel_integer           # error from phot
     dSr = np.sqrt(dIpsf**2 + (Sr/100 * abs(dIth))**2)
     dSr /= Ith
-    dSr *= 100
 
     # Save
     # TODO move me in caller
