@@ -183,6 +183,7 @@ class AnswerAngle(AnswerSky):
 # Helpers to transform coordinate
 
 def get_pixel_scale():
+    """Return: arcsec / pixel, something like 0.02 (NaCo)"""
     from abism.util import get_root
     try:  # Sinfoni
         pxll = get_root().header.sinf_pixel_scale

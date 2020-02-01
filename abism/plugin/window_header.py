@@ -97,7 +97,7 @@ def spawn_header_window(image_name, s_text):
 
     # tk.Texttk.Entry search
     edit = tk.Entry(head_frame)
-    edit.bind("<Return>", lambda event: Scroll(text, exit, "+"))
+    edit.bind("<Return>", lambda event: Scroll(text, edit, "+"))
     edit.grid(row=0, column=1, sticky="nsew")
     edit.focus_set()
 
