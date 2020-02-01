@@ -21,11 +21,14 @@ def show_profile(point1, point2):
     ax.legend(loc=1, prop={'size': 8})
 
     # Data
-    ax.plot(ab, od, '-', linewidth=1, label="Data")
+    ax.plot(ab, od, '-', linewidth=2, label="Data")
 
     # Fit
     fit_fct = get_fit_function()
-    if get_state().s_fit_type != "None" and fit_fct is not None:
+    do_plot_fit = get_state().s_fit_type != "None"
+    do_plot_fit = do_plot_fit and fit_fct is not None
+    do_plot_fit = do_plot_fit and get_state().d_fit_param
+    if do_plot_fit:
         od_fit = fit_fct(points, get_state().d_fit_param)
         ax.plot(ab, od_fit, color='purple', linewidth=2, label='Fitted PSF')
 
