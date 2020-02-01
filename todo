@@ -1,8 +1,9 @@
 # Next task
 
 * Make enum for background
-  * buggy rectangle
+  * buggy rectangle <- sho the aperture to user
   * buggy manual
+  * show sky in output of binary
 
 1. Jupyter console working, fun is fact
   - Get option to open gnometerminal for ipython (actually do not use tk terminal yet)
@@ -26,7 +27,7 @@
 
 # Easy win
 
-on rancgle, if click and release same point, call the one point routine (same as middle click)
+on rectangle, if click and release same point, call the one point routine (same as middle click)
 
 # Feature
 
