@@ -309,7 +309,7 @@ def PlotOneStar1D():
                    'obstruction': get_root().header.obstruction/100,
                    }
         bessel = BF.DiffractionPatern((a, params['center_y']), params2)
-        ax.plot(a, bessel+params['my_background'],
+        ax.plot(a, bessel+ get_aa(EA.BACKGROUND),
                 color='blue', linewidth=2, label='Ideal PSF')
 
     # Draw Legend

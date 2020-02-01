@@ -596,13 +596,13 @@ def Background(grid, r=None):
     """
     # Log
     background_type = get_state().s_noise_type
-    log(3, 'Getting Background with type', background_type)
 
     # Background and rms
     background = rms = 0
 
     # In rect
-    if get_state().s_noise_type == 'in_rectangle':
+    if background_type == 'in_rectangle':
+        log(2, 'Getting Background in rectangle')
         # note: the old way was to change noise from fit
         im_cut = grid[r[0]: r[1], r[2]: r[3]]
         im_info = ImageInfo(im_cut)
@@ -613,21 +613,24 @@ def Background(grid, r=None):
         rms = np.sqrt(rms/(len(im_cut)-1))
 
     # 8 rects
-    elif get_state().s_noise_type == '8rects':
+    elif background_type == '8rects':
+        log(2, 'Getting Background in 8 rects')
         xtmp, ytmp = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
         r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
         restmp = IF.EightRectangleNoise(
             grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
-        background, get_state().d_fit_param['rms'] = restmp["background"], restmp['rms']
+        background, rms = restmp["background"], restmp['rms']
         log(3, "ImageFunction.py : Background, I am in 8 rects ")
 
     # Manual
-    elif get_state().s_noise_type == "manual":
-        get_state().d_fit_param["my_background"] = get_state().i_background
-        get_state().d_fit_param["rms"] = 0
+    elif background_type == "manual":
+        log(2, 'Getting Background manual')
+        background = get_state().i_background
+        rms = 0
 
     # Fit
-    elif get_state().s_noise_type == 'fit':
+    elif background_type == 'fit':
+        log(2, 'Getting Background from fit')
         # Check if no fit which is incoherent
         # TODO not working well yet (Currently refactoring globals)
         if get_state().s_fit_type == "None":
@@ -646,11 +649,13 @@ def Background(grid, r=None):
         background = get_state().d_fit_param["background"]
 
     # None
-    elif get_state().s_noise_type == 'None':
+    elif background_type == 'None':
+        log(2, 'Getting Background from None <- 0')
         background = rms = 0
 
     # Elliptical annulus
-    elif get_state().s_noise_type == "elliptical_annulus":
+    elif background_type == "elliptical_annulus":
+        log(2, 'Getting Background from elliptical annulus')
         # TODO hardcode as in AnswerReturn
         ell_inner_ratio, ell_outer_ratio = 1.3, 1.6
         rui, rvi = 1.3 * get_state().d_fit_param["r99u"], 1.3 * get_state().d_fit_param["r99v"]
