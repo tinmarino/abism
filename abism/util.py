@@ -288,6 +288,9 @@ class AbismState(DotDic):
 
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}
+        # String -> float
+        self.d_fit_param = {}
+        self.d_fit_error = {}
 
         # Record the root gui for get_root
         self.tk_root = None
