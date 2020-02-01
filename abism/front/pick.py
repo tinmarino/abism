@@ -160,7 +160,7 @@ class PickOne(Pick):
         AR.show_answer()
         # we transport star center, because if it is bad, it is good to know,
         # this star center was det by iterative grav center  the fit image
-        # is a W.psf_fit[0][3]
+        # is a psf_fit[0][3]
         AR.PlotStar()
 
 

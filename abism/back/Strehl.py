@@ -1,5 +1,7 @@
 """
     Strehl meter
+    TODO prettify, the function division is nto judicious:
+        Error goes along with mesure (always)
 """
 import numpy as np
 
@@ -8,8 +10,6 @@ from abism.back import StrehlImage as SI
 
 from abism.util import log, get_root, get_state, EA, get_aa, set_aa
 
-import abism.back.util_back as W
-
 
 def StrehlMeter(rectangle):
     """ Note : this should just be a caller
@@ -17,25 +17,23 @@ def StrehlMeter(rectangle):
         I putted more for ellipse and binary
     """
 
-    ##########################
-    # FIND   THE   CENTER  AND FWHM
+    # Find center && fwhm
     rectangle = IF.Order4(rectangle)
     # IF.FindBadPixel(get_state().image.im0,(rx1,rx2,ry1,ry2))
-    star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=rectangle)  # GravityCenter
-    star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)  # GravityCenter
+    # TODO really work twice ?
+    star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=rectangle)
+    star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)
     tmp = IF.LocalMax(get_state().image.im0, center=star_center, size=3)
     star_max, star_center = tmp[2], (tmp[0], tmp[1])
-    W.FWHM = IF.FWHM(get_state().image.im0, star_center)
-    W.background = 0
+    IF.FWHM(get_state().image.im0, star_center)
 
-
-    # Delegate fit
-    ############################################################
+    # Delegate fit && Save
     o_psf = SI.PsfFit(
         get_state().image.im0, rectangle,
         center=star_center, my_max=star_max)
-    W.psf_fit = psf_fit = o_psf.do_fit().get_result()
-    W.strehl.update(W.psf_fit[0])
+    psf_fit = o_psf.do_fit().get_result()
+    get_state().d_fit_param.update(psf_fit[0])
+    get_state().d_fit_error.update(psf_fit[1])
 
     # Save what it take
     center = psf_fit[0]['center_x'], psf_fit[0]['center_y']
@@ -44,17 +42,17 @@ def StrehlMeter(rectangle):
     intensity = psf_fit[0]['intensity']
     set_aa(EA.INTENSITY, intensity)
 
-    # Get Background && SAve
-    back_dic = SI.Background(get_state().image.im0, rectangle)
-    background = back_dic['my_background']
-    rms = back_dic['rms']
+    # Get Background && Save
+    background, rms = SI.Background(get_state().image.im0, r=rectangle)
     set_aa(EA.BACKGROUND, background)
     set_aa(EA.NOISE, rms)
 
     # Get photometry && Save
     photometry, _, number_count = \
         SI.Photometry(get_state().image.im0, background, rectangle=rectangle)
+    err_photometry = rms * np.sqrt(number_count)
     set_aa(EA.PHOTOMETRY, photometry)
+    set_aa(EA.ERR_PHOTOMETRY, err_photometry)
 
     # Get Signal on noise && Save
     signal_on_noise = photometry / background / np.sqrt(number_count)
@@ -92,9 +90,9 @@ def StrehlRatio():
     strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
     set_aa(EA.STREHL_EQ, 100 * strehl_eq, unit=' %')
 
-    # Save
-    W.strehl["Ith"] = Ith  # used for error
-    W.strehl["bessel_integer"] = bessel_integer   # used for error
+    # Saven for error just after
+    set_aa(EA.INTENSITY_THEORY, Ith)
+    set_aa(EA.BESSEL_INTEGER, bessel_integer)
 
 
 def get_bessel_integer():
@@ -107,18 +105,16 @@ def get_bessel_integer():
 
 
 def StrehlError():
-    """after strehl , number count , background, center_x, and center_y"""
-    dics = W.strehl
-    # Get in
-    # TODO refactor
+    """after strehl , number count , background, center_x, and center_y
+    """
+    dics = get_state().d_fit_error
+
+    # Get in <- side
     Sr = get_state().get_answer(EA.STREHL)
-    Ith, bessel_integer = dics["Ith"], dics['bessel_integer']
-
-    # Background
-    dBack = W.strehl["rms"]
-
-    # PHOTOMETRY
-    dPhot = dBack * np.sqrt(W.strehl["number_count"])
+    Ith = get_aa(EA.INTENSITY_THEORY)
+    bessel_integer = get_aa(EA.BESSEL_INTEGER)
+    dBack = get_aa(EA.NOISE)
+    dPhot = get_aa(EA.PHOTOMETRY)
 
     # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
     get_state().s_phot_type = "fit"
@@ -127,15 +123,15 @@ def StrehlError():
 
     # INTENSITY
     if get_state().s_phot_type and get_state().s_fit_type != "None":
-        dI = W.psf_fit[1]["intensity"]
+        dI = get_state().d_fit_error["intensity"]
     else:
-        x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
+        x0, y0 = int(get_state().d_fit_param["center_x"]), int(get_state().d_fit_param["center_y"])
         mean = np.mean(get_state().image.im0[x0-1:x0+2, y0-1:y0+2])
-        dI = (W.strehl["intensity"] - mean)
+        dI = (get_state().d_fit_param["intensity"] - mean)
         dI /= 2
 
     dIpsf = np.sqrt(dI**2 + dBack**2)  # error from peak
-    dIth = dPhot/bessel_integer           # error from phot
+    dIth = dPhot / bessel_integer           # error from phot
     dSr = np.sqrt(dIpsf**2 + (Sr/100 * abs(dIth))**2)
     dSr /= Ith
     dSr *= 100
@@ -156,36 +152,40 @@ def StrehlError():
 
 def save_fwhm():
     """Save (Long, Short axe, Excentricity)"""
-    fwhm_a = max(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
-    fwhm_b = min(W.strehl["fwhm_x"], W.strehl["fwhm_y"])
+    fwhm_a = max(get_state().d_fit_param["fwhm_x"], get_state().d_fit_param["fwhm_y"])
+    fwhm_b = min(get_state().d_fit_param["fwhm_x"], get_state().d_fit_param["fwhm_y"])
     fwhm_e = np.sqrt(fwhm_a**2 - fwhm_b**2) / fwhm_a
     get_state().add_answer(EA.FWHM_ABE, (fwhm_a, fwhm_b, fwhm_e))
 
 
 def BinaryStrehl(star1, star2):
     binary_psf = SI.BinaryPsf(get_state().image.im0, star1, star2)
-    W.psf_fit = binary_psf.do_fit().get_result()
-    W.strehl = W.psf_fit[0]
-    append_binary_info(W.psf_fit[0], W.psf_fit[1])
+    psf_fit = binary_psf.do_fit().get_result()
+    get_state().d_fit_param = psf_fit[0]
+    get_state().d_fit_error = psf_fit[1]
+    append_binary_info()
 
 
 def TightBinaryStrehl(star1, star2):
     tight_psf = SI.TightBinaryPsf(get_state().image.im0, star1, star2)
-    W.psf_fit = tight_psf.do_fit().get_result()
-    W.strehl = W.psf_fit[0]
-    append_binary_info(W.psf_fit[0], W.psf_fit[1])
+    psf_fit = tight_psf.do_fit().get_result()
+    get_state().d_fit_param = psf_fit[0]
+    get_state().d_fit_error = psf_fit[1]
+    append_binary_info()
 
 
-def append_binary_info(fit_dic, err_dic):
+def append_binary_info():
     """Read
     Write: Separatation"""
     # Fit type
-    answer = set_aa(EA.BINARY, get_state().s_fit_type)
+    fit_dic, err_dic = get_state().d_fit_param, get_state().d_fit_error
+    # TODO : Isn't that ugly
+    set_aa(EA.BINARY, get_state().s_fit_type)
 
     # Some lookup due to move
-    x0, x1, y0, y1 = W.strehl["x0"], W.strehl["x1"], W.strehl["y0"], W.strehl["y1"]
-    dx0, dx1 = W.psf_fit[1]["x0"], W.psf_fit[1]["x1"]
-    dy0, dy1 = W.psf_fit[1]["y0"], W.psf_fit[1]["y1"]
+    x0, x1, y0, y1 = fit_dic["x0"], fit_dic["x1"], fit_dic["y0"], fit_dic["y1"]
+    dx0, dx1 = err_dic["x0"], err_dic["x1"]
+    dy0, dy1 = err_dic["y0"], err_dic["y1"]
 
     set_aa(EA.STAR1, (y0, x0))
     set_aa(EA.STAR2, (y1, x1))
@@ -199,7 +199,7 @@ def append_binary_info(fit_dic, err_dic):
     set_aa(EA.SEPARATION, separation)
     set_aa(EA.ERR_SEPARATION, sep_err)
 
-    phot0, phot1 = W.strehl["my_photometry0"], W.strehl["my_photometry1"]
+    phot0, phot1 = fit_dic["my_photometry0"], fit_dic["my_photometry1"]
     set_aa(EA.PHOTOMETRY1, phot0)
     set_aa(EA.PHOTOMETRY2, phot1)
     set_aa(EA.FLUX_RATIO, phot0 / phot1)
@@ -207,8 +207,8 @@ def append_binary_info(fit_dic, err_dic):
     # Strehl
     bessel_integer = get_bessel_integer()
     Ith0, Ith1 = phot0/bessel_integer, phot1/bessel_integer
-    strehl0 = W.strehl["intensity0"] / Ith0
-    strehl1 = W.strehl["intensity1"] / Ith1
+    strehl0 = fit_dic["intensity0"] / Ith0
+    strehl1 = fit_dic["intensity1"] / Ith1
     set_aa(EA.STREHL1, 100 * strehl0, unit=' %')
     set_aa(EA.STREHL2, 100 * strehl1, unit=' %')
 
@@ -217,7 +217,6 @@ def EllipseEventStrehl(ellipse):
     """Main ellipse worker,
     Param: ellipse artist with ru, rv, position
     """
-    W.strehl = {}
     if get_state().s_phot_type == "fit":
         log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
@@ -235,7 +234,7 @@ def EllipseEventStrehl(ellipse):
 
     # Math
     StrehlRatio()
-    # TODO refactor StrehlError lying on W.strehl
+    # TODO refactor StrehlErrorn not working here
     #StrehlError()
 
 

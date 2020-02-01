@@ -10,8 +10,6 @@ from abism.back.image_info import ImageInfo, get_array_stat
 
 
 from abism.util import log, get_state, EA
-import abism.back.util_back as W
-#from abism.back.util_back import enhance_fit_type
 
 
 class Fit(ABC):
@@ -592,18 +590,18 @@ def Photometry(grid, background, rectangle=None):
     photometry = total = number_count = 0
     s_phot_type = get_state().s_phot_type
 
-    r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
-    r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
-    theta = W.strehl.get('theta', 0)
+    r99x, r99y = get_state().d_fit_param['r99x'], get_state().d_fit_param['r99y']
+    r99u, r99v = get_state().d_fit_param['r99u'], get_state().d_fit_param['r99v']
+    theta = get_state().d_fit_param.get('theta', 0)
 
-    x0, y0 = W.strehl['center_x'], W.strehl['center_y']
+    x0, y0 = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
     ax1, ax2 = int(x0-r99x), int(x0+r99x)
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
     # FIT
     if s_phot_type == 'fit':
         log(3, "Photometry <- fit")
-        photometry = W.strehl["photometry_fit"]
+        photometry = get_state().d_fit_param["photometry_fit"]
         number_count = r99u * r99y
 
     # Rectangle apperture
@@ -640,93 +638,101 @@ def Photometry(grid, background, rectangle=None):
     return photometry, total, number_count
 
 
-def Background(grid, rectangle):
+def Background(grid, r=None):
+    """Read from fit param, fit err
+    TODO check r
+    """
     # Log
     background_type = get_state().s_noise_type
     log(3, 'Getting Background with type', background_type)
 
-    res = 0
+    # Background and rms
+    background = rms = 0
 
-    # BAckground and rms
-    dic = W.strehl
-    r = rectangle
+    # In rect
+    if get_state().s_noise_type == 'in_rectangle':
+        # note: the old way was to change noise from fit
+        im_cut = grid[r[0]: r[1], r[2]: r[3]]
+        im_info = ImageInfo(im_cut)
+        back, back_count = im_info.sky(), im_info.stat.number_count
+        background = back / back_count
 
-    # IN RECT
-    if get_state().s_noise_type == 'in_rectangle':  # change noise  from fit
-        dic['my_background'] = back / back_count
-        rms = 0.
-        for i in listrms:
-            rms += (i-dic['my_background'])**2
-        rms = np.sqrt(rms/(len(listrms)-1))
-        dic['rms'] = rms
+        rms = sum([(i-background)**2 for i in im_cut])
+        rms = np.sqrt(rms/(len(im_cut)-1))
 
-    # 8 RECTS
+    # 8 rects
     elif get_state().s_noise_type == '8rects':
-        xtmp, ytmp = dic['center_x'], dic['center_y']
-        r99x, r99y = dic["r99x"], dic["r99y"]
+        xtmp, ytmp = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
+        r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
         restmp = IF.EightRectangleNoise(
             grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
-        dic['my_background'], dic['rms'] = restmp["background"], restmp['rms']
+        background, get_state().d_fit_param['rms'] = restmp["background"], restmp['rms']
         log(3, "ImageFunction.py : Background, I am in 8 rects ")
 
-    # MANUAL
+    # Manual
     elif get_state().s_noise_type == "manual":
-        dic["my_background"] = get_state().i_background
-        dic["rms"] = 0
+        get_state().d_fit_param["my_background"] = get_state().i_background
+        get_state().d_fit_param["rms"] = 0
 
-    # FIT
+    # Fit
     elif get_state().s_noise_type == 'fit':
+        # Check if no fit which is incoherent
+        # TODO not working well yet (Currently refactoring globals)
         if get_state().s_fit_type == "None":
-            log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
+            log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, "
+                "return to Annnulus background")
             param = param.copy()
-            param.update({"noise": "annulus"})
-            return Background(get_state().image.im0, param=param)
+            param.update({"noise": "elliptical_annulus"})
+            get_state().s_noise_type = "annulus"
+            return Background(get_state().image.im0)
         try:
-            dic['rms'] = W.psf_fit[1]['background']
+            background = get_state().d_fit_param['background']
+            rms = get_state().d_fit_error['background']
         except:
-            dic['rms'] = ["No_in_fit"]
-        dic['my_background'] = dic["background"]
+            log(-1, 'Error: background not in fit parameters')
+            rms = background = float('nan')
+        background = get_state().d_fit_param["background"]
 
-    # NONE
+    # None
     elif get_state().s_noise_type == 'None':
-        dic['my_background'] = dic['my_background'] = 0
-        # dic['rms'] = 0
+        background = rms = 0
 
-    # ELLIPTICAL ANNULUS
+    # Elliptical annulus
     elif get_state().s_noise_type == "elliptical_annulus":
-        W.ell_inner_ratio, W.ell_outer_ratio = 1.3, 1.6
-        rui, rvi = 1.3 * W.strehl["r99u"], 1.3 * W.strehl["r99v"]
-        ruo, rvo = 1.6 * W.strehl["r99u"], 1.6 * W.strehl["r99v"]
+        # TODO hardcode as in AnswerReturn
+        ell_inner_ratio, ell_outer_ratio = 1.3, 1.6
+        rui, rvi = 1.3 * get_state().d_fit_param["r99u"], 1.3 * get_state().d_fit_param["r99v"]
+        ruo, rvo = 1.6 * get_state().d_fit_param["r99u"], 1.6 * get_state().d_fit_param["r99v"]
 
-        # CUT
+        # Cut
         myrad = max(ruo, rvo) + 2  # In case
-        ax1 = int(W.strehl["center_x"] - myrad)
-        ax2 = int(W.strehl["center_x"] + myrad)
-        ay1 = int(W.strehl["center_y"] - myrad)
-        ay2 = int(W.strehl["center_y"] + myrad)
+        ax1 = int(get_state().d_fit_param["center_x"] - myrad)
+        ax2 = int(get_state().d_fit_param["center_x"] + myrad)
+        ay1 = int(get_state().d_fit_param["center_y"] - myrad)
+        ay2 = int(get_state().d_fit_param["center_y"] + myrad)
         ax1, ax2, ay1, ay2 = IF.Order4((ax1, ax2, ay1, ay2), grid=grid)
         image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
 
         bol_i = IF.EllipticalAperture(
             image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
-                            "rv": rvi, "theta": W.strehl["theta"]})["bol"]
+                            "rv": rvi, "theta": get_state().d_fit_param["theta"]})["bol"]
 
         bol_o = IF.EllipticalAperture(
             image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
-                            "rv": rvo, "theta": W.strehl["theta"]})["bol"]
+                            "rv": rvo, "theta": get_state().d_fit_param["theta"]})["bol"]
 
         bol_a = bol_o ^ bol_i
 
         iminfo_cut = ImageInfo(image_cut[bol_a])
         tmp = iminfo_cut.sky()
-        dic['rms'] = tmp["rms"]
-        dic['my_background'] = tmp["mean"]
+        rms = tmp["rms"]
+        background = tmp["mean"]
 
     else:
-        dic['rms'] = -99
-        dic['my_background'] = -99
+        log(-1, 'Error: I dont know sky mesure type', get_state.s_noise_type)
+        rms = background = float('nan')
 
-    return dic
+    return background, rms
 
     ###############
     # BINARY

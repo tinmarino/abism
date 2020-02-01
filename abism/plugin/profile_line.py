@@ -5,6 +5,7 @@
 import numpy as np
 
 from abism.back import ImageFunction as IF
+from abism.back.fit_template_function import get_fit_function
 from abism.back.image_info import get_array_stat
 
 from abism.util import get_state, get_root, log
@@ -15,18 +16,22 @@ def show_profile(point1, point2):
     ab, od, points = IF.RadialLine(
         get_state().image.im0, (point1, point2), return_point=1)
 
-    # FIT
-    # if ( get_state().s_fit_type != "None" ) & ( "strehl" in vars(W) ):
-    #  I_theory = vars(BF) [get_state().s_fit_type ](points,W.strehl["fit_dic"],get_state().s_fit_type)
-    #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
-
     # Plot <- Reset
     ax = get_root().frame_fit.reset_figure_ax()
-    ax.plot(ab, od, '-', linewidth=1, label="Data")
     ax.legend(loc=1, prop={'size': 8})
-    get_root().frame_fit.redraw()
 
+    # Data
+    ax.plot(ab, od, '-', linewidth=1, label="Data")
+
+    # Fit
+    fit_fct = get_fit_function()
+    if get_state().s_fit_type != "None" and fit_fct is not None:
+        od_fit = fit_fct(points, get_state().d_fit_param)
+        ax.plot(ab, od_fit, color='purple', linewidth=2, label='Fitted PSF')
+
+    # Redraw
     log(8, "ProfileAnswer :", zip(points, get_state().image.im0[tuple(points)]))
+    get_root().frame_fit.redraw()
 
     # Get stat
     ps = get_array_stat(get_state().image.im0[tuple(points)])

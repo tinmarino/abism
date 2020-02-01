@@ -14,7 +14,6 @@ import abism.front.util_front as G
 # Back
 from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
-import abism.back.util_back as W
 
 # Plugin
 from abism.util import log, get_root, get_state, get_aa, EA, EPick
@@ -62,10 +61,10 @@ def tktext_insert_warnings(self):
     stg = ''
 
     # Saturated
-    if 'intensity' not in W.strehl:  # binary
-        intensity = W.strehl["intensity0"] + W.strehl["intensity1"]
+    if 'intensity' not in get_state().d_fit_param:  # binary
+        intensity = get_state().d_fit_param["intensity0"] + get_state().d_fit_param["intensity1"]
     else:
-        intensity = W.strehl["intensity"]
+        intensity = get_state().d_fit_param["intensity"]
 
     if intensity > get_root().header.non_linearity_level:
         if intensity > 1.0 * get_root().header.saturation_level:
@@ -81,10 +80,10 @@ def tktext_insert_warnings(self):
 
     # Binary too far
     if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
-        max_dist = max(W.strehl["fwhm_x0"] + W.strehl["fwhm_x1"],
-                       W.strehl["fwhm_y0"] + W.strehl["fwhm_y1"])
-        sep = (W.strehl["x0"] - W.strehl["x1"])**2
-        sep += (W.strehl["y0"] - W.strehl["y1"])**2
+        max_dist = max(get_state().d_fit_param["fwhm_x0"] + get_state().d_fit_param["fwhm_x1"],
+                       get_state().d_fit_param["fwhm_y0"] + get_state().d_fit_param["fwhm_y1"])
+        sep = (get_state().d_fit_param["x0"] - get_state().d_fit_param["x1"])**2
+        sep += (get_state().d_fit_param["y0"] - get_state().d_fit_param["y1"])**2
         sep = np.sqrt(sep)
 
         if max_dist*15 < sep:  # means too high separation
@@ -265,10 +264,10 @@ def PlotStar():
 
 
 def PlotOneStar1D():
-    center = (W.strehl['center_x'], W.strehl['center_y'])
+    center = (get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y'])
     #################
     # PLOT radius profile
-    params = W.strehl
+    params = get_state().d_fit_param
     log(3, 'center=', center)
 
     fit_fct = BF.get_fit_function()
@@ -288,7 +287,7 @@ def PlotOneStar1D():
             linewidth=1, label='Data')
 
     # Plot encircle line
-    r99 = (W.strehl['r99x']+W.strehl['r99y'])/2
+    r99 = (get_state().d_fit_param['r99x']+get_state().d_fit_param['r99y'])/2
     x0cut, x1cut = center[0]-r99, center[0]+r99
     ax.axvline(x=x0cut, color='black', linestyle='-.', label='99% EE')
     ax.axvline(x=x1cut, color='black', linestyle='-.')
@@ -326,9 +325,9 @@ def PlotOneStar1D():
 
 def PlotBinaryStar1D():
     """Draw 1D of binary system"""
-    x0, y0 = W.strehl["x0"], W.strehl["y0"]
-    x1, y1 = W.strehl["x1"], W.strehl["y1"]
-    fwhm0, fwhm1 = W.strehl["fwhm_x0"], W.strehl["fwhm_x1"]
+    x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
+    x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
+    fwhm0, fwhm1 = get_state().d_fit_param["fwhm_x0"], get_state().d_fit_param["fwhm_x1"]
 
     #######
     # EXTREMITIES OF PROFILE LINE ...
@@ -359,7 +358,7 @@ def PlotBinaryStar1D():
     y_theory = np.interp(ab_th, ab_range, y_range)
     if get_state().s_fit_type is not None:
         I_theory = vars(BF)[s_fit_type](
-            (x_theory, y_theory), W.strehl["fit_dic"])
+            (x_theory, y_theory), get_state().d_fit_param)
     else:
         I_theory = 0*x_theory
 
@@ -390,8 +389,8 @@ def PlotStar2():
 
 
 def PlotOneStar2D():
-    x0, y0 = W.strehl["center_x"], W.strehl["center_y"]
-    r99x, r99y = W.strehl["r99x"], W.strehl["r99y"]
+    x0, y0 = get_state().d_fit_param["center_x"], get_state().d_fit_param["center_y"]
+    r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
     dx1, dx2 = int(max(x0-4*r99x, 0)), int(min(x0+4*r99x,
                                                len(get_state().image.im0) + 1))  # d like display
     dy1, dy2 = int(max(y0-4*r99y, 0)), int(min(y0+4*r99y,
@@ -416,12 +415,12 @@ def PlotOneStar2D():
         if "Gaussian_hole" in s_fit_type:
             s_fit_type = "Gaussian_hole"
         ax.imshow(
-            fit_fct((X, Y), W.strehl),
+            fit_fct((X, Y), get_state().d_fit_param),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
                                           )  # need to comment the extent other wise too crowded and need to change rect position
-        #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[s_fit_type]((r[2]+y,r[0]+x),W.strehl)
+        #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[s_fit_type]((r[2]+y,r[0]+x),get_state().d_fit_param)
         ax.format_coord = lambda x, y: ""
 
     # Get && Reset figure
@@ -440,7 +439,7 @@ def PlotOneStar2D():
         plot_data(ax2)
 
     # APERTTURES
-    params = W.strehl
+    params = get_state().d_fit_param
     #   s   (te center of the rect is in fact the bottm left corner)
 
     # NOISE 8 RECT
@@ -458,7 +457,8 @@ def PlotOneStar2D():
     # NOISE ANNULUS
     elif (get_state().s_noise_type == "elliptical_annulus"):
         # INNER
-        tmpmin, tmpmax = W.ell_inner_ratio,  W.ell_outer_ratio
+        # TODO hardcode as in strehlimage.py
+        tmpmin, tmpmax = 1.3, 1.6
         tmpstep = (tmpmax-tmpmin)/3
         lst = np.arange(tmpmin, tmpmax + tmpstep, tmpstep)
         for rt in lst:
@@ -508,8 +508,8 @@ def PlotOneStar2D():
 
 def PlotBinaryStar2D():
 
-    x0, y0 = W.strehl["x0"], W.strehl["y0"]
-    x1, y1 = W.strehl["x1"], W.strehl["y1"]
+    x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
+    x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
     xr, yr = 3*abs(x0-x1), 3*abs(y0-y1)  # ditances
     side = max(xr, yr)  # side of the displayed square
     rx1, rx2 = int(min(x0, x1) - side / 2),  int(max(x0, x1) + side / 2)
@@ -547,12 +547,12 @@ def PlotBinaryStar2D():
 
     ax2 = get_root().frame_result.get_figure().add_subplot(122)
     ax2.imshow(
-        fit_fct((X, Y), W.strehl),
+        fit_fct((X, Y), get_state().d_fit_param),
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
         cmap=cmap, origin='lower',
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
         )  # need to comment the extent other wise too crowded and need to change rect positio
-    #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),W.strehl)
+    #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),get_state().d_fit_param)
     ax2.format_coord = lambda x, y: ""
     get_root().frame_result.redraw()
     return

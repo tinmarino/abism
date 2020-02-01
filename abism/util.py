@@ -231,10 +231,11 @@ class EA(Enum):
     STREHL = ['Strehl', AnswerNum]
     STREHL_EQ = [u'Eq. SR(2.17\u03bcm)', AnswerNum]
 
-    # Detail
+    # Detail <- used for calculation
     CENTER = ['Center', AnswerPosition]
     FWHM_ABE = ['FWHM a,b,e', AnswerFwhm]
     PHOTOMETRY = ['Photometry', AnswerLuminosity]
+    ERR_PHOTOMETRY = ['Photometry Error', AnswerLuminosity]
     BACKGROUND = ['Sky', AnswerLuminosity]
     NOISE = ['Sky RMS', AnswerLuminosity]
     SN = ['S/N', AnswerNum]
@@ -243,6 +244,7 @@ class EA(Enum):
     R99 = ['R99', AnswerNum]
     INTENSITY = ['Peak', AnswerLuminosity]
     INTENSITY_THEORY = ['Ith', AnswerLuminosity]
+    BESSEL_INTEGER = ['Ith', AnswerNum]
 
     # Errors
     ERR_STREHL = ['Strehl Error', AnswerNum]
