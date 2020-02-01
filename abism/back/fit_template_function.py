@@ -4,15 +4,27 @@ from scipy.special import jn  # pylint: disable=no-name-in-module
 from abism.util import get_state, log, EPick
 
 
-
-# TODO refactor all that in the caller discriminator
 def get_fit_function():
-    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
+    """Rember last for profile"""
+    # Alias <- side
+    e_pick_type = get_state().e_pick_type
+
+    # Manage cache for profile
+    if e_pick_type == EPick.PROFILE:
+        e_pick_type = get_fit_function.e_pick_type_cache
+    else:
+        get_fit_function.e_pick_type_cache = e_pick_type
+
+    # Discriminate call
+    if e_pick_type in (EPick.BINARY, EPick.TIGHT):
         fit_fct = get_binary_fct()
     else:
         fit_fct = get_one_fct()
 
     return fit_fct
+
+# Cache for profile
+get_fit_function.e_pick_type_cache = None
 
 
 def get_binary_fct():
