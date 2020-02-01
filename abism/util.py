@@ -300,9 +300,9 @@ class AbismState(DotDic):
         self.tk_pick.set(self.e_pick_type)
 
         # Type
-        self.fit_type = get_fit_list()[1]
-        self.phot_type = 'elliptical_aperture'
-        self.noise_type = 'elliptical_annulus'
+        self.s_fit_type = get_fit_list()[1]
+        self.s_phot_type = 'elliptical_aperture'
+        self.s_noise_type = 'elliptical_annulus'
         self.b_aniso = True
         self.b_same_psf = True
         self.b_same_center = True

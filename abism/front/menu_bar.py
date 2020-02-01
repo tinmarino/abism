@@ -157,11 +157,11 @@ class AnalysisMenu(ButtonMenu):
         def on_change_fit(string_var):
             s_in = string_var.get()
             log(5, 'Change Fit to', s_in)
-            get_state().fit_type = s_in
+            get_state().s_fit_type = s_in
 
         # Add radio but
         string_var = tk.StringVar()
-        string_var.set(get_state().fit_type)
+        string_var.set(get_state().s_fit_type)
         for text in get_fit_list():
             self.menu.add_radiobutton(
                 label=text,

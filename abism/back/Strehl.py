@@ -122,12 +122,12 @@ def StrehlError():
     dPhot = dBack * np.sqrt(W.strehl["number_count"])
 
     # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
-    get_state().phot_type = "fit"
+    get_state().s_phot_type = "fit"
     log(3, "\n\n WARNING: StrehlError changed the aperture type "
            "to fit because not ellipse pick it shouldn't matter ")
 
     # INTENSITY
-    if get_state().phot_type and get_state().fit_type != "None":
+    if get_state().s_phot_type and get_state().s_fit_type != "None":
         dI = W.psf_fit[1]["intensity"]
     else:
         x0, y0 = int(W.strehl["center_x"]), int(W.strehl["center_y"])
@@ -181,7 +181,7 @@ def append_binary_info(fit_dic, err_dic):
     """Read
     Write: Separatation"""
     # Fit type
-    answer = set_aa(EA.BINARY, get_state().fit_type)
+    answer = set_aa(EA.BINARY, get_state().s_fit_type)
 
     # Some lookup due to move
     x0, x1, y0, y1 = W.strehl["x0"], W.strehl["x1"], W.strehl["y0"], W.strehl["y1"]
@@ -219,7 +219,7 @@ def EllipseEventStrehl(ellipse):
     Param: ellipse artist with ru, rv, position
     """
     W.strehl = {}
-    if get_state().phot_type == "fit":
+    if get_state().s_phot_type == "fit":
         log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
     # Background

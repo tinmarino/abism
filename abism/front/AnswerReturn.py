@@ -157,7 +157,7 @@ def grid_button_change_coord():
 
 def get_new_text_frame():
     # Pack fit type in Frame
-    get_root().frame_answer.set_fit_type_text(get_state().fit_type)
+    get_root().frame_answer.set_fit_type_text(get_state().s_fit_type)
     get_root().frame_answer.clear()
 
     # Button to change cord
@@ -295,7 +295,7 @@ def PlotOneStar1D():
     ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
 
     # Plot Fit
-    if get_state().fit_type != 'None':
+    if get_state().s_fit_type != 'None':
         I_theory = fit_fct((a, params['center_y']), params)
         ax.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
 
@@ -346,10 +346,10 @@ def PlotBinaryStar1D():
     ab, od, points = IF.RadialLine(
         get_state().image.im0, (extremity0, extremity1), return_point=1)
 
-    if "Moffat" in get_state().fit_type:
-        fit_type = "Moffat2pt"
+    if "Moffat" in get_state().s_fit_type:
+        s_fit_type = "Moffat2pt"
     else:
-        fit_type = "Gaussian2pt"
+        s_fit_type = "Gaussian2pt"
     ab_range = ab[0], ab[-1]
     x_range = points[0][1], points[0][-1]
     y_range = points[1][1], points[1][-1]
@@ -357,8 +357,8 @@ def PlotBinaryStar1D():
     ab_th = np.arange(ab_range[0], ab_range[1], 0.1)
     x_theory = np.interp(ab_th, ab_range, x_range)
     y_theory = np.interp(ab_th, ab_range, y_range)
-    if get_state().fit_type is not None:
-        I_theory = vars(BF)[fit_type](
+    if get_state().s_fit_type is not None:
+        I_theory = vars(BF)[s_fit_type](
             (x_theory, y_theory), W.strehl["fit_dic"])
     else:
         I_theory = 0*x_theory
@@ -411,17 +411,17 @@ def PlotOneStar2D():
         ax.format_coord = lambda x, y: ""
 
     def plot_fit(ax):
-        fit_type = get_state().fit_type
+        s_fit_type = get_state().s_fit_type
         fit_fct = BF.get_fit_function()
-        if "Gaussian_hole" in fit_type:
-            fit_type = "Gaussian_hole"
+        if "Gaussian_hole" in s_fit_type:
+            s_fit_type = "Gaussian_hole"
         ax.imshow(
             fit_fct((X, Y), W.strehl),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
             cmap=G.cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
                                           )  # need to comment the extent other wise too crowded and need to change rect position
-        #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[fit_type]((r[2]+y,r[0]+x),W.strehl)
+        #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[s_fit_type]((r[2]+y,r[0]+x),W.strehl)
         ax.format_coord = lambda x, y: ""
 
     # Get && Reset figure
@@ -434,7 +434,7 @@ def PlotOneStar2D():
     plot_data(ax1)
 
     # Plot second image (fit)
-    if get_state().fit_type != "None":
+    if get_state().s_fit_type != "None":
         plot_fit(ax2)
     else:
         plot_data(ax2)
@@ -444,7 +444,7 @@ def PlotOneStar2D():
     #   s   (te center of the rect is in fact the bottm left corner)
 
     # NOISE 8 RECT
-    if (get_state().noise_type == "8rects"):
+    if (get_state().s_noise_type == "8rects"):
         rect = (x0 - params['r99x'], x0 + params['r99x'],
                 y0 - params['r99y'], y0 + params['r99y'])
         var = IF.EightRectangleNoise(get_state().image.im0, rect, return_rectangle=1)[2]
@@ -456,7 +456,7 @@ def PlotOneStar2D():
         center = x0 - r[0], y0-r[2]
 
     # NOISE ANNULUS
-    elif (get_state().noise_type == "elliptical_annulus"):
+    elif (get_state().s_noise_type == "elliptical_annulus"):
         # INNER
         tmpmin, tmpmax = W.ell_inner_ratio,  W.ell_outer_ratio
         tmpstep = (tmpmax-tmpmin)/3
@@ -472,7 +472,7 @@ def PlotOneStar2D():
             ax2.add_patch(a)
 
     # PHOT RECT
-    if get_state().phot_type == "encircled_energy":
+    if get_state().s_phot_type == "encircled_energy":
         tx = params["center_x"] - r[0]
         ty = params["center_y"] - r[2]
         a = matplotlib.patches.Rectangle(
@@ -480,7 +480,7 @@ def PlotOneStar2D():
         ax2.add_patch(a)
 
     # PHOT ELL
-    elif get_state().phot_type == "elliptical_aperture":
+    elif get_state().s_phot_type == "elliptical_aperture":
         width = 2*params["r99v"]
         height = 2*params["r99u"]
         angle = params["theta"] * 180./np.pi
@@ -537,9 +537,9 @@ def PlotBinaryStar2D():
     ax1.format_coord = lambda x, y: "%.1f" % get_state().image.im0[y, x]
     ax1.format_coord = lambda x, y: ""
     # FIT
-    if "Moffat" in get_state().fit_type:
+    if "Moffat" in get_state().s_fit_type:
         stg = "Moffat2pt"
-    elif "Gaussian" in get_state().fit_type:
+    elif "Gaussian" in get_state().s_fit_type:
         stg = "Gaussian2pt"
 
     fit_fct = lambda points, params: vars(BF)[stg](

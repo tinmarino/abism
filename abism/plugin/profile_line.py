@@ -16,8 +16,8 @@ def show_profile(point1, point2):
         get_state().image.im0, (point1, point2), return_point=1)
 
     # FIT
-    # if ( get_state().fit_type != "None" ) & ( "strehl" in vars(W) ):
-    #  I_theory = vars(BF) [get_state().fit_type ](points,W.strehl["fit_dic"],get_state().fit_type)
+    # if ( get_state().s_fit_type != "None" ) & ( "strehl" in vars(W) ):
+    #  I_theory = vars(BF) [get_state().s_fit_type ](points,W.strehl["fit_dic"],get_state().s_fit_type)
     #  G.ax2.plot(ab,I_theory,color='purple',linewidth=2,label='Fitted PSF')
 
     # Plot <- Reset

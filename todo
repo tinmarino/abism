@@ -18,6 +18,8 @@
 # Bug
 
 * Manual photometry not working
+* aniso is not setted at first
+* Info should reset at each new opened image
 
 # Easy win
 

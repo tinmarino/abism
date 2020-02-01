@@ -308,12 +308,12 @@ def EnergyRadius(grid, dic={}):
     Returns: (r99uv), (r99xy)
     """
     params = dic  # because no update
-    fit_type = get_state().fit_type
+    s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
 
     ############
     # GAUSSIAN
-    if fit_type == 'Gaussian':
+    if s_fit_type == 'Gaussian':
         # 2.14 for 99% energy, we ll use 3.14
         r99u = 3.14 * params['spread_x']
         if aniso:
@@ -321,7 +321,7 @@ def EnergyRadius(grid, dic={}):
         else:
             r99v = 3.14 * params['spread_x']
 
-    # if ('Gaussian_hole' in fit_type):  # 2.14 for 99% energy, we ll use 3.14
+    # if ('Gaussian_hole' in s_fit_type):  # 2.14 for 99% energy, we ll use 3.14
     #     if 'pread_y' in params.has_key:
     #         r99u = 3.14 * params['spread_x']
     #         r99v = 3.14 * params['spread_y']
@@ -331,7 +331,7 @@ def EnergyRadius(grid, dic={}):
 
     ###############
     # MOFFAT
-    if 'Moffat' in fit_type:
+    if 'Moffat' in s_fit_type:
         # r99 = r90
         # r99u= params['spread_x'] * np.sqrt( (1-%)**(1/(1-params['exponent'])) -1 )
         ap = 5  # 5 times the spread, for aperture,
@@ -353,15 +353,15 @@ def EnergyRadius(grid, dic={}):
 
     ############
     # BESSEL and None
-    if fit_type == 'Bessel1':
+    if s_fit_type == 'Bessel1':
         # take cara r99 = R90
         r99u = 5.8 * params['spread_x']
         r99v = 5.8 * params['spread_x']
-    if (fit_type == 'Bessel12D'):
+    if (s_fit_type == 'Bessel12D'):
         # take cara r99 = R90
         r99u = 5.8 * params['spread_x']
         r99v = 5.8 * params['spread_y']
-    if (fit_type == 'None'):
+    if (s_fit_type == 'None'):
         r99u, r99v = params["r99x"],  params["r99y"]
 
     ###########
@@ -380,13 +380,13 @@ def EnergyRadius(grid, dic={}):
 
 def FwhmFromFit(param):
     """and phot  all explicit  return fwhm_x, fwhm_y (0 or 1)
-    from spread and exponent and fit_type, that is explicit"""
-    fit_type = get_state().fit_type
+    from spread and exponent and s_fit_type, that is explicit"""
+    s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
 
     # "
     # GAUSSIAN
-    if 'Gaussian' in fit_type:
+    if 'Gaussian' in s_fit_type:
         if not aniso:
             try:
                 param["spread_y_hole"] = param["spread_x_hole"]
@@ -394,7 +394,7 @@ def FwhmFromFit(param):
                 pass
         photometry = np.pi*param['intensity'] * \
             param['spread_x']*param['spread_y']
-        # if "hole" in fit_type:
+        # if "hole" in s_fit_type:
         #     photometry -= np.pi*param['intensity_hole'] * \
         #         param['spread_x_hole']*param['spread_y_hole']
         fwhm_x = 1.66510922*param['spread_x']  # 2 * sqrt( log(2) )
@@ -402,7 +402,7 @@ def FwhmFromFit(param):
 
     ###########
     # MOFFAT
-    elif "Moffat" in fit_type:
+    elif "Moffat" in s_fit_type:
         if not aniso:
             param["spread_y"] = param["spread_x"]
             param["theta"] = 99
@@ -426,7 +426,7 @@ def FwhmFromFit(param):
 
     ##########
     # BESSEL
-    elif 'Bessel1' in fit_type:
+    elif 'Bessel1' in s_fit_type:
         if not aniso:
             param["spread_y"] = param["spread_x"]
 
@@ -435,11 +435,11 @@ def FwhmFromFit(param):
         fwhm_x = 2 * param['spread_x'] * 1.61
         fwhm_y = 2 * param['spread_y'] * 1.61
 
-    elif fit_type == 'None':
+    elif s_fit_type == 'None':
         photometry = 99
         fwhm_x, fwhm_y = 99, 99
 
-    log(3, 'Fit: photometry, estimated from', fit_type, 'is', photometry)
+    log(3, 'Fit: photometry, estimated from', s_fit_type, 'is', photometry)
     return {"fwhm_x": fwhm_x, "fwhm_y": fwhm_y, "photometry_fit": photometry}
 
 

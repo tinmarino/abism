@@ -20,7 +20,7 @@ class Fit(ABC):
         self.grid = grid
 
         # Retrieve fit function
-        self.fit_type = get_state().fit_type
+        self.s_fit_type = get_state().s_fit_type
         self.fit_fct = BF.get_fit_function()
         self.b_aniso = get_state().b_aniso
 
@@ -169,7 +169,7 @@ class PsfFit(Fit):
 
     def get_not_fitted(self):
         doNotFit = []
-        if get_state().noise_type == 'None' or get_state().noise_type == 'manual':
+        if get_state().s_noise_type == 'None' or get_state().s_noise_type == 'manual':
             doNotFit.append('background')
         elif self.fit_fct is not BF.Gaussian_hole:
             if not get_state().b_aniso:
@@ -269,7 +269,7 @@ class BinaryPsf(Fit):
             grid=self.grid)
 
         log(3, "----->IF.BinaryPSF :", "The fit is done between points ",
-            (rx1, ry1), " and ", (rx2, ry2), "with fit", self.fit_type)
+            (rx1, ry1), " and ", (rx2, ry2), "with fit", self.s_fit_type)
 
         X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
         y, x = np.meshgrid(Y, X)
@@ -284,10 +284,10 @@ class BinaryPsf(Fit):
 
 
     def get_function(self):
-        """vars(BF)[self.fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)"""
+        """vars(BF)[self.s_fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)"""
         # aniso = get_state().b_aniso
         # same_psf = get_state().b_same_psf
-        # fct_base = vars(BF)[self.fit_type.replace("2D", "")+"2pt"]
+        # fct_base = vars(BF)[self.s_fit_type.replace("2D", "")+"2pt"]
         # log(3, 'Fit function:', fct_base, "\n",
         #     'anisoplanetism:', aniso, "\n",
         #     'same_psf:', same_psf, "\n",
@@ -308,7 +308,7 @@ class BinaryPsf(Fit):
             'intensity1': self.grid[int(x2)][int(y2)],
             'background': 0, "theta": 1}
 
-        if "Moffat" in self.fit_type:
+        if "Moffat" in self.s_fit_type:
             suposed_param['b0'], suposed_param['b1'] = 1.8, 1.8
 
         log(3, "Binary FiT, supposed parameters : ", suposed_param)
@@ -323,7 +323,7 @@ class BinaryPsf(Fit):
             if not self.b_aniso:
                 doNotFit.append("spread_y0")
                 doNotFit.append("theta")
-            if "Moffat" in self.fit_type:
+            if "Moffat" in self.s_fit_type:
                 doNotFit.append("b1")
         else:  # not same psf
             if not self.b_aniso:
@@ -357,7 +357,7 @@ class BinaryPsf(Fit):
             'background': (0, None),
             "theta": (-0.1, 3.24)}
 
-        if "Moffat" in self.fit_type:
+        if "Moffat" in self.s_fit_type:
             bounds['b0'] = (1, 10)
             bounds['b1'] = (1, 10)
 
@@ -377,7 +377,7 @@ class BinaryPsf(Fit):
             self.result = restore(self.result, "spread_y1", "spread_y0")
             if not self.b_aniso:
                 self.result = restore(self.result, "spread_y0", "spread_x0")
-            if "Moffat" in self.fit_type:
+            if "Moffat" in self.s_fit_type:
                 self.result = restore(self.result, "b1", "b0")
         else:  # not same psf
             if not self.b_aniso:
@@ -458,7 +458,7 @@ class TightBinaryPsf(BinaryPsf):
             'intensity1': (min2, None)
         })
 
-        if "Moffat" in self.fit_type:
+        if "Moffat" in self.s_fit_type:
             bounds['b0'] = (1, 3)
             bounds['b1'] = (1, 3)
 
@@ -590,7 +590,7 @@ def Photometry(grid, background, rectangle=None):
     Note Background must be called before
     """
     photometry = total = number_count = 0
-    phot_type = get_state().phot_type
+    s_phot_type = get_state().s_phot_type
 
     r99x, r99y = W.strehl['r99x'], W.strehl['r99y']
     r99u, r99v = W.strehl['r99u'], W.strehl['r99v']
@@ -601,20 +601,20 @@ def Photometry(grid, background, rectangle=None):
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
     # FIT
-    if phot_type == 'fit':
+    if s_phot_type == 'fit':
         log(3, "Photometry <- fit")
         photometry = W.strehl["photometry_fit"]
         number_count = r99u * r99y
 
     # Rectangle apperture
-    elif phot_type == 'encircled_energy':
+    elif s_phot_type == 'encircled_energy':
         log(3, 'Photometry <- encircled energy (i.e. rectangle)')
         total = np.sum(grid[ax1:ax2, ay1:ay2])
         number_count = 4 * r99x * r99y
         photometry = total - number_count * background
 
     # Elliptical apperture
-    elif phot_type == 'elliptical_aperture':
+    elif s_phot_type == 'elliptical_aperture':
         log(3, 'Photometry <- elliptical aperture')
         ellipse_dic = {"center_x": x0, "center_y": y0,
                        "ru": r99u, "rv": r99v, "theta": theta}
@@ -627,7 +627,7 @@ def Photometry(grid, background, rectangle=None):
         photometry = total  - number_count * background
 
     # MANUAL
-    elif phot_type == 'manual':
+    elif s_phot_type == 'manual':
         log(3, "Photometry <- manual")
         stat = get_state().image.RectanglePhot(rectangle)
         total = stat.sum
@@ -635,14 +635,14 @@ def Photometry(grid, background, rectangle=None):
         photometry = total  - number_count * background
 
     else:
-        log(0, "Error: Photometry do not know tipe:", phot_type)
+        log(0, "Error: Photometry do not know tipe:", s_phot_type)
 
     return photometry, total, number_count
 
 
 def Background(grid, rectangle):
     # Log
-    background_type = get_state().noise_type
+    background_type = get_state().s_noise_type
     log(3, 'Getting Background with type', background_type)
 
     res = 0
@@ -652,7 +652,7 @@ def Background(grid, rectangle):
     r = rectangle
 
     # IN RECT
-    if get_state().noise_type == 'in_rectangle':  # change noise  from fit
+    if get_state().s_noise_type == 'in_rectangle':  # change noise  from fit
         dic['my_background'] = back / back_count
         rms = 0.
         for i in listrms:
@@ -661,7 +661,7 @@ def Background(grid, rectangle):
         dic['rms'] = rms
 
     # 8 RECTS
-    elif get_state().noise_type == '8rects':
+    elif get_state().s_noise_type == '8rects':
         xtmp, ytmp = dic['center_x'], dic['center_y']
         r99x, r99y = dic["r99x"], dic["r99y"]
         restmp = IF.EightRectangleNoise(
@@ -670,13 +670,13 @@ def Background(grid, rectangle):
         log(3, "ImageFunction.py : Background, I am in 8 rects ")
 
     # MANUAL
-    elif get_state().noise_type == "manual":
+    elif get_state().s_noise_type == "manual":
         dic["my_background"] = get_state().i_background
         dic["rms"] = 0
 
     # FIT
-    elif get_state().noise_type == 'fit':
-        if get_state().fit_type == "None":
+    elif get_state().s_noise_type == 'fit':
+        if get_state().s_fit_type == "None":
             log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, return to Annnulus background")
             param = param.copy()
             param.update({"noise": "annulus"})
@@ -688,12 +688,12 @@ def Background(grid, rectangle):
         dic['my_background'] = dic["background"]
 
     # NONE
-    elif get_state().noise_type == 'None':
+    elif get_state().s_noise_type == 'None':
         dic['my_background'] = dic['my_background'] = 0
         # dic['rms'] = 0
 
     # ELLIPTICAL ANNULUS
-    elif get_state().noise_type == "elliptical_annulus":
+    elif get_state().s_noise_type == "elliptical_annulus":
         W.ell_inner_ratio, W.ell_outer_ratio = 1.3, 1.6
         rui, rvi = 1.3 * W.strehl["r99u"], 1.3 * W.strehl["r99v"]
         ruo, rvo = 1.6 * W.strehl["r99u"], 1.6 * W.strehl["r99v"]

@@ -546,11 +546,11 @@ class OptionFrame(TextFrame):
 
             def set_phot(i):
                 log(3, 'Setting photometric aperture mesurement to', i)
-                get_state().phot_type = i
+                get_state().s_phot_type = i
 
             # Add radio buttons:
             string_var = tk.StringVar()
-            string_var.set(get_state().phot_type)
+            string_var.set(get_state().s_phot_type)
             for text, tag in lst:
                 menu_phot.menu.add_radiobutton(
                     label=text, command=lambda tag=tag: set_phot(tag),
@@ -580,10 +580,10 @@ class OptionFrame(TextFrame):
 
             def set_noise(i):
                 log(3, 'Setting background mesurement to', i)
-                get_state().noise_type = i
+                get_state().s_noise_type = i
 
             string_var = tk.StringVar()
-            string_var.set(get_state().noise_type)
+            string_var.set(get_state().s_noise_type)
             for text, tag in lst:
                 if text == "Manual":
                     menu.menu.add_radiobutton(
@@ -635,7 +635,7 @@ class OptionFrame(TextFrame):
             self.close_manual_background()
 
     def open_manual_background(self):
-        get_state().noise_type = "manual"
+        get_state().s_noise_type = "manual"
 
         # Grid root
         self.frame_manual_background = tk.Frame(self)
@@ -688,7 +688,7 @@ class AnswerFrame(TextFrame):
     def init_after(self, add_title=False):
         """Add fit type label"""
         self._fit_type_label = tk.Label(
-            self, justify=tk.CENTER, text=get_state().fit_type)
+            self, justify=tk.CENTER, text=get_state().s_fit_type)
         self._fit_type_label.grid(sticky='nsew')
         # Add also standard above
         super().init_after(add_title=add_title)

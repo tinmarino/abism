@@ -18,18 +18,18 @@ def get_fit_function():
 def get_binary_fct():
     """Enhance for binary fit"""
     # Get side
-    fit_type = get_state().fit_type
+    s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
     same_psf = get_state().b_same_psf
 
     # Check not Bessel
-    if "Gaussian" not in fit_type and "Moffat" not in fit_type:
+    if "Gaussian" not in s_fit_type and "Moffat" not in s_fit_type:
         log(0, "WARNING : There is no Bessel, None, and Gaussian hole fit "
             "type for binary fit, fit type is set to Gaussian")
-        fit_type = "Gaussian"
+        s_fit_type = "Gaussian"
 
     # Set function pointer
-    fct_base = globals()[fit_type.replace("2D", "") + "2pt"]
+    fct_base = globals()[s_fit_type.replace("2D", "") + "2pt"]
 
     # Set function named params (aniso and same_psf)
     fit_fct = lambda points, params: fct_base(
@@ -44,12 +44,12 @@ def get_binary_fct():
 
 def get_one_fct():
     """Enhance for fit one star"""
-    fit_type = get_state().fit_type
+    s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
 
-    if aniso: fit_type += '2D'
+    if aniso: s_fit_type += '2D'
 
-    fit_fct = globals()[fit_type]
+    fit_fct = globals()[s_fit_type]
 
     # Log
     log(0, 'Fit Function:', fit_fct)
