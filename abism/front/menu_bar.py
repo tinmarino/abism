@@ -361,7 +361,7 @@ class ToolMenu(ButtonMenu):
         self.menu.add_radiobutton(
             label='Profile', command=cmd,
             variable=get_state().tk_pick, value=EPick.PROFILE)
-        get_root().bind_all("<Control-p>p", lambda _: cmd())
+        get_root().bind_all("<Control-p>p", lambda _, cmd=cmd: cmd())
         self.menu.add_entry_info(
             "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
@@ -370,7 +370,7 @@ class ToolMenu(ButtonMenu):
         self.menu.add_radiobutton(
             label='Stat', command=cmd,
             variable=get_state().tk_pick, value=EPick.STAT)
-        get_root().bind_all("<Control-p>s", lambda _: cmd())
+        get_root().bind_all("<Control-p>s", lambda _, cmd=cmd: cmd())
         self.menu.add_entry_info(
             "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
 
@@ -379,7 +379,7 @@ class ToolMenu(ButtonMenu):
         self.menu.add_radiobutton(
             label='Ellipse', command=cmd,
             variable=get_state().tk_pick, value=EPick.ELLIPSE)
-        get_root().bind_all("<Control-p>e", lambda _: cmd())
+        get_root().bind_all("<Control-p>e", lambda _, cmd=cmd: cmd())
         self.menu.add_entry_info(
             "<C-P>E: Draw an ellipse where photometry is performed")
 
@@ -392,14 +392,14 @@ class ToolMenu(ButtonMenu):
         # Legacy console (tk)
         cmd = create_debug_console
         self.menu.add_radiobutton(label='Legacy Console', command=cmd)
-        get_root().bind_all("<Control-t>d", lambda _: cmd())
+        get_root().bind_all("<Control-t>d", lambda _, cmd=cmd: cmd())
         self.menu.add_entry_info(
             "<C-T>D: Open debug console window")
 
         # Jupyter
         cmd = create_jupyter_console
         self.menu.add_radiobutton(label='Jupyter Console', command=cmd)
-        get_root().bind_all("<Control-t>j", lambda _: cmd())
+        get_root().bind_all("<Control-t>j", lambda _, cmd=cmd: cmd())
         self.menu.add_entry_info(
             "<C-T>J: Open jupyter console window\n"
             "Requires: xterm, jupyter")
