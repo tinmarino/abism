@@ -18,7 +18,7 @@ def StrehlMeter(rectangle):
     """
 
     # Find center && fwhm
-    rectangle = IF.Order4(rectangle)
+    rectangle = IF.Order4(rectangle, grid=get_state().image.im0)
     # IF.FindBadPixel(get_state().image.im0,(rx1,rx2,ry1,ry2))
     # TODO really work twice ?
     star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=rectangle)
