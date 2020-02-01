@@ -23,11 +23,11 @@
 
 # Easy win
 
-state.fit_type -> s_fit_type, same with others
 on rancgle, if click and release same point, call the one point routine (same as middle click)
 
 # Feature
 
+* Stop fit if more than 10s or user kill
 * Add bounds to theta in fit or ti keeps roating
 * When opening new image, reconnect the pick
 * Ellipse and Annulus Pick (maybe in tool)

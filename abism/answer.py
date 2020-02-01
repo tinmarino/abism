@@ -136,11 +136,15 @@ class AnswerFwhm(AnswerSky):
 
 class AnswerDistance(AnswerSky):
     """Number of pixel or angular distance"""
+    def __init__(self, text, xy):
+        super().__init__(text, xy)
+        self.unit = [' [pxl]', " ''"]
+
     def str_sky(self):
         # Get pixel scale
         pxll = get_pixel_scale()
-        sky_distance = pxll * 1000 * self.value
-        return f'{sky_distance:.1f}'
+        sky_distance = pxll * self.value
+        return f'{sky_distance:.3f}'
 
     def str_detector(self):
         return f'{self.value:.2f}'
