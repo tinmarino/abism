@@ -472,7 +472,7 @@ def PlotOneStar2D():
             ax2.add_patch(a)
 
     # PHOT RECT
-    if get_state().s_phot_type == "encircled_energy":
+    if get_state().e_phot_type == "encircled_energy":
         tx = params["center_x"] - r[0]
         ty = params["center_y"] - r[2]
         a = matplotlib.patches.Rectangle(
@@ -480,7 +480,7 @@ def PlotOneStar2D():
         ax2.add_patch(a)
 
     # PHOT ELL
-    elif get_state().s_phot_type == "elliptical_aperture":
+    elif get_state().e_phot_type == "elliptical_aperture":
         width = 2*params["r99v"]
         height = 2*params["r99u"]
         angle = params["theta"] * 180./np.pi

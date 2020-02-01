@@ -277,6 +277,17 @@ class EPick(Enum):
     ELLIPSE = 7
 
 
+class EPhot(Enum):
+    """Photometric type: enum, description
+    See implementation in StrehlImage
+    """
+    FIT = 'Mesured from the fitted function'
+    ELLIPTICAL = ('Mesured from an elliptical aperture containing 99%% of the energy, '
+                  'which bound are determined by the fit')
+    RECTANGLE = ('Mesured from a rectangle aperture containing 99%% of the energy, '
+                 'which bound are determined by the fit')
+    MANUAL = 'Mesured from the rectangle section total inensity'
+
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
@@ -306,7 +317,7 @@ class AbismState(DotDic):
 
         # Type
         self.s_fit_type = get_fit_list()[1]
-        self.s_phot_type = 'elliptical_aperture'
+        self.e_phot_type = EPhot.ELLIPTICAL
         self.s_noise_type = 'elliptical_annulus'
         self.b_aniso = True
         self.b_same_psf = True

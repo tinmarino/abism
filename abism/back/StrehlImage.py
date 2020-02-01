@@ -9,7 +9,7 @@ import abism.back.fit_template_function as BF
 from abism.back.image_info import ImageInfo, get_array_stat
 
 
-from abism.util import log, get_state, EA
+from abism.util import log, get_state, EA, EPhot
 
 
 class Fit(ABC):
@@ -540,7 +540,7 @@ def Photometry(grid, background, rectangle=None):
     Note Background must be called before
     """
     photometry = total = number_count = 0
-    s_phot_type = get_state().s_phot_type
+    e_phot_type = get_state().e_phot_type
 
     r99x, r99y = get_state().d_fit_param['r99x'], get_state().d_fit_param['r99y']
     r99u, r99v = get_state().d_fit_param['r99u'], get_state().d_fit_param['r99v']
@@ -551,20 +551,20 @@ def Photometry(grid, background, rectangle=None):
     ay1, ay2 = int(y0-r99y), int(y0+r99y)
 
     # FIT
-    if s_phot_type == 'fit':
+    if e_phot_type == EPhot.FIT:
         log(3, "Photometry <- fit")
         photometry = get_state().d_fit_param["photometry_fit"]
         number_count = r99u * r99y
 
     # Rectangle apperture
-    elif s_phot_type == 'encircled_energy':
+    elif e_phot_type == EPhot.RECTANGLE:
         log(3, 'Photometry <- encircled energy (i.e. rectangle)')
         total = np.sum(grid[ax1:ax2, ay1:ay2])
         number_count = 4 * r99x * r99y
         photometry = total - number_count * background
 
     # Elliptical apperture
-    elif s_phot_type == 'elliptical_aperture':
+    elif e_phot_type == EPhot.ELLIPTICAL:
         log(3, 'Photometry <- elliptical aperture')
         ellipse_dic = {"center_x": x0, "center_y": y0,
                        "ru": r99u, "rv": r99v, "theta": theta}
@@ -577,7 +577,7 @@ def Photometry(grid, background, rectangle=None):
         photometry = total  - number_count * background
 
     # MANUAL
-    elif s_phot_type == 'manual':
+    elif e_phot_type == EPhot.MANUAL:
         log(3, "Photometry <- manual")
         stat = get_state().image.RectanglePhot(rectangle)
         total = stat.sum
@@ -585,7 +585,7 @@ def Photometry(grid, background, rectangle=None):
         photometry = total  - number_count * background
 
     else:
-        log(0, "Error: Photometry do not know tipe:", s_phot_type)
+        log(0, "Error: Photometry do not know tipe:", e_phot_type)
 
     return photometry, total, number_count
 

@@ -14,7 +14,7 @@ from abism.front.util_front import photo_up, photo_down, \
     open_backgroud_and_substract
 import abism.front.tk_extension as tk_ext
 
-from abism.util import log, get_root, quit_process, restart, get_state
+from abism.util import log, get_root, quit_process, restart, get_state, EPhot
 
 
 
@@ -542,22 +542,23 @@ class OptionFrame(TextFrame):
             menu_phot['menu'] = menu_phot.menu
 
             lst = [
-                ['Elliptical Aperture', 'elliptical_aperture'],
-                ['Fit', 'fit'],
-                ['Rectangle Aperture', 'encircled_energy'],
-                ['Manual', 'manual'],
+                ['Elliptical Aperture', EPhot.ELLIPTICAL],
+                ['Fit', EPhot.FIT],
+                ['Rectangle Aperture', EPhot.RECTANGLE],
+                ['Manual', EPhot.MANUAL],
             ]
 
-            def set_phot(i):
-                log(3, 'Setting photometric aperture mesurement to', i)
-                get_state().s_phot_type = i
+            def set_phot(_, tag):
+                """Passing string_var to avoid gc"""
+                log(3, 'Setting Photometry mesurement:', tag, '->', tag.value)
+                get_state().e_phot_type = tag
 
             # Add radio buttons:
             string_var = tk.StringVar()
-            string_var.set(get_state().s_phot_type)
+            string_var.set(get_state().e_phot_type)
             for text, tag in lst:
                 menu_phot.menu.add_radiobutton(
-                    label=text, command=lambda tag=tag: set_phot(tag),
+                    label=text, command=lambda tag=tag: set_phot(string_var, tag),
                     variable=string_var, value=tag)
 
             return menu_phot

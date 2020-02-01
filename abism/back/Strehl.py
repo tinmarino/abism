@@ -117,12 +117,12 @@ def StrehlError():
     dPhot = get_aa(EA.PHOTOMETRY)
 
     # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
-    get_state().s_phot_type = "fit"
+    get_state().e_phot_type = "fit"
     log(3, "\n\n WARNING: StrehlError changed the aperture type "
            "to fit because not ellipse pick it shouldn't matter ")
 
     # INTENSITY
-    if get_state().s_phot_type and get_state().s_fit_type != "None":
+    if get_state().e_phot_type and get_state().s_fit_type != "None":
         dI = get_state().d_fit_error["intensity"]
     else:
         x0, y0 = int(get_state().d_fit_param["center_x"]), int(get_state().d_fit_param["center_y"])
@@ -217,7 +217,7 @@ def EllipseEventStrehl(ellipse):
     """Main ellipse worker,
     Param: ellipse artist with ru, rv, position
     """
-    if get_state().s_phot_type == "fit":
+    if get_state().e_phot_type == "fit":
         log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
     # Background
