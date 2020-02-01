@@ -1,8 +1,9 @@
 # Next task
 
-0. Jupyter console working, fun is fact
+1. Jupyter console working, fun is fact
+  - Get option to open gnometerminal for ipython (actually do not use tk terminal yet)
 
-1. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
+2. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
   * Clasify the parameters building
 
 3. Refactor: AnswerReturn and Pick  (then every oth todo will be easyier)
@@ -11,7 +12,6 @@
   * Get Ellipse in legacy
     * First create legacy button
     * And make ellipse work
-    * 
 
 * Photometric error where are you ? 
 
@@ -19,7 +19,6 @@
 
 * Manual photometry not working
 * aniso is not setted at first
-* Info should reset at each new opened image
 
 # Easy win
 

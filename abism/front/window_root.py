@@ -90,10 +90,10 @@ class WindowRoot(tk.old_Tk):
         self.frame_image.draw_image()
 
         # Reset ImageParameters if open
+        # Note: update label
         if self.frame_option.see_image_parameter:
             self.frame_option.close_image_parameter()
             self.frame_option.open_image_parameter()
-
         # Reconnect
         if get_state().pick is not None:
             log(9, 'Reconnecting pick:', get_state().pick)

@@ -172,6 +172,10 @@ class LabelFrame(TextFrame):
         WCS detected or not
         """
         # pylint: disable = too-many-statements, too-many-branches
+
+        # Reset info, to avoid appending
+        self.clear()
+
         # Declare list of label (text, properties)
         text_n_props = []
 
