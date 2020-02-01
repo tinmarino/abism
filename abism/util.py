@@ -288,6 +288,18 @@ class EPhot(Enum):
                  'which bound are determined by the fit')
     MANUAL = 'Mesured from the rectangle section total inensity'
 
+
+class ESky(Enum):
+    """Sky mesurement methos: enum, description"""
+    ANNULUS = 'Elliptical annulus around object'
+    FIT = 'Fitted sky parameter (alias background)'
+    RECT8 = ('8 Rectangles around object, distance estimated from fit, '
+             'in the futur, it may enable non straight sky')
+    MANUAL = 'Given by a wise user'
+    RECTANGLE = 'User given rectangle, where the object also is, highly unreliable'
+    NONE = 'Zero sky <- from a well reduced image'
+
+
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
@@ -318,7 +330,7 @@ class AbismState(DotDic):
         # Type
         self.s_fit_type = get_fit_list()[1]
         self.e_phot_type = EPhot.ELLIPTICAL
-        self.s_noise_type = 'elliptical_annulus'
+        self.e_sky_type = ESky.ANNULUS
         self.b_aniso = True
         self.b_same_psf = True
         self.b_same_center = True

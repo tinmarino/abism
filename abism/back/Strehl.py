@@ -8,7 +8,8 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root, get_state, EA, get_aa, set_aa
+from abism.util import log, get_root, get_state, get_aa, set_aa, \
+    EA, EPhot
 
 
 def StrehlMeter(rectangle):
@@ -117,7 +118,7 @@ def StrehlError():
     dPhot = get_aa(EA.PHOTOMETRY)
 
     # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
-    get_state().e_phot_type = "fit"
+    get_state().e_phot_type = EPhot.FIT
     log(3, "\n\n WARNING: StrehlError changed the aperture type "
            "to fit because not ellipse pick it shouldn't matter ")
 
@@ -217,7 +218,7 @@ def EllipseEventStrehl(ellipse):
     """Main ellipse worker,
     Param: ellipse artist with ru, rv, position
     """
-    if get_state().e_phot_type == "fit":
+    if get_state().e_phot_type == EPhot.FIT:
         log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
     # Background

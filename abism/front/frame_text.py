@@ -14,7 +14,8 @@ from abism.front.util_front import photo_up, photo_down, \
     open_backgroud_and_substract
 import abism.front.tk_extension as tk_ext
 
-from abism.util import log, get_root, quit_process, restart, get_state, EPhot
+from abism.util import log, get_root, quit_process, restart, get_state, \
+    EPhot, ESky
 
 
 
@@ -576,27 +577,28 @@ class OptionFrame(TextFrame):
 
 
             lst = [
-                ["Annulus", "elliptical_annulus"],
-                ['Fit', 'fit'],
-                ["8Rects", "8rects"],
-                ['Manual', "manual"],
-                ["None", "None"],
+                ["Annulus", ESky.ANNULUS],
+                ['Fit', ESky.FIT],
+                ["8Rects", ESky.RECT8],
+                ["Rectangle", ESky.RECTANGLE],
+                ['Manual', ESky.MANUAL],
+                ["None", ESky.NONE],
             ]
 
-            def set_noise(i):
-                log(3, 'Setting background mesurement to', i)
-                get_state().s_noise_type = i
+            def set_noise(_, tag):
+                log(3, 'Setting background mesurement:', tag, '->', tag.value)
+                get_state().e_sky_type = tag
 
             string_var = tk.StringVar()
-            string_var.set(get_state().s_noise_type)
+            string_var.set(get_state().e_sky_type)
             for text, tag in lst:
-                if text == "Manual":
+                if tag == ESky.MANUAL:
                     menu.menu.add_radiobutton(
                         label=text, command=self.toogle_manual_background,
                         variable=string_var, value=tag)
                 else:
                     menu.menu.add_radiobutton(
-                        label=text, command=lambda tag=tag: set_noise(tag),
+                        label=text, command=lambda tag=tag: set_noise(string_var, tag),
                         variable=string_var, value=tag)
 
             return menu
@@ -640,7 +642,7 @@ class OptionFrame(TextFrame):
             self.close_manual_background()
 
     def open_manual_background(self):
-        get_state().s_noise_type = "manual"
+        get_state().e_sky_type = ESky.MANUAL
 
         # Grid root
         self.frame_manual_background = tk.Frame(self)

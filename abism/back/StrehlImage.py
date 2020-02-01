@@ -9,7 +9,7 @@ import abism.back.fit_template_function as BF
 from abism.back.image_info import ImageInfo, get_array_stat
 
 
-from abism.util import log, get_state, EA, EPhot
+from abism.util import log, get_state, EA, EPhot, ESky
 
 
 class Fit(ABC):
@@ -121,6 +121,8 @@ class PsfFit(Fit):
             'intensity': self.my_max,
             'background': 0
         }
+        if get_state().e_sky_type == ESky.MANUAL:
+            suposed_param['background'] = get_state().i_background
 
         if self.fit_fct is BF.Gaussian2D:
             tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
@@ -167,7 +169,7 @@ class PsfFit(Fit):
 
     def get_not_fitted(self):
         doNotFit = []
-        if get_state().s_noise_type == 'None' or get_state().s_noise_type == 'manual':
+        if get_state().e_sky_type in (ESky.NONE, ESky.MANUAL):
             doNotFit.append('background')
         elif self.fit_fct is not BF.Gaussian_hole:
             if not get_state().b_aniso:
@@ -306,6 +308,9 @@ class BinaryPsf(Fit):
             'intensity1': self.grid[int(x2)][int(y2)],
             'background': 0, "theta": 1}
 
+        if get_state().e_sky_type == ESky.MANUAL:
+            suposed_param['background'] = get_state().i_background
+
         if "Moffat" in self.s_fit_type:
             suposed_param['b0'], suposed_param['b1'] = 1.8, 1.8
 
@@ -315,6 +320,8 @@ class BinaryPsf(Fit):
 
     def get_not_fitted(self):
         doNotFit = []
+        if get_state().e_sky_type in (ESky.NONE, ESky.MANUAL):
+            doNotFit.append('background')
         if get_state().b_same_psf:
             doNotFit.append("spread_x1")
             doNotFit.append("spread_y1")
@@ -595,25 +602,27 @@ def Background(grid, r=None):
     TODO check r
     """
     # Log
-    background_type = get_state().s_noise_type
+    background_type = get_state().e_sky_type
 
     # Background and rms
     background = rms = 0
 
     # In rect
-    if background_type == 'in_rectangle':
+    if background_type == ESky.RECTANGLE:
         log(2, 'Getting Background in rectangle')
         # note: the old way was to change noise from fit
         im_cut = grid[r[0]: r[1], r[2]: r[3]]
         im_info = ImageInfo(im_cut)
-        back, back_count = im_info.sky(), im_info.stat.number_count
-        background = back / back_count
+        stat = im_info.sky()
+        background = stat['median']
+        # back_count = im_info.stat.number_count
+        # background = back / back_count
 
-        rms = sum([(i-background)**2 for i in im_cut])
-        rms = np.sqrt(rms/(len(im_cut)-1))
+        rms = sum([(i-background)**2 for i in im_cut.flatten()])
+        rms = np.sqrt(rms/(len(im_cut)-1)) / stat["number_count"]
 
     # 8 rects
-    elif background_type == '8rects':
+    elif background_type == ESky.RECT8:
         log(2, 'Getting Background in 8 rects')
         xtmp, ytmp = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
         r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
@@ -623,13 +632,13 @@ def Background(grid, r=None):
         log(3, "ImageFunction.py : Background, I am in 8 rects ")
 
     # Manual
-    elif background_type == "manual":
+    elif background_type == ESky.MANUAL:
         log(2, 'Getting Background manual')
         background = get_state().i_background
         rms = 0
 
     # Fit
-    elif background_type == 'fit':
+    elif background_type == ESky.FIT:
         log(2, 'Getting Background from fit')
         # Check if no fit which is incoherent
         # TODO not working well yet (Currently refactoring globals)
@@ -638,7 +647,7 @@ def Background(grid, r=None):
                 "return to Annnulus background")
             param = param.copy()
             param.update({"noise": "elliptical_annulus"})
-            get_state().s_noise_type = "annulus"
+            get_state().e_sky_type = ESky.ANNULUS
             return Background(get_state().image.im0)
         try:
             background = get_state().d_fit_param['background']
@@ -649,12 +658,12 @@ def Background(grid, r=None):
         background = get_state().d_fit_param["background"]
 
     # None
-    elif background_type == 'None':
+    elif background_type == ESky.NONE:
         log(2, 'Getting Background from None <- 0')
         background = rms = 0
 
     # Elliptical annulus
-    elif background_type == "elliptical_annulus":
+    elif background_type == ESky.ANNULUS:
         log(2, 'Getting Background from elliptical annulus')
         # TODO hardcode as in AnswerReturn
         ell_inner_ratio, ell_outer_ratio = 1.3, 1.6
@@ -686,11 +695,7 @@ def Background(grid, r=None):
         background = tmp["mean"]
 
     else:
-        log(-1, 'Error: I dont know sky mesure type', get_state.s_noise_type)
+        log(-1, 'Error: I dont know sky mesure type', get_state.e_sky_type)
         rms = background = float('nan')
 
     return background, rms
-
-    ###############
-    # BINARY
-    ###############

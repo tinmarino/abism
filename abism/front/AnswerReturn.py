@@ -16,7 +16,7 @@ from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
 
 # Plugin
-from abism.util import log, get_root, get_state, get_aa, EA, EPick
+from abism.util import log, get_root, get_state, get_aa, EA, EPick, EPhot, ESky
 
 
 def tktext_insert_answer(self, answer, error=None, tags=None):
@@ -443,7 +443,7 @@ def PlotOneStar2D():
     #   s   (te center of the rect is in fact the bottm left corner)
 
     # NOISE 8 RECT
-    if (get_state().s_noise_type == "8rects"):
+    if get_state().e_sky_type == ESky.RECT8:
         rect = (x0 - params['r99x'], x0 + params['r99x'],
                 y0 - params['r99y'], y0 + params['r99y'])
         var = IF.EightRectangleNoise(get_state().image.im0, rect, return_rectangle=1)[2]
@@ -455,7 +455,7 @@ def PlotOneStar2D():
         center = x0 - r[0], y0-r[2]
 
     # NOISE ANNULUS
-    elif (get_state().s_noise_type == "elliptical_annulus"):
+    elif get_state().e_sky_type == ESky.ANNULUS:
         # INNER
         # TODO hardcode as in strehlimage.py
         tmpmin, tmpmax = 1.3, 1.6
@@ -472,7 +472,7 @@ def PlotOneStar2D():
             ax2.add_patch(a)
 
     # PHOT RECT
-    if get_state().e_phot_type == "encircled_energy":
+    if get_state().e_phot_type == EPhot.RECTANGLE:
         tx = params["center_x"] - r[0]
         ty = params["center_y"] - r[2]
         a = matplotlib.patches.Rectangle(
@@ -480,7 +480,7 @@ def PlotOneStar2D():
         ax2.add_patch(a)
 
     # PHOT ELL
-    elif get_state().e_phot_type == "elliptical_aperture":
+    elif get_state().e_phot_type == EPhot.ELLIPTICAL:
         width = 2*params["r99v"]
         height = 2*params["r99u"]
         angle = params["theta"] * 180./np.pi
