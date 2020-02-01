@@ -29,8 +29,11 @@ def show_profile(point1, point2):
     do_plot_fit = do_plot_fit and fit_fct is not None
     do_plot_fit = do_plot_fit and get_state().d_fit_param
     if do_plot_fit:
-        od_fit = fit_fct(points, get_state().d_fit_param)
-        ax.plot(ab, od_fit, color='purple', linewidth=2, label='Fitted PSF')
+        try:
+            od_fit = fit_fct(points, get_state().d_fit_param)
+            ax.plot(ab, od_fit, color='purple', linewidth=2, label='Fitted PSF')
+        except Exception as e:
+            log(3, 'Warning, plot_profile could not plot fit, error:', e)
 
     # Redraw
     log(8, "ProfileAnswer :", zip(points, get_state().image.im0[tuple(points)]))
