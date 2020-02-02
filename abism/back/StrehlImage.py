@@ -51,8 +51,8 @@ class Fit(ABC):
     @abstractmethod
     def get_xy_IX_eIX(self): pass
 
-    @abstractmethod
-    def get_function(self): pass
+    def get_function(self):
+        return self.fit_fct
 
     @abstractmethod
     def get_supposed_parameters(self): pass
@@ -108,9 +108,6 @@ class PsfFit(Fit):
 
         return (x, y), IX, eIX
 
-
-    def get_function(self):
-        return self.fit_fct
 
     def get_supposed_parameters(self):
         x0, y0 = self.center
@@ -281,20 +278,6 @@ class BinaryPsf(Fit):
         eIX *= np.ones(IX.shape)
         log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
         return (x, y), IX, eIX
-
-
-    def get_function(self):
-        """vars(BF)[self.s_fit_type.replace("2D", "")+"2pt"](x, y, dic=dic_for_fit)"""
-        # aniso = get_state().b_aniso
-        # same_psf = get_state().b_same_psf
-        # fct_base = vars(BF)[self.s_fit_type.replace("2D", "")+"2pt"]
-        # log(3, 'Fit function:', fct_base, "\n",
-        #     'anisoplanetism:', aniso, "\n",
-        #     'same_psf:', same_psf, "\n",
-        #     )
-        # return lambda points, params: fct_base(
-        #     points, params, aniso=aniso, same_psf=same_psf)
-        return self.fit_fct
 
 
     def get_supposed_parameters(self):
