@@ -635,7 +635,7 @@ def Background(grid, r=None):
     elif background_type == ESky.MANUAL:
         log(2, 'Getting Background manual')
         background = get_state().i_background
-        rms = 0
+        rms = get_state().image.stat.rms
 
     # Fit
     elif background_type == ESky.FIT:
@@ -698,4 +698,5 @@ def Background(grid, r=None):
         log(-1, 'Error: I dont know sky mesure type', get_state.e_sky_type)
         rms = background = float('nan')
 
+    log(3, 'Background returned:', background, rms)
     return background, rms

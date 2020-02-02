@@ -653,6 +653,7 @@ class OptionFrame(TextFrame):
         def on_enter(string_var):
             i_in = float(string_var.get())
             get_state().i_manual_background = i_in
+            get_state().i_background = i_in
             log(0, "ManualBackground setted to:", i_in)
 
         # Grid label
