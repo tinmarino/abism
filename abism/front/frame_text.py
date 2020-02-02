@@ -587,6 +587,8 @@ class OptionFrame(TextFrame):
             def set_noise(_, tag):
                 log(3, 'Setting background mesurement:', tag, '->', tag.value)
                 get_state().e_sky_type = tag
+                if tag == ESky.NONE:
+                    get_state().i_background = 0
 
             string_var = tk.StringVar()
             string_var.set(get_state().e_sky_type)
@@ -651,7 +653,6 @@ class OptionFrame(TextFrame):
 
         def on_enter(string_var):
             i_in = float(string_var.get())
-            get_state().i_manual_background = i_in
             get_state().i_background = i_in
             log(0, "ManualBackground setted to:", i_in)
 

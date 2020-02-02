@@ -1,9 +1,6 @@
 # Next task
 
-* Make enum for background
-  * buggy rectangle <- sho the aperture to user
-  * buggy manual
-  * show sky in output of binary
+* text result, make the tab stop as left as possible (2 spaces from the tallest answer.text)
 
 1. Jupyter console working, fun is fact
   - Get option to open gnometerminal for ipython (actually do not use tk terminal yet)
@@ -33,7 +30,6 @@ on rectangle, if click and release same point, call the one point routine (same 
 
 * Stop fit if more than 10s or user kill
 * Add bounds to theta in fit or ti keeps roating
-* When opening new image, reconnect the pick
 * Ellipse and Annulus Pick (maybe in tool)
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
@@ -75,6 +71,7 @@ on rectangle, if click and release same point, call the one point routine (same 
   * Appdir module
   * In util, parse_argument and restart
 * Clean code (especially backend)
+  * Lint all
   * Beware the magic (FrameText 22, xtermTk, fontsize)
   * Consistent naming
 * Matplotlib super keyboard navigation (did not manage today to get key event only in my frame)

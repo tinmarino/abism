@@ -9,7 +9,7 @@ from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
 from abism.util import log, get_root, get_state, get_aa, set_aa, \
-    EA, EPhot
+    EA, EPhot, ESky
 
 
 def StrehlMeter(rectangle):
@@ -108,8 +108,6 @@ def get_bessel_integer():
 def StrehlError():
     """after strehl , number count , background, center_x, and center_y
     """
-    dics = get_state().d_fit_error
-
     # Get in <- side
     Sr = get_state().get_answer(EA.STREHL)
     Ith = get_aa(EA.INTENSITY_THEORY)
@@ -179,6 +177,8 @@ def append_binary_info():
     Write: Separatation"""
     # Fit type
     fit_dic, err_dic = get_state().d_fit_param, get_state().d_fit_error
+    log(9, 'Binary dic (Removes me)', fit_dic, err_dic)
+
     # TODO : Isn't that ugly
     set_aa(EA.BINARY, get_state().s_fit_type)
 
@@ -199,12 +199,20 @@ def append_binary_info():
     set_aa(EA.SEPARATION, separation)
     set_aa(EA.ERR_SEPARATION, sep_err)
 
+    # Get Background
+    set_aa(EA.BACKGROUND, fit_dic['background'])
+    if get_state().e_sky_type in (ESky.MANUAL, ESky.NONE):
+        set_aa(EA.NOISE, 0.0)
+    else:
+        set_aa(EA.NOISE, err_dic['background'])
+
+    # Get photometry
     phot0, phot1 = fit_dic["my_photometry0"], fit_dic["my_photometry1"]
     set_aa(EA.PHOTOMETRY1, phot0)
     set_aa(EA.PHOTOMETRY2, phot1)
     set_aa(EA.FLUX_RATIO, phot0 / phot1)
 
-    # Strehl
+    # Calculate Strehl
     bessel_integer = get_bessel_integer()
     Ith0, Ith1 = phot0/bessel_integer, phot1/bessel_integer
     strehl0 = fit_dic["intensity0"] / Ith0

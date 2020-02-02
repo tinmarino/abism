@@ -55,13 +55,37 @@ class Fit(ABC):
         return self.fit_fct
 
     @abstractmethod
-    def get_supposed_parameters(self): pass
+    def get_supposed_parameters(self):
+        supposed_param = {}
+        if get_state().e_sky_type in (ESky.MANUAL, ESky.NONE):
+            supposed_param['background'] = get_state().i_background
+        else:
+            supposed_param['background'] = 0
+        return supposed_param
+
 
     @abstractmethod
-    def get_not_fitted(self): pass
+    def get_not_fitted(self):
+        doNotFit = []
+        if get_state().e_sky_type in (ESky.NONE, ESky.MANUAL):
+            doNotFit.append('background')
+        return doNotFit
 
     @abstractmethod
-    def get_bounds(self): pass
+    def get_bounds(self):
+        """Universal bounds, if not used nevermind"""
+        bounds = {
+            'theta': (-0.1, 3.24),
+            'spread_x': (-0.1, None),
+            'spread_y': (-0.1, None),
+            'spread_x0': (-0.1, None),
+            'spread_x1': (-0.1, None),
+            'spread_y0': (-0.1, None),
+            'spread_y1': (-0.1, None),
+            'intensity0': (-0.1, None),
+            'intensity1': (-0.1, None),
+        }
+        return bounds
 
     @abstractmethod
     def get_result(self): pass
@@ -111,64 +135,59 @@ class PsfFit(Fit):
 
     def get_supposed_parameters(self):
         x0, y0 = self.center
-        suposed_param = {
+        supposed_param = super().get_supposed_parameters()
+        supposed_param.update({
             'center_x': self.center[0],
             'center_y': self.center[1],
             'spread_x': 0.83 * (self.fwhm),
             'intensity': self.my_max,
-            'background': 0
-        }
-        if get_state().e_sky_type == ESky.MANUAL:
-            suposed_param['background'] = get_state().i_background
-
+        })
         if self.fit_fct is BF.Gaussian2D:
-            tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
-            suposed_param.update(tmp)
+            tmp = {"spread_y": supposed_param["spread_x"], "theta": 0.1}
+            supposed_param.update(tmp)
 
         elif self.fit_fct is BF.Gaussian:
             pass
 
         elif self.fit_fct is BF.Moffat:
             # 1.5 = /np.sqrt(1/2**(-1/b)-1)
-            suposed_param.update({'spread_x': 1.5 * self.fwhm, 'exponent': 2})
+            supposed_param.update({'spread_x': 1.5 * self.fwhm, 'exponent': 2})
 
         elif self.fit_fct is BF.Moffat2D:
             # 0.83 = sqrt(ln(2))
             tmp = {
-                "spread_y": suposed_param["spread_x"], "theta": 0.1, "exponent": 2}
-            suposed_param.update(tmp)
+                "spread_y": supposed_param["spread_x"], "theta": 0.1, "exponent": 2}
+            supposed_param.update(tmp)
 
         elif self.fit_fct is BF.Bessel1:
             pass
 
         elif self.fit_fct is BF.Bessel12D:
             # 0.83 = sqrt(ln(2))
-            tmp = {"spread_y": suposed_param["spread_x"], "theta": 0.1}
-            suposed_param.update(tmp)
+            tmp = {"spread_y": supposed_param["spread_x"], "theta": 0.1}
+            supposed_param.update(tmp)
 
         # we consider 2D or not, same_center or not
         elif self.fit_fct is BF.Gaussian_hole:
-            suposed_param.update({
+            supposed_param.update({
                 'center_x_hole': x0, 'center_y_hole': y0,
                 'spread_x_hole': 0.83*(self.fwhm)/2,
                 'spread_y_hole': 0.83*self.fwhm/2,
                 'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
             if not get_state().b_aniso:
-                suposed_param["2D"] = 0
+                supposed_param["2D"] = 0
             else:  # aniso
-                suposed_param["2D"] = 1
+                supposed_param["2D"] = 1
 
             if get_state().b_same_center:
-                suposed_param["same_center"] = 1
+                supposed_param["same_center"] = 1
 
-        return suposed_param
+        return supposed_param
 
 
     def get_not_fitted(self):
-        doNotFit = []
-        if get_state().e_sky_type in (ESky.NONE, ESky.MANUAL):
-            doNotFit.append('background')
-        elif self.fit_fct is not BF.Gaussian_hole:
+        doNotFit = super().get_not_fitted()
+        if self.fit_fct is not BF.Gaussian_hole:
             if not get_state().b_aniso:
                 doNotFit.append("theta")
                 doNotFit.append("theta_hole")
@@ -180,25 +199,22 @@ class PsfFit(Fit):
             doNotFit.append("same_center")
         return doNotFit
 
+
     def get_bounds(self):
         x0, y0 = self.center
         local_median = np.median(
             self.grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
+        bounds = super().get_bounds()
 
-        fit_bounds = {
+        bounds.update({
             "center_x": [x0 - 10, x0 + 10],
             "center_y": [y0 - 10, y0 + 10],
-            "spread_x": [-0.1, None],
-            "spread_y": [-0.1, None],
-            # "exponent" :[1.2, 6 ],
+            "exponent" : [-0.1, 100],
             "background": [None, self.my_max],
-            "instensity": [local_median, 2.3 * self.my_max - local_median]}
+            "instensity": [local_median, 2.3 * self.my_max - local_median]
+        })
 
-        # Bound theta
-        if get_state().b_aniso:
-            fit_bounds['theta'] = [-0.1, 3.24]
-
-        return fit_bounds
+        return bounds
 
 
     def get_result(self):
@@ -282,29 +298,26 @@ class BinaryPsf(Fit):
 
     def get_supposed_parameters(self):
         (x1, y1), (x2, y2) = self.star1, self.star2
-        suposed_param = {
+        supposed_param = super().get_supposed_parameters()
+        supposed_param.update({
             'x0': x1, 'y0': y1,
             'x1': x2, 'y1': y2,
             'spread_x0': 0.83 * self.dist1, 'spread_x1': 0.83 * self.dist2,
             'spread_y0': 0.83 * self.dist1, 'spread_y1': 0.83 * self.dist2,
             'intensity0': self.grid[int(x1)][int(y1)],
             'intensity1': self.grid[int(x2)][int(y2)],
-            'background': 0, "theta": 1}
-
-        if get_state().e_sky_type == ESky.MANUAL:
-            suposed_param['background'] = get_state().i_background
+            "theta": 1
+        })
 
         if "Moffat" in self.s_fit_type:
-            suposed_param['b0'], suposed_param['b1'] = 1.8, 1.8
+            supposed_param['b0'], supposed_param['b1'] = 1.8, 1.8
 
-        log(3, "Binary FiT, supposed parameters : ", suposed_param)
-        return suposed_param
+        log(3, "Binary FiT, supposed parameters : ", supposed_param)
+        return supposed_param
 
 
     def get_not_fitted(self):
-        doNotFit = []
-        if get_state().e_sky_type in (ESky.NONE, ESky.MANUAL):
-            doNotFit.append('background')
+        doNotFit = super().get_not_fitted()
         if get_state().b_same_psf:
             doNotFit.append("spread_x1")
             doNotFit.append("spread_y1")
@@ -323,27 +336,19 @@ class BinaryPsf(Fit):
 
 
     def get_bounds(self):
-        # ###########
-        # # make the bounds
         # bd_x0 = (x1 - star_distance/2, x1 + star_distance/2)
         # bd_y0 = (y1 - star_distance/2, y1 + star_distance/2)
 
         # bd_x1 = (x2 - star_distance/2, x2 + star_distance/2)
         # bd_y1 = (y2 - star_distance/2, y2 + star_distance/2)
 
-        bounds = {
+        bounds = super().get_bounds()
+        bounds.update({
             # 'x0':bd_x0,
             # 'x1':bd_x1,
             # 'y0':bd_y0,
             # 'y1':bd_y1,
-            'spread_x0': (-0.1, None),
-            'spread_x1': (-0.1, None),
-            'spread_y0': (-0.1, None),
-            'spread_y1': (-0.1, None),
-            'intensity0': (-0.1, None),
-            'intensity1': (-0.1, None),
-            'background': (0, None),
-            "theta": (-0.1, 3.24)}
+        })
 
         if "Moffat" in self.s_fit_type:
             bounds['b0'] = (1, 10)
@@ -353,8 +358,7 @@ class BinaryPsf(Fit):
 
 
     def get_result(self):
-        ##############
-        # restore not fitted variables
+        # Declare: Restore not fitted variables
         def restore(lst, to_change, reference):
             lst[0][to_change] = lst[0][reference]
             lst[1][to_change] = lst[1][reference]

@@ -202,8 +202,7 @@ def print_ellipse():
         [EA.STREHL, None, ['tag-important']],
         [EA.CENTER],
         [EA.PHOTOMETRY],
-        # TODO error rms (easy win), callled noise
-        [EA.BACKGROUND],
+        [EA.BACKGROUND, EA.NOISE],
         [EA.INTENSITY],
     ]
 
@@ -229,6 +228,7 @@ def print_binary():
         [EA.STAR1],
         [EA.STAR2],
         [EA.SEPARATION, EA.ERR_SEPARATION],
+        [EA.BACKGROUND, EA.NOISE],
         [EA.PHOTOMETRY1],
         [EA.PHOTOMETRY2],
         [EA.FLUX_RATIO],
@@ -362,15 +362,21 @@ def PlotBinaryStar1D():
     else:
         I_theory = 0*x_theory
 
+
     ################
     # PLOT
     ax = get_root().frame_fit.reset_figure_ax()
-    ax.plot(ab_th+0.5, I_theory, color='purple',
-            linewidth=2, label='Fitted PSF')
-    #G.ax2.plot(ab_th,I_theory,color='purple',linewidth=2,label='Fitted PSF')
-    ax.plot(ab, od, color='black', linestyle='steps', linewidth=1,
-            label='Real Profile')  # x+0.5 to recenter the bar
-    ax.legend(loc=1, prop={'size': 8})      # Legend
+
+    # Plot fit (0.5 to center)
+    ax.plot(ab_th + 0.5, I_theory, label='Fitted PSF', color='purple', linewidth=2)
+    # Plot data
+    ax.plot(ab + 0.5, od, label='Real Profile', color='black', linestyle='steps', linewidth=1)
+    # Plot sky
+    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
+    # Plot legend
+    ax.legend(loc=1, prop={'size': 8})
+
+    # Draw
     get_root().frame_fit.redraw()
 
 
