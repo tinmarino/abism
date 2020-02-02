@@ -296,7 +296,6 @@ class ESky(Enum):
     RECT8 = ('8 Rectangles around object, distance estimated from fit, '
              'in the futur, it may enable non straight sky')
     MANUAL = 'Given by a wise user'
-    RECTANGLE = 'User given rectangle, where the object also is, highly unreliable'
     NONE = 'Zero sky <- from a well reduced image'
 
 

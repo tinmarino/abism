@@ -607,22 +607,8 @@ def Background(grid, r=None):
     # Background and rms
     background = rms = 0
 
-    # In rect
-    if background_type == ESky.RECTANGLE:
-        log(2, 'Getting Background in rectangle')
-        # note: the old way was to change noise from fit
-        im_cut = grid[r[0]: r[1], r[2]: r[3]]
-        im_info = ImageInfo(im_cut)
-        stat = im_info.sky()
-        background = stat['median']
-        # back_count = im_info.stat.number_count
-        # background = back / back_count
-
-        rms = sum([(i-background)**2 for i in im_cut.flatten()])
-        rms = np.sqrt(rms/(len(im_cut)-1)) / stat["number_count"]
-
     # 8 rects
-    elif background_type == ESky.RECT8:
+    if background_type == ESky.RECT8:
         log(2, 'Getting Background in 8 rects')
         xtmp, ytmp = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
         r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]

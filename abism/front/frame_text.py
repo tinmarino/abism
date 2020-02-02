@@ -580,7 +580,6 @@ class OptionFrame(TextFrame):
                 ["Annulus", ESky.ANNULUS],
                 ['Fit', ESky.FIT],
                 ["8Rects", ESky.RECT8],
-                ["Rectangle", ESky.RECTANGLE],
                 ['Manual', ESky.MANUAL],
                 ["None", ESky.NONE],
             ]

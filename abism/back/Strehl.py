@@ -117,10 +117,10 @@ def StrehlError():
     dBack = get_aa(EA.NOISE)
     dPhot = get_aa(EA.PHOTOMETRY)
 
-    # if get_state().picka_type != "ellipse": the ellipse was doing the aperture
-    get_state().e_phot_type = EPhot.FIT
-    log(3, "\n\n WARNING: StrehlError changed the aperture type "
-           "to fit because not ellipse pick it shouldn't matter ")
+    # if get_state().pick_type != "ellipse": the ellipse was doing the aperture
+    # get_state().e_phot_type = EPhot.FIT
+    # log(3, "\n\n WARNING: StrehlError changed the aperture type "
+    #        "to fit because not ellipse pick it shouldn't matter ")
 
     # INTENSITY
     if get_state().e_phot_type and get_state().s_fit_type != "None":

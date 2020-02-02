@@ -440,7 +440,7 @@ def PlotOneStar2D():
 
     # APERTTURES
     params = get_state().d_fit_param
-    #   s   (te center of the rect is in fact the bottm left corner)
+    log(9, 'Plot2D: background type', get_state().e_sky_type)
 
     # NOISE 8 RECT
     if get_state().e_sky_type == ESky.RECT8:
