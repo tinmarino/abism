@@ -33,7 +33,11 @@ def tktext_insert_answer(self, answer, error=None, tags=None):
         answer.unit = answer.unit, answer.unit
     if not tags: tags = []
 
-    # Get name
+    # Get set tab len
+    i_tab = vars(self).get('i_tab_len', 0)
+    self.i_tab_len = max(i_tab, len(answer.text))
+
+    # Init Stg with name
     stg = answer.text + ":\t"
 
     # Get value and error

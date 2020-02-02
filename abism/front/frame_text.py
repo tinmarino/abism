@@ -705,20 +705,22 @@ class AnswerFrame(TextFrame):
         """Change fit type label text"""
         self._fit_type_label.configure(text=s_text)
 
-    @staticmethod
-    def on_resize_text(event):
-        log(5, 'Answer, Resize text:', event)
-        event.widget.configure(tabs=(event.width/2, tk.LEFT))
-
     def grid_text_answer(self):
         """Grid tk text for results
-        Retunrs tk text to be filled
+        Return: tk text to be filled
         """
         # Create text
         text = tk.Text(self)
 
+        # Declare size callback
+        def on_resize_text(event):
+            # pylint: disable = no-member
+            i_tab = min((text.i_tab_len) * 12, event.width / 2)
+            log(5, 'Answer, Resize text:', event, i_tab)
+            event.widget.configure(tabs=(i_tab, tk.LEFT))
+
         # Configure Text
-        text.bind("<Configure>", self.on_resize_text)
+        text.bind("<Configure>", on_resize_text)
         text.tag_configure('tag-important', foreground=tk_ext.scheme.important)
         text.tag_configure('tag-center', justify=tk.CENTER)
 

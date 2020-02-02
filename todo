@@ -1,7 +1,5 @@
 # Next task
 
-* text result, make the tab stop as left as possible (2 spaces from the tallest answer.text)
-
 1. Jupyter console working, fun is fact
   - Get option to open gnometerminal for ipython (actually do not use tk terminal yet)
 
