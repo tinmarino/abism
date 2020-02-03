@@ -4,6 +4,7 @@
 """
 # Module
 import tkinter as tk
+import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, \
     NavigationToolbar2Tk
@@ -250,13 +251,13 @@ class ImageFrame(PlotFrame):
         # Head up display
         ax.format_coord = format_coordinate
 
-        self.CutImageScale()
+        # Cut
+        i_min, i_max = get_state().image.get_cut_minmax()
+        get_state().i_image_min_cut = i_min
+        get_state().i_image_max_cut = i_max
 
-        # TODO
-        # CutIamgeScale is drawing, so rename with some update, refresh
         # Draw
-        #self._fig.canvas.draw()
-
+        self.Draw()
 
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
@@ -267,19 +268,27 @@ class ImageFrame(PlotFrame):
 
 
     def add_contour(self):
-        tmp = get_state().image.get_stat()
-        mean, rms = tmp["mean"], tmp["rms"]
+        im_stat = get_state().image.get_stat()
+        mean, rms = im_stat.mean, im_stat.rms
 
         # Get contour 2 and 5 rms
-        c2, c5 = mean + 2 * rms, mean + 5 * rms
+        sigmas = [1, 2, 4, 8, 16, 32]
 
         im0 = get_state().image.im0.astype(float32)
         self.contours = self._fig.axes[0].contour(
-            im0, (c2, c5),
-            origin='lower', colors="k",
-            linewidths=3)
+            im0, [mean + i * rms for i in sigmas],
+            origin='lower', cmap='plasma_r',
+            linewidths=1)
 
-        # extent=(-3,3,-2,2))
+        level = self.contours.collections[0]
+        for kp, path in reversed(list(enumerate(level.get_paths()))):
+            # go in reversed order due to deletions!
+            # (N,2)-shape array of contour line coordinates
+            verts = path.vertices
+            diameter = np.min(verts.max(axis=0) - verts.min(axis=0))
+            if diameter < 10:
+                del level.get_paths()[kp]
+
         log(0, "---> Contour of 3 and 5 sigma, "
             "clik again on contour to delete its.")
 
@@ -289,45 +298,17 @@ class ImageFrame(PlotFrame):
             coll.remove()
         self.contours = None
 
-    def CutImageScale(self):
-        """Change contrast and color
-        """
-        log(5, 'CutImage Scale called')
-
-        ###########
-        # CONTOURS
-        log(3, "contour ? ", get_state().b_image_contour)
-        self.remove_contour()
-        if get_state().b_image_contour:
-            self.add_contour()
-
-
-        ###########
-        # CUT
-        if get_state().s_image_cut == "None":
-            # IG.ManualCut()
-            get_state().i_image_min_cut = get_state().image.stat.min
-            get_state().i_image_max_cut = get_state().image.stat.max
-        elif get_state().s_image_cut != 'Manual':
-            i_min, i_max = get_state().image.get_cut_minmax()
-            get_state().i_image_min_cut = i_min
-            get_state().i_image_max_cut = i_max
-
-
-        # Reload
-        self.Draw()
-        try:
-            # in case you didn't pick the star yet
-            PlotStar2()
-        except BaseException:
-            pass
-
-
     def Draw(self):
         """ Redraw image with new scale"""
 
         cmap = get_state().s_image_color_map
         i_min, i_max = get_state().i_image_min_cut, get_state().i_image_max_cut
+
+        # Contours
+        log(3, "contour ? ", get_state().b_image_contour)
+        self.remove_contour()
+        if get_state().b_image_contour:
+            self.add_contour()
 
         # Normalize
         mynorm = MyNormalize(
@@ -351,6 +332,14 @@ class ImageFrame(PlotFrame):
             get_root().frame_result.redraw()
         except BaseException as e:
             log(2, "Draw cannot draw in Result Figure (bottom right):", e)
+
+        try:
+            # in case you didn't pick the star yet
+            PlotStar2()
+        except BaseException:
+            pass
+
+
 
 
     def RemoveCompass(self):

@@ -409,7 +409,7 @@ class OptionFrame(TextFrame):
         def set_cuts(_):
             get_state().i_image_max_cut = float(string_vars[0].get())
             get_state().i_image_min_cut = float(string_vars[1].get())
-            get_root().frame_image.CutImageScale()
+            get_root().frame_image.Draw()
 
         # Grid them both
         lst = [["Max cut", get_state().i_image_max_cut],

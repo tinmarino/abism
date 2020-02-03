@@ -80,15 +80,11 @@ def parse_argument():
              '(linear, sqrt, square, log, arcsinh')
 
     parser.add_argument(
-        '--cut-type', metavar='CutType', type=str, nargs='?', action='store',
-        default='percent',
+        '--cut', metavar='CutType', type=str, nargs='?', action='store',
+        default='99.9%',
         help='Type of cut min and max value for image display scale '
-             '(percent, sigma_clip, None')
-
-    parser.add_argument(
-        '--cut-value', metavar='CutValue', type=float, nargs='?', action='store',
-        default=99,
-        help='Cut value, depending on the cut type (percentage or sigma)')
+             'Can in (%%) percentage or in (s) sigma '
+             '(99%, 3s, None')
 
     # Custom
     try:
@@ -138,20 +134,6 @@ def get_stretch_list():
         ["Square", "x**2", "square"],
         ["Log", "np.log(x+1)/0.69", "log"],
         ["Arcsinh", "", "arcsinh"]]
-
-
-def get_cut_list():
-    """Min and max cut
-    label , s_type, key, value
-    Note: you can remove key
-    """
-    return [
-        ["RMS", "sigma_clip", "sigma", 3],
-        ["99.95%", "percent", "percent", 99.95],
-        ["99.9%", "percent", "percent", 99.9],
-        ["99%", "percent", "percent", 99],
-        ["90%", "percent", "percent", 90],
-        ["None", "None", "truc", "truc"]]
 
 
 def get_fit_list():
@@ -340,8 +322,7 @@ class AbismState(DotDic):
         # UI image
         self.s_image_color_map = parse_argument().cmap
         self.s_image_stretch = parse_argument().stretch
-        self.s_image_cut = parse_argument().cut_type
-        self.i_image_cut = parse_argument().cut_value
+        self.s_image_cut = parse_argument().cut
         self.i_image_min_cut = 0
         self.i_image_max_cut = 0
         self.b_image_contour = False

@@ -4,6 +4,7 @@
 TODO sort function
 """
 
+import re
 import numpy as np
 from astropy.io import fits
 from scipy.ndimage import median_filter
@@ -18,6 +19,7 @@ from abism.util import log, get_state, DotDic
 class ImageStat(DotDic):
     """Container mean, median, rms, min, max, number_count, sum"""
     def __init__(self, image):
+        # pylint: disable = super-init-not-called
         # Sort
         if image.sort is None:
             image.make_sort()
@@ -221,7 +223,19 @@ class ImageInfo():
         """Returns: (min, max) cut in ADU for the viewable image"""
         # Get in <- GUI state
         cut_type = get_state().s_image_cut
-        cut_value = get_state().i_image_cut
+        if cut_type != 'None':
+            re_float = re.compile(r"""(?x)
+                [+-]?\ *         # first, match an optional sign *and space*
+                (                # then match integers or f.p. mantissas:
+                    \d+          # start out with a ...
+                    (
+                        \.\d*    # mantissa of the form a.b or a.
+                    )?           # ? takes care of integers of the form a
+                    |\.\d+       # mantissa of the form .b
+                )
+                ([eE][+-]?\d+)?  # finally, optionally match an exponent
+            """)
+            cut_value = float(re.search(re_float, get_state().s_image_cut).group(0))
         log(5, 'Get MinMaxCut for', cut_type, ':', cut_value)
 
         # No Clipping
@@ -229,14 +243,15 @@ class ImageInfo():
             min_cut, max_cut = self.stat.min, self.stat.max
 
         # Percent
-        elif cut_type == 'percent':
+        elif '%' in cut_type:
+            log(9, 'cutting percentage')
             # Get a little percentage (like 0.1 for 99.9)
             percent = (100. - cut_value) / 100.
             min_cut = self.sort[int(percent * self.stat.number_count)]
             max_cut = self.sort[int((1 - percent) * self.stat.number_count)]
 
         # Sigma clipping
-        elif cut_type == 'sigma_clip':
+        elif 's' in cut_type or 'S' in cut_type or 'σ' in cut_type:
             sigma_min = cut_value - 2
             sigma_max = cut_value + 2
 
@@ -246,9 +261,10 @@ class ImageInfo():
         return min_cut, max_cut
 
 
-    def Rescale(grid, dic={}):  # transform 0-1 to 0-1 with a certain function,
+    def Rescale(grid, dic={}):
         """ TODO give me a lambda
             above linear or under linear. like log or x**2
+            # transform 0-1 to 0-1 with a certain function,
         """
         grid = self.im0
         default_dic = {"fct": "x"}

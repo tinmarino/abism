@@ -17,7 +17,7 @@
 
 # Bug
 
-* Manual photometry not working
+* Manual photometry not working <- at least display the rectangle
 * aniso is not setted at first
 
 # Easy win
@@ -26,13 +26,14 @@ on rectangle, if click and release same point, call the one point routine (same 
 
 # Feature
 
-* Stop fit if more than 10s or user kill
+* Contour, 4, 5 lignes plus fines
+* Binary get perfect bessel, centered on object
 * Add bounds to theta in fit or ti keeps roating
 * Ellipse and Annulus Pick (maybe in tool)
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * make shortcut appear on mouse_on <ctrl-o> for example
-* Contour, 4, 5 lignes plus fines
+* Stop fit if more than 10s or user kill
 
 # Latter
 ################################################################################

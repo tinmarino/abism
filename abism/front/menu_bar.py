@@ -17,7 +17,7 @@ import abism.front.tk_extension as tk_ext
 
 from abism.util import (
     log, get_root, get_state, quit_process, get_colormap_list,
-    get_stretch_list, get_cut_list, get_fit_list, EPick
+    get_stretch_list, get_fit_list, EPick
 )
 
 
@@ -249,11 +249,11 @@ class ViewMenu(ButtonMenu):
 
             get_state().s_image_color_map = s_in
 
-            get_root().frame_image.CutImageScale()
+            get_root().frame_image.Draw()
 
         def on_change_contour():
             get_state().b_image_contour = not get_state().b_image_contour
-            get_root().frame_image.CutImageScale()
+            get_root().frame_image.Draw()
 
         def on_change_reverse():
             """Flip _r an end"""
@@ -264,7 +264,7 @@ class ViewMenu(ButtonMenu):
             else:
                 cmap = s_old + '_r'
             get_state().s_image_color_map = cmap
-            get_root().frame_image.CutImageScale()
+            get_root().frame_image.Draw()
 
         # Create tk var
         cmap_var = tk.StringVar()
@@ -302,7 +302,7 @@ class ViewMenu(ButtonMenu):
             """same color map callback"""
             stretch = string_var.get()
             get_state().s_image_stretch = stretch
-            get_root().frame_image.CutImageScale()
+            get_root().frame_image.Draw()
 
         # Add check buttons
         for i in get_stretch_list():
@@ -317,20 +317,25 @@ class ViewMenu(ButtonMenu):
         self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED,
                               columnbreak=1)
 
+        lst = ['3σ', '99.95%', '99.9%', '99%', '90%', 'None']
+
         # Define callback
-        def on_change_cut(s_in, value):
+        def on_change_cut(string_var):
             """same color map callback"""
+            s_in = string_var.get()
             get_state().s_image_cut = s_in
-            get_state().i_image_cut = value
-            get_root().frame_image.CutImageScale()
+            i_min, i_max = get_state().image.get_cut_minmax()
+            get_state().i_image_min_cut = i_min
+            get_state().i_image_max_cut = i_max
+            get_root().frame_image.Draw()
 
         # Add check buttons
         string_var = tk.StringVar()
-        string_var.set(get_cut_list()[0][1])
-        for text, s, _, i in get_cut_list():
+        string_var.set(get_state().s_image_cut)
+        for text in lst:
             self.menu.add_radiobutton(
                 label=text,
-                command=lambda s=s, i=i: on_change_cut(s, i),
+                command=lambda: on_change_cut(string_var),
                 variable=string_var, value=text)
 
         def on_manual():
