@@ -545,6 +545,22 @@ def InBorder(grid, r):  # to check if r is in the grid
     #########################
 
 
+def project_on_radial_line(point1_n_point2, point):
+    """Return sbscisse of point projected on line between point1_n_point2"""
+    # Tuple unpack in
+    (x1, y1), (x2, y2) = point1_n_point2
+    x, y = point
+
+    # get line lenght
+    length = (x2 - x1)**2 + (y2 - y1)**2
+    length = np.sqrt(length)
+
+    # Project
+    res = (x - x1) * (x2 - x1) + (y - y1) * (y2 -y1)
+    res /= length
+    return res
+
+
 def RadialLine(grid, point1_and_point2, return_point=0):
     """Returns profile one a line: 2 vectors x and y
     Param: return_point, boolean if callr want point (usually yes)

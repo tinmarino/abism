@@ -8,9 +8,6 @@ import tkinter as tk
 import numpy as np
 import matplotlib
 
-# Front
-import abism.front.util_front as G
-
 # Back
 from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
@@ -304,14 +301,12 @@ def plot1d_one():
         ax.plot(a, bessel+ get_aa(EA.BACKGROUND),
                 color='blue', linewidth=2, label='Ideal PSF')
 
-    # Draw Legend
-    ax.legend(loc=1, prop={'size': 8})
-
     #  def Percentage(y):  # y is the intensity
     #      res = 100*(max(MyBessel)-get_state().get_answer(EA.BACKGROUND))*y
     ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
 
-    # Update skin && Draw
+    # Update skin && Legend && Draw
+    ax.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.get_canvas().draw()
 
 
@@ -331,20 +326,28 @@ def plot1d_binary():
     dx1 = (x1-x0) / line_len * 5 * fwhm1
     dy1 = (y1-y0) / line_len * 5 * fwhm1
 
-    extremity0 = IF.DoNotPassBorder(get_state().image.im0, (int(x0+dx0), int(y0+dy0)))
-    extremity1 = IF.DoNotPassBorder(get_state().image.im0, (int(x1+dx1), int(y1+dy1)))
+    extremity1 = IF.DoNotPassBorder(get_state().image.im0, (int(x0+dx0), int(y0+dy0)))
+    extremity2 = IF.DoNotPassBorder(get_state().image.im0, (int(x1+dx1), int(y1+dy1)))
 
     ab, od, points = IF.RadialLine(
-        get_state().image.im0, (extremity0, extremity1), return_point=1)
-
+        get_state().image.im0, (extremity1, extremity2), return_point=1)
+    # TODO use get_fit_fct
     if "Moffat" in get_state().s_fit_type:
         s_fit_type = "Moffat2pt"
     else:
         s_fit_type = "Gaussian2pt"
-    ab_range = ab[0], ab[-1]
-    x_range = points[0][1], points[0][-1]
-    y_range = points[1][1], points[1][-1]
 
+
+    # Get star center
+    ab_star1 = IF.project_on_radial_line(
+        (extremity1, extremity2), reversed(get_aa(EA.STAR1)))
+    ab_star2 = IF.project_on_radial_line(
+        (extremity1, extremity2), reversed(get_aa(EA.STAR2)))
+
+    # Smooth fit vectors
+    ab_range = ab[0], ab[-1]
+    x_range = extremity1[0], extremity2[0]
+    y_range = extremity1[1], extremity2[1]
     ab_th = np.arange(ab_range[0], ab_range[1], 0.1)
     x_theory = np.interp(ab_th, ab_range, x_range)
     y_theory = np.interp(ab_th, ab_range, y_range)
@@ -360,15 +363,40 @@ def plot1d_binary():
     ax = get_root().frame_fit.reset_figure_ax()
 
     # Plot fit (0.5 to center)
-    ax.plot(ab_th + 0.5, I_theory, label='Fitted PSF', color='purple', linewidth=2)
+    ax.plot(ab_th, I_theory, label='Fitted PSF', color='purple', linewidth=2)
     # Plot data
-    ax.plot(ab + 0.5, od, label='Real Profile', color='black', linestyle='steps', linewidth=1)
+    ax.plot(ab, od, label='Real Profile', color='black', linestyle='steps', linewidth=1)
+    # Plot perfect diffraction pattern <- putain de if
+    if not get_root().header.wavelength*1e-6/get_root().header.diameter/(get_root().header.pixel_scale/206265) < 2:
+        params1 = {'diameter': get_root().header.diameter,
+                   'lambda': get_root().header.wavelength,
+                   'center_x': get_aa(EA.STAR1)[1],
+                   'center_y': get_aa(EA.STAR1)[0],
+                   'pixelscale': get_root().header.pixel_scale,
+                   'phot': get_aa(EA.PHOTOMETRY1),
+                   'obstruction': get_root().header.obstruction/100,
+                   }
+        bessel1 = BF.DiffractionPatern((x_theory, y_theory), params1)
+        params2 = {'diameter': get_root().header.diameter,
+                   'lambda': get_root().header.wavelength,
+                   'center_x': get_aa(EA.STAR2)[1],
+                   'center_y': get_aa(EA.STAR2)[0],
+                   'pixelscale': get_root().header.pixel_scale,
+                   'phot': get_aa(EA.PHOTOMETRY2),
+                   'obstruction': get_root().header.obstruction/100,
+                   }
+        bessel2 = BF.DiffractionPatern((x_theory, y_theory), params2)
+        ax.plot(ab_th, bessel1 + bessel2 + get_aa(EA.BACKGROUND),
+                color='blue', linewidth=1, label='Ideal PSF')
+
     # Plot sky
     ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
-    # Plot legend
-    ax.legend(loc=1, prop={'size': 8})
+    # Plot star center
+    ax.axvline(x=ab_star1, color='black', linestyle='-.', label='Star center')
+    ax.axvline(x=ab_star2, color='black', linestyle='-.')
 
     # Draw
+    ax.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.redraw()
 
 

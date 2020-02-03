@@ -24,6 +24,7 @@
 
 * Binary get perfect bessel, centered on object
 * Stop fit if more than 10s or user kill, or make a stop fit button
+* Make the fit a little longer, better result
 
 
 # Latter
