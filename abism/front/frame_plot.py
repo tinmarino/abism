@@ -1,6 +1,6 @@
 """
     The Tkinter Frame using matplotlib
-    TODO stop putting all in G
+    The right part of the gui with plots
 """
 # Module
 import tkinter as tk
@@ -16,9 +16,6 @@ from abism.front.matplotlib_extension import (
 from abism.front.util_front import photo_up, photo_down
 import abism.front.tk_extension as tk_ext
 import abism.front.util_front as G
-
-# TODO this should not be here
-from abism.front.AnswerReturn import plot2d_one, plot2d_binary
 
 # Back
 from abism.back.ImageFunction import PixelMax
@@ -260,8 +257,6 @@ class ImageFrame(PlotFrame):
         # ColorBar && TooBar
         self._toolbar.update()
         self._cbar = self._fig.colorbar(drawing, pad=0.02)
-        # TODO not here :
-        G.cbar = self._cbar
         self._cbar = DraggableColorbar(self._cbar, drawing, self.refresh_image)
         self._cbar.connect()
 
@@ -395,15 +390,6 @@ class ImageFrame(PlotFrame):
             get_root().frame_result.redraw()
         except BaseException as e:
             log(2, "Draw cannot draw in Result Figure (bottom right):", e)
-
-        try:
-            # in case you didn't pick the star yet
-            if pick == EPick.ONE:
-                plot2d_one()
-            elif pick in (EPick.BINARY, EPick.TIGHT):
-                plot2d_binary()
-        except BaseException:
-            pass
 
 
     def RemoveCompass(self):

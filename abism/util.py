@@ -302,7 +302,6 @@ class AbismState(DotDic):
         self.tk_root = None
 
         # The last pick string, to dissconnect
-        # TODO better be an object
         self.e_pick_type = EPick.ONE
         self.pick = None
         self.tk_pick = tk.StringVar()
@@ -386,7 +385,6 @@ def quit_process():
 def restart():
     """ TODO move me to Global Definer, WritePref and ReadPref
         Pushing this button will close ABISM and restart it the same way it was launch before.
-        Programmers: this is made to reload the Software if a modification in the code were made.
     """
 
     ###########

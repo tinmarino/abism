@@ -395,7 +395,7 @@ def plot2d_one():
         ax.imshow(
             get_state().image.im0[r[0]:r[1], r[2]:r[3]],
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-            cmap=G.cbar.mappable.get_cmap().name, origin='lower')
+            cmap=get_root().frame_image._cbar.mappable.get_cmap().name, origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
         #G.ax31.format_coord=lambda x,y: "%.1f"%get_state().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
@@ -408,7 +408,7 @@ def plot2d_one():
         ax.imshow(
             fit_fct((X, Y), get_state().d_fit_param),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-            cmap=G.cbar.mappable.get_cmap().name, origin='lower',
+            cmap=get_root().frame_image._cbar.mappable.get_cmap().name, origin='lower',
                                           # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
                                           )  # need to comment the extent other wise too crowded and need to change rect position
         #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[s_fit_type]((r[2]+y,r[0]+x),get_state().d_fit_param)
