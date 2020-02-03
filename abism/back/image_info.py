@@ -1,15 +1,10 @@
 """
-    The class you alwas dreamt of
-
-TODO sort function
+    The class you always dreamt of ... is in your dreams
 """
-
 import re
 import numpy as np
 from astropy.io import fits
 from scipy.ndimage import median_filter
-from scipy.signal import convolve2d
-
 
 from abism.back.read_header import parse_header
 
@@ -43,7 +38,6 @@ class ImageStat(DotDic):
         self.max = sort[-1]
 
         self.sum = self.mean * self.number_count
-
 
 
 class ImageInfo():
@@ -271,48 +265,32 @@ class ImageInfo():
         return dic
 
 
-    def RectanglePhot(self, r, dic={}, get=[]):
+    def RectanglePhot(self, r):
         """
-            @param r: (rx1,rx2,ry1,ry2), it should be ordered
+        :param r: (rx1,rx2,ry1,ry2), it should be ordered
             kand defining a rectangle
         # exact is for the taking the percentage of the cutted pixel or not
         # median is a median filter of 3 pixel square and 2 sigma clipping
         # in_border is examining if r is in the grid, otherwise, cannot calculate.
 
-        Take in pixels, no division of a pixel
+        None: Considering pixels, no division of a pixel
         """
         log(5, 'Rectangle phot on:', r)
 
-        # INPUT DIC default
-        default_dic = {'median_filter': (3, 4), "exact": 0, "get": ["sum"]}
-        default_dic.update(dic)
-        dic = default_dic
+        rx1, rx2, ry1, ry2 = list(map(int, r))
 
-        # INPUT get default
-        if get == []:
-            get = dic["get"]
+        # Cut image
+        cutted = self.im0[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
 
-        # INPUT r  DEFAULT
-        if r is None:
-            rx1, rx2, ry1, ry2 = 0, len(self.im0)-1, 0, len(self.im0[0])-1
-        else:
-            rx1, rx2, ry1, ry2 = list(map(int, r))
+        # Smooth bad pixel <- Filter median
+        median = median_filter(cutted, size=(3, 3))
+        bol = np.abs(cutted - median) > 3 * median
+        cutted[bol] = median[bol]
 
-        if not dic["exact"]:
-            cutted = self.im0[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
-
-            # MEDIAN FILETRING
-            med_size = dic["median_filter"]
-            if med_size[0] != 0:
-                median = median_filter(
-                    cutted, size=(med_size[0], med_size[0]))
-                cutted[np.abs(cutted-median) > (med_size[1]-1) * median] = \
-                    median[np.abs(cutted-median) > (med_size[1]-1)*median]
-
-        # Just need get
-        res = get_array_stat(cutted)
-        res["number_count"] = (ry2 - ry1) * (rx2 - rx1)
-        return res
+        # Get stats
+        stat = get_array_stat(cutted)
+        stat.number_count = (ry2 - ry1) * (rx2 - rx1)
+        return stat
 
 
 def get_array_stat(grid):

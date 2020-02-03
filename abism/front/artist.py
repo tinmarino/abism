@@ -1,7 +1,7 @@
 """
 Note that all x,y are given for an array, in the image display, x and y must be switched
 
-TODO refactor: mutualize more code
+IDEA: refactor: mutualize more code
 
 """
 import numpy as np

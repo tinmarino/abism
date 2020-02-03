@@ -477,7 +477,7 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
         if i == 'W':
             (ax1, ax2, ay1, ay2) = (rx1-rx, rx1,
                                     (ry1+ry2)/2-ry/2, (ry1+ry2)/2+ry/2)
-        # tmp=Stat.RectanglePhot(grid,(ax1,ax2,ay1,ay2),dic={"get":["number_count","sum","rms"]})  # bad pixels
+        # tmp=Stat.RazeazeectanglePhot(grid,(ax1,ax2,ay1,ay2),dic={azeazeaz"get":["number_count","sum","rms"]})  # bad pixels
         # background.append((tmp["sum"]/tmp["number_count"]))   #rectangle phot return the sum and the number_count # bite bad pixel
 
         image_cut = grid[int(ax1): int(ax2+1), int(ay1): int(ay2+1)]

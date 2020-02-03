@@ -350,15 +350,12 @@ class ImageFrame(PlotFrame):
 
 
     def refresh_image(self):
-        """Redraw image with new scale
-        TODO rename refresh
-        """
+        """Redraw image with new scale"""
 
         cmap = get_state().s_image_color_map
         i_min, i_max = get_state().i_image_min_cut, get_state().i_image_max_cut
 
         # Contours
-        log(3, "contour ? ", get_state().b_image_contour)
         self.remove_contour()
         if get_state().b_image_contour:
             self.add_contour()

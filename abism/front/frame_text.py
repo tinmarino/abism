@@ -62,7 +62,6 @@ class TextFrame(tk.Frame):
 
         self._parent = parent  # for sash positioning
         self._arrow = None  # Button
-        # TODO can I impoorve that trick ?
         self._last = None  # To get the normal size
         self._see_me = True  # Bool do you see me
         self._label_text = label_text
