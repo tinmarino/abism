@@ -190,7 +190,8 @@ class PickBinary(Pick):
     def connect_second(self, event):
         """Second callback"""
         # Check in: click in image
-        if not event.inaxes: return
+        if not event.inaxes or not event.button == 1:
+            return
         log(0, "1st point : ", event.xdata, event.ydata)
 
         # Save first click
