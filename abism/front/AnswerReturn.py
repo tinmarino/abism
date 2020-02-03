@@ -434,8 +434,7 @@ def PlotOneStar2D():
         ax.format_coord = lambda x, y: ""
 
     # Get && Reset figure
-    figure = get_root().frame_result.get_figure()
-    figure.clf()
+    figure = get_root().frame_result.reset_figure()
     ax1 = figure.add_subplot(121)
     ax2 = figure.add_subplot(122)
 
@@ -533,11 +532,10 @@ def PlotBinaryStar2D():
     ###########
     # IMAGES draw
     # TRUE
-    get_root().frame_result.get_figure().clf()
+    figure = get_root().frame_result.reset_figure()
     cmap = get_state().s_image_color_map
 
-
-    ax1 = get_root().frame_result.get_figure().add_subplot(121)
+    ax1 = figure.add_subplot(121)
     ax1.imshow(
         get_state().image.im0[r[0]:r[1], r[2]:r[3]],
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
@@ -555,7 +553,7 @@ def PlotBinaryStar2D():
     fit_fct = lambda points, params: vars(BF)[stg](
         points, params, aniso=get_state().b_aniso, same_psf=get_state().b_same_psf)
 
-    ax2 = get_root().frame_result.get_figure().add_subplot(122)
+    ax2 = figure.add_subplot(122)
     ax2.imshow(
         fit_fct((X, Y), get_state().d_fit_param),
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,

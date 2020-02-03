@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 import matplotlib
 
 from abism.front import artist
-from abism.front.matplotlib_extension import center_handler
 from abism.front import AnswerReturn as AR
 
 from abism.back import Strehl
@@ -83,27 +82,19 @@ class Pick(ABC):
         if not event.inaxes or event.button == 1:
             return
 
-        # Right click -> center
-        if event.button == 3:
-            log(5, 'Centering <- right click:', event)
-            center_handler(
-                event,
-                get_root().frame_image.get_figure().axes[0],
-                callback=get_root().frame_image.get_canvas().draw)
-            return
-
         if get_root().frame_image.is_toolbar_active():
             log(0, 'WARNING: Zoom or Pan actif, '
                 'please unselect its before picking your object')
             return
 
-        # Reamining button 2 -> Save bounds <- click +/- 15
-        log(1, 'Making a selection 30 pixels around', event)
-        self.rectangle = (
-            event.ydata - 15, event.ydata + 15,
-            event.xdata - 15, event.xdata + 15)
+        if event.button == 2:
+            # Reamining button 2 -> Save bounds <- click +/- 15
+            log(1, 'Making a selection 30 pixels around', event)
+            self.rectangle = (
+                event.ydata - 15, event.ydata + 15,
+                event.xdata - 15, event.xdata + 15)
 
-        self.work(None)
+            self.work(None)
 
 
 class PickNo(Pick):

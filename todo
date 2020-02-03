@@ -20,14 +20,9 @@
 * Manual photometry not working <- at least display the rectangle
 * aniso is not setted at first
 
-# Easy win
-
-on rectangle, if click and release same point, call the one point routine (same as middle click)
-
 # Feature
 
 * Binary get perfect bessel, centered on object
-* make zoom wok everywhere
 * Stop fit if more than 10s or user kill, or make a stop fit button
 
 

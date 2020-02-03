@@ -11,7 +11,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
 from numpy import sqrt, float32
 
 # Front
-from abism.front.matplotlib_extension import DraggableColorbar, MyNormalize, zoom_handler
+from abism.front.matplotlib_extension import DraggableColorbar, MyNormalize, zoom_handler, center_handler
 from abism.front.util_front import photo_up, photo_down
 import abism.front.tk_extension as tk_ext
 import abism.front.util_front as G
@@ -146,6 +146,46 @@ class PlotFrame(tk.Frame):
     def redraw(self):
         self._fig.canvas.draw()
 
+    def extend_matplotlib(self):
+        """Enable scroll with mouse"""
+        """
+        # Right click -> center
+        if event.button == 3:
+            log(5, 'Centering <- right click:', event)
+            center_handler(
+                event,
+                get_root().frame_image.get_figure().axes[0],
+                callback=get_root().frame_image.get_canvas().draw)
+            return
+        """
+        def get_event_ax(event, axes):
+            for ax in axes:
+                if event.inaxes == ax:
+                    return ax
+
+        # Scroll
+        def zoom_handler_wrapper(event):
+            zoom_handler(
+                event, get_event_ax(event, self._fig.axes),
+                self._fig.canvas.draw, base_scale=1.2)
+
+        # Click
+        def center_handler_wrapper(event):
+            log(9, 'MPL, detected a click', event)
+            if event.button == 3:
+                log(5, 'Centering <- right click:', event)
+                center_handler(
+                    event, get_event_ax(event, self._fig.axes),
+                    callback=self._fig.canvas.draw)
+
+        self._fig.canvas.mpl_connect('scroll_event', zoom_handler_wrapper)
+        self._fig.canvas.mpl_connect('button_press_event', center_handler_wrapper)
+
+    def reset_figure(self):
+        self._fig.clf()
+        self.extend_matplotlib()
+        return self._fig
+
     def reset_figure_ax(
             self,
             format_coord=lambda x, y: '',
@@ -154,7 +194,7 @@ class PlotFrame(tk.Frame):
         """Reset figure, return ax
         format_coord: fct x,y -> format
         """
-        self._fig.clf()
+        self.reset_figure()
         ax = self._fig.add_subplot(111)
         ax.format_coord = format_coord
         ax.set_xlabel(xlabel)
@@ -180,16 +220,6 @@ class ImageFrame(PlotFrame):
 
         self.north_direction = [0, 0]
         self.east_direction = [0, 0]
-
-
-    def extend_matplotlib(self):
-        """Enable scroll with mouse"""
-        # Scroll
-        def zoom_handler_wrapper(event):
-            zoom_handler(event, self._fig.axes[0],
-                         self._fig.canvas.draw, base_scale=1.2)
-
-        self._fig.canvas.mpl_connect('scroll_event', zoom_handler_wrapper)
 
 
     def draw_image(self, new_fits=True):
@@ -247,7 +277,7 @@ class ImageFrame(PlotFrame):
 
         def format_coordinate(x, y):
             x, y = int(x), int(y)
-            return "zmax=%5d, z=%5d, x=%4d, y=%4d" % (z_max(x, y), z(x, y), x, y)
+            return "x=%4d, y=%4d, zmax=%5d, z=%5d" % (x, y, z_max(x, y), z(x, y))
 
         # Head up display
         ax.format_coord = format_coordinate
@@ -372,8 +402,6 @@ class ImageFrame(PlotFrame):
             pass
 
 
-
-
     def RemoveCompass(self):
         ax = self._fig.axes[0]
         ax.texts.remove(G.north)
@@ -457,6 +485,7 @@ class FitFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure(figsize=(5, 2.5))
         self._fig.subplots_adjust(left=0.15, right=0.9, top=0.9, bottom=0.2)
+        self.extend_matplotlib()
 
         # Label && Canvas
         self.init_label("Photometric Profile")
@@ -472,6 +501,7 @@ class ResultFrame(PlotFrame):
         # Create figure && Adjust size and color
         self._fig = Figure(figsize=(3, 2.5))
         self._fig.subplots_adjust(left=0.1, right=0.9, top=1.05, bottom=-0.15)
+        self.extend_matplotlib()
 
         # Label && Canvas
         self.init_label("2D Shape")
