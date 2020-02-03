@@ -280,14 +280,16 @@ class ImageFrame(PlotFrame):
             origin='lower', cmap='plasma_r',
             linewidths=1)
 
-        level = self.contours.collections[0]
-        for kp, path in reversed(list(enumerate(level.get_paths()))):
-            # go in reversed order due to deletions!
-            # (N,2)-shape array of contour line coordinates
-            verts = path.vertices
-            diameter = np.min(verts.max(axis=0) - verts.min(axis=0))
-            if diameter < 10:
-                del level.get_paths()[kp]
+        for level_id, level in enumerate(self.contours.collections):
+            for kp, path in reversed(list(enumerate(level.get_paths()))):
+                # go in reversed order due to deletions!
+                # (N,2)-shape array of contour line coordinates
+                verts = path.vertices
+                diameter = np.min(verts.max(axis=0) - verts.min(axis=0))
+                max_diameter = 2
+                if level_id == 0: max_diameter = 10
+                if diameter < max_diameter:
+                    del level.get_paths()[kp]
 
         log(0, "---> Contour of 3 and 5 sigma, "
             "clik again on contour to delete its.")
