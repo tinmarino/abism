@@ -267,36 +267,6 @@ class ImageInfo():
         return min_cut, max_cut
 
 
-    def Rescale(grid, dic={}):
-        """ TODO give me a lambda
-            above linear or under linear. like log or x**2
-            # transform 0-1 to 0-1 with a certain function,
-        """
-        grid = self.im0
-        default_dic = {"fct": "x"}
-        default_dic.update(dic)
-        dic = default_dic
-
-        if "min_cut" not in dic:
-            dic["min_cut"], dic["max_cut"] = np.min(grid), np.max(grid)
-
-        # Rescale, put everything between 0 and 1
-        minc, maxc = dic["min_cut"], dic["max_cut"]
-        grid = (grid - minc) / (maxc - minc)
-
-        # Transoform
-        def fct(x):
-            return x  # to avoid warnings from pep8
-        exec("fct = lambda x: " + dic["fct"])  # read the true scale fct
-        grid = fct(grid)
-
-        # Scale back, to its "true" value, for min to stay min and max to remains
-        # max
-        grid = grid * (maxc - minc) + minc
-
-        return grid
-
-
     def sky(self, dic=None):
         """Recursive sigmaclipping to estimate the sky bg
             @param grid: the image np.array
