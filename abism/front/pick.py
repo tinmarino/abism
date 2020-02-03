@@ -57,10 +57,16 @@ class Pick(ABC):
         # Log
         log(3, 'On:', get_state().image.click, get_state().image.release)
 
-        # Check non null rectangle
+        # If null rectangle -> make middle click
         if get_state().image.click == get_state().image.release:
-            log(0, "Rectangle phot aborded: you clicked and released on "
-                "the same point")
+            log(3, 'Rectangle incomplete, crafting a fake middle click here')
+            x, y = get_state().image.click
+            event = matplotlib.backend_bases.MouseEvent(
+                'button_press_event', get_root().frame_image.get_canvas(),
+                x, y, button=2)
+            event.xdata, event.ydata = x, y
+            event.inaxes = True
+            self.pick_event(event)
             return
 
         self.rectangle = (
@@ -91,7 +97,8 @@ class Pick(ABC):
                 'please unselect its before picking your object')
             return
 
-        # Save bounds <- click +/- 15
+        # Reamining button 2 -> Save bounds <- click +/- 15
+        log(1, 'Making a selection 30 pixels around', event)
         self.rectangle = (
             event.ydata - 15, event.ydata + 15,
             event.xdata - 15, event.xdata + 15)

@@ -27,6 +27,7 @@ on rectangle, if click and release same point, call the one point routine (same 
 # Feature
 
 * Binary get perfect bessel, centered on object
+* make zoom wok everywhere
 * Stop fit if more than 10s or user kill, or make a stop fit button
 
 
