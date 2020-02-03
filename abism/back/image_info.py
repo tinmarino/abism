@@ -187,44 +187,6 @@ class ImageInfo():
         self.bpm[bol1] = True
 
 
-    def ObjectDetection(self, dic={}):
-        """
-            -sigma is the clip
-            -background_box is the side of the background box
-
-            we first detect all objects higher than (local ?) sigma
-        """
-        grid = self.im0
-        default_dic = {"sigma": 2.5, "background_box": 10, "back_type": "global"}
-        default_dic.update(dic)
-        dic = default_dic
-        res = grid
-
-        # Median filter
-        median = median_filter(res, size=(3, 3))
-        bol1 = (np.abs(res-median) > 2 * median)
-        res[bol1] = median[bol1]
-
-        # SKY call
-        sky = self.sky(res, dic={"sigma": dic["sigma"]})
-        bpm = 0 * grid + 1  # bpm = 0 where mask
-
-        # SIGMA CLIP
-        bol1 = np.abs(res-sky["median"]) > (dic["sigma"] * sky["rms"])
-        bpm[bol1] = 0
-
-        # BOX FROM FELIPE BARRIENTOS
-        median = median_filter(bpm, size=(10, 10))
-        bpm2 = 0 * bpm + 1
-        bpm2[median > 0.08] = 0
-
-        # BOX
-        kernel = np.zeros((10, 10)) + 1
-        conv = convolve2d(bpm, kernel)
-
-        return bpm2, median, bpm, sky, conv
-
-
     def get_cut_minmax(self):
         """Returns: (min, max) cut in ADU for the viewable image"""
         # Get in <- GUI state
