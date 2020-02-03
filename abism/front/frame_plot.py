@@ -11,13 +11,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas,
 from numpy import sqrt, float32
 
 # Front
-from abism.front.matplotlib_extension import DraggableColorbar, MyNormalize, zoom_handler, center_handler
+from abism.front.matplotlib_extension import (
+    DraggableColorbar, MyNormalize, zoom_handler, center_handler)
 from abism.front.util_front import photo_up, photo_down
 import abism.front.tk_extension as tk_ext
 import abism.front.util_front as G
 
 # TODO this should not be here
-from abism.front.AnswerReturn import PlotStar2
+from abism.front.AnswerReturn import plot2d_one, plot2d_binary
 
 # Back
 from abism.back.ImageFunction import PixelMax
@@ -397,7 +398,10 @@ class ImageFrame(PlotFrame):
 
         try:
             # in case you didn't pick the star yet
-            PlotStar2()
+            if pick == EPick.ONE:
+                plot2d_one()
+            elif pick in (EPick.BINARY, EPick.TIGHT):
+                plot2d_binary()
         except BaseException:
             pass
 

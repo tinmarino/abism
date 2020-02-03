@@ -156,10 +156,6 @@ class PickOne(Pick):
         """obj is None"""
         Strehl.StrehlMeter(self.rectangle)
         AR.show_answer()
-        # we transport star center, because if it is bad, it is good to know,
-        # this star center was det by iterative grav center  the fit image
-        # is a psf_fit[0][3]
-        AR.PlotStar()
 
 
 class PickBinary(Pick):
@@ -231,8 +227,6 @@ class PickBinary(Pick):
     def work(self, obj):
         Strehl.BinaryStrehl(self.star1, self.star2)
         AR.show_answer()
-        AR.PlotStar2()
-        AR.PlotStar()
 
 
 class PickTightBinary(PickBinary):
@@ -253,8 +247,6 @@ class PickTightBinary(PickBinary):
     def work(self, obj):
         Strehl.TightBinaryStrehl(self.star1, self.star2)
         AR.show_answer()
-        AR.PlotStar2()
-        AR.PlotStar()
 
 
 class PickStat(Pick):

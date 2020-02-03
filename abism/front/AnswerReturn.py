@@ -112,23 +112,23 @@ def tktext_insert_answer_list(self, lst):
 tk.Text.insert_answer_list = tktext_insert_answer_list
 
 
-def show_answer():  # CALLER
-    """Draw && Print answer i.e. Image and Text"""
-    plot_result()
-
-
-def plot_result():
-    """Discirminate according to pick"""
+def show_answer():
+    """Draw && Print answer i.e. Image and Text
+    Discirminate according to pick"""
     pick = get_state().e_pick_type
 
     if pick == EPick.ONE:
-        print_one(); return
+        print_one()
+        plot1d_one()
+        plot2d_one()
 
-    if pick in (EPick.BINARY, EPick.TIGHT):
-        print_binary(); return
+    elif pick in (EPick.BINARY, EPick.TIGHT):
+        print_binary()
+        plot1d_binary()
+        plot2d_binary()
 
-    if pick == EPick.ELLIPSE:
-        print_ellipse(); return
+    elif pick == EPick.ELLIPSE:
+        print_ellipse()
 
 
 def grid_button_change_coord():
@@ -255,19 +255,7 @@ def print_binary():
 ###############
 
 
-
-
-
-def PlotStar():
-    """Discriminate 1 or 2 object"""
-    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
-        PlotBinaryStar1D()
-    else:
-        PlotOneStar1D()
-        PlotStar2()
-
-
-def PlotOneStar1D():
+def plot1d_one():
     center = (get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y'])
     #################
     # PLOT radius profile
@@ -327,7 +315,7 @@ def PlotOneStar1D():
     get_root().frame_fit.get_canvas().draw()
 
 
-def PlotBinaryStar1D():
+def plot1d_binary():
     """Draw 1D of binary system"""
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
@@ -390,15 +378,8 @@ def PlotBinaryStar1D():
 ####################
 
 
-def PlotStar2():
-    """the two images colormesh"""
-    if get_state().e_pick_type == EPick.ONE:
-        PlotOneStar2D()
-    if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
-        PlotBinaryStar2D()
-
-
-def PlotOneStar2D():
+def plot2d_one():
+    """Note the fitted image is in leastqs bound return fit[3]"""
     x0, y0 = get_state().d_fit_param["center_x"], get_state().d_fit_param["center_y"]
     r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
     dx1, dx2 = int(max(x0-4*r99x, 0)), int(min(x0+4*r99x,
@@ -515,7 +496,7 @@ def PlotOneStar2D():
     return
 
 
-def PlotBinaryStar2D():
+def plot2d_binary():
 
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
