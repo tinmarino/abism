@@ -18,11 +18,9 @@
 # Bug
 
 * Manual photometry not working <- at least display the rectangle
-* aniso is not setted at first
 
 # Feature
 
-* Binary get perfect bessel, centered on object
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
 
@@ -31,11 +29,12 @@
 ################################################################################
 
 ## Latter feature
-* Datacube if more than 3 dimension
+
+* Get error for al answer, append them at the same time
 * Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
-* Bad pixel viewer
 * Ellipse 
+* Datacube if more than 3 dimension
 * TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 

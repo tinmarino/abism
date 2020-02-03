@@ -280,7 +280,7 @@ def plot1d_one():
     x0cut, x1cut = center[0]-r99, center[0]+r99
     ax.axvline(x=x0cut, color='black', linestyle='-.', label='99% EE')
     ax.axvline(x=x1cut, color='black', linestyle='-.')
-    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
+    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle=':', label='Sky')
 
     # Plot Fit
     if get_state().s_fit_type != 'None':
@@ -390,7 +390,7 @@ def plot1d_binary():
                 color='blue', linewidth=1, label='Ideal PSF')
 
     # Plot sky
-    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle='-.')
+    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle=':', label='Sky')
     # Plot star center
     ax.axvline(x=ab_star1, color='black', linestyle='-.', label='Star center')
     ax.axvline(x=ab_star2, color='black', linestyle='-.')
@@ -410,11 +410,11 @@ def plot2d_one():
     """Note the fitted image is in leastqs bound return fit[3]"""
     x0, y0 = get_state().d_fit_param["center_x"], get_state().d_fit_param["center_y"]
     r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
-    dx1, dx2 = int(max(x0-4*r99x, 0)), int(min(x0+4*r99x,
-                                               len(get_state().image.im0) + 1))  # d like display
-    dy1, dy2 = int(max(y0-4*r99y, 0)), int(min(y0+4*r99y,
-                                               len(get_state().image.im0) + 1))  # c like cut If borders
-    r = (dx1, dx2, dy1, dy2)  # Teh local cut applied to the image. To show it
+    dx1 = int(max(x0-4*r99x, 0))
+    dx2 = int(min(x0+4*r99x, len(get_state().image.im0) + 1))
+    dy1 = int(max(y0-4*r99y, 0))
+    dy2 = int(min(y0+4*r99y, len(get_state().image.im0) + 1))
+    r = (dx1, dx2, dy1, dy2)
 
     x, y = np.arange(r[0], r[1]), np.arange(r[2], r[3])
     Y, X = np.meshgrid(y, x)
@@ -423,7 +423,8 @@ def plot2d_one():
         ax.imshow(
             get_state().image.im0[r[0]:r[1], r[2]:r[3]],
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-            cmap=get_root().frame_image._cbar.mappable.get_cmap().name, origin='lower')
+            cmap=get_root().frame_image._cbar.mappable.get_cmap().name,
+            origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
         #G.ax31.format_coord=lambda x,y: "%.1f"%get_state().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
@@ -436,10 +437,9 @@ def plot2d_one():
         ax.imshow(
             fit_fct((X, Y), get_state().d_fit_param),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
-            cmap=get_root().frame_image._cbar.mappable.get_cmap().name, origin='lower',
-                                          # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-                                          )  # need to comment the extent other wise too crowded and need to change rect position
-        #G.ax32.format_coord= lambda x,y:'%.1f'% vars(BF)[s_fit_type]((r[2]+y,r[0]+x),get_state().d_fit_param)
+            cmap=get_root().frame_image._cbar.mappable.get_cmap().name,
+            origin='lower',
+        )
         ax.format_coord = lambda x, y: ""
 
     # Get && Reset figure
@@ -525,13 +525,12 @@ def plot2d_one():
 
 
 def plot2d_binary():
-
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
     xr, yr = 3*abs(x0-x1), 3*abs(y0-y1)  # ditances
     side = max(xr, yr)  # side of the displayed square
-    rx1, rx2 = int(min(x0, x1) - side / 2),  int(max(x0, x1) + side / 2)
-    ry1, ry2 = int(min(y0, y1) - side / 2),  int(max(y0, y1) + side / 2)
+    rx1, rx2 = int(min(x0, x1) - side / 2), int(max(x0, x1) + side / 2)
+    ry1, ry2 = int(min(y0, y1) - side / 2), int(max(y0, y1) + side / 2)
     r = (rx1, rx2, ry1, ry2)
 
     # define coord for the fitted function display
@@ -572,4 +571,3 @@ def plot2d_binary():
     #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),get_state().d_fit_param)
     ax2.format_coord = lambda x, y: ""
     get_root().frame_result.redraw()
-    return
