@@ -249,11 +249,11 @@ class ViewMenu(ButtonMenu):
 
             get_state().s_image_color_map = s_in
 
-            get_root().frame_image.Draw()
+            get_root().frame_image.refresh_image()
 
         def on_change_contour():
             get_state().b_image_contour = not get_state().b_image_contour
-            get_root().frame_image.Draw()
+            get_root().frame_image.refresh_image()
 
         def on_change_reverse():
             """Flip _r an end"""
@@ -264,11 +264,11 @@ class ViewMenu(ButtonMenu):
             else:
                 cmap = s_old + '_r'
             get_state().s_image_color_map = cmap
-            get_root().frame_image.Draw()
+            get_root().frame_image.refresh_image()
 
         def on_change_bpm():
             get_state().b_image_bpm = not get_state().b_image_bpm
-            get_root().frame_image.refresh()
+            get_root().frame_image.refresh_image()
 
         # Create tk var
         cmap_var = tk.StringVar()
@@ -310,7 +310,7 @@ class ViewMenu(ButtonMenu):
             """same color map callback"""
             stretch = string_var.get()
             get_state().s_image_stretch = stretch
-            get_root().frame_image.Draw()
+            get_root().frame_image.refresh_image()
 
         # Add check buttons
         for i in get_stretch_list():
@@ -335,7 +335,7 @@ class ViewMenu(ButtonMenu):
             i_min, i_max = get_state().image.get_cut_minmax()
             get_state().i_image_min_cut = i_min
             get_state().i_image_max_cut = i_max
-            get_root().frame_image.Draw()
+            get_root().frame_image.refresh_image()
 
         # Add check buttons
         string_var = tk.StringVar()

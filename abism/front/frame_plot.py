@@ -231,7 +231,7 @@ class ImageFrame(PlotFrame):
         self._cbar = self._fig.colorbar(drawing, pad=0.02)
         # TODO not here :
         G.cbar = self._cbar
-        self._cbar = DraggableColorbar(self._cbar, drawing, self.Draw)
+        self._cbar = DraggableColorbar(self._cbar, drawing, self.refresh_image)
         self._cbar.connect()
 
         # Image levels
@@ -258,7 +258,7 @@ class ImageFrame(PlotFrame):
         get_state().i_image_max_cut = i_max
 
         # Draw
-        self.Draw()
+        self.refresh_image()
 
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
@@ -323,7 +323,7 @@ class ImageFrame(PlotFrame):
         self.bad_pixels = None
 
 
-    def Draw(self):
+    def refresh_image(self):
         """Redraw image with new scale
         TODO rename refresh
         """
