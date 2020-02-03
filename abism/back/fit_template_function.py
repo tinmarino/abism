@@ -284,7 +284,8 @@ def DiffractionPatern(points, params):
     pxl = params['pixelscale']/206265
     e = params['obstruction']  # centralobstruction
     I = p * (1-e**2)/4/np.pi / (l/pxl/np.pi/D)**2
-    theta = (points[0]-x0) * pxl
+    theta = (points[0]-x0)**2 + (points[1] -y0)**2
+    theta = np.sqrt(theta) * pxl
     u = np.pi/l * D * theta
     if not e == 0:  # otherwise division by 0
         # + np.float_(np.array(r)==0)
