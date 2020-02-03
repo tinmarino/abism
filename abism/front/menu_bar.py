@@ -266,6 +266,10 @@ class ViewMenu(ButtonMenu):
             get_state().s_image_color_map = cmap
             get_root().frame_image.Draw()
 
+        def on_change_bpm():
+            get_state().b_image_bpm = not get_state().b_image_bpm
+            get_root().frame_image.refresh()
+
         # Create tk var
         cmap_var = tk.StringVar()
         cmap_var.set(get_state().s_image_color_map)
@@ -287,6 +291,10 @@ class ViewMenu(ButtonMenu):
             label='Reverse',
             command=on_change_reverse)
 
+        # BadPixel Map
+        self.menu.add_checkbutton(
+            label='Bad Pixels',
+            command=on_change_bpm)
 
     def add_scale_column(self):
         """Scale of image drop"""

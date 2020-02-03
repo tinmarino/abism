@@ -168,6 +168,7 @@ class ImageFrame(PlotFrame):
         super().__init__(parent)
         # Keep contours to remove them
         self.contours = None
+        self.bad_pixels = None
 
         # Create figure && Adjust size and color
         self._fig = Figure()
@@ -300,6 +301,28 @@ class ImageFrame(PlotFrame):
             coll.remove()
         self.contours = None
 
+
+    def add_bpm(self):
+        # Get points to plot
+        if get_state().image.bpm is None:
+            get_state().image.create_bad_pixel_mask()
+        points_bpm = np.argwhere(get_state().image.bpm)
+        if len(points_bpm) == 0:
+            log(0, 'No bad pixels on your detector!')
+            return
+        Y, X = points_bpm[:, 0], points_bpm[:, 1]
+
+        # Plot "scatter plot"
+        self.bad_pixels = self._fig.axes[0].scatter(
+            X, Y, c='r', marker="s")
+
+
+    def remove_bpm(self):
+        if self.bad_pixels is None: return
+        self.bad_pixels.remove()
+        self.bad_pixels = None
+
+
     def Draw(self):
         """Redraw image with new scale
         TODO rename refresh
@@ -313,6 +336,11 @@ class ImageFrame(PlotFrame):
         self.remove_contour()
         if get_state().b_image_contour:
             self.add_contour()
+
+        # Bad pixel map
+        self.remove_bpm()
+        if get_state().b_image_bpm:
+            self.add_bpm()
 
         # Normalize
         mynorm = MyNormalize(

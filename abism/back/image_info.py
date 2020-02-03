@@ -179,6 +179,14 @@ class ImageInfo():
         return True
 
 
+    def create_bad_pixel_mask(self):
+        """Create bad pixel mask from image grid"""
+        self.bpm = False * self.im0
+        ground = median_filter(self.im0, size=(4, 4)) + self.stat.rms
+        bol1 = np.abs(self.im0) > np.abs(3 * ground)
+        self.bpm[bol1] = True
+
+
     def ObjectDetection(self, dic={}):
         """
             -sigma is the clip
