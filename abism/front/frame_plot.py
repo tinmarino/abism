@@ -301,7 +301,9 @@ class ImageFrame(PlotFrame):
         self.contours = None
 
     def Draw(self):
-        """ Redraw image with new scale"""
+        """Redraw image with new scale
+        TODO rename refresh
+        """
 
         cmap = get_state().s_image_color_map
         i_min, i_max = get_state().i_image_min_cut, get_state().i_image_max_cut

@@ -26,14 +26,9 @@ on rectangle, if click and release same point, call the one point routine (same 
 
 # Feature
 
-* Contour, 4, 5 lignes plus fines
 * Binary get perfect bessel, centered on object
-* Add bounds to theta in fit or ti keeps roating
-* Ellipse and Annulus Pick (maybe in tool)
-* TightBinary
-  * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
-* make shortcut appear on mouse_on <ctrl-o> for example
-* Stop fit if more than 10s or user kill
+* Stop fit if more than 10s or user kill, or make a stop fit button
+
 
 # Latter
 ################################################################################
@@ -43,6 +38,10 @@ on rectangle, if click and release same point, call the one point routine (same 
 * Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * Bad pixel viewer
+* Ellipse 
+* TightBinary
+  * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
+
 
 ### Latter fix
 * !!! Bad pixels !! You cannot release putting them to zero

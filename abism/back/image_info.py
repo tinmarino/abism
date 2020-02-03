@@ -123,8 +123,6 @@ class ImageInfo():
         if image.bpm_name is not None:
             hdu = fits.open(image.bpm_name)
             image.bpm = hdu[0].data
-        else:
-            image.bpm = 0 * image.im0 + 1
 
         return image
 
@@ -194,7 +192,7 @@ class ImageInfo():
         dic = default_dic
         res = grid
 
-        # MEDIAN FILTER
+        # Median filter
         median = median_filter(res, size=(3, 3))
         bol1 = (np.abs(res-median) > 2 * median)
         res[bol1] = median[bol1]
