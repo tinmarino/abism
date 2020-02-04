@@ -205,12 +205,9 @@ class PsfFit(Fit):
 
 
     def get_result(self):
-        # Update stuff ToRead
-
-        ######
-        # DICTIONARY , backup and star improving
-        do_improve = not get_state().b_aniso and self.fit_fct is not None
-        if do_improve:
+        # Care if not aniso stuff to full x and y
+        is_aniso = not get_state().b_aniso and self.fit_fct is not None
+        if is_aniso:
             try:
                 self.result[0]["spread_y"], self.result[0]["spread_x"] = \
                     self.result[0]["spread"], self.result[0]["spread"]
@@ -222,12 +219,7 @@ class PsfFit(Fit):
                 self.result[1]["spread_y"], self.result[1]["spread_x"] = \
                     self.result[1]["spread_x"], self.result[1]["spread_x"]
 
-        #############
-        # FWHM, and PHOT <- from fit
-        log(9, "\n\n\n\nPstFit  calling phot")
-        self.result[0].update(IF.FwhmFromFit(self.result[0]))
-
-        # UPDATE R99X
+        # Update R99
         (r99x, r99y), (r99u, r99v) = IF.EnergyRadius(
             self.grid, dic=self.result[0])
         self.result[0]["number_count"] = r99x * r99y
@@ -363,43 +355,6 @@ class BinaryPsf(Fit):
                 self.result = restore(self.result, "spread_y0", "spread_x0")
                 self.result = restore(self.result, "spread_y1", "spread_x1")
 
-        # BACKKUP DIC
-        tmp = {}
-        tmp.update(self.result[0])
-        self.result[0]["fit_dic"] = tmp
-
-        # FWHM , Photo < from fit
-        dic_copy0 = self.result[0].copy()
-        dic_copy1 = self.result[0].copy()
-        for key in self.result[0].keys():
-            if "0" in key:
-                dic_copy0[key.replace("0", "")] = dic_copy0[key]
-            elif "1" in key:
-                dic_copy1[key.replace("1", "")] = dic_copy1[key]
-            # nevermind the center x0 and x1
-        try:
-            dic_copy0["exponent"] = dic_copy0["b0"]
-        except:
-            pass
-        try:
-            dic_copy1["exponent"] = dic_copy1["b1"]
-        except:
-            pass
-
-        tmp = IF.FwhmFromFit(dic_copy0)
-        self.result[0].update({
-            "fwhm_x0": tmp["fwhm_x"],
-            "fwhm_y0": tmp["fwhm_y"],
-            "photometry_fit0": tmp["photometry_fit"],})
-
-        tmp = IF.FwhmFromFit(dic_copy1)
-        self.result[0].update({
-            "fwhm_x1": tmp["fwhm_x"],
-            "fwhm_y1": tmp["fwhm_y"],
-            "photometry_fit1": tmp["photometry_fit"]})
-
-
-        self.result[0]["my_photometry0"], self.result[0]["my_photometry1"] = self.result[0]["photometry_fit0"], self.result[0]["photometry_fit1"]
 
         return self.result
 
@@ -505,158 +460,3 @@ def EllipseEventMax(obj):
     # Save
     get_state().add_answer(EA.CENTER, local_max[:2])
     get_state().add_answer(EA.INTENSITY, local_max[2])
-
-
-# Helpers
-######################################################################
-
-def Photometry(grid, background, rectangle=None):
-    """Make photometry of region
-    In: center, r99
-        Only one reading variable photometric type
-        background
-    Returns: photometry, total, number_count
-             1. total phtotometric adu (backgound subtracted)
-             Other. to estimate error
-    Note Background must be called before
-    """
-    photometry = total = number_count = 0
-    e_phot_type = get_state().e_phot_type
-
-    r99x, r99y = get_state().d_fit_param['r99x'], get_state().d_fit_param['r99y']
-    r99u, r99v = get_state().d_fit_param['r99u'], get_state().d_fit_param['r99v']
-    theta = get_state().d_fit_param.get('theta', 0)
-
-    x0, y0 = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
-    ax1, ax2 = int(x0-r99x), int(x0+r99x)
-    ay1, ay2 = int(y0-r99y), int(y0+r99y)
-
-    # FIT
-    if e_phot_type == EPhot.FIT:
-        log(3, "Photometry <- fit")
-        photometry = get_state().d_fit_param["photometry_fit"]
-        number_count = r99u * r99y
-
-    # Rectangle apperture
-    elif e_phot_type == EPhot.RECTANGLE:
-        log(3, 'Photometry <- encircled energy (i.e. rectangle)')
-        total = np.sum(grid[ax1:ax2, ay1:ay2])
-        number_count = 4 * r99x * r99y
-        photometry = total - number_count * background
-
-    # Elliptical apperture
-    elif e_phot_type == EPhot.ELLIPTICAL:
-        log(3, 'Photometry <- elliptical aperture')
-        ellipse_dic = {"center_x": x0, "center_y": y0,
-                       "ru": r99u, "rv": r99v, "theta": theta}
-        bol = IF.EllipticalAperture(grid, dic=ellipse_dic)["bol"]
-        image_elliptic = grid[bol]
-
-        stat = get_array_stat(image_elliptic)
-        number_count = stat.number_count
-        total = stat.sum
-        photometry = total  - number_count * background
-
-    # MANUAL
-    elif e_phot_type == EPhot.MANUAL:
-        log(3, "Photometry <- manual")
-        stat = get_state().image.RectanglePhot(rectangle)
-        total = stat.sum
-        number_count = stat.number_count
-        photometry = total  - number_count * background
-
-    else:
-        log(0, "Error: Photometry do not know tipe:", e_phot_type)
-
-    return photometry, total, number_count
-
-
-def Background(grid, r=None):
-    """Read from fit param, fit err
-    TODO check r
-    """
-    # Log
-    background_type = get_state().e_sky_type
-
-    # Background and rms
-    background = rms = 0
-
-    # 8 rects
-    if background_type == ESky.RECT8:
-        log(2, 'Getting Background in 8 rects')
-        xtmp, ytmp = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
-        r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
-        restmp = IF.EightRectangleNoise(
-            grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
-        background, rms = restmp["background"], restmp['rms']
-        log(3, "ImageFunction.py : Background, I am in 8 rects ")
-
-    # Manual
-    elif background_type == ESky.MANUAL:
-        log(2, 'Getting Background manual')
-        background = get_state().i_background
-        rms = get_state().image.stat.rms
-
-    # Fit
-    elif background_type == ESky.FIT:
-        log(2, 'Getting Background from fit')
-        # Check if no fit which is incoherent
-        # TODO not working well yet (Currently refactoring globals)
-        if get_state().s_fit_type == "None":
-            log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, "
-                "return to Annnulus background")
-            param = param.copy()
-            param.update({"noise": "elliptical_annulus"})
-            get_state().e_sky_type = ESky.ANNULUS
-            return Background(get_state().image.im0)
-        try:
-            background = get_state().d_fit_param['background']
-            rms = get_state().d_fit_error['background']
-        except:
-            log(-1, 'Error: background not in fit parameters')
-            rms = background = float('nan')
-        background = get_state().d_fit_param["background"]
-
-    # None
-    elif background_type == ESky.NONE:
-        log(2, 'Getting Background from None <- 0')
-        background = rms = 0
-
-    # Elliptical annulus
-    elif background_type == ESky.ANNULUS:
-        log(2, 'Getting Background from elliptical annulus')
-        # TODO hardcode as in AnswerReturn
-        ell_inner_ratio, ell_outer_ratio = 1.3, 1.6
-        rui, rvi = 1.3 * get_state().d_fit_param["r99u"], 1.3 * get_state().d_fit_param["r99v"]
-        ruo, rvo = 1.6 * get_state().d_fit_param["r99u"], 1.6 * get_state().d_fit_param["r99v"]
-
-        # Cut
-        myrad = max(ruo, rvo) + 2  # In case
-        ax1 = int(get_state().d_fit_param["center_x"] - myrad)
-        ax2 = int(get_state().d_fit_param["center_x"] + myrad)
-        ay1 = int(get_state().d_fit_param["center_y"] - myrad)
-        ay2 = int(get_state().d_fit_param["center_y"] + myrad)
-        ax1, ax2, ay1, ay2 = IF.Order4((ax1, ax2, ay1, ay2), grid=grid)
-        image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
-
-        bol_i = IF.EllipticalAperture(
-            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
-                            "rv": rvi, "theta": get_state().d_fit_param["theta"]})["bol"]
-
-        bol_o = IF.EllipticalAperture(
-            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
-                            "rv": rvo, "theta": get_state().d_fit_param["theta"]})["bol"]
-
-        bol_a = bol_o ^ bol_i
-
-        iminfo_cut = ImageInfo(image_cut[bol_a])
-        tmp = iminfo_cut.sky()
-        rms = tmp["rms"]
-        background = tmp["mean"]
-
-    else:
-        log(-1, 'Error: I dont know sky mesure type', get_state.e_sky_type)
-        rms = background = float('nan')
-
-    log(3, 'Background returned:', background, rms)
-    return background, rms

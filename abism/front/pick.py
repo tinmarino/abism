@@ -154,7 +154,7 @@ class PickOne(Pick):
 
     def work(self, obj):
         """obj is None"""
-        Strehl.StrehlMeter(self.rectangle)
+        Strehl.strehl_one(self.rectangle)
         AR.show_answer()
 
 

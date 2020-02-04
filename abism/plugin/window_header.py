@@ -1,8 +1,11 @@
 """
-    Show fits header
+    Show fits header in a new tk window
+With find string utility
 """
 
 import tkinter as tk
+
+from abism.util import log
 
 find_num = [0]
 find_list = []
@@ -36,15 +39,15 @@ def _find(text, edit):
     return s_to_find
 
 
-def Scroll(text, edit, side):
+def _scroll(text, edit, side):
     """AutoScroll when user click + or -"""
     # Get
     s_to_find = _find(text, edit)
 
     # Check in
     if len(find_list) == 0:
-        print("FitsHeaderWindow: Pattern '",
-              s_to_find, "' not found in header")
+        log(0, "FitsHeaderWindow: Pattern '",
+            s_to_find, "' not found in header")
         return
     if find_num[0] != 0:
         if side == "+":
@@ -97,20 +100,20 @@ def spawn_header_window(image_name, s_text):
 
     # tk.Texttk.Entry search
     edit = tk.Entry(head_frame)
-    edit.bind("<Return>", lambda event: Scroll(text, edit, "+"))
+    edit.bind("<Return>", lambda event: _scroll(text, edit, "+"))
     edit.grid(row=0, column=1, sticky="nsew")
     edit.focus_set()
 
     # - Previous
     tk.Button(
         head_frame, text='<-',
-        command=lambda: Scroll(text, edit, "-")
+        command=lambda: _scroll(text, edit, "-")
         ).grid(row=0, column=2, sticky="nsew")
 
     # + Next
     tk.Button(
         head_frame, text='->',
-        command=lambda: Scroll(text, edit, "+")
+        command=lambda: _scroll(text, edit, "+")
         ).grid(row=0, column=3, sticky="nsew")
 
 

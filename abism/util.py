@@ -332,6 +332,16 @@ class AbismState(DotDic):
         return self.answers
 
     def add_answer(self, enum_answer, value, *arg, unit=None, **args):
+        # Craft
+        answer = self.craft_answer(enum_answer, value, *arg, unit=unit, **args)
+
+        # Save answer
+        self.answers[enum_answer.name] = answer
+
+        # Return
+        return answer
+
+    def craft_answer(self, enum_answer, value, *arg, unit=None, **args):
         from abism.answer import AnswerSky
 
         # Check if overwork
@@ -352,11 +362,8 @@ class AbismState(DotDic):
         if unit is not None:
             answer.unit = unit
 
-        # Save answer
-        self.answers[enum_answer.name] = answer
-
-        # Return
         return answer
+
 
     def get_answer_obj(self, enum_answer):
         return self.answers[enum_answer.name]

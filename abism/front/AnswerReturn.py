@@ -83,8 +83,8 @@ def tktext_insert_warnings(self):
 
     # Binary too far
     if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
-        max_dist = max(get_state().d_fit_param["fwhm_x0"] + get_state().d_fit_param["fwhm_x1"],
-                       get_state().d_fit_param["fwhm_y0"] + get_state().d_fit_param["fwhm_y1"])
+        max_dist = max(get_state().d_fit_param["spread_x0"] + get_state().d_fit_param["spread_x1"],
+                       get_state().d_fit_param["spread_y0"] + get_state().d_fit_param["spread_y1"])
         sep = (get_state().d_fit_param["x0"] - get_state().d_fit_param["x1"])**2
         sep += (get_state().d_fit_param["y0"] - get_state().d_fit_param["y1"])**2
         sep = np.sqrt(sep)
@@ -195,30 +195,6 @@ def print_one():
     text.configure(state=tk.DISABLED)
 
 
-def print_ellipse():
-    # Grid tk text
-    text = get_new_text_frame()
-
-    # Declare return list
-    lst = [
-        # TODO error
-        [EA.STREHL, True, ['tag-important']],
-        [EA.CENTER],
-        [EA.PHOTOMETRY],
-        [EA.BACKGROUND, True],
-        [EA.INTENSITY],
-    ]
-
-    # Insert element in text
-    text.insert_answer_list(lst)
-
-    # Warnings TODO W.Sthrel dependant
-    # text.insert_warnings()
-
-    # Disable edit
-    text.configure(state=tk.DISABLED)
-
-
 def print_binary():
     # Grid tk text
     text = get_new_text_frame()
@@ -247,6 +223,29 @@ def print_binary():
     # Disable edit
     text.configure(state=tk.DISABLED)
 
+
+def print_ellipse():
+    # Grid tk text
+    text = get_new_text_frame()
+
+    # Declare return list
+    lst = [
+        # TODO error
+        [EA.STREHL, True, ['tag-important']],
+        [EA.CENTER],
+        [EA.PHOTOMETRY],
+        [EA.BACKGROUND, True],
+        [EA.INTENSITY],
+    ]
+
+    # Insert element in text
+    text.insert_answer_list(lst)
+
+    # Warnings TODO W.Sthrel dependant
+    # text.insert_warnings()
+
+    # Disable edit
+    text.configure(state=tk.DISABLED)
 
 
 ###############
@@ -316,7 +315,7 @@ def plot1d_binary():
     """Draw 1D of binary system"""
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
-    fwhm0, fwhm1 = get_state().d_fit_param["fwhm_x0"], get_state().d_fit_param["fwhm_x1"]
+    fwhm0, fwhm1 = get_state().d_fit_param["spread_x0"], get_state().d_fit_param["spread_x1"]
 
     #######
     # EXTREMITIES OF PROFILE LINE ...
@@ -400,7 +399,6 @@ def plot1d_binary():
     # Draw
     ax.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.redraw()
-
 
 
 ####################

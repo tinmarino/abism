@@ -27,6 +27,8 @@ class AnswerSky(ABC):
         # Create an error answer of the same type
         if error is not None:
             self.error = self.__class__(text + ' Error', error)
+        else:
+            self.error = None
         self.unit = ''
 
     @abstractmethod
@@ -39,7 +41,8 @@ class AnswerSky(ABC):
         return self.__repr__()
 
     def __repr__(self):
-        return self.str_detector() + ' <- ' + self.text
+        s_err = str(self.error.value) if self.error else 'nan'
+        return self.str_detector() + '±' + s_err + '<- ' + self.text
 
 
     def constant(self, cst, op):
@@ -54,6 +57,9 @@ class AnswerSky(ABC):
     def addition(self, other, op='+'):
         """Helper addition substraction"""
         if isinstance(other, (int, float)):
+            import sys
+            print('Cst', op, other, self)
+            sys.stdout.flush()
             return self.constant(other, op)
         if self.__class__ != other.__class__:
             raise NotImplementedError
@@ -62,7 +68,9 @@ class AnswerSky(ABC):
             val = self.value + other.value
         else:
             val = self.value - other.value
-        err = np.sqrt(self.error.value**2 + other.error.value**2)
+        err1 = 0 if self.error is None else self.error.value
+        err2 = 0 if other.error is None else other.error.value
+        err = np.sqrt(err1**2 + err2**2)
         txt = self.text + op + other.text
         return self.__class__(txt, val, error=err)
 
@@ -71,19 +79,21 @@ class AnswerSky(ABC):
         """Helper for multiplication"""
         if isinstance(other, (int, float)):
             return self.constant(other, op)
+        txt = self.text + op + other.text
 
         if op == '*':
             val = self.value * other.value
         else:
             val = self.value / other.value
-        err = (self.error.value / self.value)**2
-        err += (other.error.value / other.value)**2
+
+        err1 = 0 if self.error is None else self.error.value
+        err2 = 0 if other.error is None else other.error.value
+        err = (err1 / self.value)**2 + (err2 / other.value)**2
         err = np.sqrt(err) * val
-        txt = self.text + op + other.text
+
         return AnswerNum(txt, val, error=err)
 
 
-    __radd__ = __add__
     def __add__(self, other):
         return self.addition(other, op='+')
 
@@ -93,7 +103,6 @@ class AnswerSky(ABC):
     def __rsub__(self, other):
         return other.__sub__(self)
 
-    __rmul__ = __mul__
     def __mul__(self, other):
         return self.multiplication(other, '*')
 
@@ -101,6 +110,66 @@ class AnswerSky(ABC):
         """No right part yet. Lazy coding..."""
         return self.multiplication(other, '/')
 
+    def __abs__(self):
+        txt = 'abs(' + self.text + ')'
+        val = abs(self.value)
+        err = self.error.value
+        return self.__class__(txt, val, error=err)
+
+    @staticmethod
+    def power(bv, be, ev, ee):
+        """xʸ -> log(|x|) * err(y) ⊕ y * err(x) (more or less)
+        Where ⊕ is the harmonic sum
+        In: base value, base error, exponent value, exponent error
+        """
+        if bv == 0:
+            err = 0
+        else:
+            err = (np.log(abs(bv)) * ee)**2
+            err += (ev * be)**2
+            err = np.sqrt(err)
+        return err
+
+    def __pow__(self, other):
+        # Get error and value (in case not an answer)
+        if isinstance(other, (int, float)):
+            ov = other
+            oe = 0
+            ot = str(other)
+        else:
+            ov = other.value
+            oe = other.error.value
+            ot = other.text
+
+        txt = '(' + self.text + ')' + '**(' + ot + ')'
+        val = self.value**ov
+        err = AnswerSky.power(self.value, self.error.value, ov, oe)
+        return AnswerNum(txt, val, error=err)
+
+    def __rpow__(self, other):
+        if isinstance(other, (int, float)):
+            ov = other
+            oe = 0
+            ot = str(other)
+        else:
+            ov = other.value
+            oe = other.error.value
+            ot = other.text
+
+        txt = '(' + ot + ')' + '**(' + self.text + ')'
+        val = ov**self.value
+        err = AnswerSky.power(self.value, self.error.value, ov, oe)
+        return AnswerNum(txt, val, error=err)
+
+    def sqrt(self):
+        return self.__pow__(0.5)
+
+    __radd__ = __add__
+    __iadd__ = __add__
+    __rmul__ = __mul__
+    __imul__ = __mul__
+    __rtruediv__ = __truediv__
+    __itruediv__ = __truediv__
 
 
 class AnswerObject(AnswerSky):
@@ -220,10 +289,6 @@ class AnswerDistance(AnswerSky):
 class AnswerAngle(AnswerSky):
     """Get a tuple (vector), returns its angle to the top
     Ex: x=0.02, y =10 => angle = 0
-"%.2f" % im_angle + u'\xb0'],
-["Orientation: ", sky_angle, "%.2f" % sky_angle + u'\xb0'],
-    # 360/2pi
-
     """
     def __init__(self, text, xy, error=None):
         super().__init__(text, xy, error=error)
@@ -501,4 +566,3 @@ def format_sky(ra, dec):
     else:
         y = decimal2dms(dec, ":")
     return x, y
-

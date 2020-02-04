@@ -370,69 +370,58 @@ def EnergyRadius(grid, dic={}):
     return (r99x, r99y), (r99u, r99v)
 
 
-def FwhmFromFit(param):
-    """and phot  all explicit  return fwhm_x, fwhm_y (0 or 1)
-    from spread and exponent and s_fit_type, that is explicit"""
+def FwhmFromFit(fit_dic, err_dic):
+    """And phot  all explicit
+    Return a_phot, a_fwhm_x, a_fwhm_y type answer lum and distance
+    Note: could be rename integral:
+    Gauss: ∫e^(-x²/a²)  = πa²
+    Moffat: ∫(1+x²)^-b  = πa² / (b-1)
+    """
+    from abism.answer import AnswerLuminosity, AnswerDistance, AnswerNum
     s_fit_type = get_state().s_fit_type
-    aniso = get_state().b_aniso
 
-    # "
-    # GAUSSIAN
+    a_phot = AnswerLuminosity('Helper', 1, error=0)
+    a_fwhm_x = AnswerDistance('Helper', 1, error=0)
+    a_fwhm_y = AnswerDistance('Helper', 1, error=0)
+
+    a_spread_x = AnswerDistance('Helper', fit_dic['spread_x'], error=err_dic['spread_x'])
+    a_spread_y = AnswerDistance('Helper', fit_dic['spread_y'], error=err_dic['spread_y'])
+    a_intensity = AnswerNum('Helper', fit_dic['intensity'], error=err_dic['intensity'])
+
+    # Gaussian
     if 'Gaussian' in s_fit_type:
-        if not aniso:
-            try:
-                param["spread_y_hole"] = param["spread_x_hole"]
-            except:
-                pass
-        photometry = np.pi*param['intensity'] * \
-            param['spread_x']*param['spread_y']
-        # if "hole" in s_fit_type:
-        #     photometry -= np.pi*param['intensity_hole'] * \
-        #         param['spread_x_hole']*param['spread_y_hole']
-        fwhm_x = 1.66510922*param['spread_x']  # 2 * sqrt( log(2) )
-        fwhm_y = 1.66510922*param['spread_y']
+        a_phot *= a_intensity * np.pi * a_spread_x * a_spread_y
+        a_fwhm_x = 1.66510922 * a_spread_x
+        a_fwhm_y = 1.66510922 * a_spread_y
 
-    ###########
-    # MOFFAT
+    # Moffat
     elif "Moffat" in s_fit_type:
-        if not aniso:
-            param["spread_y"] = param["spread_x"]
-            param["theta"] = 99
-        if param['exponent'] > 1:
-            photometry = np.pi * \
-                param['intensity']*param['spread_x'] * \
-                param["spread_y"] / (param['exponent']-1)
-        else:  # fit diverges
-            x = np.arange(int(param["center_x"]-50),
-                          int(param["center_x"]+50+1))
-            y = np.arange(int(param["center_y"]-50),
-                          int(param["center_y"]+50+1))
+        a_exponent = AnswerNum('Helper', fit_dic['exponent'], error=err_dic['exponent'])
+        if fit_dic['exponent'] > 1:
+            a_phot *= a_intensity * np.pi * a_spread_x * a_spread_y
+            a_phot /= a_exponent - 1
+        else:
+            # TODO cleaner with error
+            x = np.arange(int(fit_dic["center_x"] - 50),
+                          int(fit_dic["center_x"] + 50+1))
+            y = np.arange(int(fit_dic["center_y"] - 50),
+                          int(fit_dic["center_y"] + 50+1))
             Y, X = np.meshgrid(x, y)
-            cut = Moffat2D((X, Y), param)
-            photometry = np.sum(cut)
+            cut = Moffat2D((X, Y), fit_dic)
+            a_phot *= np.sum(cut)
 
-        fwhm_x = 2 * abs(param['spread_x']) * \
-            np.sqrt((0.5)**(-1/param['exponent'])-1)
-        fwhm_y = 2 * abs(param['spread_y']) * \
-            np.sqrt((0.5)**(-1/param['exponent'])-1)
+        a_fwhm_x *= 2 * abs(a_spread_x) * np.sqrt((0.5)**(-1 / a_exponent) - 1)
+        a_fwhm_y *= 2 * abs(a_spread_y) * np.sqrt((0.5)**(-1 / a_exponent) - 1)
 
-    ##########
-    # BESSEL
+    # Bessel
     elif 'Bessel1' in s_fit_type:
-        if not aniso:
-            param["spread_y"] = param["spread_x"]
+        a_phot *= 4 * np.pi * a_intensity * a_spread_x * a_spread_y
+        a_fwhm_x *= 2 * a_spread_x * 1.61
+        a_fwhm_y *= 2 * a_spread_y * 1.61
 
-        photometry = 4 * np.pi * param['intensity'] * \
-            param['spread_x']*param["spread_y"]
-        fwhm_x = 2 * param['spread_x'] * 1.61
-        fwhm_y = 2 * param['spread_y'] * 1.61
 
-    elif s_fit_type == 'None':
-        photometry = 99
-        fwhm_x, fwhm_y = 99, 99
-
-    log(3, 'Fit: photometry, estimated from', s_fit_type, 'is', photometry)
-    return {"fwhm_x": fwhm_x, "fwhm_y": fwhm_y, "photometry_fit": photometry}
+    log(3, 'Fit: photometry, estimated from', s_fit_type, 'is', a_phot)
+    return a_phot, a_fwhm_x, a_fwhm_y
 
 
 def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'distance': 1}):
