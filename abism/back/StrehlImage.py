@@ -170,36 +170,20 @@ class PsfFit(Fit):
             tmp = {"spread_y": supposed_param["spread_x"], "theta": 0.1}
             supposed_param.update(tmp)
 
-        # we consider 2D or not, same_center or not
-        elif self.fit_fct is BF.Gaussian_hole:
-            supposed_param.update({
-                'center_x_hole': x0, 'center_y_hole': y0,
-                'spread_x_hole': 0.83*(self.fwhm)/2,
-                'spread_y_hole': 0.83*self.fwhm/2,
-                'intensity_hole': 0, 'theta': 0.1, 'theta_hole': 0.1})
-            if not get_state().b_aniso:
-                supposed_param["2D"] = 0
-            else:  # aniso
-                supposed_param["2D"] = 1
-
-            if get_state().b_same_center:
-                supposed_param["same_center"] = 1
-
         return supposed_param
 
 
     def get_not_fitted(self):
         doNotFit = super().get_not_fitted()
-        if self.fit_fct is not BF.Gaussian_hole:
-            if not get_state().b_aniso:
-                doNotFit.append("theta")
-                doNotFit.append("theta_hole")
-                doNotFit.append("spread_y")
-                doNotFit.append("spread_y_hole")
-                doNotFit.append("center_x_hole")
-                doNotFit.append("center_y_hole")
-            doNotFit.append("2D")
-            doNotFit.append("same_center")
+        if not get_state().b_aniso:
+            doNotFit.append("theta")
+            doNotFit.append("theta_hole")
+            doNotFit.append("spread_y")
+            doNotFit.append("spread_y_hole")
+            doNotFit.append("center_x_hole")
+            doNotFit.append("center_y_hole")
+        doNotFit.append("2D")
+        doNotFit.append("same_center")
         return doNotFit
 
 

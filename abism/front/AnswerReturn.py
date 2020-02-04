@@ -432,8 +432,6 @@ def plot2d_one():
     def plot_fit(ax):
         s_fit_type = get_state().s_fit_type
         fit_fct = BF.get_fit_function()
-        if "Gaussian_hole" in s_fit_type:
-            s_fit_type = "Gaussian_hole"
         ax.imshow(
             fit_fct((X, Y), get_state().d_fit_param),
             vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,

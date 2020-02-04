@@ -186,31 +186,6 @@ def Gaussian2D(xy, params):
     return res
 
 
-def Gaussian_hole(points, params):
-    """If there is a negative gaussian in the center, a hole
-    TODO remove '2D' and get as named argument
-    """
-    xt, yt = points
-    x0, y0, t = params['center_x'], params['center_y'], params['theta']
-    if params["same_center"] == 1:
-        x0h, y0h, th = x0, y0, t
-    else:
-        x0h, y0h, th = params['center_x_hole'], params['center_y_hole'], params['theta_hole']
-    if params["2D"] == 0:
-        params['spread_y'], params['spread_y_hole'] = params['spread_x'], params['spread_x_hole']
-
-    xp = (xt-x0)*np.cos(t)-(yt-y0)*np.sin(t)
-    yp = (xt-x0)*np.sin(t)+(yt-y0)*np.cos(t)
-    xh = (xt-x0)*np.cos(th)-(yt-y0h)*np.sin(t)
-    yh = (xt-x0)*np.sin(th)+(yt-y0h)*np.cos(t)
-    res = params['background']+params['intensity'] * \
-        np.exp(-(xp**2/params['spread_x']**2+yp**2/params['spread_y']**2))
-    res -= params["intensity_hole"] * \
-        np.exp(-(xh**2/params['spread_x_hole'] **
-                 2+yp**2/params['spread_y_hole']**2))
-    return res
-
-
 ###########
 # MOFFAT
 def Moffat(points, params):

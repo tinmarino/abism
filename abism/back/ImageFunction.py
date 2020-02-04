@@ -321,14 +321,6 @@ def EnergyRadius(grid, dic={}):
         else:
             r99v = np.pi * params['spread_x']
 
-    # if ('Gaussian_hole' in s_fit_type):  # 2.14 for 99% energy, we ll use np.pi
-    #     if 'pread_y' in params.has_key:
-    #         r99u = np.pi * params['spread_x']
-    #         r99v = np.pi * params['spread_y']
-    #     else:
-    #         r99u = np.pi * params['spread_x']
-    #         r99v = np.pi * params['spread_x']
-
     ###############
     # MOFFAT
     if 'Moffat' in s_fit_type:
