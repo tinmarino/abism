@@ -203,14 +203,13 @@ def print_binary():
     lst = [
         [EA.STREHL1, True, ['tag-important']],
         [EA.STREHL2, True, ['tag-important']],
-        [EA.BINARY],
         [EA.STAR1],
         [EA.STAR2],
         [EA.SEPARATION, True],
         [EA.BACKGROUND, True],
         [EA.PHOTOMETRY1],
-        [EA.PHOTOMETRY2],
-        [EA.FLUX_RATIO],
+        [EA.PHOTOMETRY2, True],
+        [EA.FLUX_RATIO, True],
         [EA.ORIENTATION],
     ]
 

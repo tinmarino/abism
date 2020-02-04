@@ -25,4 +25,4 @@ More:
     help(absim.back)  # Strehl estimation info
 
 """
-__version__ = '0.907'
+__version__ = '0.908'

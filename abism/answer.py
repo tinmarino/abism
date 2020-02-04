@@ -57,9 +57,6 @@ class AnswerSky(ABC):
     def addition(self, other, op='+'):
         """Helper addition substraction"""
         if isinstance(other, (int, float)):
-            import sys
-            print('Cst', op, other, self)
-            sys.stdout.flush()
             return self.constant(other, op)
         if self.__class__ != other.__class__:
             raise NotImplementedError

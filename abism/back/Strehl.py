@@ -156,6 +156,7 @@ def append_binary_info():
         err_res = err_dic.copy()
         for res, dic in zip((fit_res, err_res), (fit_dic, err_dic)):
             for key in dic.keys():
+                log(9, s_num, key)
                 if s_num in key:
                     res[key.replace(s_num, "")] = dic[key]
             try:
@@ -165,13 +166,17 @@ def append_binary_info():
         return fit_res, err_res
     fit_copy1, err_copy1 = copy_dic(fit_dic, err_dic, "0")
     fit_copy2, err_copy2 = copy_dic(fit_dic, err_dic, "1")
+    log(9, 'Binary Fit copies:',  fit_copy1)
+    log(9, 'Binary Fit copies:',  err_copy1)
+    log(9, 'Binary Fit copies:',  fit_copy2)
+    log(9, 'Binary Fit copies:',  err_copy2)
 
     a_phot1, a_fwhm_x1, a_fwhm_y1 = IF.FwhmFromFit(fit_copy1, err_copy1)
     a_phot2, a_fwhm_x2, a_fwhm_y2 = IF.FwhmFromFit(fit_copy2, err_copy2)
 
     # Save photometry
-    set_aa(EA.PHOTOMETRY1, a_phot1)
-    set_aa(EA.PHOTOMETRY2, a_phot2)
+    set_aa(EA.PHOTOMETRY1, a_phot1.value, error=a_phot1.error.value)
+    set_aa(EA.PHOTOMETRY2, a_phot2.value, error=a_phot2.error.value)
     set_aa(EA.FLUX_RATIO, a_phot1 / a_phot2)
 
     # Save fwhm
