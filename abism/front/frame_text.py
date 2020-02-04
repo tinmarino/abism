@@ -479,22 +479,10 @@ class OptionFrame(TextFrame):
                 msg = "Same psf: Both stars are fitted with same psf"
             log(0, msg)
 
-        def on_change_center(int_var):
-            get_state().b_same_center = int_var.get()
-            if get_state().b_same_center:
-                msg = ("Same center: Assuming the saturation "
-                       "is centered at the center of the object")
-            else:
-                msg = ("Not same center: Assuming the saturation"
-                       "isn't centered at the center of th object")
-            log(0, msg)
-
-
         # Declare label and associated variable
         text_n_var_n_fct = (
             ('Anisomorphism', get_state().b_aniso, on_change_aniso),
             ('Binary_same_psf', get_state().b_same_psf, on_change_psf),
-            ('Saturated_same_center', get_state().b_same_center, on_change_center),
         )
 
         # Create && Grid all
