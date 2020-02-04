@@ -10,6 +10,7 @@
   * Add other info to Text (CHI2, more errors)
 
 * Photometric error where are you ? 
+  * mesure error with the max - min fitted function integral difference
 
 # Bug
 
@@ -18,6 +19,7 @@
 
 # Feature
 
+* Get CHI2 in output
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
 * Get error with 

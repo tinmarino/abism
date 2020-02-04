@@ -55,8 +55,9 @@ class AnswerSky(ABC):
         """Helper addition substraction"""
         if isinstance(other, (int, float)):
             return self.constant(other, op)
+        if self.__class__ != other.__class__:
+            raise NotImplementedError
 
-        assert self.__class__ == other.__class__
         if op == '+':
             val = self.value + other.value
         else:
@@ -82,17 +83,22 @@ class AnswerSky(ABC):
         return AnswerNum(txt, val, error=err)
 
 
+    __radd__ = __add__
     def __add__(self, other):
         return self.addition(other, op='+')
 
     def __sub__(self, other):
         return self.addition(other, op='-')
 
+    def __rsub__(self, other):
+        return other.__sub__(self)
+
+    __rmul__ = __mul__
     def __mul__(self, other):
         return self.multiplication(other, '*')
-    __rmul__ = __mul__
 
     def __truediv__(self, other):
+        """No right part yet. Lazy coding..."""
         return self.multiplication(other, '/')
 
 
