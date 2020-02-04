@@ -8,7 +8,7 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back import StrehlImage as SI
 
-from abism.util import log, get_root, get_state, get_aa, set_aa, \
+from abism.util import log, get_root, get_state, set_aa, get_aa, \
     EA, EPhot, ESky
 
 
@@ -37,62 +37,77 @@ def StrehlMeter(rectangle):
 
     # Save what it take
     center = psf_fit[0]['center_x'], psf_fit[0]['center_y']
-    set_aa(EA.CENTER, center)
+    dcenter = psf_fit[1]['center_x'], psf_fit[1]['center_y']
+    set_aa(EA.CENTER, center, error=dcenter)
 
+    # Intensity
     intensity = psf_fit[0]['intensity']
-    set_aa(EA.INTENSITY, intensity)
+    if get_state().e_phot_type and get_state().s_fit_type != "None":
+        dI = get_state().d_fit_error["intensity"]
+    else:
+        x0, y0 = int(get_state().d_fit_param["center_x"]), int(get_state().d_fit_param["center_y"])
+        mean = np.mean(get_state().image.im0[x0-1:x0+2, y0-1:y0+2])
+        dI = (get_state().d_fit_param["intensity"] - mean)
+        dI /= 2
+    set_aa(EA.INTENSITY, intensity, error=dI)
+
 
     # Get Background && Save
     background, rms = SI.Background(get_state().image.im0, r=rectangle)
-    set_aa(EA.BACKGROUND, background)
-    set_aa(EA.NOISE, rms)
+    set_aa(EA.BACKGROUND, background, error=rms)
 
     # Get photometry && Save
+    # TODO better error from SI
     photometry, _, number_count = \
         SI.Photometry(get_state().image.im0, background, rectangle=rectangle)
-    err_photometry = rms * np.sqrt(number_count)
-    set_aa(EA.PHOTOMETRY, photometry)
-    set_aa(EA.ERR_PHOTOMETRY, err_photometry)
+    err_photometry = 2 * rms * np.sqrt(number_count)
+    set_aa(EA.PHOTOMETRY, photometry, error=err_photometry)
 
     # Get Signal on noise && Save
     signal_on_noise = photometry / background / np.sqrt(number_count)
-    set_aa(EA.SN, signal_on_noise)
+    dsignal_on_noise = np.sqrt(err_photometry**2 + rms**2) / np.sqrt(number_count)
+    set_aa(EA.SN, signal_on_noise, error=dsignal_on_noise)
 
     # Save:  Side effect of course
     save_fwhm()
 
     # Math
     StrehlRatio()
-    StrehlError()
 
 
 def StrehlRatio():
     # Read from global
     bessel_integer = get_bessel_integer()
-    photometry = get_aa(EA.PHOTOMETRY)
-    intensity = get_aa(EA.INTENSITY)
+    a_sky = get_aa(EA.BACKGROUND)
+    a_photometry = get_aa(EA.PHOTOMETRY)
+    a_intensity = get_aa(EA.INTENSITY)
     wavelength = get_root().header.wavelength
     log(5, 'Calculating Strehl with', "\n"
-        'intensity =', intensity, "\n"
-        'photometry =', photometry, "\n"
+        'sky =', a_sky, "\n"
+        'intensity =', a_intensity, "\n"
+        'photometry =', a_photometry, "\n"
         'bessel_integer =', bessel_integer, "\n"
         'wavelength =', wavelength, "\n")
 
     # Get theoretical intensity && Save
-    Ith = photometry / bessel_integer
-    set_aa(EA.INTENSITY_THEORY, Ith)
+    a_Ith = a_photometry / bessel_integer
+    set_aa(EA.INTENSITY_THEORY, a_Ith.value, error=a_Ith.error)
 
     # Save strehl (finally)
-    strehl = intensity / Ith
-    set_aa(EA.STREHL, 100 * strehl, unit=' %')
+    a_strehl = a_intensity / a_Ith
+    set_aa(EA.STREHL, 100 * a_strehl, unit=' %')
+
+
 
     # Save equivalent Strehl ratio
-    strehl_eq = get_equivalent_strehl_ratio(strehl, wavelength)
-    set_aa(EA.STREHL_EQ, 100 * strehl_eq, unit=' %')
+    strehl_eq = get_equivalent_strehl_ratio(a_strehl.value, wavelength)
+    err_strehl = a_strehl.error.value * strehl_eq / a_strehl.value
+    set_aa(EA.STREHL_EQ, 100 * strehl_eq, error=100 * err_strehl, unit=' %')
 
     # Saven for error just after
-    set_aa(EA.INTENSITY_THEORY, Ith)
+    set_aa(EA.INTENSITY_THEORY, a_Ith)
     set_aa(EA.BESSEL_INTEGER, bessel_integer)
+
 
 
 def get_bessel_integer():
@@ -102,49 +117,6 @@ def get_bessel_integer():
     bessel_integer = bessel_integer**2 * 4 * \
         np.pi / (1-(get_root().header.obstruction/100)**2)
     return bessel_integer
-
-
-def StrehlError():
-    """after strehl , number count , background, center_x, and center_y
-    """
-    # Get in <- side
-    Sr = get_state().get_answer(EA.STREHL)
-    Ith = get_aa(EA.INTENSITY_THEORY)
-    bessel_integer = get_aa(EA.BESSEL_INTEGER)
-    dBack = get_aa(EA.NOISE)
-    dPhot = get_aa(EA.PHOTOMETRY)
-
-    # if get_state().pick_type != "ellipse": the ellipse was doing the aperture
-    # get_state().e_phot_type = EPhot.FIT
-    # log(3, "\n\n WARNING: StrehlError changed the aperture type "
-    #        "to fit because not ellipse pick it shouldn't matter ")
-
-    # INTENSITY
-    if get_state().e_phot_type and get_state().s_fit_type != "None":
-        dI = get_state().d_fit_error["intensity"]
-    else:
-        x0, y0 = int(get_state().d_fit_param["center_x"]), int(get_state().d_fit_param["center_y"])
-        mean = np.mean(get_state().image.im0[x0-1:x0+2, y0-1:y0+2])
-        dI = (get_state().d_fit_param["intensity"] - mean)
-        dI /= 2
-
-    dIpsf = np.sqrt(dI**2 + dBack**2)  # error from peak
-    dIth = dPhot / bessel_integer           # error from phot
-    dSr = np.sqrt(dIpsf**2 + (Sr/100 * abs(dIth))**2)
-    dSr /= Ith
-
-    # Save
-    # TODO move me in caller
-    res = dSr * 3  # because I calculated the best error
-    get_state().add_answer(EA.ERR_STREHL, res)
-
-    # Save Equivelent err = err * eq/real (unreadable, sorry)
-    strehl_eq_err = get_state().get_answer(EA.ERR_STREHL)
-    strehl_eq_err *= get_state().get_answer(EA.STREHL_EQ)
-    strehl_eq_err /= get_state().get_answer(EA.STREHL)
-    get_state().add_answer(EA.ERR_STREHL_EQ, strehl_eq_err, unit=' %')
-
-
 
 
 def save_fwhm():
@@ -178,6 +150,7 @@ def append_binary_info():
     fit_dic, err_dic = get_state().d_fit_param, get_state().d_fit_error
     log(9, 'Binary dic (Removes me)', fit_dic, err_dic)
 
+    # Uglily set fit type here
     set_aa(EA.BINARY, get_state().s_fit_type)
 
     # Some lookup due to move
@@ -185,38 +158,44 @@ def append_binary_info():
     dx0, dx1 = err_dic["x0"], err_dic["x1"]
     dy0, dy1 = err_dic["y0"], err_dic["y1"]
 
-    set_aa(EA.STAR1, (y0, x0))
-    set_aa(EA.STAR2, (y1, x1))
+    # Save center
+    set_aa(EA.STAR1, (y0, x0), error=(err_dic['y0'], err_dic['x0']))
+    set_aa(EA.STAR2, (y1, x1), error=(err_dic['y1'], err_dic['x1']))
 
     # Get separation
-    separation_dic = get_separation(point=((x0, x1), (y0, y1)), err=((dx0, dx1), (dy0, dy1)))
+    separation_dic = get_separation(point=((x0, x1), (y0, y1)), error=((dx0, dx1), (dy0, dy1)))
     separation = separation_dic["dist"]
     sep_err = separation_dic["dist_err"]
     xy_angle = separation_dic["xy_angle"]
     set_aa(EA.ORIENTATION, xy_angle)
-    set_aa(EA.SEPARATION, separation)
-    set_aa(EA.ERR_SEPARATION, sep_err)
+    set_aa(EA.SEPARATION, separation, error=sep_err)
 
     # Get Background
-    set_aa(EA.BACKGROUND, fit_dic['background'])
     if get_state().e_sky_type in (ESky.MANUAL, ESky.NONE):
-        set_aa(EA.NOISE, 0.0)
+        rms = 0.0
     else:
-        set_aa(EA.NOISE, err_dic['background'])
+        rms = err_dic['background']
+    set_aa(EA.BACKGROUND, fit_dic['background'], error=rms)
 
-    # Get photometry
-    phot0, phot1 = fit_dic["my_photometry0"], fit_dic["my_photometry1"]
-    set_aa(EA.PHOTOMETRY1, phot0)
-    set_aa(EA.PHOTOMETRY2, phot1)
-    set_aa(EA.FLUX_RATIO, phot0 / phot1)
+    # Save photometry
+    # TODO get true error
+    a_phot1 = set_aa(
+        EA.PHOTOMETRY1, fit_dic["my_photometry0"], error=err_dic["background"])
+    a_phot2 = set_aa(
+        EA.PHOTOMETRY2, fit_dic["my_photometry1"], error=err_dic["background"])
+    set_aa(EA.FLUX_RATIO, a_phot1 / a_phot2)
 
     # Calculate Strehl
     bessel_integer = get_bessel_integer()
-    Ith0, Ith1 = phot0/bessel_integer, phot1/bessel_integer
-    strehl0 = fit_dic["intensity0"] / Ith0
-    strehl1 = fit_dic["intensity1"] / Ith1
-    set_aa(EA.STREHL1, 100 * strehl0, unit=' %')
-    set_aa(EA.STREHL2, 100 * strehl1, unit=' %')
+    a_Ith1, a_Ith2 = a_phot1 / bessel_integer, a_phot2 / bessel_integer
+    a_intensity1 = set_aa(
+        EA.INTENSITY1, fit_dic["intensity0"], error=err_dic["intensity0"])
+    a_intensity2 = set_aa(
+        EA.INTENSITY2, fit_dic["intensity1"], error=err_dic["intensity1"])
+    a_strehl1 = a_intensity1 / a_Ith1
+    a_strehl2 = a_intensity2 / a_Ith2
+    set_aa(EA.STREHL1, 100 * a_strehl1, unit=' %')
+    set_aa(EA.STREHL2, 100 * a_strehl2, unit=' %')
 
 
 def EllipseEventStrehl(ellipse):
@@ -240,8 +219,6 @@ def EllipseEventStrehl(ellipse):
 
     # Math
     StrehlRatio()
-    # TODO refactor StrehlErrorn not working here
-    #StrehlError()
 
 
 def get_equivalent_strehl_ratio(strehl, wavelength):
@@ -256,13 +233,13 @@ def get_equivalent_strehl_ratio(strehl, wavelength):
     return np.exp(factor)
 
 
-def get_separation(point=((0, 0), (0, 0)), err=((0, 0), (0, 0))):
+def get_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
     """point1i  (and 2) : list of 2 float = (x,y)= row, column
     err_point1 = 2 float = x,y )
     read north position in W
     """
     point1, point2 = point[0], point[1]
-    err_point1, err_point2 = err[0], err[1]
+    err_point1, err_point2 = error[0], error[1]
     x0, x1, y0, y1 = point1[0], point1[1], point2[0], point2[1]
     dx0, dx1, dy0, dy1 = err_point1[0], err_point1[1], err_point2[0], err_point2[1]
 

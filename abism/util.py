@@ -141,7 +141,7 @@ def get_fit_list():
     return ["Gaussian", "Moffat", "Bessel1", "None"]
 
 
-def get_aa(enum_answer):
+def get_av(enum_answer):
     """Get Abism Answer, shortcut"""
     return get_state().get_answer(enum_answer)
 
@@ -149,6 +149,11 @@ def get_aa(enum_answer):
 def set_aa(enum_answer, value, *arg, unit=None, **args):
     """Set Abism Answer shortcut"""
     return get_state().add_answer(enum_answer, value, *arg, unit=unit, **args)
+
+
+def get_aa(enum_answer):
+    """Get Abism Answer, shortcut"""
+    return get_state().get_answer_obj(enum_answer)
 
 
 def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
@@ -217,9 +222,7 @@ class EA(Enum):
     CENTER = ['Center', AnswerPosition]
     FWHM_ABE = ['FWHM a,b,e', AnswerFwhm]
     PHOTOMETRY = ['Photometry', AnswerLuminosity]
-    ERR_PHOTOMETRY = ['Photometry Error', AnswerLuminosity]
     BACKGROUND = ['Sky', AnswerLuminosity]
-    NOISE = ['Sky RMS', AnswerLuminosity]
     SN = ['S/N', AnswerNum]
 
     # Luxury
@@ -228,24 +231,19 @@ class EA(Enum):
     INTENSITY_THEORY = ['Ith', AnswerLuminosity]
     BESSEL_INTEGER = ['Ith', AnswerNum]
 
-    # Errors
-    ERR_STREHL = ['Strehl Error', AnswerNum]
-    ERR_STREHL_EQ = ['Strehl Equivalent Error', AnswerNum]
-
     # Binary
     BINARY = ['Binary', AnswerObject]
     STAR1 = ['1 Star', AnswerPosition]
     STAR2 = ['2 Star', AnswerPosition]
     PHOTOMETRY1 = ['Phot1', AnswerLuminosity]
     PHOTOMETRY2 = ['Phot2', AnswerLuminosity]
+    INTENSITY1 = ['Peak1', AnswerLuminosity]
+    INTENSITY2 = ['Peak2', AnswerLuminosity]
     FLUX_RATIO = ['Flux ratio', AnswerNum]
     SEPARATION = ['Separation', AnswerDistance]
     ORIENTATION = ['Orientation', AnswerAngle]
     STREHL1 = ['Strehl1', AnswerNum]
     STREHL2 = ['Strehl2', AnswerNum]
-
-    # Error Binary
-    ERR_SEPARATION = ['Separation Error', AnswerDistance]
 
 
 class EPick(Enum):
@@ -334,6 +332,8 @@ class AbismState(DotDic):
         return self.answers
 
     def add_answer(self, enum_answer, value, *arg, unit=None, **args):
+        from abism.answer import AnswerSky
+
         # Check if overwork
         if enum_answer in self.answers:
             log(1, 'Warning the', enum_answer, 'has already been calculated')
@@ -342,7 +342,11 @@ class AbismState(DotDic):
         text, cls = enum_answer.value
 
         # Craft anwser
-        answer = cls(text, value, *arg, **args)
+        if isinstance(value, AnswerSky):
+            answer = value
+            answer.text = text
+        else:
+            answer = cls(text, value, *arg, **args)
 
         # Add unit
         if unit is not None:
@@ -363,7 +367,7 @@ class AbismState(DotDic):
 
     def __repr__(self):
         l_silent = ['pick', 'tk_pick', 'tk_root']
-        return str_pretty(self, silent=l_silent)
+        return str_pretty(self, silent=l_silent, depth=6)
 
 
 @lru_cache(1)

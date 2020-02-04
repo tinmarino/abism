@@ -14,12 +14,13 @@
 # Bug
 
 * Manual photometry not working <- at least display the rectangle
+* Get better error estimation in Image function or binary strehl
 
 # Feature
 
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
-* Get error wwith 
+* Get error with 
 
 
 # Latter
@@ -27,19 +28,19 @@
 
 ## Latter feature
 
-* Get error for al answer, append them at the same time
-* Argument parsing, link with AbismState
+* 3h Parameter saturated witch trigger a max parameter, cutting the fit
+* 5h Get error for all answer, append them at the same time
+* 3h Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
-* Ellipse 
-* Datacube if more than 3 dimension
-* TightBinary
+* 1h Ellipse 
+* 2h Datacube if more than 3 dimension
+* 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 
 
 ### Latter fix
 * !!! Bad pixels !! You cannot release putting them to zero
 * More options, test my stuff
-* Destroy cleanly, no matplotlib error should trigger
 
 ### Latter refactor
 * frame_text, optionFrame many function, create subclass like optionElement

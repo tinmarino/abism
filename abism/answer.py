@@ -7,20 +7,33 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-
 class AnswerSky(ABC):
     """Abism answer from BackEnd, base class
     Variables:
-        text: textual name of varaible
-        value: object value of the variable
+        text:   textual name of varaible
+        value:  object value of the variable
+        error:  other AnswerSky (of same class) representing the error
+                the error has no error!
     Methods: Different possible representation:
         on sky: real univer
         on detector: what you see, (on image is overused)
+
+    Note: overloaded operator to do some error arithmetic for free
+
     """
-    def __init__(self, text, value):
+    def __init__(self, text, value, error=None):
         self.text = text
         self.value = value
+        # Create an error answer of the same type
+        if error is not None:
+            self.error = self.__class__(text + ' Error', error)
         self.unit = ''
+
+    @abstractmethod
+    def str_sky(self): pass
+
+    @abstractmethod
+    def str_detector(self): pass
 
     def __str__(self):
         return self.__repr__()
@@ -28,11 +41,59 @@ class AnswerSky(ABC):
     def __repr__(self):
         return self.str_detector() + ' <- ' + self.text
 
-    @abstractmethod
-    def str_sky(self): pass
 
-    @abstractmethod
-    def str_detector(self): pass
+    def constant(self, cst, op):
+        """Constant operation on self"""
+        # pylint: disable = eval-used
+        txt = self.text + op + str(cst)
+        val = eval('self.value' + op + str(cst))
+        err = eval('self.error.value' + op + str(cst))
+        return self.__class__(txt, val, error=err)
+
+
+    def addition(self, other, op='+'):
+        """Helper addition substraction"""
+        if isinstance(other, (int, float)):
+            return self.constant(other, op)
+
+        assert self.__class__ == other.__class__
+        if op == '+':
+            val = self.value + other.value
+        else:
+            val = self.value - other.value
+        err = np.sqrt(self.error.value**2 + other.error.value**2)
+        txt = self.text + op + other.text
+        return self.__class__(txt, val, error=err)
+
+
+    def multiplication(self, other, op='*'):
+        """Helper for multiplication"""
+        if isinstance(other, (int, float)):
+            return self.constant(other, op)
+
+        if op == '*':
+            val = self.value * other.value
+        else:
+            val = self.value / other.value
+        err = (self.error.value / self.value)**2
+        err += (other.error.value / other.value)**2
+        err = np.sqrt(err) * val
+        txt = self.text + op + other.text
+        return AnswerNum(txt, val, error=err)
+
+
+    def __add__(self, other):
+        return self.addition(other, op='+')
+
+    def __sub__(self, other):
+        return self.addition(other, op='-')
+
+    def __mul__(self, other):
+        return self.multiplication(other, '*')
+    __rmul__ = __mul__
+
+    def __truediv__(self, other):
+        return self.multiplication(other, '/')
 
 
 
@@ -47,8 +108,8 @@ class AnswerObject(AnswerSky):
 
 class AnswerNum(AnswerSky):
     """A number"""
-    def __init__(self, text, number, unit=''):
-        super().__init__(text, float(number))
+    def __init__(self, text, number, unit='', error=None):
+        super().__init__(text, float(number), error=error)
         self.unit = unit
 
     def str_detector(self):
@@ -62,8 +123,8 @@ class AnswerPosition(AnswerSky):
     """A position on image: x, y or ra/dec
     Stored as x, y and a ref to wcs
     """
-    def __init__(self, text, xy):
-        super().__init__(text, xy)
+    def __init__(self, text, xy, error=None):
+        super().__init__(text, xy, error=error)
         self.unit = [' [pxl]', ' [ra, dec]']
 
     def str_sky(self):
@@ -86,8 +147,8 @@ class AnswerLuminosity(AnswerSky):
     Require: zero point
              exposure time
     """
-    def __init__(self, text, adu):
-        super().__init__(text, adu)
+    def __init__(self, text, adu, error=None):
+        super().__init__(text, adu, error=error)
         self.unit = [' [adu]', ' [mag]']
 
     def str_sky(self):
@@ -111,8 +172,8 @@ class AnswerFwhm(AnswerSky):
     """FWHM has diffrent values
     Need the pixel scale, separation too
     """
-    def __init__(self, text, fwhm):
-        super().__init__(text, fwhm)
+    def __init__(self, text, fwhm, error=None):
+        super().__init__(text, fwhm, error=error)
         self.unit = [' [pxl]', ' [mas]']
 
     def str_sky(self):
@@ -136,8 +197,8 @@ class AnswerFwhm(AnswerSky):
 
 class AnswerDistance(AnswerSky):
     """Number of pixel or angular distance"""
-    def __init__(self, text, xy):
-        super().__init__(text, xy)
+    def __init__(self, text, xy, error=None):
+        super().__init__(text, xy, error=error)
         self.unit = [' [pxl]', " ''"]
 
     def str_sky(self):
@@ -158,8 +219,8 @@ class AnswerAngle(AnswerSky):
     # 360/2pi
 
     """
-    def __init__(self, text, xy):
-        super().__init__(text, xy)
+    def __init__(self, text, xy, error=None):
+        super().__init__(text, xy, error=error)
         self.unit = u'\xb0'
 
     def str_detector(self):
@@ -179,6 +240,7 @@ class AnswerAngle(AnswerSky):
             + self.value[1] * get_root().frame_image.east_direction[1])
         sky_angle = sky_angle + (sign-1)*(-90)
         return f'{sky_angle:.2f}'
+
 
 # Helpers to transform coordinate
 

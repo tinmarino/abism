@@ -13,18 +13,20 @@ from abism.back import ImageFunction as IF
 import abism.back.fit_template_function as BF
 
 # Plugin
-from abism.util import log, get_root, get_state, get_aa, EA, EPick, EPhot, ESky
+from abism.util import log, get_root, get_state, get_av, EA, EPick, EPhot, ESky
 
 
-def tktext_insert_answer(self, answer, error=None, tags=None):
+def tktext_insert_answer(self, answer, with_error=False, tags=None):
     """Insert an answer in a tktext"""
     # Clean in
     # # Convert answer
     if isinstance(answer, EA):
         answer = get_state().get_answer_obj(answer)
     # # Convert error
-    if isinstance(error, EA):
-        error = get_state().get_answer_obj(error)
+    if with_error:
+        error = answer.error
+    else:
+        error = None
     # # Convert unit && Convert tag
     if not isinstance(answer.unit, (list, tuple)):
         answer.unit = answer.unit, answer.unit
@@ -103,9 +105,9 @@ def tktext_insert_answer_list(self, lst):
     for ans in lst:
         l = len(ans)
         answer = ans[0]
-        error = ans[1] if l > 1 else None
+        with_error = ans[1] if l > 1 else False
         tags = ans[2] if l > 2 else None
-        self.insert_answer(answer, error=error, tags=tags)
+        self.insert_answer(answer, with_error=with_error, tags=tags)
 tk.Text.insert_answer_list = tktext_insert_answer_list
 
 
@@ -172,15 +174,15 @@ def print_one():
     # Grid tk text
     text = get_new_text_frame()
 
-    # Declare return list
+    # Declare return list: EAnswer, do_print_error, l_tag
     lst = [
-        [EA.STREHL, EA.ERR_STREHL, ['tag-important']],
-        [EA.STREHL_EQ, EA.ERR_STREHL_EQ],
+        [EA.STREHL, True, ['tag-important']],
+        [EA.STREHL_EQ, True],
         [EA.CENTER],
         [EA.FWHM_ABE],
         [EA.PHOTOMETRY],
-        [EA.BACKGROUND, EA.NOISE],
-        [EA.SN],
+        [EA.BACKGROUND, True],
+        [EA.SN, True],
         [EA.INTENSITY],
     ]
     # Insert element in text
@@ -200,10 +202,10 @@ def print_ellipse():
     # Declare return list
     lst = [
         # TODO error
-        [EA.STREHL, None, ['tag-important']],
+        [EA.STREHL, True, ['tag-important']],
         [EA.CENTER],
         [EA.PHOTOMETRY],
-        [EA.BACKGROUND, EA.NOISE],
+        [EA.BACKGROUND, True],
         [EA.INTENSITY],
     ]
 
@@ -223,13 +225,13 @@ def print_binary():
 
     # Declare return list
     lst = [
-        [EA.STREHL1, None, ['tag-important']],
-        [EA.STREHL2, None, ['tag-important']],
+        [EA.STREHL1, True, ['tag-important']],
+        [EA.STREHL2, True, ['tag-important']],
         [EA.BINARY],
         [EA.STAR1],
         [EA.STAR2],
-        [EA.SEPARATION, EA.ERR_SEPARATION],
-        [EA.BACKGROUND, EA.NOISE],
+        [EA.SEPARATION, True],
+        [EA.BACKGROUND, True],
         [EA.PHOTOMETRY1],
         [EA.PHOTOMETRY2],
         [EA.FLUX_RATIO],
@@ -294,11 +296,11 @@ def plot1d_one():
                    'center_x': params['center_x'],
                    'center_y': params['center_y'],
                    'pixelscale': get_root().header.pixel_scale,
-                   'phot': get_aa(EA.PHOTOMETRY),
+                   'phot': get_av(EA.PHOTOMETRY),
                    'obstruction': get_root().header.obstruction/100,
                    }
         bessel = BF.DiffractionPatern((a, params['center_y']), params2)
-        ax.plot(a, bessel+ get_aa(EA.BACKGROUND),
+        ax.plot(a, bessel+ get_av(EA.BACKGROUND),
                 color='blue', linewidth=2, label='Ideal PSF')
 
     #  def Percentage(y):  # y is the intensity
@@ -340,9 +342,9 @@ def plot1d_binary():
 
     # Get star center
     ab_star1 = IF.project_on_radial_line(
-        (extremity1, extremity2), reversed(get_aa(EA.STAR1)))
+        (extremity1, extremity2), reversed(get_av(EA.STAR1)))
     ab_star2 = IF.project_on_radial_line(
-        (extremity1, extremity2), reversed(get_aa(EA.STAR2)))
+        (extremity1, extremity2), reversed(get_av(EA.STAR2)))
 
     # Smooth fit vectors
     ab_range = ab[0], ab[-1]
@@ -370,23 +372,23 @@ def plot1d_binary():
     if not get_root().header.wavelength*1e-6/get_root().header.diameter/(get_root().header.pixel_scale/206265) < 2:
         params1 = {'diameter': get_root().header.diameter,
                    'lambda': get_root().header.wavelength,
-                   'center_x': get_aa(EA.STAR1)[1],
-                   'center_y': get_aa(EA.STAR1)[0],
+                   'center_x': get_av(EA.STAR1)[1],
+                   'center_y': get_av(EA.STAR1)[0],
                    'pixelscale': get_root().header.pixel_scale,
-                   'phot': get_aa(EA.PHOTOMETRY1),
+                   'phot': get_av(EA.PHOTOMETRY1),
                    'obstruction': get_root().header.obstruction/100,
                    }
         bessel1 = BF.DiffractionPatern((x_theory, y_theory), params1)
         params2 = {'diameter': get_root().header.diameter,
                    'lambda': get_root().header.wavelength,
-                   'center_x': get_aa(EA.STAR2)[1],
-                   'center_y': get_aa(EA.STAR2)[0],
+                   'center_x': get_av(EA.STAR2)[1],
+                   'center_y': get_av(EA.STAR2)[0],
                    'pixelscale': get_root().header.pixel_scale,
-                   'phot': get_aa(EA.PHOTOMETRY2),
+                   'phot': get_av(EA.PHOTOMETRY2),
                    'obstruction': get_root().header.obstruction/100,
                    }
         bessel2 = BF.DiffractionPatern((x_theory, y_theory), params2)
-        ax.plot(ab_th, bessel1 + bessel2 + get_aa(EA.BACKGROUND),
+        ax.plot(ab_th, bessel1 + bessel2 + get_av(EA.BACKGROUND),
                 color='blue', linewidth=1, label='Ideal PSF')
 
     # Plot sky
