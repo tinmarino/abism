@@ -183,7 +183,7 @@ def FindMaxWithIncreasingSquares(grid, center):  # center is th ecenter click
 
 # call with radius each time samller
 def DecreasingGravityCenter(grid, r=None, binfact=2, radiusmin=4):
-    """ Get the ce nter of gravity with decreasing squares around the previous gravity center """
+    """ Get the center of gravity with decreasing squares around the previous gravity center """
 
     gravity_center = GravityCenter(grid, r=r)
     # need to do that to avoid error mess 'tuple' object do not support item assignment

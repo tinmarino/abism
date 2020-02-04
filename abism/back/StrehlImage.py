@@ -1,3 +1,6 @@
+"""
+    Fit classes to build fitted parameters from user variables
+"""
 from abc import ABC, abstractmethod
 
 import time

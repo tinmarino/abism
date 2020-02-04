@@ -49,17 +49,17 @@ class Pick(ABC):
     def on_rectangle(self, eclick, erelease):
         """Param: the extreme coord of the human drawn rectangle"""
         # Log && Save
-        log(3, 'rectangle click_________________')
-        get_state().image.click = eclick.xdata, eclick.ydata
-        get_state().image.release = erelease.xdata, erelease.ydata
+        click = eclick.xdata, eclick.ydata
+        release = erelease.xdata, erelease.ydata
 
         # Log
-        log(3, 'On:', get_state().image.click, get_state().image.release)
+        log(3, "Rectangle click_________________\n"
+            'between:', click, 'and', release)
 
         # If null rectangle -> make middle click
-        if get_state().image.click == get_state().image.release:
+        if click == release:
             log(3, 'Rectangle incomplete, crafting a fake middle click here')
-            x, y = get_state().image.click
+            x, y = click
             event = matplotlib.backend_bases.MouseEvent(
                 'button_press_event', get_root().frame_image.get_canvas(),
                 x, y, button=2)
@@ -69,8 +69,8 @@ class Pick(ABC):
             return
 
         self.rectangle = (
-            int(get_state().image.click[1]), int(get_state().image.release[1]),
-            int(get_state().image.click[0]), int(get_state().image.release[0]))
+            int(click[1]), int(release[1]),
+            int(click[0]), int(release[0]))
 
         # Work
         self.work(None)

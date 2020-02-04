@@ -7,11 +7,7 @@
   * Clasify the parameters building
 
 3. Refactor: AnswerReturn and Pick  (then every oth todo will be easyier)
-  * Add other info to Text
-  * PlotStat dans AnswerReturn 520, make it in answer frame and not plot
-  * Get Ellipse in legacy
-    * First create legacy button
-    * And make ellipse work
+  * Add other info to Text (CHI2, more errors)
 
 * Photometric error where are you ? 
 
@@ -23,6 +19,7 @@
 
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
+* Get error wwith 
 
 
 # Latter
@@ -52,6 +49,7 @@
 # Idea
 ######################################################################
 
+* Saturation, with a max parameter cutting pixels higher (in base fit class)
 * Theta profile, profile along the major axis, 
 * Contrast Map, image with constrat as intensity
 * Recursive annulus phot
@@ -69,5 +67,5 @@
   * Beware the magic (FrameText 22, xtermTk, fontsize)
   * Consistent naming
 * Matplotlib super keyboard navigation (did not manage today to get key event only in my frame)
-* Feature: show bad pixels: can be usefull for an observatro (example if object is on it: change telescope orientation)
+* Feature: show bad pixels: can be usefull for an observator (example if object is on it: change telescope orientation)
 * UI: Add some colorscheme (material)

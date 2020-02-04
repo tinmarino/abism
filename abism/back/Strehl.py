@@ -19,10 +19,9 @@ def StrehlMeter(rectangle):
     """
 
     # Find center && fwhm
-    rectangle = IF.Order4(rectangle, grid=get_state().image.im0)
+    # TODO bad pixels
     # IF.FindBadPixel(get_state().image.im0,(rx1,rx2,ry1,ry2))
-    # TODO really work twice ?
-    star_center = IF.DecreasingGravityCenter(get_state().image.im0, r=rectangle)
+    rectangle = IF.Order4(rectangle, grid=get_state().image.im0)
     star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)
     tmp = IF.LocalMax(get_state().image.im0, center=star_center, size=3)
     star_max, star_center = tmp[2], (tmp[0], tmp[1])
@@ -179,7 +178,6 @@ def append_binary_info():
     fit_dic, err_dic = get_state().d_fit_param, get_state().d_fit_error
     log(9, 'Binary dic (Removes me)', fit_dic, err_dic)
 
-    # TODO : Isn't that ugly
     set_aa(EA.BINARY, get_state().s_fit_type)
 
     # Some lookup due to move
