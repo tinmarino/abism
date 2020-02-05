@@ -14,9 +14,13 @@
 import tkinter as tk
 import subprocess as sp
 import re
+import platform
+from shutil import which
 from threading import Thread
 from queue import Queue
 from io import StringIO
+from time import sleep
+import logging
 
 # pylint: disable = unused-wildcard-import, wildcard-import, unused-import
 import abism.util as util
@@ -113,13 +117,33 @@ print(root)
 """
 
 
-def create_gnome_console(s_cmd):
-    """Gnome terminal"""
+def get_system_command(cfile):
+    s_ipy_cmd = "jupyter console --existing {}".format(cfile)
 
-    cmd = f"""gnome-terminal -e 'sh -c "{s_cmd}"'"""
-    log(3, 'Launching ', cmd)
-    sp.Popen(
-        cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    is_ix = which('jupyter-console')
+    is_ix = is_ix and which('sh')
+    is_gnome = is_ix and which('gnome-terminal')
+    is_mac = is_ix and platform.system() == 'Darwin'
+
+    if is_gnome:
+        return f"""gnome-terminal -e 'sh -c "{s_ipy_cmd}"' """
+    if is_mac:
+        return f"""do shell script "open '{s_ipy_cmd}'" """
+
+    # Windows ?
+    log(-1, f"Error: abism do not know how to open a jupyter client on your "
+        "system with connection file {cfile}.\n"
+        "Have you installed jupyter-console? Are you on windows?"
+        )
+    return ''
+
+
+
+def create_system_console(s_cmd):
+    """System terminal"""
+    log(1, 'Launching ', s_cmd)
+    if not s_cmd: return
+    sp.Popen(s_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
 
 
 def launch_kernel():
@@ -136,10 +160,6 @@ def launch_kernel():
             "install: background_zmq_ipython and xterm\n"
             "and try again", e)
         return False
-    from time import sleep
-    import logging
-    t_cmd = "jupyter console --existing {}"
-
     sio = StringIO()
     logger = logging.Logger("ABISM kernel", level=logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sio))
@@ -164,8 +184,8 @@ def launch_kernel():
         if match_cfile:
             cfile = match_cfile.group(1)
             log(3, '-----------> cfile:', cfile)
-            s_cmd = t_cmd.format(cfile)
-            create_gnome_console(s_cmd)
+            s_cmd = get_system_command(cfile)
+            create_system_console(s_cmd)
             break
         sleep(0.1)
 

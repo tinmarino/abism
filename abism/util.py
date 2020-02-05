@@ -172,7 +172,11 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
     s_indent = ' ' * indent * rec
     stg = s_indent
 
+    # Print key && Check if silent
     if key != '': stg += str(key) + ': '
+    if str(key) in silent or type(obj).__name__ in silent:
+        stg += "\n" + ' ' * (indent) * (rec + 1) + "Silenced !\n"
+        return stg
 
     # Discriminate && Check if final
     items = {}
@@ -185,14 +189,12 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
     if not items:
         return stg + str(obj).replace('\n', '\n' + s_indent)
 
-    # Recurse
+    # Print type
     stg += '(' + type(obj).__name__ + ')\n'
+    # Recurse
     items = dict(sorted(items)).items()
-    if str(key) not in silent and type(obj).__name__ not in silent:
-        for k, v in items:
-            stg += str_pretty(v, indent=indent, rec=rec+1, key=k, silent=silent) + "\n"
-    else:
-        stg += ' ' * (indent) * (rec + 1) + "Silenced !\n"
+    for k, v in items:
+        stg += str_pretty(v, indent=indent, rec=rec+1, key=k, silent=silent) + "\n"
 
     # Return without empty lines
     return re.sub(r'\n\s*\n', '\n', stg)[:-1]
@@ -374,7 +376,7 @@ class AbismState(DotDic):
         return self.get_answer_obj(enum_answer).value
 
     def __repr__(self):
-        l_silent = ['pick', 'tk_pick', 'tk_root']
+        l_silent = ['pick', 'tk_pick', 'tk_root', 'im0']
         return str_pretty(self, silent=l_silent, depth=6)
 
 
