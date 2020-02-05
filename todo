@@ -1,10 +1,9 @@
 # Next task
 
-* Fix ellipse phot
-
 * Add other info to Text:
   * Fit param
   * Fit error
+  * Restore the result label
 
 1. Jupyter console working, fun is fact
   - pretyped print(sm)

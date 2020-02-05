@@ -154,8 +154,8 @@ def grid_button_change_coord():
         get_root().frame_answer, text=s_label, justify=tk.LEFT, anchor="nw")
 
     # Grid Buttons
-    button.grid(column=1, sticky="wnse")
-    label.grid(column=0, sticky="wnse")
+    button.grid(row=0, column=3, sticky=tk.E)
+    label.grid(row=1, column=0, sticky=tk.W)
 
 
 def get_new_text_frame():

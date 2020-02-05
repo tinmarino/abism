@@ -678,15 +678,24 @@ class AnswerFrame(TextFrame):
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
+        for i in range(4):
+            self.grid_columnconfigure(i, weight=1, uniform="fred")
+
         self.init_after()
 
-    def init_after(self, add_title=False):
+    def init_after(self):
         """Add fit type label"""
+        # Title left
+        label = tk_ext.TitleLabel(self, text=self._label_text)
+        label.grid(row=0, column=0, sticky=tk.W)
+
+        # Fit type middle
         self._fit_type_label = tk.Label(
             self, justify=tk.CENTER, text=get_state().s_fit_type)
-        self._fit_type_label.grid(sticky='nsew')
+        self._fit_type_label.grid(row=0, column=1)
+
         # Add also standard above
-        super().init_after(add_title=add_title)
+        super().init_after(add_title=False)
 
     def set_fit_type_text(self, s_text):
         """Change fit type label text"""
@@ -713,7 +722,7 @@ class AnswerFrame(TextFrame):
         text.tag_configure('tag-blue', foreground=tk_ext.scheme.solarized_blue)
 
         # Grid text
-        text.grid(columnspan=2, sticky='nsew')
+        text.grid(columnspan=4, sticky='nsew')
 
         return text
 
