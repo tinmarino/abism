@@ -778,6 +778,7 @@ class ButtonFrame(tk.Frame):
         if not get_state().image.is_cube:
             self.close_cube()
         else:
+            self.close_cube()
             self.open_cube()
 
     def close_cube(self):
