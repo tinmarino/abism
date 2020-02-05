@@ -15,11 +15,11 @@
 
 * Manual photometry not working <- at least display the rectangle
 * Get better error estimation in Image function or binary strehl
+* Cube: frame is appending (destroy befreo create)
 
 # Easy win
 
 * Make chi2 red if > 100
-* Cube: loop between max and min
 
 # Feature
 

@@ -718,7 +718,6 @@ class AnswerFrame(TextFrame):
         return text
 
 
-
 class ButtonFrame(tk.Frame):
     """Frame 1 with quit, restart"""
     def __init__(self, parent, **args):
@@ -798,19 +797,31 @@ class ButtonFrame(tk.Frame):
         lt = tk_ext.TitleLabel(self.frame_cube, text="Cube Number")
         lt.grid(row=0, column=0, columnspan=3, sticky="w")
 
-        # Define tk variable
+        # Define tk variable (1 based)
         int_var = tk.IntVar()
-        int_var.set(get_state().image.cube_num + 1)
+        int_var.set(get_state().image.cube_num)
 
         # callback
         def scroll_cube(i_click):
-            """Callback for cube button + -"""
+            """Callback for cube button + -
+            Note: cube_num is "0 based" and int_var is "1 based"
+            """
+            # Get in
+            cube_num = get_state().image.cube_num
             if i_click == 0:
-                get_state().image.cube_num = int_var.get()
+                cube_num = int_var.get()
             else:
-                get_state().image.cube_num += i_click
+                cube_num += i_click
 
-            int_var.set(get_state().image.cube_num + 1)
+            # Cycle
+            if cube_num < 1:
+                cube_num = get_state().image.i_cube_len
+            elif cube_num > get_state().image.i_cube_len:
+                cube_num = 1
+
+            # Set and update
+            get_state().image.cube_num = cube_num
+            int_var.set(get_state().image.cube_num)
             get_state().image.update_cube()
             get_root().frame_image.draw_image(new_fits=False)
 

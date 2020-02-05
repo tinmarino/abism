@@ -64,7 +64,8 @@ class ImageInfo():
         # Current image filepath
         self.name = ''  # Filename
         self.is_cube = False  # Cube it is not
-        self.cube_num = -1
+        self.cube_num = -1  # 0 based
+        self.i_cube_len = -1  # 1 based
 
         self.bpm = None  # Bad Pixel mask array
         self.bpm_name = None  # Bad Pixel Mask filepath
@@ -143,15 +144,16 @@ class ImageInfo():
             hdulist[0].data = hdulist[0].data[0]
 
         # we start with the last index
-        cube_num = hdulist[0].data.shape[0] - 1
-        image = ImageInfo(hdulist[0].data[cube_num])
+        cube_num = hdulist[0].data.shape[0]
+        image = ImageInfo(hdulist[0].data[cube_num - 1])
         image.is_cube = True
         image.cube_num = cube_num
+        image.i_cube_len = cube_num
         return image
 
 
     def update_cube(self):
-        im0 = self.hdulist[0].data[self.cube_num]
+        im0 = self.hdulist[0].data[self.cube_num - 1]
         self.set_array(im0)
 
 
