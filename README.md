@@ -52,6 +52,8 @@ print(sm.state)
 
 | KeyBind | Command         | Comment |
 | ---     | ---             | --- |
+| `<C-B>` | **B**ackward    | cube image |
+| `<C-F>` | **F**orward     | cube image |
 | `<C-H>` | open **H**eader | Popup |
 | `<C-I>` | **I**mage param | Toogle Frame |
 | `<C-M>` | **M**ore option | Toogle Frame |

@@ -5,7 +5,7 @@
   * Fit error
 
 1. Jupyter console working, fun is fact
-  - unident banner, get scope varaible, even maybe pretyped print(sm)
+  - pretyped print(sm)
 
 2. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
   * Clasify the parameters building
@@ -15,6 +15,7 @@
 
 * Manual photometry not working <- at least display the rectangle
 * Get better error estimation in Image function or binary strehl
+* Zomming is recurvise and get stuck in some images (bottom)
 
 # Easy win
 
@@ -23,12 +24,13 @@
 # Feature
 
 * Get a save log button to save all work until here (and delete it from RAM)
-* Cube: Shortcut for cubes next and previous (backward and foward)
 * Cube: When next cube, do not change the zoom and centering
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
   * Have a glimps at first guesss which is really really important, especially for moffat
 
+* Refactor: root_window containt and not extend a tk_Tk (better for ipy)
+  * Warning, some get_root().bind_all need it to bee the oldest ancestor
 
 # Latter
 ################################################################################
@@ -51,7 +53,7 @@
 
 ### Latter refactor
 * frame_text, optionFrame many function, create subclass like optionElement
-* frame_tex, base class has getten big
+* frame_text, base class has getten big
 
 
 # Idea

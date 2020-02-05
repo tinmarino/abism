@@ -831,6 +831,10 @@ class ButtonFrame(tk.Frame):
             self.frame_cube, text='<-',
             command=lambda: scroll_cube(-1))
         bu_left.grid(row=1, column=0, sticky="nsew")
+        get_root().bind_all(
+            "<Control-b>", lambda _: scroll_cube(-1))
+        bu_left.set_hover_info(
+            "<C-b>: Display previous cube image\n(Backward)")
 
         # Entry
         entry = tk.Entry(
@@ -843,3 +847,7 @@ class ButtonFrame(tk.Frame):
             self.frame_cube, text='->',
             command=lambda: scroll_cube(1))
         bu_right.grid(row=1, column=2, sticky="nsew")
+        get_root().bind_all(
+            "<Control-f>", lambda _: scroll_cube(1))
+        bu_right.set_hover_info(
+            "<C-f>: Display next cube image\n(Forward)")
