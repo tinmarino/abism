@@ -37,8 +37,7 @@ def create_debug_console():
             log(0, cmd)
         else:
             # Some helpers
-            # pylint: disable = possibly-unused-variable
-            sm = get_state()
+            sm = get_state()  # pylint: disable = possibly-unused-variable
             exec(cmd, globals(), locals())
 
     # Pack button frame && Init configure

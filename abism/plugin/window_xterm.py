@@ -13,16 +13,17 @@
 """
 import tkinter as tk
 import subprocess as sp
-from re import match
+import re
 from threading import Thread
 from queue import Queue
+from io import StringIO
 
 # pylint: disable = unused-wildcard-import, wildcard-import, unused-import
 import abism.util as util
 from abism.util import *
 
 
-def create_console_window():
+def create_tk_console():
     # Init
     root = tk.Tk()
     queue = Queue()
@@ -88,7 +89,7 @@ def get_xterm_pts(parent, process, queue):
         out = process.stdout.readline().decode()
         log(3, 'Xterm out' + out)
 
-        match_pts = match(r'pts/\d+', out)
+        match_pts = re.match(r'pts/\d+', out)
         if match_pts:
             pts = '/dev/' + match_pts.group(0)
             log(3, '-----------> pts:', pts)
@@ -105,11 +106,28 @@ def get_xterm_pts(parent, process, queue):
     on_resize(fake_event, queue)
 
 
+def get_banner():
+    return """Hello from ABISM background kernel Tread
+print(sm)
+print(root)
+"""
+
+
+def create_gnome_console(s_cmd):
+    """Gnome terminal"""
+
+    cmd = f"""gnome-terminal -e 'sh -c "{s_cmd}"'"""
+    log(3, 'Launching ', cmd)
+    sp.Popen(
+        cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+
+
 def launch_kernel():
     """Launch a kernel (ipy, jupyter)
     The kernel is in a other thread
     that is why we need (200 lines) background-zmd-ipython
     """
+    # pylint: disable = possibly-unused-variable
     # Import
     try:
         from background_zmq_ipython import init_ipython_kernel
@@ -117,19 +135,46 @@ def launch_kernel():
         log(0, "Error: cannot import background_zmq_ipython,\n"
             "install: background_zmq_ipython and xterm\n"
             "and try again", e)
-        return
+        return False
+    from time import sleep
+    import logging
+    t_cmd = "jupyter console --existing {}"
 
-    def kernel_thread():
-        init_ipython_kernel(user_ns=globals())
+    sio = StringIO()
+    logger = logging.Logger("ABISM kernel", level=logging.DEBUG)
+    logger.addHandler(logging.StreamHandler(sio))
 
-    thread = Thread(target=kernel_thread)
-    thread.start()
+    # Prepare namespacte()
+    sm = get_state()
+    root = get_root()
+
+    # Init kernel
+    init_ipython_kernel(
+        user_ns={**globals(), **locals()}, redirect_stdio=True, banner=get_banner(),
+        logger=logger
+    )
+
+    # Read output
+    while True:
+        out = sio.getvalue()
+        sio.readline()
+        log(3, 'Kernel out' + out)
+
+        match_cfile = re.search(r'--existing (\S*)', out)
+        if match_cfile:
+            cfile = match_cfile.group(1)
+            log(3, '-----------> cfile:', cfile)
+            s_cmd = t_cmd.format(cfile)
+            create_gnome_console(s_cmd)
+            break
+        sleep(0.1)
 
 
 def create_jupyter_console():
-    launch_kernel()
-    create_console_window()
+    thread = Thread(target=launch_kernel)
+    thread.start()
+    #create_tk_console()
 
 
 if __name__ == '__main__':
-    create_console_window()
+    create_jupyter_console()

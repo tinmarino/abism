@@ -1,9 +1,12 @@
 # Next task
 
-* Add other info to Text (CHI2, more errors)
+* Add other info to Text:
+  * Fit param
+  * Fit error
 
 1. Jupyter console working, fun is fact
   - Get option to open gnometerminal for ipython (actually do not use tk terminal yet)
+  - unident banner, get scope varaible, even maybe pretyped print(sm)
 
 2. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
   * Clasify the parameters building
@@ -16,9 +19,9 @@
 
 # Feature
 
-* Get CHI2 in output
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
+  * Have a glimps at first guesss which is really really important, especially for moffat
 
 
 # Latter

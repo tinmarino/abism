@@ -224,6 +224,7 @@ class EA(Enum):
     PHOTOMETRY = ['Photometry', AnswerLuminosity]
     BACKGROUND = ['Sky', AnswerLuminosity]
     SN = ['S/N', AnswerNum]
+    CHI2 = ['Chi²', AnswerNum]
 
     # Luxury
     R99 = ['R99', AnswerNum]
@@ -390,6 +391,7 @@ def quit_process():
     """Kill process"""
     log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
     get_root().destroy()
+    sys.exit(0)
 
 
 def restart():
@@ -412,9 +414,8 @@ def restart():
 
     ##########
     # DESTROY AND LAUNCH
-    get_root().destroy()  # I destroy Window,
     os.system(stg)         # I call an other instance
-    sys.exit(0)         # I exit the current process.
+    quit_process()
     # As the loop is now opened, this may not be necessary but anyway it is safer
 
 
