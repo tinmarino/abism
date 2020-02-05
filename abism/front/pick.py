@@ -356,3 +356,4 @@ class PickEllipse(Pick):
 
     def work(self, _):
         Strehl.EllipseEventStrehl(self.artist_ellipse)
+        AR.show_answer()

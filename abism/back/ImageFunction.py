@@ -9,7 +9,7 @@ import scipy.interpolate  # for LocalMax
 from abism.back.image_info import get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
-from abism.util import log, get_state
+from abism.util import log, get_state, DotDic
 
 
 
@@ -668,8 +668,8 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=T
     """
     # Check in
     if dic == {}:
-        return 0*grid
-    res = {}
+        return DotDic()
+    res = DotDic()
 
     # Unpack in
     x0, y0 = dic["center_x"], dic["center_y"]

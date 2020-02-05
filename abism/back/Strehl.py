@@ -227,14 +227,17 @@ def EllipseEventStrehl(ellipse):
     if get_state().e_phot_type == EPhot.FIT:
         log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
+    # Not fit
+    set_aa(EA.CHI2, float('nan'))
+
     # Background
     back_stat = SI.EllipseEventBack(ellipse)
-    background = back_stat.mean
-    get_state().add_answer(EA.BACKGROUND, background)
+    set_aa(EA.BACKGROUND, back_stat.mean, error=back_stat.rms)
 
     # Photometry
-    photometry, _, _ = SI.EllipseEventPhot(ellipse, background)
-    get_state().add_answer(EA.PHOTOMETRY, photometry)
+    phot_stat = SI.EllipseEventPhot(ellipse)
+    phot = phot_stat.sum - phot_stat.number_count * back_stat.mean
+    set_aa(EA.PHOTOMETRY, phot, error=phot_stat.rms)
 
     # Get maximum (side effect)
     SI.EllipseEventMax(ellipse)

@@ -434,24 +434,16 @@ def EllipseEventBack(obj):
     return stat
 
 
-def EllipseEventPhot(obj, sky):
+def EllipseEventPhot(obj):
     """Elliptical phot
     Returns: photometry, total, number_count
     """
-
-    ###########
-    # CAlculate Ellipse stats (phot) update phot
     dic = {"center_x": obj.x0, "center_y": obj.y0,
            "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
     ellipse_stat = IF.EllipticalAperture(
         obj.array, dic=dic, full_answer=True)
 
-    number_count, total = ellipse_stat['sum'], ellipse_stat['number_count']
-    photometry = total - number_count * sky
-
-    # Save photo
-    get_state().add_answer(EA.PHOTOMETRY, photometry)
-    return photometry, total, number_count
+    return ellipse_stat
 
 
 def EllipseEventMax(obj):
