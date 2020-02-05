@@ -3,6 +3,7 @@
     C'est le bordel !
 """
 
+from abc import ABC, abstractmethod
 
 import tkinter as tk
 import numpy as np
@@ -117,17 +118,17 @@ def show_answer():
     pick = get_state().e_pick_type
 
     if pick == EPick.ONE:
-        print_one()
+        PrinterOne().work()
         plot1d_one()
         plot2d_one()
 
     elif pick in (EPick.BINARY, EPick.TIGHT):
-        print_binary()
+        PrinterBinary().work()
         plot1d_binary()
         plot2d_binary()
 
     elif pick == EPick.ELLIPSE:
-        print_ellipse()
+        PrinterEllipse().work()
 
 
 def grid_button_change_coord():
@@ -170,83 +171,79 @@ def get_new_text_frame():
     return text
 
 
-def print_one():
-    # Grid tk text
-    text = get_new_text_frame()
+class AnswerPrinter(ABC):
+    """Base class to print answer in text frame"""
+    def work(self):
+        # Grid tk text
+        text = get_new_text_frame()
 
-    # Declare return list: EAnswer, do_print_error, l_tag
-    lst = [
-        [EA.STREHL, True, ['tag-important']],
-        [EA.STREHL_EQ, True],
-        [EA.CENTER],
-        [EA.FWHM_ABE],
-        [EA.PHOTOMETRY],
-        [EA.BACKGROUND, True],
-        [EA.SN, True],
-        [EA.INTENSITY],
-        [EA.CHI2, False, ['tag-blue']],
-    ]
-    # Insert element in text
-    text.insert_answer_list(lst)
+        # Get class dependant list
+        lst = self.get_list()
 
-    # Insert Warnings
-    text.insert_warnings()
+        # Insert CHI2
+        if get_av(EA.CHI2) > 100:
+            lst.append([EA.CHI2, False, ['tag-important']])
+        else:
+            lst.append([EA.CHI2, False, ['tag-blue']])
 
-    # Disable edit
-    text.configure(state=tk.DISABLED)
+        # Insert element in text
+        text.insert_answer_list(lst)
 
+        # Insert Warnings
+        text.insert_warnings()
 
-def print_binary():
-    # Grid tk text
-    text = get_new_text_frame()
+        # Disable edit
+        text.configure(state=tk.DISABLED)
 
-    # Declare return list
-    lst = [
-        [EA.STREHL1, True, ['tag-important']],
-        [EA.STREHL2, True, ['tag-important']],
-        [EA.STAR1],
-        [EA.STAR2],
-        [EA.SEPARATION, True],
-        [EA.BACKGROUND, True],
-        [EA.PHOTOMETRY1],
-        [EA.PHOTOMETRY2, True],
-        [EA.FLUX_RATIO, True],
-        [EA.ORIENTATION],
-        [EA.CHI2, False, ['tag-blue']],
-    ]
-
-    # Insert elements in text
-    text.insert_answer_list(lst)
-
-    # Insert Warnings
-    text.insert_warnings()
-
-    # Disable edit
-    text.configure(state=tk.DISABLED)
+    @abstractmethod
+    def get_list(self):
+        """Declare return list: EAnswer, do_print_error, l_tag"""
 
 
-def print_ellipse():
-    # Grid tk text
-    text = get_new_text_frame()
+class PrinterOne(AnswerPrinter):
+    """For pick one"""
+    def get_list(self):
+        return [
+            [EA.STREHL, True, ['tag-important']],
+            [EA.STREHL_EQ, True],
+            [EA.CENTER],
+            [EA.FWHM_ABE],
+            [EA.PHOTOMETRY],
+            [EA.BACKGROUND, True],
+            [EA.SN, True],
+            [EA.INTENSITY],
+        ]
 
-    # Declare return list
-    lst = [
-        # TODO error
-        [EA.STREHL, True, ['tag-important']],
-        [EA.CENTER],
-        [EA.PHOTOMETRY],
-        [EA.BACKGROUND, True],
-        [EA.INTENSITY],
-    ]
 
-    # Insert element in text
-    text.insert_answer_list(lst)
+class PrinterBinary(AnswerPrinter):
+    """For binary pick or tight binary"""
+    def get_list(self):
+        return [
+            [EA.STREHL1, True, ['tag-important']],
+            [EA.STREHL2, True, ['tag-important']],
+            [EA.STAR1],
+            [EA.STAR2],
+            [EA.SEPARATION, True],
+            [EA.BACKGROUND, True],
+            [EA.PHOTOMETRY1],
+            [EA.PHOTOMETRY2, True],
+            [EA.FLUX_RATIO, True],
+            [EA.ORIENTATION],
+            [EA.CHI2, False, ['tag-blue']],
+        ]
 
-    # Warnings TODO W.Sthrel dependant
-    # text.insert_warnings()
 
-    # Disable edit
-    text.configure(state=tk.DISABLED)
+class PrinterEllipse(AnswerPrinter):
+    """For ellipse pick"""
+    def get_list(self):
+        return [
+            # TODO error
+            [EA.STREHL, True, ['tag-important']],
+            [EA.CENTER],
+            [EA.PHOTOMETRY],
+            [EA.BACKGROUND, True],
+            [EA.INTENSITY],
+        ]
 
 
 ###############

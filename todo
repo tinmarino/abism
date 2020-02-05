@@ -7,19 +7,12 @@
 1. Jupyter console working, fun is fact
   - pretyped print(sm)
 
-2. SthrelImage discirminator: Sthrel is just a wrapper, join them ?
-  * Clasify the parameters building
-
 
 # Bug
 
 * Manual photometry not working <- at least display the rectangle
 * Get better error estimation in Image function or binary strehl
 * Zomming is recurvise and get stuck in some images (bottom)
-
-# Easy win
-
-* Make chi2 red if > 100
 
 # Feature
 
@@ -28,11 +21,15 @@
 * Make the fit a little longer, better result
   * Have a glimps at first guesss which is really really important, especially for moffat
 
-* Refactor: root_window containt and not extend a tk_Tk (better for ipy)
-  * Warning, some get_root().bind_all need it to bee the oldest ancestor
-
 # Latter
 ################################################################################
+
+# Refactor
+
+* root_window containt and not extend a tk_Tk (better for ipy)
+  * Warning, some get_root().bind_all need it to bee the oldest ancestor
+
+* SthrelImage discirminator: Sthrel is just a wrapper, join them ?
 
 ## Latter feature
 
