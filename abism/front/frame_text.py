@@ -710,6 +710,7 @@ class AnswerFrame(TextFrame):
         text.bind("<Configure>", on_resize_text)
         text.tag_configure('tag-important', foreground=tk_ext.scheme.important)
         text.tag_configure('tag-center', justify=tk.CENTER)
+        text.tag_configure('tag-blue', foreground=tk_ext.scheme.solarized_blue)
 
         # Grid text
         text.grid(columnspan=2, sticky='nsew')

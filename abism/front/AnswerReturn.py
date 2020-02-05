@@ -184,6 +184,7 @@ def print_one():
         [EA.BACKGROUND, True],
         [EA.SN, True],
         [EA.INTENSITY],
+        [EA.CHI2, False, ['tag-blue']],
     ]
     # Insert element in text
     text.insert_answer_list(lst)
@@ -211,6 +212,7 @@ def print_binary():
         [EA.PHOTOMETRY2, True],
         [EA.FLUX_RATIO, True],
         [EA.ORIENTATION],
+        [EA.CHI2, False, ['tag-blue']],
     ]
 
     # Insert elements in text

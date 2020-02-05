@@ -57,7 +57,7 @@ class Pick(ABC):
             'between:', click, 'and', release)
 
         # If null rectangle -> make middle click
-        if click == release:
+        if (click[0] - release[0]) * (click[1] - release[1]) < 9:
             log(3, 'Rectangle incomplete, crafting a fake middle click here')
             x, y = click
             event = matplotlib.backend_bases.MouseEvent(
@@ -91,8 +91,8 @@ class Pick(ABC):
             # Reamining button 2 -> Save bounds <- click +/- 15
             log(1, 'Making a selection 30 pixels around', event)
             self.rectangle = (
-                event.ydata - 15, event.ydata + 15,
-                event.xdata - 15, event.xdata + 15)
+                event.ydata - 20, event.ydata + 21,
+                event.xdata - 20, event.xdata + 21)
 
             self.work(None)
 

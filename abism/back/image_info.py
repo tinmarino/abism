@@ -26,6 +26,11 @@ class ImageStat(DotDic):
 
         self.number_count = len(image.im0.flatten())
 
+        # Check len
+        if not len(sort):
+            self.median = self.min = self.max = self.sum = float('nan')
+            return
+
         # Median
         middle = (self.number_count-1) // 2
         if self.number_count % 2:

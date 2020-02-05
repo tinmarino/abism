@@ -9,10 +9,11 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back.fit_helper import leastsqFit
 import abism.back.fit_template_function as BF
-from abism.back.image_info import ImageInfo, get_array_stat
+from abism.back.image_info import get_array_stat
 
 
-from abism.util import log, get_state, EA, EPhot, ESky
+from abism.util import log, get_state, set_aa, \
+    EA, EPhot, ESky
 
 
 class Fit(ABC):
@@ -43,6 +44,7 @@ class Fit(ABC):
             bounds=self.get_bounds(),
             verbose=self.verbose
         )
+        set_aa(EA.CHI2, self.result[2])
 
         # Log
         log(0, "Fit efectuated in %f seconds" % (time.time() - start_time),
@@ -226,6 +228,9 @@ class PsfFit(Fit):
         self.result[0]["r99x"], self.result[0]["r99y"] = r99x, r99y
         self.result[0]["r99u"], self.result[0]["r99v"] = r99u, r99v
 
+        # Save && Ret
+        get_state().d_fit_param = self.result[0]
+        get_state().d_fit_error = self.result[1]
         return self.result
 
 
@@ -355,7 +360,8 @@ class BinaryPsf(Fit):
                 self.result = restore(self.result, "spread_y0", "spread_x0")
                 self.result = restore(self.result, "spread_y1", "spread_x1")
 
-
+        get_state().d_fit_param = self.result[0]
+        get_state().d_fit_error = self.result[1]
         return self.result
 
 

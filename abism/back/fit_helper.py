@@ -1,5 +1,9 @@
 """
     Helper to make a 2D function (i.e Gaussian) fit an array
+IDEA: fit Y = F(X,A) where A is a dictionnary describing the
+parameters of the function.
+
+note that the items in the dictionnary should all be scalar!
 """
 from functools import reduce
 
@@ -10,14 +14,6 @@ import scipy.optimize
 from abism.back.leastsqbound import leastsqbound
 
 from abism.util import log
-
-
-"""
-IDEA: fit Y = F(X,A) where A is a dictionnary describing the
-parameters of the function.
-
-note that the items in the dictionnary should all be scalar!
-"""
 
 
 def polyN(x, params):
@@ -168,7 +164,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
 
     # uncertainties:
     uncer = {}
-    for k in pfix.keys():
+    for k in pfix:
         if not k in fitOnly:
             uncer[k] = 0  # not fitted, uncertatinties to 0
         else:
@@ -189,7 +185,9 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
             else:
                 log(1, '')
     # result:
-    return pfix, uncer, chi2, model,  {"reduced_chi2": reducedChi2, "cov": cov, "plsq": plsq, "pfit": pfit, "fitOnly": fitOnly, "bounds": bounds}
+    return pfix, uncer, reducedChi2, model, {
+        "reduced_chi2": reducedChi2, "cov": cov, "plsq": plsq, "pfit": pfit,
+        "fitOnly": fitOnly, "bounds": bounds}
 
 
 def sinusoid(x, params):

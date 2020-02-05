@@ -39,8 +39,6 @@ def strehl_one(rectangle):
         get_state().image.im0, rectangle,
         center=star_center, my_max=star_max)
     psf_fit = o_psf.do_fit().get_result()
-    get_state().d_fit_param.update(psf_fit[0])
-    get_state().d_fit_error.update(psf_fit[1])
 
     # Save what it take
     center = psf_fit[0]['center_x'], psf_fit[0]['center_y']
@@ -156,7 +154,6 @@ def append_binary_info():
         err_res = err_dic.copy()
         for res, dic in zip((fit_res, err_res), (fit_dic, err_dic)):
             for key in dic.keys():
-                log(9, s_num, key)
                 if s_num in key:
                     res[key.replace(s_num, "")] = dic[key]
             try:
@@ -166,10 +163,6 @@ def append_binary_info():
         return fit_res, err_res
     fit_copy1, err_copy1 = copy_dic(fit_dic, err_dic, "0")
     fit_copy2, err_copy2 = copy_dic(fit_dic, err_dic, "1")
-    log(9, 'Binary Fit copies:',  fit_copy1)
-    log(9, 'Binary Fit copies:',  err_copy1)
-    log(9, 'Binary Fit copies:',  fit_copy2)
-    log(9, 'Binary Fit copies:',  err_copy2)
 
     a_phot1, a_fwhm_x1, a_fwhm_y1 = IF.FwhmFromFit(fit_copy1, err_copy1)
     a_phot2, a_fwhm_x2, a_fwhm_y2 = IF.FwhmFromFit(fit_copy2, err_copy2)
@@ -379,11 +372,13 @@ def get_background(grid, r=None):
 
     # Elliptical annulus
     elif background_type == ESky.ANNULUS:
-        log(2, 'Getting Background from elliptical annulus')
         # TODO hardcode as in AnswerReturn
         ell_inner_ratio, ell_outer_ratio = 1.3, 1.6
-        rui, rvi = 1.3 * get_state().d_fit_param["r99u"], 1.3 * get_state().d_fit_param["r99v"]
-        ruo, rvo = 1.6 * get_state().d_fit_param["r99u"], 1.6 * get_state().d_fit_param["r99v"]
+        r99u = max(20, get_state().d_fit_param["r99u"])
+        r99v = max(20, get_state().d_fit_param["r99v"])
+        rui, rvi = 1.3 * r99u, 1.3 * r99v
+        ruo, rvo = 1.6 * r99u, 1.3 * r99v
+        log(2, 'Getting Background from elliptical annulus: in', rui, rvi, 'out', ruo, rvo)
 
         # Cut
         myrad = max(ruo, rvo) + 2  # In case

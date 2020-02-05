@@ -157,15 +157,9 @@ def GravityCenter(grid, center=None, rad=None, r=None, bol=None):
     return (x1, y1)
 
 
-def FindMaxWithBin(*arg):
+def FindMaxWithBin(grid, rectangle):
     """arg =  grid and r : 3*3 median filter"""
-    # Parse in
-    grid = arg[0]
-    if len(arg) == 1:
-        r = 0, len(grid), 0, len(grid[0])
-    else:
-        r = arg[1]
-    # Cut
+    r = rectangle
     cutted = grid[int(r[0]):int(r[1]), int(r[2]):int(r[3])]
     # Median file 3 x 3 (fuzz)
     cutted = scipy.ndimage.median_filter(cutted, size=(3, 3))
