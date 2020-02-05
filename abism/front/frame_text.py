@@ -681,9 +681,15 @@ class AnswerFrame(TextFrame):
         for i in range(4):
             self.grid_columnconfigure(i, weight=1, uniform="fred")
 
+        # For fit param
+        self.text_fit_param = None
+        self.i_tab_1 = 0
+        self.i_tab_2 = 0
+        self.bu_fit = None
+
         self.init_after()
 
-    def init_after(self):
+    def init_after(self, add_title=True):
         """Add fit type label"""
         # Title left
         label = tk_ext.TitleLabel(self, text=self._label_text)
@@ -722,9 +728,104 @@ class AnswerFrame(TextFrame):
         text.tag_configure('tag-blue', foreground=tk_ext.scheme.solarized_blue)
 
         # Grid text
-        text.grid(columnspan=4, sticky='nsew')
+        text.grid(row=2, columnspan=4, sticky='new')
 
         return text
+
+    def grid_top_button(self, convertion_callback):
+        """Grid coordinate convertion and Show fit dic"""
+        # Declare button info
+        if get_state().s_answer_unit == "detector":
+            s_button = u"\u21aa"+'To sky     '
+            s_label = "In detector units"
+        else:
+            s_button = u"\u21aa"+'To detector'
+            s_label = "In sky units"
+
+        def on_change_coord():
+            if get_state().s_answer_unit == 'detector':
+                get_state().s_answer_unit = 'sky'
+            else:
+                get_state().s_answer_unit = 'detector'
+            convertion_callback()
+
+        # Label showing current coord
+        label = tk.Label(
+            self, text=s_label, justify=tk.LEFT, anchor="nw")
+        label.grid(row=1, column=0, sticky=tk.W)
+
+        # Button to change coordonate
+        bu_coord = tk.Button(
+            self, text=s_button, command=on_change_coord)
+        bu_coord.grid(row=0, column=3, sticky=tk.E)
+        get_root().bind_all(
+            "<Control-k>", lambda _: on_change_coord())
+        bu_coord.set_hover_info(
+            "<C-k>: Change coordinate system of displayed answer\n"
+            "sKy <-> detector")
+
+        def on_toogle_param():
+            if self.text_fit_param is None:
+                self.open_fit_param()
+                bu_fit.configure(text=u'\u25b4 Hide Fit Param')
+            else:
+                self.close_fit_param()
+                bu_fit.configure(text=u'\u25be Show Fit Param')
+
+        self.close_fit_param()
+        # Show fit dctionary
+        bu_fit = tk.Button(
+            self, text=u'\u25be Show Fit Param',
+            command=on_toogle_param)
+
+        get_root().bind_all(
+            "<Control-d>", lambda _: on_toogle_param())
+        bu_fit.set_hover_info(
+            "<C-d>: Show/Hide Fit Dictionaries:\nparameters and errors")
+        bu_fit.grid(row=0, column=2)
+
+
+    def get_new_text_frame(self, convertion_callback):
+        # Pack fit type in Frame
+        self.set_fit_type_text(get_state().s_fit_type)
+        self.clear()
+
+        # Button to change cord
+        self.grid_top_button(convertion_callback)
+        text = self.grid_text_answer()
+        return text
+
+
+    def open_fit_param(self):
+        self.text_fit_param = tk.Text(self)
+        self.text_fit_param.grid(row=2, columnspan=4, sticky='new')
+
+        stg = ''
+        for key in get_state().d_fit_param:
+            # Key
+            line = key + ":"
+            self.i_tab_1 = max(self.i_tab_1, len(line))
+
+            # Value
+            line += "\t" + "{0:.4f}".format(get_state().d_fit_param[key])
+            self.i_tab_2 = max(self.i_tab_2, len(line))
+
+            # Error
+            if key in get_state().d_fit_error:
+                line += "\t" + "{0:.4f}".format(get_state().d_fit_error[key])
+            line += "\n"
+            stg += line
+        self.text_fit_param.insert(tk.END, stg)
+
+        self.text_fit_param.configure(tabs=(
+            self.i_tab_1 * 12, tk.LEFT, self.i_tab_2 * 12, tk.LEFT))
+
+    def close_fit_param(self):
+        try:
+            self.text_fit_param.destroy()
+        except BaseException:
+            pass
+        self.text_fit_param = None
 
 
 class ButtonFrame(tk.Frame):

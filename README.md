@@ -50,15 +50,17 @@ print(sm.state)
 
 ## Shortcuts
 
-| KeyBind | Command         | Comment |
-| ---     | ---             | --- |
-| `<C-B>` | **B**ackward    | cube image |
-| `<C-F>` | **F**orward     | cube image |
-| `<C-H>` | open **H**eader | Popup |
-| `<C-I>` | **I**mage param | Toogle Frame |
-| `<C-M>` | **M**ore option | Toogle Frame |
-| `<C-O>` | **O**pen file   | Popup |
-| `<C-R>` | **R**estart     | !! Irreversible !! |
+| KeyBind | Command          | Comment |
+| ---     | ---              | --- |
+| `<C-B>` | **B**ackward     | cube image |
+| `<C-D>` | **D**ictionaries | fit parameters and errors |
+| `<C-F>` | **F**orward      | cube image |
+| `<C-H>` | open **H**eader  | Popup |
+| `<C-I>` | **I**mage param  | Toogle Frame |
+| `<C-K>` | s**K**y coord    | Toogle anwser coordinate system |
+| `<C-M>` | **M**ore option  | Toogle Frame |
+| `<C-O>` | **O**pen file    | Popup |
+| `<C-R>` | **R**estart      | !! Irreversible !! |
 
 
 | KeyBind  | Command                | Comment |

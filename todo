@@ -1,14 +1,3 @@
-# Next task
-
-* Add other info to Text:
-  * Fit param
-  * Fit error
-  * Restore the result label
-
-1. Jupyter console working, fun is fact
-  - pretyped print(sm)
-
-
 # Bug
 
 * Manual photometry not working <- at least display the rectangle

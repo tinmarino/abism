@@ -131,51 +131,11 @@ def show_answer():
         PrinterEllipse().work()
 
 
-def grid_button_change_coord():
-    # Declare button info
-    if get_state().s_answer_unit == "detector":
-        s_button = u"\u21aa"+'To sky     '
-        s_label = "In detector units"
-    else:
-        s_button = u"\u21aa"+'To detector'
-        s_label = "In sky units"
-
-    def callback():
-        if get_state().s_answer_unit == 'detector':
-            get_state().s_answer_unit = 'sky'
-        else:
-            get_state().s_answer_unit = 'detector'
-        show_answer()
-
-    button = tk.Button(
-        get_root().frame_answer, text=s_button, command=callback)
-
-    label = tk.Label(
-        get_root().frame_answer, text=s_label, justify=tk.LEFT, anchor="nw")
-
-    # Grid Buttons
-    button.grid(row=0, column=3, sticky=tk.E)
-    label.grid(row=1, column=0, sticky=tk.W)
-
-
-def get_new_text_frame():
-    # Pack fit type in Frame
-    get_root().frame_answer.set_fit_type_text(get_state().s_fit_type)
-    get_root().frame_answer.clear()
-
-    # Button to change cord
-    grid_button_change_coord()
-
-    text = get_root().frame_answer.grid_text_answer()
-
-    return text
-
-
 class AnswerPrinter(ABC):
     """Base class to print answer in text frame"""
     def work(self):
         # Grid tk text
-        text = get_new_text_frame()
+        text = get_root().frame_answer.get_new_text_frame(show_answer)
 
         # Get class dependant list
         lst = self.get_list()
