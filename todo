@@ -24,7 +24,6 @@
 # Feature
 
 * Get a save log button to save all work until here (and delete it from RAM)
-* Cube: When next cube, do not change the zoom and centering
 * Stop fit if more than 10s or user kill, or make a stop fit button
 * Make the fit a little longer, better result
   * Have a glimps at first guesss which is really really important, especially for moffat

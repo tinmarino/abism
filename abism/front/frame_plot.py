@@ -283,12 +283,11 @@ class ImageFrame(PlotFrame):
         get_state().i_image_min_cut = i_min
         get_state().i_image_max_cut = i_max
 
-        # Draw
-        self.refresh_image()
-
         # I don't know why I need to pu that at the end but it worls like that
         # # does not work it put in Science Variables
         if new_fits:
+            # Draw
+            self.refresh_image()
             get_root().frame_label.update_label()
 
         self.extend_matplotlib()

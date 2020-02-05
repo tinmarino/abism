@@ -820,11 +820,32 @@ class ButtonFrame(tk.Frame):
             elif cube_num > get_state().image.i_cube_len:
                 cube_num = 1
 
+            # Get limits
+            ax = get_root().frame_image.get_figure().axes[0]
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+            print(xlim, ylim)
+
             # Set and update
             get_state().image.cube_num = cube_num
             int_var.set(get_state().image.cube_num)
             get_state().image.update_cube()
             get_root().frame_image.draw_image(new_fits=False)
+
+            # Set limits
+            ax = get_root().frame_image.get_figure().axes[0]
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+
+            # Refresh
+            get_root().frame_image.refresh_image()
+
+            # Reconnect pick
+            if get_state().pick is not None:
+                get_state().pick.disconnect()
+                get_state().pick.connect()
+
+
 
         # Button left
         bu_left = tk.Button(
