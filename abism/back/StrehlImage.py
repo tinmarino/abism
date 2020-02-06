@@ -13,7 +13,7 @@ from abism.back.image_info import get_array_stat
 
 
 from abism.util import log, get_state, set_aa, \
-    EA, EPhot, ESky
+    EA, ESky
 
 
 class Fit(ABC):
@@ -131,15 +131,13 @@ class PsfFit(Fit):
         y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way
         IX = self.grid[rx1:rx2+1, ry1:ry2+1]  # the cutted image
 
-        # Mask bad pixel (TODO look at that)
-        IX, mIX = IF.FindBadPixel(IX)
-        eIX = (IX-mIX).std() * np.ones(IX.shape)
+        # Mask bad pixel
+        IX, _, eIX = IF.FindBadPixel(IX)
 
         return (x, y), IX, eIX
 
 
     def get_supposed_parameters(self):
-        x0, y0 = self.center
         supposed_param = super().get_supposed_parameters()
         supposed_param.update({
             'center_x': self.center[0],
@@ -251,6 +249,7 @@ class BinaryPsf(Fit):
 
 
     def get_xy_IX_eIX(self):
+        # pylint: disable = too-many-locals
         (x1, y1), (x2, y2) = self.star1, self.star2
         center = [(x1+x2)/2, (y1+y2)/2]
 
@@ -271,11 +270,8 @@ class BinaryPsf(Fit):
         X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
         y, x = np.meshgrid(Y, X)
         IX = self.grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
-        IX, mIX = IF.FindBadPixel(IX)  # ,r=r)
+        IX, _, eIX = IF.FindBadPixel(IX)
 
-        # the error
-        eIX = (IX-mIX).std()
-        eIX *= np.ones(IX.shape)
         log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
         return (x, y), IX, eIX
 
@@ -367,10 +363,6 @@ class BinaryPsf(Fit):
 
 class TightBinaryPsf(BinaryPsf):
     """Just better bounds"""
-    def __init__(self, grid, star1, star2):
-        super().__init__(grid, star1, star2)
-
-
     def get_bounds(self):
         (x1, y1), (x2, y2) = self.star1, self.star2
 

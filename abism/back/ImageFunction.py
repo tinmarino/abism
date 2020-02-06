@@ -473,17 +473,17 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
 
 
 # We compare with the median filter.
-def FindBadPixel(grid, r=None, method=('median', 3, 2), ordered=False):
-    # In the method we define in arg1 the number of pixel to include in the median
-    # and in arg2, the max differnce between true image and median
-    # the bad pixels can be noise or warm pixel
+def FindBadPixel(grid, r=None):
+    """In the method we define in arg1 the number of pixel to include in the median
+    and in arg2, the max differnce between true image and median
+    the bad pixels can be noise or warm pixel
+    :param r: ordered rectangle bounds to cut grid
+    """
+    # Parse in: Cut grid if requested
     if r is None:
         IX = grid
     else:
-        if ordered == False:
-            rx1, rx2, ry1, ry2 = Order4(r)
-        else:
-            (rx1, rx2, ry1, ry2) = r
+        rx1, rx2, ry1, ry2 = r
         IX = grid[rx1:rx2+1, ry1:ry2+1]
     res, mIX = IX, IX
 
@@ -491,16 +491,22 @@ def FindBadPixel(grid, r=None, method=('median', 3, 2), ordered=False):
     nan = np.isnan(res)
     inf = np.isinf(res)
     res[nan] = 0
-    mIX[nan] = 1
+    mIX[nan] = 0
     res[inf] = 0
-    mIX[inf] = 1
+    mIX[inf] = 0
 
-    if method[0] == 'median':
-        mIX = scipy.ndimage.median_filter(IX, size=(method[1], method[1]))
-        res[np.abs(IX-mIX) > (method[2]-1) * mIX] = mIX[np.abs(IX-mIX) > (method[2]-1)*mIX]
-        # that you Antoine for showing how to get the median value when we differ to much from it.
+    # Median filter bad pixels
+    mIX = scipy.ndimage.median_filter(IX, size=(3, 3))
+    b_bad = np.abs(IX - mIX) > np.abs(mIX)
+    res[b_bad] = mIX[b_bad]  # Almost useless becaused masked
 
-    return res, mIX
+    # Finally error
+    eIX = (IX-mIX).std() * np.ones(IX.shape)
+    b_ignore = np.logical_or(nan, inf)
+    b_ignore = np.logical_or(b_ignore, b_bad)
+    eIX[b_ignore] = float('inf')
+
+    return res, mIX, eIX
 
 
 def InBorder(grid, r):  # to check if r is in the grid

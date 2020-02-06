@@ -1,15 +1,24 @@
+* Have a glimps at first guess which is really really important, especially for moffat
+  * max bad pixels
+
+* Binary add fwhm (Strehl.py)
+* Rename StrehlImage (linted and remove Ellipse stufff frmo it)
+* Show fit param, let open when new fit (so user can see what moved)
+
 # Bug
 
-* Manual photometry not working <- at least display the rectangle
-* Get better error estimation in Image function or binary strehl
 * Zomming is recurvise and get stuck in some images (bottom)
 
 # Feature
 
 * Get a save log button to save all work until here (and delete it from RAM)
+* 3h Parameter saturated witch trigger a max parameter, cutting the fit
+
+## Feature -> Improve fit quality, robustness
+
 * Stop fit if more than 10s or user kill, or make a stop fit button
-* Make the fit a little longer, better result
-  * Have a glimps at first guesss which is really really important, especially for moffat
+* Make the fit a little longer, better result (cannot do apprently)
+
 
 # Latter
 ################################################################################
@@ -23,7 +32,6 @@
 
 ## Latter feature
 
-* 3h Parameter saturated witch trigger a max parameter, cutting the fit
 * 5h Get error for all answer, append them at the same time
 * 3h Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
@@ -46,7 +54,7 @@
 ######################################################################
 
 * Saturation, with a max parameter cutting pixels higher (in base fit class)
-* Theta profile, profile along the major axis, 
+* Theta profile, profile along the major axis
 * Contrast Map, image with constrat as intensity
 * Recursive annulus phot
 
