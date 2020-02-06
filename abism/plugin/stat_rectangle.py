@@ -33,10 +33,11 @@ def show_statistic(rectangle):
     ]
 
     stg = ''
+    text.i_tab_len = 0
     for name, value in lst:
         log(0, name, value)
         stg += name + value + "\n"
-
+        text.i_tab_len = max(len(name), text.i_tab_len)
     text.insert(tk.END, stg)
 
     # Disable edit

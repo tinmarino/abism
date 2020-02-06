@@ -1,7 +1,5 @@
-* Profile: cannot see the legend
-  * legendut text result in text frame
-
-* Add fit param button only if fit param are present
+* Add fit param button only if fit param are present (see ellipse)
+  * Ellipse pick answer should delete fit param: I may give stat in place
 
 * Binary add fwhm (Strehl.py)
 
@@ -10,7 +8,6 @@
 
 * Bug: Manual cut and change image 
 
-* Ellipse pick answer should delete fit param: I may give stat in place
 
 # Feature
 
@@ -42,6 +39,7 @@
 * 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * Have a glimps at first guess which is really really important, especially for moffat
+* Stat and Profile type Answer to be able to convert to sky, and to get an error
 
 
 ### Latter fix

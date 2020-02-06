@@ -704,17 +704,8 @@ class AnswerFrame(TextFrame):
         label = tk_ext.TitleLabel(self, text=self._label_text)
         label.grid(row=0, column=0, sticky=tk.W)
 
-        # Fit type middle
-        self._fit_type_label = tk.Label(
-            self, justify=tk.CENTER, text=get_state().s_fit_type)
-        self._fit_type_label.grid(row=0, column=1)
-
         # Add also standard above
         super().init_after(add_title=False)
-
-    def set_fit_type_text(self, s_text):
-        """Change fit type label text"""
-        self._fit_type_label.configure(text=s_text)
 
     def grid_text_answer(self):
         """Grid tk text for results
@@ -726,6 +717,8 @@ class AnswerFrame(TextFrame):
         # Declare size callback
         def on_resize_text(event):
             # pylint: disable = no-member
+            if 'i_tab_len' not in vars(text):
+                text.i_tab_len = 40
             i_tab = min((text.i_tab_len) * 12, event.width / 2)
             log(5, 'Answer, Resize text:', event, i_tab)
             event.widget.configure(tabs=(i_tab, tk.LEFT))
@@ -743,6 +736,11 @@ class AnswerFrame(TextFrame):
 
     def grid_top_button(self, convertion_callback):
         """Grid coordinate convertion and Show fit dic"""
+        # Fit type middle
+        fit_type_label = tk.Label(
+            self, justify=tk.CENTER, text=get_state().s_fit_type)
+        fit_type_label.grid(row=0, column=1)
+
         # Declare button info
         if get_state().s_answer_unit == "detector":
             s_button = u"\u21aa"+'To sky     '
@@ -797,7 +795,6 @@ class AnswerFrame(TextFrame):
         b_show_fit_param = self.text_fit_param is not None
 
         # Pack fit type in Frame
-        self.set_fit_type_text(get_state().s_fit_type)
         self.clear()
 
         # Button to change cord
