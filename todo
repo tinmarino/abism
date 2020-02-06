@@ -8,7 +8,6 @@
 
 # Feature
 
-* Sort: IN fit parameter answer
 * Get a save log button to save all work until here (and delete it from RAM)
 * 3h Parameter saturated witch trigger a max parameter, cutting the fit
 

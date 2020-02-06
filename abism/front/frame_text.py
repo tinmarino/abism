@@ -816,7 +816,8 @@ class AnswerFrame(TextFrame):
         self.text_fit_param.grid(row=2, columnspan=4, sticky='new')
 
         stg = ''
-        for key in get_state().d_fit_param:
+        s_after = ''
+        for key in sorted(get_state().d_fit_param):
             # Key
             line = key + ":"
             self.i_tab_1 = max(self.i_tab_1, len(line))
@@ -827,10 +828,12 @@ class AnswerFrame(TextFrame):
 
             # Error
             if key in get_state().d_fit_error:
-                line += "\t" + "± {0:.4f}".format(get_state().d_fit_error[key])
-            line += "\n"
-            stg += line
-        self.text_fit_param.insert(tk.END, stg)
+                line += "\t" + "± {0:.4f}\n".format(get_state().d_fit_error[key])
+                stg += line
+            else:
+                line += "\n"
+                s_after += line
+        self.text_fit_param.insert(tk.END, stg + s_after)
 
         self.text_fit_param.configure(tabs=(
             self.i_tab_1 * 12, tk.LEFT, self.i_tab_2 * 12, tk.LEFT))
