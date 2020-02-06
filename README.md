@@ -47,36 +47,6 @@ print(sm.state)
 ```
 
 
-
-## Shortcuts
-
-| KeyBind | Command          | Comment |
-| ---     | ---              | --- |
-| `<C-B>` | **B**ackward     | cube image |
-| `<C-D>` | **D**ictionaries | fit parameters and errors |
-| `<C-F>` | **F**orward      | cube image |
-| `<C-H>` | open **H**eader  | Popup |
-| `<C-I>` | **I**mage param  | Toogle Frame |
-| `<C-K>` | s**K**y coord    | Toogle anwser coordinate system |
-| `<C-M>` | **M**ore option  | Toogle Frame |
-| `<C-O>` | **O**pen file    | Popup |
-| `<C-R>` | **R**estart      | !! Irreversible !! |
-
-
-| KeyBind  | Command                | Comment |
-| ---      | ---                    | --- |
-| `<C-P>B` | **P**ick **B**inary    | Mpl binding |
-| `<C-P>N` | **P**ick **N**one      | Mpl binding |
-| `<C-P>O` | **P**ick **O**ne       | Mpl binding |
-| `<C-P>P` | **P**ick **P**rofile   | Mpl binding |
-| `<C-P>S` | **P**ick **S**tat      | Mpl binding |
-| `<C-P>T` | **P**ick **T**ight     | Mpl binding |
-| `<C-T>D` | **T**ool **D**ebug     | Popup (legacy) |
-| `<C-T>H` | **T**ool **H**istogram | Work and display |
-| `<C-T>J` | **T**ool **J**upyter   | Popup (futur) |
-
-
-
 License: Do whatever you want with the code
 
 Julien Girard, Martin Tourneboeuf.

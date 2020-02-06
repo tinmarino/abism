@@ -185,7 +185,7 @@ class PrinterBinary(AnswerPrinter):
             [EA.STAR2],
             [EA.SEPARATION, True],
             [EA.BACKGROUND, True],
-            [EA.PHOTOMETRY1],
+            [EA.PHOTOMETRY1, True],
             [EA.PHOTOMETRY2, True],
             [EA.FLUX_RATIO, True],
             [EA.ORIENTATION],
