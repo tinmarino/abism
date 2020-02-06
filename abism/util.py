@@ -262,7 +262,7 @@ class EPick(Enum):
 
 class EPhot(Enum):
     """Photometric type: enum, description
-    See implementation in StrehlImage
+    See implementation in fit_strehl.py
     """
     FIT = 'Mesured from the fitted function'
     ELLIPTICAL = ('Mesured from an elliptical aperture containing 99%% of the energy, '

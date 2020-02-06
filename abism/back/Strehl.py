@@ -6,7 +6,7 @@
 import numpy as np
 
 from abism.back import ImageFunction as IF
-from abism.back import StrehlImage as SI
+from abism.back.strehl_fit import OnePsf, BinaryPsf, TightBinaryPsf
 from abism.back.image_info import ImageInfo, get_array_stat
 
 from abism.util import log, get_root, get_state, set_aa, get_aa, \
@@ -34,7 +34,7 @@ def strehl_one(rectangle):
     IF.FWHM(get_state().image.im0, star_center)
 
     # Delegate fit && Save
-    o_psf = SI.PsfFit(
+    o_psf = OnePsf(
         get_state().image.im0, rectangle,
         center=star_center, my_max=star_max)
     psf_fit = o_psf.do_fit().get_result()
@@ -96,7 +96,7 @@ def craft_fwhm(a_fwhm_x, a_fwhm_y):
 
 
 def BinaryStrehl(star1, star2):
-    binary_psf = SI.BinaryPsf(get_state().image.im0, star1, star2)
+    binary_psf = BinaryPsf(get_state().image.im0, star1, star2)
     psf_fit = binary_psf.do_fit().get_result()
     get_state().d_fit_param = psf_fit[0]
     get_state().d_fit_error = psf_fit[1]
@@ -104,7 +104,7 @@ def BinaryStrehl(star1, star2):
 
 
 def TightBinaryStrehl(star1, star2):
-    tight_psf = SI.TightBinaryPsf(get_state().image.im0, star1, star2)
+    tight_psf = TightBinaryPsf(get_state().image.im0, star1, star2)
     psf_fit = tight_psf.do_fit().get_result()
     get_state().d_fit_param = psf_fit[0]
     get_state().d_fit_error = psf_fit[1]
@@ -230,19 +230,69 @@ def EllipseEventStrehl(ellipse):
     set_aa(EA.CHI2, float('nan'))
 
     # Background
-    back_stat = SI.EllipseEventBack(ellipse)
+    back_stat = EllipseEventBack(ellipse)
     set_aa(EA.BACKGROUND, back_stat.mean, error=back_stat.rms)
 
     # Photometry
-    phot_stat = SI.EllipseEventPhot(ellipse)
+    phot_stat = EllipseEventPhot(ellipse)
     phot = phot_stat.sum - phot_stat.number_count * back_stat.mean
     set_aa(EA.PHOTOMETRY, phot, error=phot_stat.rms)
 
     # Get maximum (side effect)
-    SI.EllipseEventMax(ellipse)
+    EllipseEventMax(ellipse)
 
     # Math
     save_strehl_ratio()
+
+
+def EllipseEventBack(obj):
+    """Return: background from ellipse <stat obj>"""
+    rui, rvi = obj.ru, obj.rv     # inner annulus
+    ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
+
+    ell_i = IF.EllipticalAperture(
+        get_state().image.im0,
+        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": rui,
+             "rv": rvi, "theta": obj.theta})  # inner
+
+    ell_o = IF.EllipticalAperture(
+        get_state().image.im0,
+        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": ruo,
+             "rv": rvo, "theta": obj.theta})  # outter
+
+    # annulus  inside out but not inside in
+    bol_a = ell_o["bol"] ^ ell_i["bol"]
+
+    image_cut = get_state().image.im0[bol_a]
+    stat = get_array_stat(image_cut)
+
+    return stat
+
+
+def EllipseEventPhot(obj):
+    """Elliptical phot
+    Returns: photometry, total, number_count
+    """
+    dic = {"center_x": obj.x0, "center_y": obj.y0,
+           "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
+    ellipse_stat = IF.EllipticalAperture(
+        obj.array, dic=dic, full_answer=True)
+
+    return ellipse_stat
+
+
+def EllipseEventMax(obj):
+    """Param: ellipse artist
+    With bad pixel filter
+    Side Returns: local maximum, cetner <- answers
+    """
+    rad = max(obj.ru, obj.rv)
+    r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
+    local_max = IF.LocalMax(get_state().image.im0, r=r)
+
+    # Save
+    get_state().add_answer(EA.CENTER, local_max[:2])
+    get_state().add_answer(EA.INTENSITY, local_max[2])
 
 
 ######################################################################
@@ -358,7 +408,7 @@ def get_background(grid, r=None):
             param = param.copy()
             param.update({"noise": "elliptical_annulus"})
             get_state().e_sky_type = ESky.ANNULUS
-            return Background(get_state().image.im0)
+            return get_background(get_state().image.im0)
         try:
             background = get_state().d_fit_param['background']
             rms = get_state().d_fit_error['background']

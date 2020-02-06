@@ -1,5 +1,6 @@
 """
-    Fit classes to build fitted parameters from user variables
+    Fit classes oriented for Strehl retrieval (i.e photometry and intensity)
+Build fitted parameters from user variables
 """
 from abc import ABC, abstractmethod
 
@@ -9,7 +10,6 @@ import numpy as np
 from abism.back import ImageFunction as IF
 from abism.back.fit_helper import leastsqFit
 import abism.back.fit_template_function as BF
-from abism.back.image_info import get_array_stat
 
 
 from abism.util import log, get_state, set_aa, \
@@ -96,7 +96,7 @@ class Fit(ABC):
     def get_result(self): pass
 
 
-class PsfFit(Fit):
+class OnePsf(Fit):
     """Fit Point Spread Function of a single source"""
     def __init__(self, grid, rectangle, center=(0, 0), my_max=1):
         super().__init__(grid)
@@ -124,7 +124,7 @@ class PsfFit(Fit):
     def get_xy_IX_eIX(self):
         # In center and bound
         (rx1, rx2, ry1, ry2) = list(map(int, self.rectangle))
-        log(3, "PsfFit: ", rx1, rx2, ry1, ry2, 'center :', self.center)
+        log(3, "OnePsf: ", rx1, rx2, ry1, ry2, 'center :', self.center)
 
         # Get working grid
         X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
@@ -395,58 +395,3 @@ class TightBinaryPsf(BinaryPsf):
             bounds['b1'] = (1, 3)
 
         return bounds
-
-
-
-# Ellipse
-######################################################################
-
-
-def EllipseEventBack(obj):
-    """Return: background from ellipse <stat obj>"""
-    rui, rvi = obj.ru, obj.rv     # inner annulus
-    ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
-
-    ell_i = IF.EllipticalAperture(
-        get_state().image.im0,
-        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": rui,
-             "rv": rvi, "theta": obj.theta})  # inner
-
-    ell_o = IF.EllipticalAperture(
-        get_state().image.im0,
-        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": ruo,
-             "rv": rvo, "theta": obj.theta})  # outter
-
-    # annulus  inside out but not inside in
-    bol_a = ell_o["bol"] ^ ell_i["bol"]
-
-    image_cut = get_state().image.im0[bol_a]
-    stat = get_array_stat(image_cut)
-
-    return stat
-
-
-def EllipseEventPhot(obj):
-    """Elliptical phot
-    Returns: photometry, total, number_count
-    """
-    dic = {"center_x": obj.x0, "center_y": obj.y0,
-           "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
-    ellipse_stat = IF.EllipticalAperture(
-        obj.array, dic=dic, full_answer=True)
-
-    return ellipse_stat
-
-
-def EllipseEventMax(obj):
-    """Param: ellipse artist
-    With bad pixel filter
-    Side Returns: local maximum, cetner <- answers
-    """
-    rad = max(obj.ru, obj.rv)
-    r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
-    local_max = IF.LocalMax(get_state().image.im0, r=r)
-
-    # Save
-    get_state().add_answer(EA.CENTER, local_max[:2])
-    get_state().add_answer(EA.INTENSITY, local_max[2])
