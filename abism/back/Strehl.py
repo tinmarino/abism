@@ -98,16 +98,12 @@ def craft_fwhm(a_fwhm_x, a_fwhm_y):
 def BinaryStrehl(star1, star2):
     binary_psf = BinaryPsf(get_state().image.im0, star1, star2)
     psf_fit = binary_psf.do_fit().get_result()
-    get_state().d_fit_param = psf_fit[0]
-    get_state().d_fit_error = psf_fit[1]
     append_binary_info()
 
 
 def TightBinaryStrehl(star1, star2):
     tight_psf = TightBinaryPsf(get_state().image.im0, star1, star2)
     psf_fit = tight_psf.do_fit().get_result()
-    get_state().d_fit_param = psf_fit[0]
-    get_state().d_fit_error = psf_fit[1]
     append_binary_info()
 
 

@@ -25,6 +25,7 @@ class Fit(ABC):
         self.s_fit_type = get_state().s_fit_type
         self.fit_fct = BF.get_fit_function()
         self.b_aniso = get_state().b_aniso
+        self.b_saturated = get_state().b_saturated
 
         # Retrieve verbose
         self.verbose = get_state().verbose > 0
@@ -48,9 +49,11 @@ class Fit(ABC):
 
         # Log
         log(0, "Fit efectuated in %f seconds" % (time.time() - start_time),
-            "with function:\n", self.fit_fct, '(if lambda, look above fit log)'
+            "with function:\n", self.fit_fct, '(if lambda, look above fit log)',
+            "\n\n\n\n"
             )
 
+        log(9, 'Fit, result error', self.result[1])
         return self
 
     @abstractmethod
@@ -61,32 +64,61 @@ class Fit(ABC):
 
     @abstractmethod
     def get_supposed_parameters(self):
-        supposed_param = {}
+        """Warning, each parameter here will be fitted
+        Detect uselesss parameters <- error returned is -1
+        """
+        supposed_param = {
+            'theta': 0.1,
+        }
+        # Background
         if get_state().e_sky_type in (ESky.MANUAL, ESky.NONE):
             supposed_param['background'] = get_state().i_background
         else:
             supposed_param['background'] = 0
+
+        # Saturation stair top: supposing 30.000 <- 007 is not enought
+        if self.b_saturated:
+            supposed_param['saturation'] = 5000
+        else:
+            supposed_param['saturation'] = float('inf')
+
         return supposed_param
 
 
     @abstractmethod
     def get_not_fitted(self):
+        """Saturation and background
+        Children ! Do your job ! (i.e. check aniso and same psf)
+        """
         doNotFit = []
         if get_state().e_sky_type in (ESky.NONE, ESky.MANUAL):
             doNotFit.append('background')
+        if not self.b_saturated:
+            doNotFit.append('saturation')
         return doNotFit
+
 
     @abstractmethod
     def get_bounds(self):
         """Universal bounds, if not used nevermind"""
         bounds = {
+            # Theta not rotating (avoid useless time lost)
             'theta': (-0.1, 3.24),
+            # Undegenerate Moffat (a little, I could be stricter) (should I ?)
+            'exponent': (1.1, 10),
+            'b0': (1.1, 10),
+            'b1': (1.1, 10),
+            # Positive Saturation
+            'saturation': (-0.1, None),
+            # Positive spread
             'spread_x': (-0.1, None),
             'spread_y': (-0.1, None),
             'spread_x0': (-0.1, None),
             'spread_x1': (-0.1, None),
             'spread_y0': (-0.1, None),
             'spread_y1': (-0.1, None),
+            # Positive Intensity
+            'intensity': (-0.1, None),
             'intensity0': (-0.1, None),
             'intensity1': (-0.1, None),
         }
@@ -146,7 +178,7 @@ class OnePsf(Fit):
             'intensity': self.my_max,
         })
         if self.fit_fct is BF.Gaussian2D:
-            tmp = {"spread_y": supposed_param["spread_x"], "theta": 0.1}
+            tmp = {"spread_y": supposed_param["spread_x"]}
             supposed_param.update(tmp)
 
         elif self.fit_fct is BF.Gaussian:
@@ -159,7 +191,7 @@ class OnePsf(Fit):
         elif self.fit_fct is BF.Moffat2D:
             # 0.83 = sqrt(ln(2))
             tmp = {
-                "spread_y": supposed_param["spread_x"], "theta": 0.1, "exponent": 2}
+                "spread_y": supposed_param["spread_x"], "exponent": 2}
             supposed_param.update(tmp)
 
         elif self.fit_fct is BF.Bessel1:
@@ -167,7 +199,7 @@ class OnePsf(Fit):
 
         elif self.fit_fct is BF.Bessel12D:
             # 0.83 = sqrt(ln(2))
-            tmp = {"spread_y": supposed_param["spread_x"], "theta": 0.1}
+            tmp = {"spread_y": supposed_param["spread_x"]}
             supposed_param.update(tmp)
 
         return supposed_param
@@ -177,17 +209,12 @@ class OnePsf(Fit):
         doNotFit = super().get_not_fitted()
         if not get_state().b_aniso:
             doNotFit.append("theta")
-            doNotFit.append("theta_hole")
             doNotFit.append("spread_y")
-            doNotFit.append("spread_y_hole")
-            doNotFit.append("center_x_hole")
-            doNotFit.append("center_y_hole")
-        doNotFit.append("2D")
-        doNotFit.append("same_center")
         return doNotFit
 
 
     def get_bounds(self):
+
         x0, y0 = self.center
         local_median = np.median(
             self.grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
@@ -196,7 +223,6 @@ class OnePsf(Fit):
         bounds.update({
             "center_x": [x0 - 10, x0 + 10],
             "center_y": [y0 - 10, y0 + 10],
-            "exponent" : [-0.1, 100],
             "background": [None, self.my_max],
             "instensity": [local_median, 2.3 * self.my_max - local_median]
         })
@@ -229,6 +255,7 @@ class OnePsf(Fit):
         # Save && Ret
         get_state().d_fit_param = self.result[0]
         get_state().d_fit_error = self.result[1]
+        log(9, 'OnePsf, result error', self.result[1])
         return self.result
 
 
@@ -286,7 +313,7 @@ class BinaryPsf(Fit):
             'spread_y0': 0.83 * self.dist1, 'spread_y1': 0.83 * self.dist2,
             'intensity0': self.grid[int(x1)][int(y1)],
             'intensity1': self.grid[int(x2)][int(y2)],
-            "theta": 1
+            "theta": 1,
         })
 
         if "Moffat" in self.s_fit_type:
@@ -329,10 +356,6 @@ class BinaryPsf(Fit):
             # 'y0':bd_y0,
             # 'y1':bd_y1,
         })
-
-        if "Moffat" in self.s_fit_type:
-            bounds['b0'] = (1, 10)
-            bounds['b1'] = (1, 10)
 
         return bounds
 
@@ -390,6 +413,7 @@ class TightBinaryPsf(BinaryPsf):
             'intensity1': (min2, None)
         })
 
+        # Stricter moffat
         if "Moffat" in self.s_fit_type:
             bounds['b0'] = (1, 3)
             bounds['b1'] = (1, 3)

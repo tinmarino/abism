@@ -314,6 +314,7 @@ class AbismState(DotDic):
         self.e_sky_type = ESky.ANNULUS
         self.b_aniso = True
         self.b_same_psf = True
+        self.b_saturated = False
 
         # The value of the manually added sky level (rarely used)
         self.i_background = 0

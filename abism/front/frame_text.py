@@ -474,15 +474,24 @@ class OptionFrame(TextFrame):
         def on_change_psf(int_var):
             get_state().b_same_psf = int_var.get()
             if get_state().b_same_psf:
-                msg = "Not same psf: Each star is fitted with independant psf"
-            else:
                 msg = "Same psf: Both stars are fitted with same psf"
+            else:
+                msg = "Not same psf: Each star is fitted with independant psf"
+            log(0, msg)
+
+        def on_change_saturated(int_var):
+            get_state().b_saturated = int_var.get()
+            if get_state().b_saturated:
+                msg = "Saturated: fit assuming a max level cutting the intensity shape"
+            else:
+                msg = "Not saturated: fit sull psf"
             log(0, msg)
 
         # Declare label and associated variable
         text_n_var_n_fct = (
             ('Anisomorphism', get_state().b_aniso, on_change_aniso),
             ('Binary_same_psf', get_state().b_same_psf, on_change_psf),
+            ('Fit saturation', get_state().b_saturated, on_change_saturated),
         )
 
         # Create && Grid all

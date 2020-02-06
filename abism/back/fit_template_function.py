@@ -33,6 +33,7 @@ def get_binary_fct():
     s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
     same_psf = get_state().b_same_psf
+    saturated = get_state().b_saturated
 
     # Check not Bessel
     if "Gaussian" not in s_fit_type and "Moffat" not in s_fit_type:
@@ -48,10 +49,13 @@ def get_binary_fct():
         points, params, aniso=aniso, same_psf=same_psf)
 
     # Log
-    log(0, 'Fit function:', fct_base, ' <- aniso=', aniso, 'same_psf:', same_psf)
+    log(0, 'Fit function:', fct_base,
+        ' <- aniso=', aniso,
+        'same_psf=:', same_psf,
+        'saturated=:', saturated,
+        )
 
     return fit_fct
-
 
 
 def get_one_fct():
@@ -77,11 +81,13 @@ def get_one_fct():
 
 
 def Gaussian2pt(points, params, aniso=True, same_psf=True):
+    # pylint: disable = too-many-locals
     x, y = points
     x0, y0 = params['x0'], params['y0']
     x1, y1 = params['x1'], params['y1']
     I0, I1 = params['intensity0'], params['intensity1']
     bck = params['background']
+    saturation = params['saturation']
 
     if not aniso:
         a0, a1 = params['spread_x0'], params['spread_x1']
@@ -110,14 +116,20 @@ def Gaussian2pt(points, params, aniso=True, same_psf=True):
         else:  # including same_fit =0
             res = I0*np.exp(- (x0p/a0x)**2 - (y0p/a0y)**2) + \
                 I1*np.exp(- (x1p/a1x)**2 - (y1p/a1y)**2) + bck
+
+    # Saturate
+    res[res > saturation] = saturation
+
     return res
 
 
 def Moffat2pt(points, params, aniso=True, same_psf=True):
+    # pylint: disable = too-many-locals
     x, y = points
     x0, y0 = params['x0'], params['y0']
     x1, y1 = params['x1'], params['y1']
     I0, I1 = params['intensity0'], params['intensity1']
+    saturation = params['saturation']
     try:
         bck = params['background']
     except:
@@ -150,6 +162,10 @@ def Moffat2pt(points, params, aniso=True, same_psf=True):
         else:      # including not same psf
             res = I0 * (1 + (x0p**2/a0x**2 + y0p**2/a0y**2))**(-b0)
             res += I1 * (1 + (x1p**2/a1x**2 + y1p**2/a1y**2))**(-b1)+bck
+
+    # Saturate
+    res[res > saturation] = saturation
+
     return res
 
 
@@ -168,12 +184,15 @@ def Gaussian(points, params):
     a = params['spread_x']
     I = params['intensity']
     cst = params['background']
+    saturation = params['saturation']
     res = I * np.exp(- ((x-x0)**2+(y-y0)**2)/a**2) + cst
+    res[res > saturation] = saturation
     return res
 
 
 def Gaussian2D(xy, params):
     """params: center_x,center_y,theta,backgroudn,intensity,spread_x,spread_y """
+    saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
     # tested the next thing
@@ -183,6 +202,7 @@ def Gaussian2D(xy, params):
         (yt-params['center_y'])*np.cos(params['theta'])
     res = params['background']+params['intensity'] * \
         np.exp(-(xp**2/params['spread_x']**2+yp**2/params['spread_y']**2))
+    res[res > saturation] = saturation
     return res
 
 
@@ -196,8 +216,10 @@ def Moffat(points, params):
     b = params['exponent']
     I = params['intensity']
     cst = params['background']
+    saturation = params['saturation']
 
     res = I * (1 + ((x-x0)**2+(y-y0)**2)/a**2)**(-b) + cst
+    res[res > saturation] = saturation
     return res
 
 
@@ -206,6 +228,7 @@ def Moffat2D(xy, params):
         exponent intensity, background
     """
     x0, y0 = params['center_x'], params['center_y']
+    saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
     theta = params['theta']
@@ -216,6 +239,7 @@ def Moffat2D(xy, params):
             * (1 + xp**2 / params['spread_x']**2
                + yp**2 / params['spread_y']**2)
             **(-params['exponent']))
+    res[res > saturation] = saturation
     return res
 
 
@@ -227,15 +251,19 @@ def Bessel1(points, params):
     x0 = params['center_x']
     y0 = params['center_y']
     a = params['spread_x']
+    saturation = params['saturation']
+
     # nb : r is directly divided by a
     r = np.sqrt(((x-x0)**2 + (y-y0)**2)/a**2)
     res = np.nan_to_num(2*jn(1, r)/r)**2 + np.float_(np.array(r) == 0)
     res *= params['intensity']
     res += params['background']
+    res[res > saturation] = saturation
     return res
 
 
 def Bessel12D(xy, params):
+    saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
     xp = (xt-params['center_x'])*np.cos(params['theta']) - \
@@ -247,10 +275,12 @@ def Bessel12D(xy, params):
     res = np.nan_to_num((2*jn(1, r)/r)**2)
     res *= params['intensity']
     res += params['background']
+    res[res > saturation] = saturation
     return res
 
 
 def DiffractionPatern(points, params):
+    """Perfection cannot saturate"""
     x0 = params['center_x']
     y0 = params['center_y']
     l = params['lambda']*10**(-6)  # wavelength
