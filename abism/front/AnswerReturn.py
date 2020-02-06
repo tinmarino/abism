@@ -44,12 +44,12 @@ def tktext_insert_answer(self, answer, with_error=False, tags=None):
     if get_state().s_answer_unit == 'detector':
         stg += answer.str_detector()
         if error:
-            stg += ' +/- ' + error.str_detector()
+            stg += ' ± ' + error.str_detector()
         stg += answer.unit[0]
     else:
         stg += answer.str_sky()
         if error:
-            stg += ' +/- ' + error.str_sky()
+            stg += ' ± ' + error.str_sky()
         stg += answer.unit[1]
 
     # Add new line

@@ -747,6 +747,7 @@ class AnswerFrame(TextFrame):
                 get_state().s_answer_unit = 'sky'
             else:
                 get_state().s_answer_unit = 'detector'
+            self.close_fit_param()
             convertion_callback()
 
         # Label showing current coord
@@ -767,25 +768,25 @@ class AnswerFrame(TextFrame):
         def on_toogle_param():
             if self.text_fit_param is None:
                 self.open_fit_param()
-                bu_fit.configure(text=u'\u25b4 Hide Fit Param')
             else:
                 self.close_fit_param()
-                bu_fit.configure(text=u'\u25be Show Fit Param')
 
-        self.close_fit_param()
         # Show fit dctionary
-        bu_fit = tk.Button(
+        self.bu_fit = tk.Button(
             self, text=u'\u25be Show Fit Param',
             command=on_toogle_param)
 
         get_root().bind_all(
             "<Control-d>", lambda _: on_toogle_param())
-        bu_fit.set_hover_info(
+        self.bu_fit.set_hover_info(
             "<C-d>: Show/Hide Fit Dictionaries:\nparameters and errors")
-        bu_fit.grid(row=0, column=2)
+        self.bu_fit.grid(row=0, column=2)
 
 
     def get_new_text_frame(self, convertion_callback):
+        # Save visibility
+        b_show_fit_param = self.text_fit_param is not None
+
         # Pack fit type in Frame
         self.set_fit_type_text(get_state().s_fit_type)
         self.clear()
@@ -793,10 +794,15 @@ class AnswerFrame(TextFrame):
         # Button to change cord
         self.grid_top_button(convertion_callback)
         text = self.grid_text_answer()
+
+        # Restore visibility (fit_param)
+        if b_show_fit_param:
+            self.open_fit_param()
         return text
 
 
     def open_fit_param(self):
+        self.bu_fit.configure(text=u'\u25b4 Hide Fit Param')
         self.text_fit_param = tk.Text(self)
         self.text_fit_param.grid(row=2, columnspan=4, sticky='new')
 
@@ -812,7 +818,7 @@ class AnswerFrame(TextFrame):
 
             # Error
             if key in get_state().d_fit_error:
-                line += "\t" + "{0:.4f}".format(get_state().d_fit_error[key])
+                line += "\t" + "± {0:.4f}".format(get_state().d_fit_error[key])
             line += "\n"
             stg += line
         self.text_fit_param.insert(tk.END, stg)
@@ -822,6 +828,7 @@ class AnswerFrame(TextFrame):
 
     def close_fit_param(self):
         try:
+            self.bu_fit.configure(text=u'\u25be Show Fit Param')
             self.text_fit_param.destroy()
         except BaseException:
             pass

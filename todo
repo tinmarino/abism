@@ -3,7 +3,6 @@
 
 * Binary add fwhm (Strehl.py)
 * Rename StrehlImage (linted and remove Ellipse stufff frmo it)
-* Show fit param, let open when new fit (so user can see what moved)
 
 # Bug
 
