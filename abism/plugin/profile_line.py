@@ -10,6 +10,7 @@ from abism.back.image_info import get_array_stat
 
 from abism.util import get_state, get_root, log
 
+
 def show_profile(point1, point2):
     """Callback for Profile Pick: 1 and 2D"""
     # Get data to plot
@@ -18,10 +19,10 @@ def show_profile(point1, point2):
 
     # Plot <- Reset
     ax = get_root().frame_fit.reset_figure_ax()
-    ax.legend(loc=1, prop={'size': 8})
 
     # Data
-    ax.plot(ab, od, '-', linewidth=2, label="Data")
+    ax.plot(ab, od, color='black', drawstyle='steps', linestyle='--',
+            linewidth=1, label="Data")
 
     # Fit
     fit_fct = get_fit_function()
@@ -37,6 +38,7 @@ def show_profile(point1, point2):
 
     # Redraw
     log(8, "ProfileAnswer :", zip(points, get_state().image.im0[tuple(points)]))
+    ax.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.redraw()
 
     # Get stat
@@ -51,7 +53,7 @@ def show_profile(point1, point2):
         ["RMS: ", ps.rms],
     ]
 
-    # Plot <- Reset
+    # Plot <- Reset <- TODO in text
     ax = get_root().frame_result.reset_figure_ax()
     # like profile_stat points[0] is x and points[1] is y
     for num, (label, value) in enumerate(lst):

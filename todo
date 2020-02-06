@@ -1,4 +1,7 @@
 * Profile: cannot see the legend
+  * legendut text result in text frame
+
+* Add fit param button only if fit param are present
 
 * Binary add fwhm (Strehl.py)
 
