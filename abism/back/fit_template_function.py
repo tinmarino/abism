@@ -269,16 +269,3 @@ def DiffractionPatern(points, params):
         res = np.nan_to_num((2*jn(1, u)/u)**2)
     res *= I/(1-e**2)**2
     return res
-
-##########
-# USELESS STAFF
-###########
-
-
-##########
-#
-def LogScale(i_min, i_max, i_bin):
-    res = np.zeros(())
-    for i in range(1, i_bin+1):
-        res[i] = i_min + 10**(i/i_bin)*(i_max-i_min)
-    return res

@@ -1,8 +1,6 @@
 * Have a glimps at first guess which is really really important, especially for moffat
-  * max bad pixels
 
 * Binary add fwhm (Strehl.py)
-* Rename StrehlImage (linted and remove Ellipse stufff frmo it)
 
 # Bug
 
