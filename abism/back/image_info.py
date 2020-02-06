@@ -192,7 +192,7 @@ class ImageInfo():
         """Returns: (min, max) cut in ADU for the viewable image"""
         # Get in <- GUI state
         cut_type = get_state().s_image_cut
-        if cut_type != 'None':
+        if cut_type not in ('None', 'Manual'):
             re_float = re.compile(r"""(?x)
                 [+-]?\ *         # first, match an optional sign *and space*
                 (                # then match integers or f.p. mantissas:
@@ -205,11 +205,16 @@ class ImageInfo():
                 ([eE][+-]?\d+)?  # finally, optionally match an exponent
             """)
             cut_value = float(re.search(re_float, get_state().s_image_cut).group(0))
-        log(5, 'Get MinMaxCut for', cut_type, ':', cut_value)
+            log(5, 'Get MinMaxCut for', cut_type, ':', cut_value)
 
         # No Clipping
         if cut_type == 'None':
             min_cut, max_cut = self.stat.min, self.stat.max
+
+        # Overkill but
+        elif cut_type == 'Manual':
+            min_cut = get_state().i_image_min_cut
+            max_cut = get_state().i_image_max_cut
 
         # Percent
         elif '%' in cut_type:

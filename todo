@@ -68,6 +68,8 @@
 * Better preference saving, loading
   * Appdir module
   * In util, parse_argument and restart
+  * Log previous work, result
+  * Repeatable calculus
 * Clean code (especially backend)
   * Lint all
   * Beware the magic (FrameText 22, xtermTk, fontsize)
