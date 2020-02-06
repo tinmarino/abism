@@ -466,9 +466,9 @@ class OptionFrame(TextFrame):
             get_state().b_aniso = int_var.get()
             # Aniso
             if get_state().b_aniso:
-                msg = "Anisomorphism: angular dimension are fitted separately"
+                msg = "Anisotropy: angular dimension are fitted separately"
             else:
-                msg = "Isomorphism: angular dimension are fitted together"
+                msg = "Isotropy: angular dimension are fitted together"
             log(0, msg)
 
         def on_change_psf(int_var):
@@ -489,8 +489,8 @@ class OptionFrame(TextFrame):
 
         # Declare label and associated variable
         text_n_var_n_fct = (
-            ('Anisomorphism', get_state().b_aniso, on_change_aniso),
-            ('Binary_same_psf', get_state().b_same_psf, on_change_psf),
+            ('Anisotropy', get_state().b_aniso, on_change_aniso),
+            ('Binary same psf', get_state().b_same_psf, on_change_psf),
             ('Fit saturation', get_state().b_saturated, on_change_saturated),
         )
 

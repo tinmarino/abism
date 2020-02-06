@@ -325,7 +325,7 @@ class PickEllipse(Pick):
         log(0, "\n\n\n________________________________\n"
             "|Pick Ellipse| : draw an ellipse around isolated object\n"
             "ABISM will perform the photometry in this ellipse\n"
-            "Bind: eXpand, ROtate, changeU, changeV (minor a major axes)\n"
+            "Bind: eXpand, rOtate, changeU, changeV (minor a major axes)\n"
             "      left, down, up, right or h, j, k, l\n"
             "      Upper case to increase, lower to decrease")
 

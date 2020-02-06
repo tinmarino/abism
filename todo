@@ -1,10 +1,13 @@
-* Have a glimps at first guess which is really really important, especially for moffat
+* Profile: cannot see the legend
 
 * Binary add fwhm (Strehl.py)
 
-# Bug
+* Sky: see how is is estimated annulus and 8rect, because it must be feeded to fit but depends on fit
+* Phot: are bad pixels correccted for elliptical apertue
 
-* Zomming is recurvise and get stuck in some images (bottom)
+* Bug: Manual cut and change image 
+
+* Ellipse pick answer should delete fit param: I may give stat in place
 
 # Feature
 
@@ -35,11 +38,13 @@
 * 2h Datacube if more than 3 dimension
 * 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
+* Have a glimps at first guess which is really really important, especially for moffat
 
 
 ### Latter fix
 * !!! Bad pixels !! You cannot release putting them to zero
 * More options, test my stuff
+* Zomming is recurvise and get stuck in some images (bottom)
 
 ### Latter refactor
 * frame_text, optionFrame many function, create subclass like optionElement
