@@ -7,7 +7,6 @@ pip install -U git+https://github.com/tinmarino/abism
 ```
 
 __Start:__
-
 from shell:
 ```sh
 abism image.fits
@@ -22,7 +21,6 @@ __Who:__
 For observer astronomers using adaptive optics
 
 __How:__
-
 On the following image, we have a Strehl ratio 50% which is excellent.
 Notice the warning that we are reaching the non-linearity detector limit.
 We did not take time to measure the error of the measure if non linear, it is very detector dependant.
@@ -32,7 +30,6 @@ We did not take time to measure the error of the measure if non linear, it is ve
 
 
 __More:__
-
 from ipython:
 
 ```python
@@ -47,6 +44,6 @@ print(sm.state)
 ```
 
 
-License: Do whatever you want with the code
+__License:__ Do whatever you want with the code
 
-Julien Girard, Martin Tourneboeuf.
+__Authors:__ Julien Girard, Martin Tourneboeuf
