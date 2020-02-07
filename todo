@@ -1,17 +1,13 @@
-* Add fit param button only if fit param are present (see ellipse)
-  * Ellipse pick answer should delete fit param: I may give stat in place
-
 * Binary add fwhm (Strehl.py)
 
 * Sky: see how is is estimated annulus and 8rect, because it must be feeded to fit but depends on fit
 * Phot: are bad pixels correccted for elliptical apertue
 
-* Bug: Manual cut and change image 
-
-
 # Feature
 
 * Get a save log button to save all work until here (and delete it from RAM)
+* Bind opening window, same binding to close them (?)
+* Open manual in read only (as stream if possible)
 
 ## Feature -> Improve fit quality, robustness
 
@@ -31,6 +27,8 @@
 
 ## Latter feature
 
+* Add fit param button only if fit param are present (see ellipse)
+  * Ellipse pick answer should delete fit param: I may give stat in place
 * 5h Get error for all answer, append them at the same time
 * 3h Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop

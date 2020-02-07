@@ -56,28 +56,31 @@ def system_open(path=""):
     """Call system defautl open for file
     path: path of the file to oopen relative to abism root path
     """
+    import shutil
     import subprocess
-    my_pdf = root_path() + path
+    full_path = root_path() + path
 
     fct = None
-    try:  # PARANAL acroread
-        subprocess.check_call("acroread", shell=False)
-        fct = "acroread"
-    except BaseException:
-        try:  # Linux see
-            subprocess.check_call("see", shell=False)
-            fct = "see"
-        except BaseException:
-            try:  # mac open
-                from subprocess import check_call
-                check_call("open   " + my_pdf, shell=False)
-                fct = "open"
-            except BaseException:
-                pass
+    # Paranal acroread
+    if not fct and path.endswith('.pdf'):
+        fct = shutil.which("acroread")
 
-    if fct is not None:
-        subprocess.call(fct + " " + my_pdf + " &", shell=True)  # PARANAL
-    log(0, "ERROR pdf viewer : need to be implemented ")
+    # Linux sxdg-open
+    if not fct:
+        fct = shutil.which("xdg-open")
+
+    # Linux see
+    if not fct:
+        fct = shutil.which("see")
+
+    # Mac open
+    if not fct:
+        fct = shutil.which("open")
+
+    if fct:
+        subprocess.call(fct + " " + full_path + " &", shell=True)
+    else:
+        log(0, "ERROR system open : need to be implemented ")
 
 
 def abism_askopenfilename(**args):

@@ -174,6 +174,7 @@ At the bottom of the window, you can see:
 | `<C-M>` | **M**ore option  | Toogle Frame |
 | `<C-O>` | **O**pen file    | Popup |
 | `<C-R>` | **R**estart      | !! Irreversible !! |
+| `<C-?>` | manual           | default system md viewer |
 
 
 | KeyBind  | Command                | Comment |

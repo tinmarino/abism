@@ -76,6 +76,14 @@ class AbismMenu(ButtonMenu):
             label='About',
             command=about_window)
 
+        cmd = lambda: system_open(path='doc/interface.md')
+        self.menu.add_command(
+            label='Interface Manual',
+            command=cmd)
+        self.bind_all("<Control-question>", lambda _: cmd())
+        self.menu.add_entry_info(
+            "<C-?>: Open interface manual with system (.md)")
+
         self.menu.add_command(
             label='Advanced Manual',
             command=lambda: system_open(path='doc/advanced_manual.pdf'))
