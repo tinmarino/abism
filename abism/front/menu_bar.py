@@ -12,7 +12,7 @@ from abism.plugin.window_xterm import create_jupyter_console
 from abism.plugin.histogram import histopopo
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, show_header
+    open_file, show_header, show_manual
 import abism.front.tk_extension as tk_ext
 
 from abism.util import (
@@ -76,11 +76,10 @@ class AbismMenu(ButtonMenu):
             label='About',
             command=about_window)
 
-        cmd = lambda: system_open(path='doc/interface.md')
         self.menu.add_command(
             label='Interface Manual',
-            command=cmd)
-        self.bind_all("<Control-question>", lambda _: cmd())
+            command=show_manual)
+        self.bind_all("<Control-question>", lambda _: show_manual())
         self.menu.add_entry_info(
             "<C-?>: Open interface manual with system (.md)")
 

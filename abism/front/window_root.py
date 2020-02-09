@@ -22,7 +22,7 @@ from abism.util import log, parse_argument, get_state
 
 
 
-class WindowRoot(tk.old_Tk):
+class WindowRoot(tk.Tk_save):
     """Main window app object
     May one day destroy util_front ...
     Call me like Tk:

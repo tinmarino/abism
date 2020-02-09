@@ -5,9 +5,9 @@
 
 # Feature
 
+* Open manual in read only (as stream if possible)
 * Get a save log button to save all work until here (and delete it from RAM)
 * Bind opening window, same binding to close them (?)
-* Open manual in read only (as stream if possible)
 
 ## Feature -> Improve fit quality, robustness
 

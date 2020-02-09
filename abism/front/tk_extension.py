@@ -407,14 +407,15 @@ tk.Menu.on_menu_hover = on_menu_hover
 
 
 # Replace Tk to keep a refrence to change color (very important)
-tk.old_Tk = tk.Tk
-def tk_Tk():
-    root = tk.old_Tk()
-    def on_close():
-        get_root().saved_children.remove(root)
-        root.destroy()
+tk.Tk_save = tk.Tk
+class tk_Tk(tk.Tk_save):
+    """A root that is added tho children and remove on delete"""
+    def __init__(self):
+        super().__init__()
+        def on_close():
+            get_root().saved_children.remove(self)
+            self.destroy()
 
-    root.protocol("WM_DELETE_WINDOW", on_close)
-    get_root().saved_children.append(root)
-    return root
+        self.protocol("WM_DELETE_WINDOW", on_close)
+        get_root().saved_children.append(self)
 tk.Tk = tk_Tk

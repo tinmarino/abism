@@ -126,10 +126,27 @@ def open_file():
 
 
 def show_header():
-    from abism.plugin.window_header import spawn_header_window
-    spawn_header_window(
-        get_state().image.name,
-        get_root().header.header.tostring(sep="\n"))
+    from abism.plugin.window_text import WindowText
+    window_header = WindowText(
+        title='headder(' + get_state().image.name + ')',
+        geometry='1000x1000+0+0',
+        text=get_root().header.header.tostring(sep="\n")
+    )
+    window_header.mainloop()
+
+
+def show_manual():
+    """cmd = lambda: system_open(path=)"""
+    from abism.plugin.window_text import WindowText
+    fpath = root_path() + 'doc/interface.md'
+    with open(fpath, 'r') as f:
+        text = f.read()
+    window_manual = WindowText(
+        title='ABISM interface manual',
+        geometry='1000x1000+0+0',
+        text=text
+    )
+    window_manual.mainloop()
 
 
 def open_backgroud_and_substract():
