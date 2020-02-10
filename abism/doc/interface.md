@@ -27,11 +27,11 @@ To interact with the image view, you can use
 
 On the image:
 
-* Left button
+* __Left button__
   * Drag a rectangle to give it as input
   * Click to feed a 40 * 40 pixels region around the click
-* Scroll wheel: zoom
-* Right button: center the image on the click
+* __Scroll wheel__: zoom
+* __Right button__: center the image on the click
 
 On the colorbar:
 
@@ -42,12 +42,12 @@ Drag with left button to modify the image cut
 
 Change image:
 
-* Color: with a matplotlib color map
-* Scale: a function: true intensity -> visible intensity
-* Cuts: change high and low cut according to image statistics
-  * Percent: removes outsider keeping only a percentage of pixels near the median intensity
-  * Sigma clip: high cut at some factor of the noise (i.e. root mean square of image intensity values)
-  * Manual: open a frame for the user to manually enter high and low viewable intensity values. Don't forget to press enter in the entry widget. The colorbar should update adequately
+* __Color__: with a matplotlib color map
+* __Scale__: a function: true intensity -> visible intensity
+* __Cuts__: change high and low cut according to image statistics
+  * __Percent__: removes outsider keeping only a percentage of pixels near the median intensity
+  * __Sigma clip__: high cut at some factor of the noise (i.e. root mean square of image intensity values)
+  * __Manual__: open a frame for the user to manually enter high and low viewable intensity values. Don't forget to press enter in the entry widget. The colorbar should update adequately
 
 
 ### Pick type
@@ -56,13 +56,13 @@ In `Analysis` or `Tools` menu button.
 
 Different interaction can be done between the image and Abism backend engine. Those interactions are called `pick type`.
 
-1. No Pick: Disable Abism backend interaction
-2. Pick One: Select one star
-3. Pick Binary: Select two stars
-4. Pick Tight: Select two stars, be precise because the center are constrained to be very close the click
-5. Profile: Draw a line on the image and admire the 1d intensity profile along this line
-6. Stat: Draw a rectangle and read the pixels statistics in this rectangle
-7. Ellipse: Draw an ellipse on the image.
+1. __No Pick__: Disable Abism backend interaction
+2. __Pick One__: Select one star
+3. __Pick Binary__: Select two stars
+4. __Pick Tight__: Select two stars, be precise because the center are constrained to be very close the click
+5. __Profile__: Draw a line on the image and admire the 1d intensity profile along this line
+6. __Stat__: Draw a rectangle and read the pixels statistics in this rectangle
+7. __Ellipse__: Draw an ellipse on the image.
   * Strehl will be calculated from this ellipse
   * Not fit is performed: intensity is the max pixel, photometry is the sum of all pixels
   * Keyboard bindings are arrow keys, hjkl, eXpand, rOtate, changeU, changeV
@@ -77,10 +77,10 @@ In the `option` frame, which can be open with the `Image Parameters` button.
 
 Some parameters are required for Strehl measurement. All of them should be positive:
 
-1. Wavelength (μm): Wavelength of the image. Example: 2.15 for near infra read
-2. Pixel scale (''/pix): Number of arcseconds per pixels. Example: 0.01. It should be inferior to 1, otherwise resolution is too bad to discriminated between an sky corrected image from a sky diffracted point spread function (PSF) (a Gaussian of 1 arcsec)
-3. Diameter (m): The diameter of the telescope's primary mirror. Example: 8.0 for the Very Large Telescope (VLT). It should be superior to 1 for the same reason as above.
-4. Obstruction (%): The percentage of primary mirror obstructed, usually by the secondary mirror. Example 14.0 for the VLT. It should be inferior to 100, otherwise, the telescope would be fully obstructed and the image black.
+1. __Wavelength (μm)__: Wavelength of the image. Example: 2.15 for near infra read
+2. __Pixel scale (''/pix)__: Number of arcseconds per pixels. Example: 0.01. It should be inferior to 1, otherwise resolution is too bad to discriminated between an sky corrected image from a sky diffracted point spread function (PSF) (a Gaussian of 1 arcsec)
+3. __Diameter (m)__: The diameter of the telescope's primary mirror. Example: 8.0 for the Very Large Telescope (VLT). It should be superior to 1 for the same reason as above.
+4. __Obstruction (%)__: The percentage of primary mirror obstructed, usually by the secondary mirror. Example 14.0 for the VLT. It should be inferior to 100, otherwise, the telescope would be fully obstructed and the image black.
 
 Some other parameters are used for the apparent magnitude of object measurement. Those are not required to evaluate the Strehl.
 
@@ -92,9 +92,9 @@ In `Analysis` menu button.
 
 There are 3 primitive function to fit the PSF. Choosing one or other mostly depend on the Strehl value.
 
-1. Gaussian: suitable for Strehl < 20%
-2. Moffat: suitable for 20% < Strehl < 60%. Warning, the moffat function has two free parameters the `exponent` and the `spread` so it is a little bit degenerated.
-3. Bessel: suitable for 60% < Strehl. This is the perfect (alias ideal, in space) diffraction pattern.
+1. __Gaussian__: suitable for Strehl < 20%
+2. __Moffat__: suitable for 20% < Strehl < 60%. Warning, the moffat function has two free parameters the `exponent` and the `spread` so it is a little bit degenerated.
+3. __Bessel__: suitable for 60% < Strehl. This is the perfect (alias ideal, in space) diffraction pattern.
 
 Note: If you see a diffraction halo around the star, strehl is probably superior to 50%. So do not use Gaussian.
 
@@ -102,9 +102,9 @@ In addition (better say multiplication) to the primitive function, some paramete
 
 In `more option` button.
 
-* Anisotropy: If checked: Permits the fit function not to be circular adding two parameters: `theta` for the angle of the main axis and `spread_y` which is a second spread factor for the axis perpendicular to the main (hence not necessarily align to the y axis). Note that for moffat, an `exponent_y` is also added
-* Binary same psf: If checked: In case of a binary fit, assumes that the two stars share the same psf. Which permits a much easier fit.
-* Fit saturated: If checked: add a parameter (called `saturation`) to the fitted function. Intensity of the fitted profile cannot go higher than this free parameter. If image is NOT saturated, this is a useless parameter, usually resulting in an impossible error measurement (outputting `-1`)
+* __Anisotropy__: If checked: Permits the fit function not to be circular adding two parameters: `theta` for the angle of the main axis and `spread_y` which is a second spread factor for the axis perpendicular to the main (hence not necessarily align to the y axis). Note that for moffat, an `exponent_y` is also added
+* __Binary same psf__: If checked: In case of a binary fit, assumes that the two stars share the same psf. Which permits a much easier fit.
+* __Fit saturated__: If checked: add a parameter (called `saturation`) to the fitted function. Intensity of the fitted profile cannot go higher than this free parameter. If image is NOT saturated, this is a useless parameter, usually resulting in an impossible error measurement (outputting `-1`)
 
 ### Sky and Photometry measurement
 
@@ -117,19 +117,19 @@ Sky measurement is required for photometric measurement (to be subtracted).
 
 It can be done in different ways:
 
-1. None: sky intensity is 0
-2. Manual: sky intensity is given by user (in a newly spawned entry box)
+1. __None__: sky intensity is 0
+2. __Manual__: sky intensity is given by user (in a newly spawned entry box)
   * This is useful if the star is not isolated.
-3. 8Rectangle: some rectangles at each cardinal point of the object are used
-4. Annulus: an annulus around the object is used
-5. Fit: the sky measurement during the fit (as an additional free parameter)
+3. __8Rectangle__: some rectangles at each cardinal point of the object are used
+4. __Annulus__: an annulus around the object is used
+5. __Fit__: the sky measurement during the fit (as an additional free parameter)
 
 Note: for annulus and 8rect: the distance to the star 
 
 #### Photometry
 
-1. Fit: integral of the fit function is used
-2. Ellipse: an ellipse encircling 99% of the energy is used as an aperture, all pixels in the aperture are summed. (Bad pixels are median filtered). This sum is then divided by 0.99.
+1. __Fit__: integral of the fit function is used
+2. __Ellipse__: an ellipse encircling 99% of the energy is used as an aperture, all pixels in the aperture are summed. (Bad pixels are median filtered). This sum is then divided by 0.99.
 
 Other photometric measurements are experimental.
 

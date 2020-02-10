@@ -2,16 +2,16 @@
     Helper to open a tk window with some text
 used by manual and header
 """
+import re
 import tkinter as tk
 
 from abism.util import log
 
 
 class WindowText(tk.Tk):
-    """A window with some text in it.
-    TODO mardown nice view
-    """
-    def __init__(self, title='', geometry='', text=''):
+    """A window with some text in it"""
+
+    def __init__(self, title='', geometry='', text='', color_md=False):
         super().__init__()
 
         if title: self.title(title)
@@ -22,9 +22,17 @@ class WindowText(tk.Tk):
         # Previous string
         self.s_old = ''
 
+        # Replace markdown list
+        if color_md:
+            text = re.sub(r'^(\s*)\*', r'\1☀', text, flags=re.MULTILINE)
+
         # Pack
         self.pack_head()
         self.pack_body(text)
+
+        # Color
+        if color_md:
+            MarkdownColorizer(self.text).colorize()
 
 
     def pack_body(self, text):
@@ -64,17 +72,13 @@ class WindowText(tk.Tk):
         tk.Button(
             head_frame, text='<-',
             command=lambda: self._scroll("-")
-            ).grid(row=0, column=2, sticky="nsew")
+        ).grid(row=0, column=2, sticky="nsew")
 
         # + Next
         tk.Button(
             head_frame, text='->',
             command=lambda: self._scroll("+")
-            ).grid(row=0, column=3, sticky="nsew")
-
-
-    def colorize_md(self):
-        """Colorize text with markdown syntax"""
+        ).grid(row=0, column=3, sticky="nsew")
 
 
     def _find(self):
@@ -87,7 +91,7 @@ class WindowText(tk.Tk):
                 self.find_num[0] = 0
                 self.s_old = s_to_find
             idx = '1.0'
-            while 1:
+            while True:
                 idx = self.search(s_to_find, idx, nocase=1, stopindex=tk.END)
                 if not idx:
                     break
@@ -121,10 +125,95 @@ class WindowText(tk.Tk):
         self.see(lastidx)
         try:
             self.tag_remove('on', '1.0', tk.END)
-        except:
+        except BaseException:
             pass
         self.tag_add("on", lastidx, idx)
         self.tag_config("on", foreground="red")
         if self.find_num[0] == 0:
             self.find_num[0] += 1
         return
+
+
+# Dic: tag_name: (regex, tag_params)
+md_dic = {
+    'h1': (r'^# .*$', {
+        'foreground': 'red', 'underline': True}),
+    'h2': (r'^## .*$', {
+        'foreground': 'blue', 'underline': True}),
+    'h3': (r'^### .*$', {
+        'foreground': 'green', 'underline': True}),
+    'h4': (r'^#### .*$', {
+        'foreground': 'green', 'underline': True}),
+    'backtick': (r'`[^`]*`', {
+        'foreground': 'magenta'}),
+    'bold': (r'__(.+?)__', {
+        'font': 'Helvetica 13 bold'}),
+}
+
+# Regex to hide (second loop)
+r_elide = r'^# |^## |^### |^#### |__'
+
+
+class MarkdownColorizer:
+    """Colorize text widget with markdown text in it
+    Hardcode colors
+    Copy from Suraj Singh ColorLight.py (by hand)
+    """
+
+    def __init__(self, text):
+        self.tk_text = text
+
+    def colorize(self):
+        """Colorize text with markdown syntax"""
+        r_stg = '|'.join(
+            '(?P<%s>' % key + md_dic[key][0] + ')'
+            for key in md_dic)
+        txtfilter = re.compile(r_stg, re.MULTILINE)
+
+        # Get text string
+        txt = self.tk_text.get('1.0', 'end')
+        if len(txt) == 1: return
+
+        # Find all regex
+        for i in txtfilter.finditer(txt):
+            start = i.start()
+            end = i.end() - 1
+
+            # Get tag name (in ?P<h1>)
+            group_dic = i.groupdict()
+            tag_name = None
+            for key, val in group_dic.items():
+                if val is not None:
+                    tag_name = key
+                    break
+            if tag_name is None: continue
+
+            ind1, ind2 = _coordinate(start, end, txt)
+            self.tk_text.tag_add(tag_name, ind1, ind2)
+            self.tk_text.tag_config(tag_name, **md_dic[tag_name][1])
+
+
+        # Hide what need to be
+        hidefilter = re.compile(r_elide, re.MULTILINE)
+        for i in hidefilter.finditer(txt):
+            start = i.start()
+            end = i.end() - 1
+            ind1, ind2 = _coordinate(start, end, txt)
+            self.tk_text.tag_add('hide', ind1, ind2)
+            self.tk_text.tag_config('hide', elide=True)
+
+
+def _coordinate(start, end, string):
+    """Get coordinate from stirng position index"""
+    # Starting row
+    srow = string[:start].count('\n') + 1
+    scolsplitlines = string[:start].split('\n')
+    if len(scolsplitlines) != 0:
+        scolsplitlines = scolsplitlines[len(scolsplitlines) - 1]
+    scol = len(scolsplitlines)  # Ending Column
+    lrow = string[:end + 1].count('\n') + 1
+    lcolsplitlines = string[:end].split('\n')
+    if len(lcolsplitlines) != 0:
+        lcolsplitlines = lcolsplitlines[len(lcolsplitlines) - 1]
+    lcol = len(lcolsplitlines) + 1  # Ending Column
+    return '{}.{}'.format(srow, scol), '{}.{}'.format(lrow, lcol)  # , (lrow, lcol)
