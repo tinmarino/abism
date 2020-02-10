@@ -145,11 +145,23 @@ class OnePsf(Fit):
 
 
     def no_fit(self):
-        restmp = {
-            'center_x': self.center[0], 'center_y': self.center[0],
+        fit_dic = {
+            'center_x': self.center[0], 'center_y': self.center[1],
             'intensity': self.my_max,
-            "r99x": 5 * self.fwhm, "r99y": 5 * self.fwhm}
-        self.result = (restmp, 0, 0, None, 0)
+            "r99x": 5 * self.fwhm, "r99y": 5 * self.fwhm,
+            "spread_x": self.fwhm, "spread_y": self.fwhm,
+            'theta': 0,
+        }
+        err_dic = {
+            'center_x': 1, 'center_y': 1,
+            'intensity': np.sqrt(self.my_max),
+            "r99x": 5, "r99y": 5,
+            "spread_x": 1, "spread_y": 1,
+            'theta': 2 * np.pi,
+        }
+        set_aa(EA.CHI2, float('nan'))
+        log(0, "No fit effectuated <- fit type None selected")
+        self.result = (fit_dic, err_dic, 0, None, 0)
         return self
 
 

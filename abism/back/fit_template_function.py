@@ -16,7 +16,9 @@ def get_fit_function():
         get_fit_function.e_pick_type_cache = e_pick_type
 
     # Discriminate call
-    if e_pick_type in (EPick.BINARY, EPick.TIGHT):
+    if get_state().s_fit_type == "None":
+        fit_fct = None
+    elif e_pick_type in (EPick.BINARY, EPick.TIGHT):
         fit_fct = get_binary_fct()
     else:
         fit_fct = get_one_fct()

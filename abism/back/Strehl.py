@@ -40,9 +40,9 @@ def strehl_one(rectangle):
     psf_fit = o_psf.do_fit().get_result()
 
     # Save what it take
-    center = psf_fit[0]['center_x'], psf_fit[0]['center_y']
+    center = psf_fit[0]['center_y'], psf_fit[0]['center_x']
     # pylint: disable = unsubscriptable-object
-    dcenter = psf_fit[1]['center_x'], psf_fit[1]['center_y']
+    dcenter = psf_fit[1]['center_y'], psf_fit[1]['center_x']
     set_aa(EA.CENTER, center, error=dcenter)
 
     # Intensity
@@ -244,7 +244,7 @@ def EllipseEventBack(obj):
         uv=(ruo, rvo), theta=obj.theta)
 
     # annulus  inside out but not inside in
-    bol_a = ell_o["bol"] ^ ell_i["bol"]
+    bol_a = ell_o ^ ell_i
 
     image_cut = get_state().image.im0[bol_a]
     stat = get_array_stat(image_cut)
@@ -273,9 +273,10 @@ def EllipseEventMax(obj):
     rad = max(obj.ru, obj.rv)
     r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
     local_max = IF.LocalMax(get_state().image.im0, r=r)
+    x0, y0 = local_max[:2]
 
     # Save
-    get_state().add_answer(EA.CENTER, local_max[:2])
+    get_state().add_answer(EA.CENTER, (y0, x0))
     get_state().add_answer(EA.INTENSITY, local_max[2])
 
 

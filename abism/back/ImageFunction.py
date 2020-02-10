@@ -295,6 +295,12 @@ def FwhmFromFit(fit_dic, err_dic):
         a_fwhm_x = 2 * a_spread_x * 1.61
         a_fwhm_y = 2 * a_spread_y * 1.61
 
+    # None
+    else:
+        a_phot *= 0
+        a_fwhm_x = 2 * a_spread_x * 1.61
+        a_fwhm_y = 2 * a_spread_y * 1.61
+
 
     log(3, 'Fit: photometry, estimated from', s_fit_type, 'is', a_phot)
     return a_phot, a_fwhm_x, a_fwhm_y
