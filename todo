@@ -1,8 +1,3 @@
-* Phot: are bad pixels correccted for elliptical apertue
-  *  bad pixels in get_array_stat
-
-* Binary add fwhm (Strehl.py)
-
 * Sky: see how is is estimated annulus and 8rect, because it must be feeded to fit but depends on fit
 
 # Feature
@@ -12,8 +7,6 @@
 ## Feature -> Improve fit quality, robustness
 
 * Stop fit if more than 10s or user kill, or make a stop fit button
-* Make the fit a little longer, better result (cannot do apprently)
-
 
 # Latter
 ################################################################################
@@ -37,11 +30,9 @@
 * 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * Have a glimps at first guess which is really really important, especially for moffat
-* Stat and Profile type Answer to be able to convert to sky, and to get an error
 
 
 ### Latter fix
-* !!! Bad pixels !! You cannot release putting them to zero
 * More options, test my stuff (also on binary)
 * Zomming is recurvise and get stuck in some images (bottom)
 
