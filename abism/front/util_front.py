@@ -125,29 +125,55 @@ def open_file():
     get_root().set_image(s_file)
 
 
-def show_header():
+def toogle_header():
+    """Toogle header viewer"""
     from abism.plugin.window_text import WindowText
-    window_header = WindowText(
+    def on_close():
+        toogle_header.window_header.destroy()
+        toogle_header.window_header = None
+
+    # Toogle hide
+    if toogle_header.window_header is not None:
+        on_close()
+        return
+
+    toogle_header.window_header = WindowText(
         title='headder(' + get_state().image.name + ')',
         geometry='1000x1000+0+0',
         text=get_root().header.header.tostring(sep="\n")
     )
-    window_header.mainloop()
+
+    toogle_header.window_header.protocol('WM_DELETE_WINDOW', on_close)
+    toogle_header.window_header.mainloop()
+toogle_header.window_header = None
 
 
-def show_manual():
-    """cmd = lambda: system_open(path=)"""
+def toogle_manual():
+    """Toogle interface documentation window"""
     from abism.plugin.window_text import WindowText
+
+    def on_close():
+        toogle_manual.window_manual.destroy()
+        toogle_manual.window_manual = None
+
+    # Toogle hide
+    if toogle_manual.window_manual is not None:
+        on_close()
+        return
+
     fpath = root_path() + 'doc/interface.md'
     with open(fpath, 'r') as f:
         text = f.read()
-    window_manual = WindowText(
+    toogle_manual.window_manual = WindowText(
         title='ABISM interface manual',
         geometry='800x1000+0+0',
         text=text,
         color_md=True,
     )
-    window_manual.mainloop()
+
+    toogle_manual.window_manual.protocol('WM_DELETE_WINDOW', on_close)
+    toogle_manual.window_manual.mainloop()
+toogle_manual.window_manual = None
 
 
 def open_backgroud_and_substract():

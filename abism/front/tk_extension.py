@@ -348,7 +348,7 @@ class HoverInfo:
         self.tipwindow = None
 
 
-def bind_widget_hover(self):
+def tk_bind_widget_hover(self):
     def enter(_):
         self.hover_info.hide()
         self.hover_info.show(self.hover_text)
@@ -357,15 +357,15 @@ def bind_widget_hover(self):
     self.bind('<Enter>', enter)
     self.bind('<Leave>', leave)
 
-def set_hover_info(self, text):
+def tk_set_hover_info(self, text):
     """Set hover info to widget"""
     self.hover_info = HoverInfo(self)
     self.hover_text = text
     self.bind_widget_hover()
 
 # Create widget member function to add info on hover
-tk.Widget.bind_widget_hover = bind_widget_hover
-tk.Widget.set_hover_info = set_hover_info
+tk.Widget.bind_widget_hover = tk_bind_widget_hover
+tk.Widget.set_hover_info = tk_set_hover_info
 
 
 def on_menu_hover(self):
@@ -412,10 +412,17 @@ class tk_Tk(tk.Tk_save):
     """A root that is added tho children and remove on delete"""
     def __init__(self):
         super().__init__()
+        if get_root() is None: return
+
+        # Bind close
         def on_close():
             get_root().saved_children.remove(self)
             self.destroy()
-
         self.protocol("WM_DELETE_WINDOW", on_close)
         get_root().saved_children.append(self)
+
+        # Bind root binding
+        for text, cmd in get_root().l_bind:
+            self.bind_all(text, cmd)
+
 tk.Tk = tk_Tk

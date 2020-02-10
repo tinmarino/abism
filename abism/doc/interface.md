@@ -166,15 +166,15 @@ At the bottom of the window, you can see:
 | KeyBind | Command          | Comment |
 | ---     | ---              | --- |
 | `<C-B>` | **B**ackward     | cube image |
-| `<C-D>` | **D**ictionaries | fit parameters and errors |
+| `<C-D>` | **D**ictionaries | Toogle fit parameters and errors |
 | `<C-F>` | **F**orward      | cube image |
-| `<C-H>` | open **H**eader  | Popup |
+| `<C-H>` | open **H**eader  | Toogle popup |
 | `<C-I>` | **I**mage param  | Toogle Frame |
 | `<C-K>` | s**K**y coord    | Toogle anwser coordinate system |
 | `<C-M>` | **M**ore option  | Toogle Frame |
 | `<C-O>` | **O**pen file    | Popup |
 | `<C-R>` | **R**estart      | !! Irreversible !! |
-| `<C-?>` | manual           | default system md viewer |
+| `<C-?>` | manual           | Toogle popud md viewer |
 
 
 | KeyBind  | Command                | Comment |

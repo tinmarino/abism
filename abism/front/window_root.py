@@ -22,7 +22,7 @@ from abism.util import log, parse_argument, get_state
 
 
 
-class WindowRoot(tk.Tk_save):
+class WindowRoot(tk.Tk):
     """Main window app object
     May one day destroy util_front ...
     Call me like Tk:
@@ -39,6 +39,7 @@ class WindowRoot(tk.Tk_save):
 
         # Save spawned children
         self.saved_children = []
+        self.l_bind = []
 
         # Set icon && shortcut
         self.set_icon()
@@ -121,3 +122,9 @@ class WindowRoot(tk.Tk_save):
         else:
             log(3, "->you have no beautiful icon "
                 "because you didn't set the PATH in Abism.py")
+
+    def bind_root(self, text, cmd):
+        """Bind text to cmd for me and my children"""
+        for widget in (self, *self.saved_children):
+            widget.bind_all(text, cmd)
+        self.l_bind.append([text, cmd])

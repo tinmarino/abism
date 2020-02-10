@@ -12,7 +12,7 @@ from abism.plugin.window_xterm import create_jupyter_console
 from abism.plugin.histogram import histopopo
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, show_header, show_manual
+    open_file, toogle_header, toogle_manual
 import abism.front.tk_extension as tk_ext
 
 from abism.util import (
@@ -78,8 +78,8 @@ class AbismMenu(ButtonMenu):
 
         self.menu.add_command(
             label='Interface Manual',
-            command=show_manual)
-        self.bind_all("<Control-question>", lambda _: show_manual())
+            command=toogle_manual)
+        get_root().bind_root("<Control-question>", lambda _: toogle_manual())
         self.menu.add_entry_info(
             "<C-?>: Open interface manual with system (.md)")
 
@@ -136,8 +136,8 @@ class FileMenu(ButtonMenu):
         # Show header
         self.menu.add_command(
             label='Display Header',
-            command=show_header)
-        self.bind_all("<Control-h>", lambda _: show_header())
+            command=toogle_header)
+        get_root().bind_root("<Control-h>", lambda _: toogle_header())
         self.menu.add_entry_info(
             "<C-H>: Open Header viewer window")
 
