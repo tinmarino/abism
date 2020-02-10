@@ -27,7 +27,7 @@ class ImageStat(DotDic):
         self.number_count = len(image.im0.flatten())
 
         # Check len
-        if not len(sort):
+        if len(sort) == 0:
             self.median = self.min = self.max = self.sum = float('nan')
             return
 

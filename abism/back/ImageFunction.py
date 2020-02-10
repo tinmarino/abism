@@ -4,7 +4,7 @@
 # pylint: disable = too-many-locals
 
 import numpy as np
-import scipy.ndimage  # for the median filter
+from scipy.ndimage import median_filter
 import scipy.interpolate  # for LocalMax
 
 from abism.back.image_info import get_array_stat
@@ -127,7 +127,7 @@ def FindMaxWithBin(grid, rectangle):
     r = rectangle
     cutted = grid[int(r[0]):int(r[1]), int(r[2]):int(r[3])]
     # Median file 3 x 3 (fuzz)
-    cutted = scipy.ndimage.median_filter(cutted, size=(3, 3))
+    cutted = median_filter(cutted, size=(3, 3))
     # Get peak
     coord = np.unravel_index(cutted.argmax(), cutted.shape)
 
@@ -375,7 +375,7 @@ def find_bad_pixel(grid, r=None):
     mIX[inf] = 0
 
     # Median filter bad pixels
-    mIX = scipy.ndimage.median_filter(IX, size=(3, 3))
+    mIX = median_filter(IX, size=(3, 3))
     b_bad = np.abs(IX - mIX) > np.abs(mIX)
     res[b_bad] = mIX[b_bad]  # Almost useless becaused masked
 
@@ -469,31 +469,24 @@ def get_profile_x(grid, center):
     return x, y
 
 
-def get_elliptical_aperture(grid, dic={}, full_answer=True):
-    """ rdic = ru rv theta x0 y0
-    Returns a dic,
-        dic[bol] = are you in aperture
-        dic[coord_x] = X[bol]
-        dic[coord_y] = are you in aperture
-          SO you can fit grid[bol]  = Basicfct((x,y),params see in StrehlFunciton folder how I use it (written october 30 2013)
+def correct_bad_pixel(grid):
+    """Smooth bad pixel <- Filter median"""
+    median = median_filter(grid, size=(3, 3))
+    bol = np.abs(grid - median) > 3 * np.abs(median)
+    grid[bol] = median[bol]
+    return grid
 
-    or if we interpolate, return directly some values (phot, rms, number_count, fractional
-    interp is dividing each pixel by 10*10 pixelsn seems enought to me
-       dic : center_x, center_y , ru,rv, theta
-            ru , rv in pixels
-           centers in pixels from the begining of the array x = row, y = column
-    if full answer return dic : number_count, sum, bol,bol2, interp_grid,
-    # Return X and y index of bol
-    TODO clean and rename me
-    """
+
+def get_elliptical_aperture(grid, center=None, uv=None, theta=None):
+    """Returns a bol : grid[bol] <- you are in aperture"""
     # Check in
-    if dic == {}:
+    if None in (center, uv, theta):
+        log(-1, 'Error: get_elliptical_aperture wrong parameters')
         return DotDic()
-    res = DotDic()
 
     # Unpack in
-    x0, y0 = dic["center_x"], dic["center_y"]
-    ru, rv, theta = dic["ru"], dic["rv"], dic["theta"],
+    x0, y0 = center
+    ru, rv = uv
     cos = np.cos(theta)
     sin = np.sin(theta)
 
@@ -508,13 +501,5 @@ def get_elliptical_aperture(grid, dic={}, full_answer=True):
     Y, X = np.meshgrid(y, x)
 
     bol = a*X**2 + b*Y**2 + c*X*Y < 1
-    if full_answer:
-        # just need: "sum", "number_count", "rms"
-        grid_cut = grid[bol]
-        res.update(get_array_stat(grid_cut))
-        res["bol"] = bol
-        return res
-    else:  # no full_answer
-        res["bol"] = bol
 
-    return res
+    return bol

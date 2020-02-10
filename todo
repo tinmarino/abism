@@ -1,4 +1,5 @@
 * Phot: are bad pixels correccted for elliptical apertue
+  *  bad pixels in get_array_stat
 
 * Binary add fwhm (Strehl.py)
 

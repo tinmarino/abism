@@ -58,7 +58,7 @@ def strehl_one(rectangle):
 
 
     # Get Background && Save
-    background, rms = get_background(get_state().image.im0, r=rectangle)
+    background, rms = get_background(get_state().image.im0)
     set_aa(EA.BACKGROUND, background, error=rms)
 
     # Get photometry && Save
@@ -129,7 +129,7 @@ def append_binary_info():
     set_aa(EA.STAR2, (y1, x1), error=(err_dic['y1'], err_dic['x1']))
 
     # Save separation
-    separation_dic = save_separation(point=((x0, y0), (x1, y1)), error=((dx0, dy0), (dx1, dy1)))
+    save_separation(point=((x0, y0), (x1, y1)), error=((dx0, dy0), (dx1, dy1)))
 
     # Get Background
     if get_state().e_sky_type in (ESky.MANUAL, ESky.NONE):
@@ -233,14 +233,12 @@ def EllipseEventBack(obj):
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
     ell_i = IF.get_elliptical_aperture(
-        get_state().image.im0,
-        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": rui,
-             "rv": rvi, "theta": obj.theta})  # inner
+        get_state().image.im0, center=(obj.x0, obj.y0),
+        uv=(rui, rvi), theta=obj.theta)
 
     ell_o = IF.get_elliptical_aperture(
-        get_state().image.im0,
-        dic={"center_x": obj.x0, "center_y": obj.y0, "ru": ruo,
-             "rv": rvo, "theta": obj.theta})  # outter
+        get_state().image.im0, center=(obj.x0, obj.y0),
+        uv=(ruo, rvo), theta=obj.theta)
 
     # annulus  inside out but not inside in
     bol_a = ell_o["bol"] ^ ell_i["bol"]
@@ -255,12 +253,13 @@ def EllipseEventPhot(obj):
     """Elliptical phot
     Returns: photometry, total, number_count
     """
-    dic = {"center_x": obj.x0, "center_y": obj.y0,
-           "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
-    ellipse_stat = IF.get_elliptical_aperture(
-        obj.array, dic=dic, full_answer=True)
+    ellipse = IF.get_elliptical_aperture(
+        obj.array, center=(obj.x0, obj.y0),
+        uv=(obj.ru, obj.rv), theta=obj.theta)
 
-    return ellipse_stat
+    stat = get_array_stat(obj.array[ellipse])
+
+    return stat
 
 
 def EllipseEventMax(obj):
@@ -292,7 +291,7 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
              1. total phtotometric adu (backgound subtracted)
              Other. to estimate error
     Note Background must be called before
-    TODO answer coherent (in / out) so I get rms
+    TODO answer class compatible (in / out) so I get rms
     """
     # pylint: disable = too-many-locals
     phot = err_phot = total = number_count = 0
@@ -323,9 +322,9 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
     # Elliptical apperture
     elif e_phot_type == EPhot.ELLIPTICAL:
         log(3, 'Photometry <- elliptical aperture')
-        ellipse_dic = {"center_x": x0, "center_y": y0,
-                       "ru": r99u, "rv": r99v, "theta": theta}
-        bol = IF.get_elliptical_aperture(grid, dic=ellipse_dic)["bol"]
+        grid = IF.correct_bad_pixel(grid)
+        bol = IF.get_elliptical_aperture(
+            grid, center=(x0, y0), uv=(r99u, r99v), theta=theta)
         image_elliptic = grid[bol]
 
         stat = get_array_stat(image_elliptic)
@@ -350,17 +349,12 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
     return phot, err_phot, total, number_count
 
 
-def get_background(grid, r=None):
-    """Read from fit param, fit err
-    TODO check r
-    """
-    # pylint: disable = too-many-locals
+def get_background(grid):
+    """Read from fit param, fit err"""
+    # pylint: disable = too-many-locals, too-many-statements
 
-
-    # Log
+    # Init
     background_type = get_state().e_sky_type
-
-    # Background and rms
     background = rms = 0
 
     # 8 rects
@@ -407,7 +401,6 @@ def get_background(grid, r=None):
     # Elliptical annulus
     elif background_type == ESky.ANNULUS:
         # TODO hardcode as in AnswerReturn
-        ell_inner_ratio, ell_outer_ratio = 1.3, 1.6
         r99u = max(20, get_state().d_fit_param["r99u"])
         r99v = max(20, get_state().d_fit_param["r99v"])
         rui, rvi = 1.3 * r99u, 1.3 * r99v
@@ -420,16 +413,17 @@ def get_background(grid, r=None):
         ax2 = int(get_state().d_fit_param["center_x"] + myrad)
         ay1 = int(get_state().d_fit_param["center_y"] - myrad)
         ay2 = int(get_state().d_fit_param["center_y"] + myrad)
+        theta = get_state().d_fit_param['theta']
         ax1, ax2, ay1, ay2 = IF.Order4((ax1, ax2, ay1, ay2), grid=grid)
         image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
 
         bol_i = IF.get_elliptical_aperture(
-            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
-                            "rv": rvi, "theta": get_state().d_fit_param["theta"]})["bol"]
+            image_cut, center=(myrad, myrad),
+            uv=(rui, rvi), theta=theta)
 
         bol_o = IF.get_elliptical_aperture(
-            image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
-                            "rv": rvo, "theta": get_state().d_fit_param["theta"]})["bol"]
+            image_cut, center=(myrad, myrad),
+            uv=(ruo, rvo), theta=theta)
 
         bol_a = bol_o ^ bol_i
 
