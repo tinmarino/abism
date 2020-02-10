@@ -469,7 +469,7 @@ def get_profile_x(grid, center):
     return x, y
 
 
-def get_elliptical_aperture(grid, dic={}, interp=False, full_answer=True, xy_answer=True):
+def get_elliptical_aperture(grid, dic={}, full_answer=True):
     """ rdic = ru rv theta x0 y0
     Returns a dic,
         dic[bol] = are you in aperture
@@ -504,41 +504,17 @@ def get_elliptical_aperture(grid, dic={}, interp=False, full_answer=True, xy_ans
     x = np.arange(-x0, len(grid)-x0)  # invert IDK why
     y = np.arange(-y0, len(grid[0])-y0)
 
-    if not interp:
-        # need to be in this order , tested with event ellipser!
-        Y, X = np.meshgrid(y, x)
+    # need to be in this order , tested with event ellipser!
+    Y, X = np.meshgrid(y, x)
 
-        bol = a*X**2 + b*Y**2 + c*X*Y < 1
-        if full_answer:
-            # just need: "sum", "number_count", "rms"
-            grid_cut = grid[bol]
-            res.update(get_array_stat(grid_cut))
-            res["bol"] = bol
-            return res
-        else:  # no full_answer
-            res["bol"] = bol
-        if xy_answer:
-            res["coord_x"] = X[bol]
-            res["coord_y"] = Y[bol]
-
-    else:  # including interpolate
-        binn = 0.1
-        xx = np.arange(-x0, len(grid)-x0, binn)
-        yy = np.arange(-y0, len(grid[0])-y0, binn)
-        XX, YY = np.meshgrid(xx, yy)  # need to be in this order , tested
-
-        interp_fct = scipy.interpolate.interp2d(x, y, grid, kind="cubic")
-        interp_grid = interp_fct(xx, yy)
-        bol2 = a*XX**2 + b*YY**2 + c*XX*YY < 1
-
-        # stats = Stat.Stat(interp_grid[bol], get=["sum", "number_count"])
-        stats = get_array_stat(interp_grid[bol])
-        res = {"interp_grid": interp_grid, "bol2": bol2, "bol": bol}
-        res["sum"] = stats["sum"]*binn**2
-        res["number_count"] = stats["number_count"] * binn**2
-
-        if xy_answer:
-            res["coord_x"] = X[bol]
-            res["coord_y"] = Y[bol]
+    bol = a*X**2 + b*Y**2 + c*X*Y < 1
+    if full_answer:
+        # just need: "sum", "number_count", "rms"
+        grid_cut = grid[bol]
+        res.update(get_array_stat(grid_cut))
+        res["bol"] = bol
+        return res
+    else:  # no full_answer
+        res["bol"] = bol
 
     return res
