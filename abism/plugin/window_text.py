@@ -116,7 +116,9 @@ class WindowText(tk.Tk):
         # Find next
         idx = '1.0'
         while True:
-            idx = self.tk_text.search(s_to_find, idx, nocase=1, stopindex=tk.END)
+            idx = self.tk_text.search(
+                s_to_find, idx,
+                nocase=1, stopindex=tk.END, regexp=True)
             if not idx:
                 break
             lastidx = '%s+%dc' % (idx, len(s_to_find))
@@ -184,13 +186,16 @@ md_dic = {
         # Magenta
         'foreground': '#d33682',
     }),
-    'bold': (r'__(.+?)__', {
+    'bold': (r'__.+?__', {
+        'font': 'Helvetica 13 bold',
+    }),
+    'bold2': (r'\*\*.+?\*\*', {
         'font': 'Helvetica 13 bold',
     }),
 }
 
 # Regex to hide (second loop)
-r_elide = r'^# |^## |^### |^#### |__|`'
+r_elide = r'^# |^## |^### |^#### |__|\*\*|`'
 
 
 # Regex for link [visible](#intenal_link)
@@ -214,6 +219,13 @@ class MarkdownColorizer:
         self.color_syntax()
         self.create_hlink()
         self.hide_syntax()
+
+        # Configure tag color
+        for tag_name in md_dic:
+            self.tk_text.tag_config(tag_name, **md_dic[tag_name][1])
+        self.tk_text.tag_config('link', foreground='blue')
+        self.tk_text.tag_config('hide', elide=True)
+
 
     def color_syntax(self):
         """Color with regex"""
@@ -240,13 +252,11 @@ class MarkdownColorizer:
             ind1, ind2 = _coordinate(start, end, self.txt)
             self.tk_text.tag_add(tag_txt, ind1, ind2)
             self.tk_text.tag_add(tag_name, ind1, ind2)
-            self.tk_text.tag_config(tag_name, **md_dic[tag_name][1])
 
 
     def create_hlink(self):
-        """Create internal hlink
-        TODO append to hide, just here
-        """
+        """Create internal hlink"""
+        # pylint: disable = too-many-locals
         linkfilter = re.compile(r_link, re.MULTILINE)
         l_hide = []
         for i in linkfilter.finditer(self.txt):
@@ -265,27 +275,39 @@ class MarkdownColorizer:
             link = re.sub('.*#', '', link)
             link = link.replace(' ', '-')
             tag_name = 'link_' + link
-            link_index = self.tk_text.tag_ranges(link)[0]
+            try:
+                link_index = self.tk_text.tag_ranges(link)[0]
+            except:
+                log(3, 'Link: could not find anchor for:', link)
+                link_index = 0
+
 
             def jump_tag(_, index):
+                if index == 0: return
                 self.tk_text.yview(index)
+
+            def show_xterm_cursor(_):
+                self.tk_text.configure(cursor='xterm')
+
+            def show_arrow_cursor(_):
+                self.tk_text.configure(cursor='arrow')
 
             ind_1_s, ind_1_e = _coordinate(start_1, end_1, self.txt)
             self.tk_text.tag_add(tag_name, ind_1_s, ind_1_e)
             self.tk_text.tag_config(tag_name, foreground='#268bd2')  # blue
+            self.tk_text.tag_bind(tag_name, "<Enter>", show_arrow_cursor)
+            self.tk_text.tag_bind(tag_name, "<Leave>", show_xterm_cursor)
             self.tk_text.tag_bind(
                 tag_name, '<Button-1>',
                 lambda e, li=link_index: jump_tag(e, li))
 
             ind_2_s, ind_2_e = _coordinate(start_2, end_2, self.txt)
             self.tk_text.tag_add('link', ind_2_s, ind_2_e)
-            self.tk_text.tag_config('link', foreground='blue')
 
         # Hide
         for hide_1, hide_2 in l_hide:
             hide_s, hide_e = _coordinate(hide_1, hide_2, self.txt)
             self.tk_text.tag_add('hide', hide_s, hide_e)
-            self.tk_text.tag_config('hide', elide=True)
 
 
     def hide_syntax(self):
@@ -296,7 +318,6 @@ class MarkdownColorizer:
             end = i.end() - 1
             ind1, ind2 = _coordinate(start, end, self.txt)
             self.tk_text.tag_add('hide', ind1, ind2)
-            self.tk_text.tag_config('hide', elide=True)
 
 
 def _coordinate(start, end, string):
