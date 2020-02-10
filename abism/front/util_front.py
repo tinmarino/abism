@@ -143,7 +143,7 @@ def show_manual():
         text = f.read()
     window_manual = WindowText(
         title='ABISM interface manual',
-        geometry='1000x1000+0+0',
+        geometry='800x1000+0+0',
         text=text,
         color_md=True,
     )

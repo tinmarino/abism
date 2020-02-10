@@ -23,31 +23,48 @@ class WindowText(tk.Tk):
         self.s_old = ''
 
         # Replace markdown list
+        self.txt = text
         if color_md:
-            text = re.sub(r'^(\s*)\*', r'\1☀', text, flags=re.MULTILINE)
+            self.txt = re.sub(r'^(\s*)\*', r'\1☀', self.txt, flags=re.MULTILINE)
 
         # Pack
         self.pack_head()
-        self.pack_body(text)
+        self.pack_body()
 
         # Color
         if color_md:
-            MarkdownColorizer(self.text).colorize()
+            MarkdownColorizer(self.tk_text, self.txt).colorize()
 
 
-    def pack_body(self, text):
+    def pack_body(self):
         """Pack text and scrollbar"""
         # Pack Scrollbar
         self.scroll = tk.Scrollbar(self)
         self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Pack Text
-        self.text = tk.Text(self)
-        self.text.insert(tk.END, text)
-        self.text.configure(state=tk.DISABLED)
-        self.text.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-        self.text.configure(yscrollcommand=self.scroll.set)
-        self.scroll.config(command=self.text.yview)
+        self.tk_text = tk.Text(self)
+        self.tk_text.insert(tk.END, self.txt)
+        self.tk_text.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+
+        # Configure
+        self.tk_text.configure(wrap=tk.WORD)
+        self.tk_text.configure(state=tk.DISABLED)
+        self.tk_text.configure(yscrollcommand=self.scroll.set)
+
+        # Bind
+        self.tk_text.bind(
+            "<Control-a>",
+            lambda _: self.tk_text.tag_add("sel", "1.0", "end"))
+        # make sure the widget gets focus when clicked on,
+        # to enable highlighting and copying to the clipboard
+        self.tk_text.bind("<1>", lambda _: self.tk_text.focus_set())
+        self.bind_all(
+            "<Control-f>",
+            lambda _: self.edit.focus_set())
+
+        # Bind configure scroll
+        self.scroll.config(command=self.tk_text.yview)
 
 
     def pack_head(self):
@@ -84,22 +101,29 @@ class WindowText(tk.Tk):
     def _find(self):
         """Find string from edit in text
         """
-        self.text.tag_remove('found', '1.0', tk.END)
+        # Get string <- edit
+        self.tk_text.tag_remove('found', '1.0', tk.END)
         s_to_find = self.edit.get()
-        if s_to_find:
-            if s_to_find != self.s_old:  # reset
-                self.find_num[0] = 0
-                self.s_old = s_to_find
-            idx = '1.0'
-            while True:
-                idx = self.search(s_to_find, idx, nocase=1, stopindex=tk.END)
-                if not idx:
-                    break
-                lastidx = '%s+%dc' % (idx, len(s_to_find))
-                self.text.tag_add('found', idx, lastidx)
-                self.find_list.append(idx)
-                idx = lastidx
-            self.text.tag_config('found', foreground='blue')
+        log(9, 'Searching:', s_to_find)
+        if not s_to_find: return ''
+
+        # Reset
+        if s_to_find != self.s_old:
+            self.find_num[0] = 0
+            self.find_list = []
+            self.s_old = s_to_find
+
+        # Find next
+        idx = '1.0'
+        while True:
+            idx = self.tk_text.search(s_to_find, idx, nocase=1, stopindex=tk.END)
+            if not idx:
+                break
+            lastidx = '%s+%dc' % (idx, len(s_to_find))
+            self.tk_text.tag_add('found', idx, lastidx)
+            self.find_list.append(idx)
+            idx = lastidx
+        self.tk_text.tag_config('found', foreground='#268bd2')
         self.edit.focus_set()
 
         return s_to_find
@@ -120,15 +144,16 @@ class WindowText(tk.Tk):
                 self.find_num[0] += 1
             if side == "-":
                 self.find_num[0] -= 1
+
+        # Scroll to last index
         lastidx = self.find_list[self.find_num[0]]
         idx = '%s+%dc' % (lastidx, len(s_to_find))
-        self.see(lastidx)
-        try:
-            self.tag_remove('on', '1.0', tk.END)
-        except BaseException:
-            pass
-        self.tag_add("on", lastidx, idx)
-        self.tag_config("on", foreground="red")
+        self.tk_text.yview(lastidx)
+
+        # Update colors
+        self.tk_text.tag_remove('on', '1.0', tk.END)
+        self.tk_text.tag_add("on", lastidx, idx)
+        self.tk_text.tag_config("on", foreground='#dc322f')
         if self.find_num[0] == 0:
             self.find_num[0] += 1
         return
@@ -137,21 +162,39 @@ class WindowText(tk.Tk):
 # Dic: tag_name: (regex, tag_params)
 md_dic = {
     'h1': (r'^# .*$', {
-        'foreground': 'red', 'underline': True}),
+        # Violet
+        'foreground': '#6c71c4',
+        'font': 'Helvetica 20',
+    }),
     'h2': (r'^## .*$', {
-        'foreground': 'blue', 'underline': True}),
+        # Blue
+        'foreground': '#268bd2',
+        'font': 'Helvetica 18',
+    }),
     'h3': (r'^### .*$', {
-        'foreground': 'green', 'underline': True}),
+        # Cyan
+        'foreground': '#2aa198', 'underline': True,
+        'font': 'Helvetica 15',
+    }),
     'h4': (r'^#### .*$', {
-        'foreground': 'green', 'underline': True}),
+        # Green
+        'foreground': '#859900', 'underline': True,
+    }),
     'backtick': (r'`[^`]*`', {
-        'foreground': 'magenta'}),
+        # Magenta
+        'foreground': '#d33682',
+    }),
     'bold': (r'__(.+?)__', {
-        'font': 'Helvetica 13 bold'}),
+        'font': 'Helvetica 13 bold',
+    }),
 }
 
 # Regex to hide (second loop)
-r_elide = r'^# |^## |^### |^#### |__'
+r_elide = r'^# |^## |^### |^#### |__|`'
+
+
+# Regex for link [visible](#intenal_link)
+r_link = r'\[(.*?)\]\((.*?)\)'
 
 
 class MarkdownColorizer:
@@ -160,22 +203,26 @@ class MarkdownColorizer:
     Copy from Suraj Singh ColorLight.py (by hand)
     """
 
-    def __init__(self, text):
-        self.tk_text = text
+    def __init__(self, tk_text, txt):
+        self.tk_text = tk_text
+        self.txt = txt
 
     def colorize(self):
         """Colorize text with markdown syntax"""
+        if len(self.txt) == 1: return
+
+        self.color_syntax()
+        self.create_hlink()
+        self.hide_syntax()
+
+    def color_syntax(self):
+        """Color with regex"""
         r_stg = '|'.join(
             '(?P<%s>' % key + md_dic[key][0] + ')'
             for key in md_dic)
         txtfilter = re.compile(r_stg, re.MULTILINE)
 
-        # Get text string
-        txt = self.tk_text.get('1.0', 'end')
-        if len(txt) == 1: return
-
-        # Find all regex
-        for i in txtfilter.finditer(txt):
+        for i in txtfilter.finditer(self.txt):
             start = i.start()
             end = i.end() - 1
 
@@ -187,18 +234,67 @@ class MarkdownColorizer:
                     tag_name = key
                     break
             if tag_name is None: continue
+            tag_txt = group_dic[tag_name].replace(' ', '-')
+            tag_txt = re.sub('#+-', '', tag_txt)
 
-            ind1, ind2 = _coordinate(start, end, txt)
+            ind1, ind2 = _coordinate(start, end, self.txt)
+            self.tk_text.tag_add(tag_txt, ind1, ind2)
             self.tk_text.tag_add(tag_name, ind1, ind2)
             self.tk_text.tag_config(tag_name, **md_dic[tag_name][1])
 
 
-        # Hide what need to be
-        hidefilter = re.compile(r_elide, re.MULTILINE)
-        for i in hidefilter.finditer(txt):
+    def create_hlink(self):
+        """Create internal hlink
+        TODO append to hide, just here
+        """
+        linkfilter = re.compile(r_link, re.MULTILINE)
+        l_hide = []
+        for i in linkfilter.finditer(self.txt):
             start = i.start()
             end = i.end() - 1
-            ind1, ind2 = _coordinate(start, end, txt)
+            # Text
+            start_1 = start + 1
+            end_1 = start + len(i.group(1))
+            l_hide.append([start, start])
+            # Link
+            start_2 = end_1 + 4
+            end_2 = end
+            l_hide.append([end_1 + 1, end_2])
+
+            link = i.group(2)
+            link = re.sub('.*#', '', link)
+            link = link.replace(' ', '-')
+            tag_name = 'link_' + link
+            link_index = self.tk_text.tag_ranges(link)[0]
+
+            def jump_tag(_, index):
+                self.tk_text.yview(index)
+
+            ind_1_s, ind_1_e = _coordinate(start_1, end_1, self.txt)
+            self.tk_text.tag_add(tag_name, ind_1_s, ind_1_e)
+            self.tk_text.tag_config(tag_name, foreground='#268bd2')  # blue
+            self.tk_text.tag_bind(
+                tag_name, '<Button-1>',
+                lambda e, li=link_index: jump_tag(e, li))
+
+            ind_2_s, ind_2_e = _coordinate(start_2, end_2, self.txt)
+            self.tk_text.tag_add('link', ind_2_s, ind_2_e)
+            self.tk_text.tag_config('link', foreground='blue')
+
+        # Hide
+        for hide_1, hide_2 in l_hide:
+            hide_s, hide_e = _coordinate(hide_1, hide_2, self.txt)
+            self.tk_text.tag_add('hide', hide_s, hide_e)
+            self.tk_text.tag_config('hide', elide=True)
+
+
+    def hide_syntax(self):
+        """Hide what need to be"""
+        hidefilter = re.compile(r_elide, re.MULTILINE)
+        for i in hidefilter.finditer(self.txt):
+            start = i.start()
+            end = i.end() - 1
+            ind1, ind2 = _coordinate(start, end, self.txt)
             self.tk_text.tag_add('hide', ind1, ind2)
             self.tk_text.tag_config('hide', elide=True)
 

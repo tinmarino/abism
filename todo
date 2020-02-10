@@ -8,6 +8,7 @@
 * Open manual in read only (as stream if possible)
 * Get a save log button to save all work until here (and delete it from RAM)
 * Bind opening window, same binding to close them (?)
+* Markdown, prettify (lint) and improve speed with just one tag cofigure per syntag tag
 
 ## Feature -> Improve fit quality, robustness
 

@@ -153,7 +153,7 @@ Your goal is to reduce the CHI2 ! Have a glimpse at fit parameters (button in re
 2. If intensity error is high, image may be saturated (look at 1D profile). In which case, check saturation button
 
 
-#### Visual output
+### Visual output
 
 At the bottom of the window, you can see:
 
