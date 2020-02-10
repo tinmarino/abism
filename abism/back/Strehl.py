@@ -158,6 +158,9 @@ def append_binary_info():
     a_phot1, a_fwhm_x1, a_fwhm_y1 = IF.FwhmFromFit(fit_copy1, err_copy1)
     a_phot2, a_fwhm_x2, a_fwhm_y2 = IF.FwhmFromFit(fit_copy2, err_copy2)
 
+    set_aa(EA.FWHM1, craft_fwhm(a_fwhm_x1, a_fwhm_y1))
+    set_aa(EA.FWHM2, craft_fwhm(a_fwhm_x2, a_fwhm_y2))
+
     # Save photometry
     set_aa(EA.PHOTOMETRY1, a_phot1.value, error=a_phot1.error.value)
     set_aa(EA.PHOTOMETRY2, a_phot2.value, error=a_phot2.error.value)

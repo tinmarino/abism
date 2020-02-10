@@ -265,6 +265,7 @@ def FwhmFromFit(fit_dic, err_dic):
 
     # Gaussian
     if 'Gaussian' in s_fit_type:
+        """2 * sqrt( log(2) ) = 1.6651092223153954"""
         a_phot *= a_intensity * np.pi * a_spread_x * a_spread_y
         a_fwhm_x = 1.66510922 * a_spread_x
         a_fwhm_y = 1.66510922 * a_spread_y
@@ -285,14 +286,14 @@ def FwhmFromFit(fit_dic, err_dic):
             cut = Moffat2D((X, Y), fit_dic)
             a_phot *= np.sum(cut)
 
-        a_fwhm_x *= 2 * abs(a_spread_x) * np.sqrt((0.5)**(-1 / a_exponent) - 1)
-        a_fwhm_y *= 2 * abs(a_spread_y) * np.sqrt((0.5)**(-1 / a_exponent) - 1)
+        a_fwhm_x = 2 * abs(a_spread_x) * np.sqrt((0.5)**(-1 / a_exponent) - 1)
+        a_fwhm_y = 2 * abs(a_spread_y) * np.sqrt((0.5)**(-1 / a_exponent) - 1)
 
     # Bessel
     elif 'Bessel1' in s_fit_type:
         a_phot *= 4 * np.pi * a_intensity * a_spread_x * a_spread_y
-        a_fwhm_x *= 2 * a_spread_x * 1.61
-        a_fwhm_y *= 2 * a_spread_y * 1.61
+        a_fwhm_x = 2 * a_spread_x * 1.61
+        a_fwhm_y = 2 * a_spread_y * 1.61
 
 
     log(3, 'Fit: photometry, estimated from', s_fit_type, 'is', a_phot)

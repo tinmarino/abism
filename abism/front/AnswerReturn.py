@@ -183,6 +183,8 @@ class PrinterBinary(AnswerPrinter):
             [EA.STREHL2, True, ['tag-important']],
             [EA.STAR1],
             [EA.STAR2],
+            [EA.FWHM1],
+            [EA.FWHM2],
             [EA.SEPARATION, True],
             [EA.BACKGROUND, True],
             [EA.PHOTOMETRY1, True],
@@ -513,6 +515,9 @@ def plot2d_binary():
         stg = "Moffat2pt"
     elif "Gaussian" in get_state().s_fit_type:
         stg = "Gaussian2pt"
+    else:
+        stg = "Moffat2pt"
+        log(0, 'Warning, binary only has Gaussian and Moffat. Fallback to Moffat')
 
     fit_fct = lambda points, params: vars(BF)[stg](
         points, params, aniso=get_state().b_aniso, same_psf=get_state().b_same_psf)

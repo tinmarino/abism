@@ -242,6 +242,8 @@ class EA(Enum):
     PHOTOMETRY2 = ['Phot2', AnswerLuminosity]
     INTENSITY1 = ['Peak1', AnswerLuminosity]
     INTENSITY2 = ['Peak2', AnswerLuminosity]
+    FWHM1 = ['FWHM1 a,b,e', AnswerFwhm]
+    FWHM2 = ['FWHM2 a,b,e', AnswerFwhm]
     FLUX_RATIO = ['Flux ratio', AnswerNum]
     SEPARATION = ['Separation', AnswerDistance]
     ORIENTATION = ['Orientation', AnswerAngle]
