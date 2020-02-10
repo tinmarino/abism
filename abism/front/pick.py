@@ -3,6 +3,7 @@
     Used by menu_bar.py
 """
 from abc import ABC, abstractmethod
+from threading import Thread
 
 import matplotlib
 
@@ -14,7 +15,7 @@ from abism.back import Strehl
 from abism.plugin.stat_rectangle import show_statistic
 from abism.plugin.profile_line import show_profile
 
-from abism.util import log, get_root, get_state
+from abism.util import log, get_root, get_state, timeout
 
 
 class Pick(ABC):
@@ -30,6 +31,8 @@ class Pick(ABC):
         self.figure = get_root().frame_image.get_figure()
         self.ax = self.figure.axes[0]
         self.rectangle = None
+        # Boolean: is work over
+        self.done = False  # Value('done', False)
 
     @abstractmethod
     def connect(self):
@@ -43,7 +46,28 @@ class Pick(ABC):
     def disconnect(self): pass
 
     @abstractmethod
-    def work(self, obj): pass
+    def work(self, obj):
+        """Work in the backend (can ba async)"""
+
+    def on_done(self):
+        """Return result to frontend (in tk main loop)"""
+
+    def launch_worker(self, event):
+        @timeout(1)
+        def wrap_work(_, obj):
+            self.work(obj)
+
+        def wrap_on_done():
+            #if not self.done: return
+            self.on_done()
+            self.done = False
+
+        t = Thread(target=wrap_work, args=(self.done, event))
+        t.start()
+
+        get_root().after(1000, wrap_on_done)
+        # for i in range(100):
+        #     get_root().after(100 * i, wrap_on_done)
 
 
     def on_rectangle(self, eclick, erelease):
@@ -74,7 +98,7 @@ class Pick(ABC):
         )
 
         # Work
-        self.work(None)
+        self.launch_worker(None)
 
 
     def pick_event(self, event):
@@ -95,7 +119,7 @@ class Pick(ABC):
                 event.ydata - 20, event.ydata + 20,
                 event.xdata - 20, event.xdata + 20)
 
-            self.work(None)
+            self.launch_worker(None)
 
 
 class PickNo(Pick):
@@ -128,6 +152,7 @@ class PickOne(Pick):
 
         # The id of connection (alias callback), to be disabled
         self.id_callback = None
+        self.done = False
 
     def connect(self):
         super().connect()
@@ -156,8 +181,9 @@ class PickOne(Pick):
     def work(self, obj):
         """obj is None"""
         Strehl.strehl_one(self.rectangle)
-        AR.show_answer()
 
+    def on_done(self):
+        AR.show_answer()
 
 class PickBinary(Pick):
     """Binary System
@@ -219,7 +245,7 @@ class PickBinary(Pick):
         self.canvas.get_tk_widget()["cursor"] = ""
 
         # Work
-        self.work(None)
+        self.launch_worker(None)
 
         # Prepare next
         self.star1 = self.star2 = None
@@ -297,7 +323,7 @@ class PickProfile(Pick):
         self.artist_profile = artist.Profile(
             get_root().frame_image.get_figure(),
             get_root().frame_image.get_figure().axes[0],
-            callback=self.work
+            callback=self.launch_worker
         )
 
     def disconnect(self):
@@ -334,7 +360,7 @@ class PickEllipse(Pick):
             self.figure,
             self.ax,
             array=get_state().image.im0,
-            callback=lambda: self.work(None)
+            callback=lambda: self.launch_worker(None)
         )
 
         # Bind mouse enter -> focus (for key)
