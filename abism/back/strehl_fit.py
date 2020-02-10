@@ -167,13 +167,13 @@ class OnePsf(Fit):
 
     def get_xy_IX_eIX(self):
         # In center and bound
-        (rx1, rx2, ry1, ry2) = list(map(int, self.rectangle))
+        rx1, rx2, ry1, ry2 = self.rectangle
         log(3, "OnePsf: ", rx1, rx2, ry1, ry2, 'center :', self.center)
 
         # Get working grid
-        X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
+        X, Y = np.arange(int(rx1), int(rx2)), np.arange(int(ry1), int(ry2))
         y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way
-        IX = self.grid[rx1:rx2+1, ry1:ry2+1]  # the cutted image
+        IX = self.grid[rx1:rx2, ry1:ry2]  # the cutted image
 
         # Mask bad pixel
         IX, _, eIX = IF.find_bad_pixel(IX)

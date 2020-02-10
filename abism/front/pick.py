@@ -70,7 +70,8 @@ class Pick(ABC):
 
         self.rectangle = (
             int(click[1]), int(release[1]),
-            int(click[0]), int(release[0]))
+            int(click[0]), int(release[0])
+        )
 
         # Work
         self.work(None)
@@ -91,8 +92,8 @@ class Pick(ABC):
             # Reamining button 2 -> Save bounds <- click +/- 15
             log(1, 'Making a selection 30 pixels around', event)
             self.rectangle = (
-                event.ydata - 20, event.ydata + 21,
-                event.xdata - 20, event.xdata + 21)
+                event.ydata - 20, event.ydata + 20,
+                event.xdata - 20, event.xdata + 20)
 
             self.work(None)
 

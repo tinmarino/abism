@@ -122,10 +122,9 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
 
 def FindMaxWithBin(grid, rectangle):
     """arg =  grid and r : 3*3 median filter
-    TODO merge with localMax
     """
     r = rectangle
-    cutted = grid[int(r[0]):int(r[1]), int(r[2]):int(r[3])]
+    cutted = grid[r[0]:r[1], r[2]:r[3]]
     # Median file 3 x 3 (fuzz)
     cutted = median_filter(cutted, size=(3, 3))
     # Get peak
@@ -370,7 +369,7 @@ def find_bad_pixel(grid, r=None):
         IX = grid
     else:
         rx1, rx2, ry1, ry2 = r
-        IX = grid[rx1:rx2+1, ry1:ry2+1]
+        IX = grid[rx1:rx2, ry1:ry2]
     res, mIX = IX, IX
 
     # Filter infs and nan
@@ -428,7 +427,7 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
 
     x, y = np.arange(xmin, xmax+1), np.arange(ymin, ymax+1)
     Y, X = np.meshgrid(y, x)
-    array = grid[xmin:xmax+1, ymin:ymax+1]
+    array = grid[xmin:xmax, ymin:ymax]
 
     # Radial array, cos of scalar product
     R = ((X-x1)*(x2-x1) + (Y-y1)*(y2-y1)) / lenght

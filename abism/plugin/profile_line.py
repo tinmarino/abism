@@ -1,20 +1,20 @@
 """
     Profile line user shower, callback of a tool
 """
-
-import tkinter as tk
 import numpy as np
 
 from abism.back import ImageFunction as IF
 from abism.back.fit_template_function import get_fit_function
 from abism.back.image_info import get_array_stat
 
+from abism.front.AnswerReturn import AnswerPrinter
+
 from abism.util import get_state, get_root, log
+from abism.answer import AnswerDistance, AnswerLuminosity
 
 
 def show_profile(point1, point2):
     """Callback for Profile Pick: 1 and 2D"""
-    # pylint: disable = too-many-locals
     # Get data to plot
     ab, od, points = IF.get_radial_line(
         get_state().image.im0, (point1, point2), return_point=1)
@@ -50,25 +50,16 @@ def show_profile(point1, point2):
     tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
 
-    # Clear && Create text
-    get_root().frame_answer.clear()
-    text = get_root().frame_answer.grid_text_answer()
-
-    lst = [
-        ["Length:\t", tlen],
-        ["Min:\t", ps.min],
-        ["Max:\t", ps.max],
-        ["Mean:\t", ps.mean],
-        ["Rms:\t", ps.rms],
-    ]
-
-    stg = ''
-    text.i_tab_len = 0
-    for name, value in lst:
-        log(0, name, value)
-        stg += name + '%.1f' % value + "\n"
-        text.i_tab_len = max(len(name), text.i_tab_len)
-    text.insert(tk.END, stg)
-
-    # Disable edit
-    text.configure(state=tk.DISABLED)
+    class StatPrinter(AnswerPrinter):
+        """Stat values printer: with answer type"""
+        def get_list(self):
+            return [
+                [AnswerDistance('Length', tlen, error=1)],
+                [AnswerLuminosity('Min', ps.min, error=ps.rms), True],
+                [AnswerLuminosity('Max', ps.max, error=ps.rms), True],
+                [AnswerLuminosity('Mean', ps.mean, error=np.sqrt(ps.rms))],
+                [AnswerLuminosity('Rms', ps.rms)]
+            ]
+    def print_answer():
+        StatPrinter().work(with_warning=False, on_coord=print_answer)
+    print_answer()

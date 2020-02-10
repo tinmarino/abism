@@ -1,44 +1,40 @@
 """
     Statistic rectangle widget callback
 """
-import tkinter as tk
+import numpy as np
 
 from abism.back import ImageFunction as IF
 from abism.back.image_info import get_array_stat
+from abism.front.AnswerReturn import AnswerPrinter
 
-from abism.util import get_state, get_root, log
+from abism.util import get_state, log
+from abism.answer import AnswerDistance, AnswerLuminosity, AnswerNum
 
 def show_statistic(rectangle):
     """Get and Print statistics from a rectangle selection"""
     # Get stat <- subarray
-    rectangle = IF.Order4(rectangle)
-    sub_array = get_state().image.im0[rectangle[0]:rectangle[1], rectangle[2]:rectangle[3]]
-    dicr = get_array_stat(sub_array)
+    rectangle = IF.Order4(rectangle, intify=True)
+    log(3, 'Stat on rectangle:', rectangle)
+    sub_array = get_state().image.im0[
+        rectangle[0]:rectangle[1], rectangle[2]:rectangle[3]]
+    log(3, sub_array.shape)
+    stat = get_array_stat(sub_array)
+    i_sq_nb = np.sqrt(stat.number_count)
 
-    # Clear answer frame
-    get_root().frame_answer.clear()
-
-    # Create text
-    text = get_root().frame_answer.grid_text_answer()
-
-    lst = [
-        ["DIM X*DIM Y:\t", "%.1f x %.1f" %
-         (abs(rectangle[0]-rectangle[1]), abs(rectangle[2]-rectangle[3]))],
-        ["MIN:\t", "%.1f" % dicr["min"]],
-        ["MAX:\t", "%.1f" % dicr["max"]],
-        ["SUM:\t", "%.1f" % dicr["sum"]],
-        ["MEAN:\t", "%.1f" % dicr["mean"]],
-        ["MEDIAN:\t", "%.1f" % dicr["median"]],
-        ["RMS:\t", "%.1f" % dicr["rms"]],
-    ]
-
-    stg = ''
-    text.i_tab_len = 0
-    for name, value in lst:
-        log(0, name, value)
-        stg += name + value + "\n"
-        text.i_tab_len = max(len(name), text.i_tab_len)
-    text.insert(tk.END, stg)
-
-    # Disable edit
-    text.configure(state=tk.DISABLED)
+    class StatPrinter(AnswerPrinter):
+        """Stat values printer: with answer type"""
+        def get_list(self):
+            return [
+                [AnswerDistance('DimX', rectangle[1] - rectangle[0])],
+                [AnswerDistance('DimY', rectangle[3] - rectangle[2])],
+                [AnswerNum('Count', stat.number_count)],
+                [AnswerLuminosity('Min', stat.min, error=stat.rms), True],
+                [AnswerLuminosity('Max', stat.max, error=stat.rms), True],
+                [AnswerLuminosity('Sum', stat.sum, error=stat.rms * i_sq_nb), True],
+                [AnswerLuminosity('Mean', stat.mean, error=stat.rms / i_sq_nb), True],
+                [AnswerLuminosity('Median', stat.median, error=stat.rms / i_sq_nb), True],
+                [AnswerLuminosity('Rms', stat.rms)]
+            ]
+    def print_answer():
+        StatPrinter().work(with_warning=False, on_coord=print_answer)
+    print_answer()

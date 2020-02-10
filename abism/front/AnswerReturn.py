@@ -133,24 +133,26 @@ def show_answer():
 
 class AnswerPrinter(ABC):
     """Base class to print answer in text frame"""
-    def work(self):
+    def work(self, with_warning=True, on_coord=show_answer):
         # Grid tk text
-        text = get_root().frame_answer.get_new_text_frame(show_answer)
+        text = get_root().frame_answer.get_new_text_frame(on_coord)
 
         # Get class dependant list
         lst = self.get_list()
 
         # Insert CHI2
-        if get_av(EA.CHI2) > 100:
-            lst.append([EA.CHI2, False, ['tag-important']])
-        else:
-            lst.append([EA.CHI2, False, ['tag-blue']])
+        if EA.CHI2 in get_state().answers:
+            if get_av(EA.CHI2) > 100:
+                lst.append([EA.CHI2, False, ['tag-important']])
+            else:
+                lst.append([EA.CHI2, False, ['tag-blue']])
 
         # Insert element in text
         text.insert_answer_list(lst)
 
         # Insert Warnings
-        text.insert_warnings()
+        if with_warning:
+            text.insert_warnings()
 
         # Disable edit
         text.configure(state=tk.DISABLED)

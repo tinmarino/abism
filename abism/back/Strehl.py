@@ -27,7 +27,7 @@ def strehl_one(rectangle):
 
     # Find center && fwhm
     # TODO bad pixels in center
-    rectangle = IF.Order4(rectangle, grid=get_state().image.im0)
+    rectangle = IF.Order4(rectangle, grid=get_state().image.im0, intify=True)
     star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)
     tmp = IF.LocalMax(get_state().image.im0, center=star_center, size=3)
     star_max, star_center = tmp[2], (tmp[0], tmp[1])
