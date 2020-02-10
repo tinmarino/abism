@@ -97,19 +97,20 @@ def craft_fwhm(a_fwhm_x, a_fwhm_y):
 
 def BinaryStrehl(star1, star2):
     binary_psf = BinaryPsf(get_state().image.im0, star1, star2)
-    psf_fit = binary_psf.do_fit().get_result()
+    binary_psf.do_fit().get_result()
     append_binary_info()
 
 
 def TightBinaryStrehl(star1, star2):
     tight_psf = TightBinaryPsf(get_state().image.im0, star1, star2)
-    psf_fit = tight_psf.do_fit().get_result()
+    tight_psf.do_fit().get_result()
     append_binary_info()
 
 
 def append_binary_info():
-    """Read
-    Write: Separatation"""
+    """Read fit_dic, err_dic
+    Write: Separatation
+    """
     # pylint: disable = too-many-locals
     # Fit type
     fit_dic, err_dic = get_state().d_fit_param, get_state().d_fit_error
@@ -127,13 +128,8 @@ def append_binary_info():
     set_aa(EA.STAR1, (y0, x0), error=(err_dic['y0'], err_dic['x0']))
     set_aa(EA.STAR2, (y1, x1), error=(err_dic['y1'], err_dic['x1']))
 
-    # Get separation
-    separation_dic = get_separation(point=((x0, x1), (y0, y1)), error=((dx0, dx1), (dy0, dy1)))
-    separation = separation_dic["dist"]
-    sep_err = separation_dic["dist_err"]
-    xy_angle = separation_dic["xy_angle"]
-    set_aa(EA.ORIENTATION, xy_angle)
-    set_aa(EA.SEPARATION, separation, error=sep_err)
+    # Save separation
+    separation_dic = save_separation(point=((x0, y0), (x1, y1)), error=((dx0, dy0), (dx1, dy1)))
 
     # Get Background
     if get_state().e_sky_type in (ESky.MANUAL, ESky.NONE):
@@ -182,32 +178,22 @@ def append_binary_info():
     set_aa(EA.STREHL2, 100 * a_strehl2, unit=' %')
 
 
-def get_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
-    """point1i  (and 2) : list of 2 float = (x,y)= row, column
-    err_point1 = 2 float = x,y )
-    read north position in W
-    """
-    point1, point2 = point[0], point[1]
-    err_point1, err_point2 = error[0], error[1]
-    x0, x1, y0, y1 = point1[0], point1[1], point2[0], point2[1]
-    dx0, dx1, dy0, dy1 = err_point1[0], err_point1[1], err_point2[0], err_point2[1]
+def save_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
+    """In: pt, pt2 and err1, err2"""
+    (x0, y0), (x1, y1) = point
+    (dx0, dx1), (dy0, dy1) = error
 
-    # Get separation distance <- Pythagora
+    # Get separation distance <- Pythagora && Error
     dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
+    dist_err = np.sqrt(dx0**2 + dx1**2 + dy0**2 + dy1**2)
 
-    # Get error
-    dist_err = np.sqrt(dx0**2 + dx1**2)
-    dx0 = np.sqrt(err_point1[0]**2 + err_point1[1]**2)
-    dx1 = np.sqrt(err_point2[0]**2 + err_point2[1]**2)
-
-    # Get angle
-    angle = np.array([(y1-y0),   (x1-x0)])
+    # Get angle TODO error
+    angle = np.array([(y1-y0), (x1-x0)])
     angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
 
-    res = {"xy_angle": angle,
-           "dist": dist, "dist_err": dist_err,
-           }
-    return res
+    # Save
+    set_aa(EA.ORIENTATION, angle)
+    set_aa(EA.SEPARATION, dist, error=dist_err)
 
 
 ######################################################################
@@ -246,12 +232,12 @@ def EllipseEventBack(obj):
     rui, rvi = obj.ru, obj.rv     # inner annulus
     ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
 
-    ell_i = IF.EllipticalAperture(
+    ell_i = IF.get_elliptical_aperture(
         get_state().image.im0,
         dic={"center_x": obj.x0, "center_y": obj.y0, "ru": rui,
              "rv": rvi, "theta": obj.theta})  # inner
 
-    ell_o = IF.EllipticalAperture(
+    ell_o = IF.get_elliptical_aperture(
         get_state().image.im0,
         dic={"center_x": obj.x0, "center_y": obj.y0, "ru": ruo,
              "rv": rvo, "theta": obj.theta})  # outter
@@ -271,7 +257,7 @@ def EllipseEventPhot(obj):
     """
     dic = {"center_x": obj.x0, "center_y": obj.y0,
            "ru": obj.ru, "rv": obj.rv, "theta": obj.theta}
-    ellipse_stat = IF.EllipticalAperture(
+    ellipse_stat = IF.get_elliptical_aperture(
         obj.array, dic=dic, full_answer=True)
 
     return ellipse_stat
@@ -339,7 +325,7 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
         log(3, 'Photometry <- elliptical aperture')
         ellipse_dic = {"center_x": x0, "center_y": y0,
                        "ru": r99u, "rv": r99v, "theta": theta}
-        bol = IF.EllipticalAperture(grid, dic=ellipse_dic)["bol"]
+        bol = IF.get_elliptical_aperture(grid, dic=ellipse_dic)["bol"]
         image_elliptic = grid[bol]
 
         stat = get_array_stat(image_elliptic)
@@ -437,11 +423,11 @@ def get_background(grid, r=None):
         ax1, ax2, ay1, ay2 = IF.Order4((ax1, ax2, ay1, ay2), grid=grid)
         image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
 
-        bol_i = IF.EllipticalAperture(
+        bol_i = IF.get_elliptical_aperture(
             image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": rui,
                             "rv": rvi, "theta": get_state().d_fit_param["theta"]})["bol"]
 
-        bol_o = IF.EllipticalAperture(
+        bol_o = IF.get_elliptical_aperture(
             image_cut, dic={"center_x": myrad, "center_y": myrad, "ru": ruo,
                             "rv": rvo, "theta": get_state().d_fit_param["theta"]})["bol"]
 

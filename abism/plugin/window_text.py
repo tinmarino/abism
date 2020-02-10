@@ -73,6 +73,10 @@ class WindowText(tk.Tk):
             ).grid(row=0, column=3, sticky="nsew")
 
 
+    def colorize_md(self):
+        """Colorize text with markdown syntax"""
+
+
     def _find(self):
         """Find string from edit in text
         """

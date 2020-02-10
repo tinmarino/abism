@@ -226,7 +226,7 @@ def plot1d_one():
 
     # Plot x, y
     # we need to give the center (of course)
-    x, y = IF.XProfile(get_state().image.im0, center)
+    x, y = IF.get_profile_x(get_state().image.im0, center)
     # we get a smaller bin for the fitted curve.
     a = np.arange(min(x), max(x), 0.1)
     # RAW  DATA in X
@@ -288,7 +288,7 @@ def plot1d_binary():
     extremity1 = IF.DoNotPassBorder(get_state().image.im0, (int(x0+dx0), int(y0+dy0)))
     extremity2 = IF.DoNotPassBorder(get_state().image.im0, (int(x1+dx1), int(y1+dy1)))
 
-    ab, od, points = IF.RadialLine(
+    ab, od, points = IF.get_radial_line(
         get_state().image.im0, (extremity1, extremity2), return_point=1)
     # TODO use get_fit_fct
     if "Moffat" in get_state().s_fit_type:

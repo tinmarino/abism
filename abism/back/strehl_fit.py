@@ -164,7 +164,7 @@ class OnePsf(Fit):
         IX = self.grid[rx1:rx2+1, ry1:ry2+1]  # the cutted image
 
         # Mask bad pixel
-        IX, _, eIX = IF.FindBadPixel(IX)
+        IX, _, eIX = IF.find_bad_pixel(IX)
 
         return (x, y), IX, eIX
 
@@ -297,7 +297,7 @@ class BinaryPsf(Fit):
         X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
         y, x = np.meshgrid(Y, X)
         IX = self.grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
-        IX, _, eIX = IF.FindBadPixel(IX)
+        IX, _, eIX = IF.find_bad_pixel(IX)
 
         log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
         return (x, y), IX, eIX

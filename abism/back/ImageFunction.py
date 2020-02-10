@@ -1,6 +1,7 @@
 """
     ImageFunction works on array to separe matematics and graphics
 """
+# pylint: disable = too-many-locals
 
 import numpy as np
 import scipy.ndimage  # for the median filter
@@ -32,16 +33,11 @@ def DoNotPassBorder(grid, point2d):
     return x, y
 
 
-def Order2(a, b):
-    """Returns (min, max)"""
-    if a >= b: return (b, a)
-    return (a, b)
-
-
-def Order4(r, grid=None):
+def Order4(r, grid=None, intify=False):
     """Returns (rxmin, rxmax, rymin, rymax)
-    Arg: r <- 4-tuple
-         grid <- to check bounds
+    Arg: r      <- 4-tuple
+         grid   <- to check bounds
+         intify <- result items are integers
     """
     rx1, rx2, ry1, ry2 = r[0], r[1], r[2], r[3]
     if rx1 > rx2:
@@ -53,6 +49,8 @@ def Order4(r, grid=None):
     if grid is not None:
         rx2 = min(rx2, len(grid)-1)
         ry2 = min(ry2, len(grid[0])-1)
+    if intify:
+        rx1, rx2, ry1, ry2 = list(map(int, [rx1, rx2, ry1, ry2]))
     return (rx1, rx2, ry1, ry2)
 
 
@@ -69,7 +67,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
 
     # CUT
     bound_int = list(map(int, r))
-    cut1 = grid[bound_int[0]:bound_int[1],  bound_int[2]:bound_int[3]]
+    cut1 = grid[bound_int[0]:bound_int[1], bound_int[2]:bound_int[3]]
 
     # FILT BAd PIXELS
     mIX = scipy.ndimage.uniform_filter(cut1, size=(3, 3))
@@ -101,7 +99,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
         # 2nd Max
         coord2 = np.unravel_index(zz.argmax(), zz.shape)
         log(3, "coord, cut ", coord2, cut2)
-        res = xx[coord2[0]],  yy[coord2[1]],  zz[coord2[0], coord2[1]]
+        res = xx[coord2[0]],  yy[coord2[1]], zz[coord2[0], coord2[1]]
 
     # GRAVITY CENTER
     else:  # including type == gravity
@@ -118,47 +116,14 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
         log(3, "coord1, cut ", coord2, cut2)
         res = coord2[0]+r[0],  coord2[1]+r[2],  cut2[coord2[0], coord2[1]]
 
-    #res =  grid[coord[0],coord[1]],( float(coord[0])/100 +reindex[0], float(coord[1])/100 +reindex[1])
-
     log(3, " LocalMax@ImageFunction.py : ", res)
     return res
 
 
-def GravityCenter(grid, center=None, rad=None, r=None, bol=None):
-    # radius of a square    /RETURN: center , means (x,y)
-    # bol is the bollean of teh selected pixels
-
-    # 1/ Create Constants
-    if r is None:
-        (x0, y0) = int(center[0]), int(center[1])
-        my_r = int(rad)
-        rx1, rx2, ry1, ry2 = x0-my_r, x0+my_r, y0-myr, y0+my_r
-        x = np.arange(-my_r, my_r+1)
-        y = np.arange(-my_r, my_r+1)
-    else:
-        tmp = Order4(r, grid)
-        rx1, rx2, ry1, ry2 = int(tmp[0]),  int(
-            tmp[1]), int(tmp[2]), int(tmp[3])
-        x = np.arange(rx1, rx2+1)
-        y = np.arange(ry1, ry2+1)
-
-        # Create R, distance from x0,y0
-    Y, X = np.meshgrid(y, x)
-    #R =  np.sqrt( Y**2+ X**2 )
-
-    # 2/ cut grid)
-    cutted = grid[rx1:rx2+1, ry1:ry2+1]
-    my_sum = np.sum(cutted)
-
-    # 3/ get the gravity center
-    x1 = np.sum(cutted*X) / my_sum
-    y1 = np.sum(cutted*Y) / my_sum
-
-    return (x1, y1)
-
-
 def FindMaxWithBin(grid, rectangle):
-    """arg =  grid and r : 3*3 median filter"""
+    """arg =  grid and r : 3*3 median filter
+    TODO merge with localMax
+    """
     r = rectangle
     cutted = grid[int(r[0]):int(r[1]), int(r[2]):int(r[3])]
     # Median file 3 x 3 (fuzz)
@@ -168,34 +133,6 @@ def FindMaxWithBin(grid, rectangle):
 
     # return x,y
     return coord[0]+r[0], coord[1]+r[2]
-
-
-def FindMaxWithIncreasingSquares(grid, center):  # center is th ecenter click
-    size_max = 20
-    return
-
-
-# call with radius each time samller
-def DecreasingGravityCenter(grid, r=None, binfact=2, radiusmin=4):
-    """ Get the center of gravity with decreasing squares around the previous gravity center """
-
-    gravity_center = GravityCenter(grid, r=r)
-    # need to do that to avoid error mess 'tuple' object do not support item assignment
-    rx1, rx2, ry1, ry2 = r
-    if r[1]-r[0] > radiusmin:
-        dist = float((r[1]-r[0]))/2/binfact
-        log(2, "DecreasingGravityCenter", "r", r)
-        rx1 = int(gravity_center[0] - dist)
-        rx2 = int(gravity_center[0] + dist)
-    if r[3]-r[2] > radiusmin:
-        dist = float((r[3]-r[2]))/2/binfact
-        ry1 = int(gravity_center[1] - dist)
-        ry2 = int(gravity_center[1] + dist)
-    elif r[1]-r[0] <= radiusmin:  # now we can leave the function
-        return gravity_center
-
-    r = Order4((rx1, rx2, ry1, ry2), grid)
-    return DecreasingGravityCenter(grid, r=r)
 
 
 # Find one of the half Maximum without precision  in direction (x,-x,y,-y)
@@ -228,71 +165,15 @@ def FWHM(grid, centermax, direction='average'):
         return fwhm
 
 
-# point is the coord of the exact point you need to assess intensity from linear assuption of nearest pixels,  seems to be slow tooo
-def PointIntensity(grid, point):
-    res, M = 0, 0
-    (x, y) = point
-    (i, j) = (int(x), int(y))
-    if ((i, j) == (x, y)):
-        return grid[i][j]
-    else:
-        try:
-            tmp = 1 / (np.sqrt((x-i)**2+(y-j)**2))
-            res += grid[i][j] / (np.sqrt((x-i)**2+(y-j)**2))
-            M += 1 / (np.sqrt((x-i)**2+(y-j)**2))
-        except:
-            pass
-        try:
-            tmp = 1 / (np.sqrt((x-(i+1))**2+(y-j)**2))
-            res += grid[i+1][j]*tmp
-            M += tmp
-        except:
-            pass
-        try:
-            tmp = 1 / (np.sqrt((x-i)**2+(y-(j+1))**2))
-            res += grid[i][j+1]
-            M += tmp
-        except:
-            pass
-        try:
-            tmp = 1 / (np.sqrt((x-(i+1))**2+(y-(j+1))**2))
-            res += grid[i+1][j+1]
-            M += tmp
-        except:
-            pass
-    return res/M
-
-
-def PixelMax(grid, r=None):   # array.float , 2 float , 1 float     RETURN center, max (=2+1floats)
+def PixelMax(grid, r=None):
+    """array.float , 2 float , 1 float     RETURN center, max (=2+1floats)
+    TODO merge with find_max
+    """
     if r is None:
         r = 0, len(grid), 0, len(grid[0])
     cut1 = grid[r[0]: r[1], r[2]: r[3]]
     x, y = np.unravel_index(cut1.argmax(), cut1.shape)
     return (r[0]+x, r[2] + y), cut1[x, y]
-
-
-def GoodPixelMax(grid, r=(10, 10, 10, 10)):   # array.float , 2 float , 1 float
-    m, bad = 0, []  # m will be the maximum value of a pixel,bad are the BadPixels coord
-    (rx1, rx2, ry1, ry2) = r
-    for i in range(int(rx1), int(rx2+1)):
-        for j in range(int(ry1), int(ry2+1)):
-            if (i, j) in bad:
-                pass
-            else:
-                try:  # in case we are out of the grid
-                    if grid[i][j] > m:
-                        m = grid[i][j]
-                        (x, y) = (i, j)
-                except:
-                    pass
-    if (grid[x-1][y] < grid[x][y]/10
-        and grid[x][y-1] < grid[x][y]/10
-        and grid[x+1][y] < grid[x][y]/10
-            and grid[x][y+1] < grid[x][y]/10):
-        bad.append((x, y))
-    return (x, y), m
-
-    # This is background in not only  Our rectangle " should change name
 
 
 def EnergyRadius(grid, dic={}):
@@ -419,14 +300,15 @@ def FwhmFromFit(fit_dic, err_dic):
 
 
 def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'distance': 1}):
-    # We Derive the noise from eight rectangle (of R/2 ) around the 99% Energy
-    # size =4 means that we devide by  4 the size of the rectangle
-    # distance = 2 means we go father by a factor 2 for star center (r center)
-    # we suppose order in r
+    """Derive the noise from eight rectangle (of R/2 ) around the 99% Energy
+    size =4 means that we devide by  4 the size of the rectangle
+    distance = 2 means we go father by a factor 2 for star center (r center)
+    we suppose order in r
+    """
     rx1, rx2, ry1, ry2 = r
     distance, size = dictionary['distance'], dictionary['size']
-    rx1, rx2 = rx1 - distance*(rx2-rx1)/2,  rx2 + distance*(rx2-rx1)/2
-    ry1, ry2 = ry1 - distance*(ry2-ry1)/2,  ry2 + distance*(ry2-ry1)/2
+    rx1, rx2 = rx1 - distance*(rx2-rx1)/2, rx2 + distance*(rx2-rx1)/2
+    ry1, ry2 = ry1 - distance*(ry2-ry1)/2, ry2 + distance*(ry2-ry1)/2
     p = []
     rx, ry, background, rms = (
         rx2-rx1)/2/distance/size, (ry2-ry1)/2/distance/size, [], []  # we search the noise
@@ -452,9 +334,6 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
         if i == 'W':
             (ax1, ax2, ay1, ay2) = (rx1-rx, rx1,
                                     (ry1+ry2)/2-ry/2, (ry1+ry2)/2+ry/2)
-        # tmp=Stat.RazeazeectanglePhot(grid,(ax1,ax2,ay1,ay2),dic={azeazeaz"get":["number_count","sum","rms"]})  # bad pixels
-        # background.append((tmp["sum"]/tmp["number_count"]))   #rectangle phot return the sum and the number_count # bite bad pixel
-
         image_cut = grid[int(ax1): int(ax2+1), int(ay1): int(ay2+1)]
         background.append(np.mean(image_cut))
         rms.append(np.std(image_cut))
@@ -472,9 +351,9 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
     return {'background': background, 'rms': rms}
 
 
-# We compare with the median filter.
-def FindBadPixel(grid, r=None):
-    """In the method we define in arg1 the number of pixel to include in the median
+def find_bad_pixel(grid, r=None):
+    """Compare with the median filter
+    Verbose: In the method we define in arg1 the number of pixel to include in the median
     and in arg2, the max differnce between true image and median
     the bad pixels can be noise or warm pixel
     :param r: ordered rectangle bounds to cut grid
@@ -509,23 +388,6 @@ def FindBadPixel(grid, r=None):
     return res, mIX, eIX
 
 
-def InBorder(grid, r):  # to check if r is in the grid
-    rx1, rx2, ry1, ry2 = Order4(r)
-    if rx1 < 0:
-        rx1 = 0
-    if rx1 > len(grid)-1:
-        rx1 = len(grid)-1
-    if ry1 < 0:
-        ry1 = 0
-    if ry1 > len(grid[rx1])-1:
-        rx1 = len(grid[rx1]-1)
-    return (rx1, rx2, ry1, ry2)
-
-    #################
-    # PROFILE OF A LINE (Cuting )
-    #########################
-
-
 def project_on_radial_line(point1_n_point2, point):
     """Return sbscisse of point projected on line between point1_n_point2"""
     # Tuple unpack in
@@ -542,7 +404,7 @@ def project_on_radial_line(point1_n_point2, point):
     return res
 
 
-def RadialLine(grid, point1_and_point2, return_point=0):
+def get_radial_line(grid, point1_and_point2, return_point=0):
     """Returns profile one a line: 2 vectors x and y
     Param: return_point, boolean if callr want point (usually yes)
     """
@@ -596,67 +458,18 @@ def RadialLine(grid, point1_and_point2, return_point=0):
     return res[:, 0], res[:, 1]  # abscice ordonate
 
 
-# we supose that r is ordere for the display og the strahl funciton
-def XProfile(grid, center, r=None, direction='X'):
-    if r is None:
-        r = (0, len(grid)-1,   0, len(grid[0]) - 1)
-    Order4(r)
-    if direction == 'X':
-        x = np.arange(int(r[0]), int(r[1])+1)
-        y = grid[int(r[0]):int(r[1])+1, int(center[1])]
+def get_profile_x(grid, center):
+    """Get profile along X
+    Note: only used onces in AnswerReturn
+    """
+    r = (0, len(grid)-1, 0, len(grid[0]) - 1)
+    r = Order4(r)
+    x = np.arange(int(r[0]), int(r[1])+1)
+    y = grid[int(r[0]):int(r[1])+1, int(center[1])]
     return x, y
 
 
-def RadialCloud(grid, center, radius, direction='None'):
-    x0, y0 = center
-    rx1, rx2, ry1, ry2 = int(
-        x0-radius), int(x0+radius+1), int(y0-radius), int(y0+radius+1)
-    x, y = [], []
-    for i in range(rx1, rx2):
-        for j in range(ry1, ry2):
-            x.append, y.append = np.sqrt((x0-i)**2+(y0-i)**2), grid[i][j]
-    return x, y
-
-
-# take care it will take the image and its end
-# N number of stars. BINFACT, the size (diameter) of the "psf"
-def FindNStars(grid, N, binfact=3, separation=30):
-                                                # SEPARATION, the minimum separation betwenn two stars.
-    # we just bin the image and give the N maximums, there can be an error (order of binfact pixels
-    #        => yo1Gu need to use PixelMax and SeeingFit then.
-    fattable = Bin(grid, binfact)
-    res = np.zeros((N, 3))
-    for i in range(len(fattable)):
-        for j in range(len(fattable[i])):
-            tmp = 0
-            IsFar = True
-            for k in range(N):
-                IsFar &= ((i-res[k][0])**2 + (j-res[k][1])**2 <
-                          separation)  # here you see the separation
-            while((fattable[i][j] > res[N-tmp-1][2]) & (tmp < N)):
-                tmp += 1
-            try:
-                res[N-tmp-1][0] = res[N-tmp][0]
-                res[N-tmp-1][1] = res[N-tmp][1]
-                res[N-tmp-1][2] = res[N-tmp][2]
-            except:
-                ()
-            try:
-                res[N-tmp][0] = i*binfact
-                res[N-tmp][1] = j*binfact
-                res[N-tmp][2] = fattable[i][j]
-            except:
-                ()
-    return res
-
-
-##################
-# DIRECT INTERACT WITH EVENT
-##################
-
-
-# photomtery, return bol or dic
-def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=True):
+def get_elliptical_aperture(grid, dic={}, interp=False, full_answer=True, xy_answer=True):
     """ rdic = ru rv theta x0 y0
     Returns a dic,
         dic[bol] = are you in aperture
@@ -670,7 +483,8 @@ def EllipticalAperture(grid, dic={}, interp=False, full_answer=True, xy_answer=T
             ru , rv in pixels
            centers in pixels from the begining of the array x = row, y = column
     if full answer return dic : number_count, sum, bol,bol2, interp_grid,
-    # REturn X and y index of bol
+    # Return X and y index of bol
+    TODO clean and rename me
     """
     # Check in
     if dic == {}:

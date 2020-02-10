@@ -16,7 +16,7 @@ def show_profile(point1, point2):
     """Callback for Profile Pick: 1 and 2D"""
     # pylint: disable = too-many-locals
     # Get data to plot
-    ab, od, points = IF.RadialLine(
+    ab, od, points = IF.get_radial_line(
         get_state().image.im0, (point1, point2), return_point=1)
 
     # Plot <- Reset
