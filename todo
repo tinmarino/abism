@@ -1,7 +1,8 @@
+* Phot: are bad pixels correccted for elliptical apertue
+
 * Binary add fwhm (Strehl.py)
 
 * Sky: see how is is estimated annulus and 8rect, because it must be feeded to fit but depends on fit
-* Phot: are bad pixels correccted for elliptical apertue
 
 # Feature
 
@@ -30,7 +31,7 @@
 * 5h Get error for all answer, append them at the same time
 * 3h Argument parsing, link with AbismState
 * (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
-* 1h Ellipse 
+* 1h Ellipse  (refactor in plugin)
 * 2h Datacube if more than 3 dimension
 * 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
@@ -40,25 +41,16 @@
 
 ### Latter fix
 * !!! Bad pixels !! You cannot release putting them to zero
-* More options, test my stuff
+* More options, test my stuff (also on binary)
 * Zomming is recurvise and get stuck in some images (bottom)
 
 ### Latter refactor
 * frame_text, optionFrame many function, create subclass like optionElement
 * frame_text, base class has getten big
 
-
-# Idea
-######################################################################
-
-* Theta profile, profile along the major axis
-* Contrast Map, image with constrat as intensity
-* Recursive annulus phot
-
 # Always possible
 ################################################################################
 
-* Better documentation
 * More colorscheme and better interface to choose
 * Better preference saving, loading
   * Appdir module
@@ -69,6 +61,4 @@
   * Lint all
   * Beware the magic (FrameText 22, xtermTk, fontsize)
   * Consistent naming
-* Matplotlib super keyboard navigation (did not manage today to get key event only in my frame)
-* Feature: show bad pixels: can be usefull for an observator (example if object is on it: change telescope orientation)
 * UI: Add some colorscheme (material)

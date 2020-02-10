@@ -289,13 +289,13 @@ class MarkdownColorizer:
             def show_xterm_cursor(_):
                 self.tk_text.configure(cursor='xterm')
 
-            def show_arrow_cursor(_):
-                self.tk_text.configure(cursor='arrow')
+            def show_on_cursor(_):
+                self.tk_text.configure(cursor='hand2')
 
             ind_1_s, ind_1_e = _coordinate(start_1, end_1, self.txt)
             self.tk_text.tag_add(tag_name, ind_1_s, ind_1_e)
             self.tk_text.tag_config(tag_name, foreground='#268bd2')  # blue
-            self.tk_text.tag_bind(tag_name, "<Enter>", show_arrow_cursor)
+            self.tk_text.tag_bind(tag_name, "<Enter>", show_on_cursor)
             self.tk_text.tag_bind(tag_name, "<Leave>", show_xterm_cursor)
             self.tk_text.tag_bind(
                 tag_name, '<Button-1>',

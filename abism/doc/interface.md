@@ -18,10 +18,10 @@
   - [Shortcuts](#Shortcuts)
 
 
-
 ## Interact with the science image
 
 To interact with the image view, you can use
+
 
 ### Mouse
 
@@ -69,8 +69,6 @@ Different interaction can be done between the image and Abism backend engine. Th
 
 
 ## Configure Strehl measurement parameters
-
-
 ### Required parameters
 
 In the `option` frame, which can be open with the `Image Parameters` button.
@@ -85,6 +83,7 @@ Some parameters are required for Strehl measurement. All of them should be posit
 Some other parameters are used for the apparent magnitude of object measurement. Those are not required to evaluate the Strehl.
 
 According to the quality of adaptive optics (i.e. Strehl value), the saturation level of the image, the distance between stars and the desired result precision, some parameters should be adjusted by the user / observer, meaning you! Here comes the science:
+
 
 ### Fit parameters
 
@@ -105,6 +104,7 @@ In `more option` button.
 * __Anisotropy__: If checked: Permits the fit function not to be circular adding two parameters: `theta` for the angle of the main axis and `spread_y` which is a second spread factor for the axis perpendicular to the main (hence not necessarily align to the y axis). Note that for moffat, an `exponent_y` is also added
 * __Binary same psf__: If checked: In case of a binary fit, assumes that the two stars share the same psf. Which permits a much easier fit.
 * __Fit saturated__: If checked: add a parameter (called `saturation`) to the fitted function. Intensity of the fitted profile cannot go higher than this free parameter. If image is NOT saturated, this is a useless parameter, usually resulting in an impossible error measurement (outputting `-1`)
+
 
 ### Sky and Photometry measurement
 
@@ -140,6 +140,7 @@ Abism returns:
 
 1. text answer in the `Result` frame (bottom left).
 2. visual answer in the bottom `1D` and `2D` frames
+
 
 ### Textual output
 
