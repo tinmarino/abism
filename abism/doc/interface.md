@@ -175,7 +175,8 @@ At the bottom of the window, you can see:
 | `<C-M>` | **M**ore option  | Toogle Frame |
 | `<C-O>` | **O**pen file    | Popup |
 | `<C-R>` | **R**estart      | !! Irreversible !! |
-| `<C-?>` | manual           | Toogle popud md viewer |
+| `<C-S>` | **S**ave         | Previous (100) results |
+| `<C-?>` | **?** What **?** | Toogle current popud md viewer |
 
 
 | KeyBind  | Command                | Comment |

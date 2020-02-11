@@ -56,6 +56,7 @@ class Pick(ABC):
 
     def launch_worker(self, obj):
         """Launch worker async"""
+        get_state().reset_answers()
         AsyncWorker(lambda: self.work(obj), self.on_done, timeout=0.5).run()
 
     def on_rectangle(self, eclick, erelease):
@@ -63,6 +64,7 @@ class Pick(ABC):
         # Log && Save
         click = eclick.xdata, eclick.ydata
         release = erelease.xdata, erelease.ydata
+        get_state().l_click = [click, release]
 
         # Log
         log(3, "Rectangle click_________________\n"
@@ -234,6 +236,9 @@ class PickBinary(Pick):
         self.canvas.mpl_disconnect(self.id_callback)
         self.canvas.get_tk_widget()["cursor"] = ""
 
+        # Save to state
+        get_state().l_click = [self.star1, self.star2]
+
         # Work
         self.launch_worker(None)
 
@@ -326,10 +331,11 @@ class PickProfile(Pick):
             self.artist_profile = None
 
     def work(self, obj):
-        self.point2 = [obj.point2[0], obj.point2[1]]
         self.point1 = [obj.point1[0], obj.point1[1]]
+        self.point2 = [obj.point2[0], obj.point2[1]]
 
     def on_done(self):
+        get_state().l_click = [self.point1, self.point2]
         show_profile(self.point1, self.point2)
 
 

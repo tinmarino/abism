@@ -11,6 +11,8 @@ from os.path import dirname, abspath, basename
 from functools import lru_cache
 from enum import Enum
 from threading import Thread
+from datetime import datetime
+from collections import deque
 
 
 _parsed_args = None  # Arguments from argparse
@@ -285,6 +287,70 @@ class ESky(Enum):
     NONE = 'Zero sky <- from a well reduced image'
 
 
+def str_fit_param(d_fit_param, d_fit_error, no_tab=True):
+    """Stringify fit parameters
+    Used by save and frame_text
+    """
+    i_tab_1 = i_tab_2 = 0
+    stg = ''
+    s_after = ''
+    for key in sorted(d_fit_param):
+        # Key
+        line = key + ":"
+        i_tab_1 = max(i_tab_1, len(line))
+
+        # Value
+        line += "\t" + "{0:.4f}".format(d_fit_param[key])
+        i_tab_2 = max(i_tab_2, len(line))
+
+        # Error
+        if key in d_fit_error:
+            line += "\t" + "± {0:.4f}\n".format(d_fit_error[key])
+            stg += line
+        else:
+            line += "\n"
+            s_after += line
+
+    stg += s_after
+
+    # Format for dump
+    if no_tab:
+        stg = stg.expandtabs(20)
+
+    return stg, (i_tab_1, i_tab_2)
+
+
+def str_answers(answers):
+    stg = ''
+    stg = "%-20s" % "Name:" + "detector ± error \t sky ± error\n"
+    for answer in answers.values():
+        log(9, 'Answer', answer)
+        # Clean in
+        if not isinstance(answer.unit, (list, tuple)):
+            answer.unit = answer.unit, answer.unit
+
+        # Name
+        stg += "%-20s" % (answer.text + ':')
+
+        # Detector
+        s_detector = answer.str_detector()
+        if answer.error is not None:
+            s_detector += ' ± ' + answer.error.str_detector()
+        s_detector += answer.unit[0]
+        stg += "%-20s\t" % s_detector
+
+        # Sky
+        stg += answer.str_sky()
+        if answer.error is not None:
+            stg += ' ± ' + answer.error.str_detector()
+        stg += answer.unit[1] + "\n"
+
+    stg = stg.expandtabs(30)
+    return stg
+
+
+
+
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
@@ -293,18 +359,24 @@ class AbismState(DotDic):
 
         self.verbose = parse_argument().verbose
 
-        # Synchronisatiou
-        # making only atomic operation on me
-        self.b_is_timed_out = False
-
         # ImageInfo cutom type, setted when open_file
         self.image = None
 
         # The returns dictionary: EAnswer -> Answser Object
         self.answers = {}
-        # String -> float
+        # Fit: String -> float
         self.d_fit_param = {}
         self.d_fit_error = {}
+        # Metadata
+        self.s_timestamp = ''
+        self.l_click = []
+
+        # Save, max 100 answers
+        self.deq_save = deque([], 100)
+
+        # Synchronisation
+        # making only atomic operation on me
+        self.b_is_timed_out = False
 
         # Record the root gui for get_root
         self.tk_root = None
@@ -338,8 +410,37 @@ class AbismState(DotDic):
         # UI text
         self.s_answer_unit = 'detector'  # detector or 'sky'
 
+    def copy(self):
+        """Used for deque"""
+        # pylint: disable = attribute-defined-outside-init
+        res = DotDic()
+        res.answers = self.answers
+        res.d_fit_param = self.d_fit_param
+        res.d_fit_error = self.d_fit_error
+        # Meta
+        res.s_timestamp = self.s_timestamp
+        res.s_pick = self.e_pick_type.name
+        res.s_fit_type = self.s_fit_type
+        res.l_click = self.l_click
+        return res
+
+    def set_timestamp(self):
+        self.s_timestamp = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+
+    def str_fit_param(self):
+        """Helper for frame_text"""
+        return str_fit_param(self.d_fit_param, self.d_fit_error, no_tab=False)
+
+    def append_deq(self):
+        if len(self.answers) != 0:
+            self.deq_save.appendleft(self.copy())
+
     def reset_answers(self):
+        # Save
+        self.append_deq()
+        # Create new
         self.answers = {}
+        self.set_timestamp()
         return self.answers
 
     def add_answer(self, enum_answer, value, *arg, unit=None, **args):
@@ -384,8 +485,43 @@ class AbismState(DotDic):
         return self.get_answer_obj(enum_answer).value
 
     def __repr__(self):
-        l_silent = ['pick', 'tk_pick', 'tk_root', 'im0']
+        l_silent = ['pick', 'tk_pick', 'tk_root', 'im0', 'deq_save']
         return str_pretty(self, silent=l_silent, depth=6)
+
+
+def save_state():
+    """Called with ctrl-S"""
+    s_date = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+    fpath = os.getcwd() + '/abism-' + s_date + '.log'
+
+    get_state().append_deq()
+    deq = get_state().deq_save
+    l = len(deq)
+
+    if l == 0:
+        log(0, 'No answers to save')
+        return
+
+    stg = f"Abism log of {s_date} with {l} items\n\n"
+    for item in deq:
+        stg += "\n# Meta\n\n"
+        stg += '%-20s%s\n' % ('Date:', item.s_timestamp)
+        stg += '%-20s%s\n' % ('Pick:', item.s_pick)
+        stg += '%-20s%s\n' % ('Fct:', item.s_fit_type)
+        stg += '%-20s%s\n' % ('Clicks:', item.l_click) + "\n"
+
+        stg += "# Answers\n\n"
+        stg += str_answers(item.answers) + "\n"
+
+        stg += "# Fit Dictionary\n\n"
+        stg += str_fit_param(item.d_fit_param, item.d_fit_error, no_tab=True)[0]
+        stg += "\n\n" + "-" * 80 + "\n"
+
+    with open(fpath, 'w') as f:
+        f.write(stg)
+
+    get_state().deq_save.clear()
+    log(0, f'Saved {l} answers to {fpath}')
 
 
 @lru_cache(1)

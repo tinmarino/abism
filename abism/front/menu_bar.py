@@ -17,7 +17,7 @@ import abism.front.tk_extension as tk_ext
 
 from abism.util import (
     log, get_root, get_state, quit_process, get_colormap_list,
-    get_stretch_list, get_fit_list, EPick
+    get_stretch_list, get_fit_list, EPick, save_state
 )
 
 
@@ -132,6 +132,15 @@ class FileMenu(ButtonMenu):
         get_root().bind_all("<Control-o>", lambda _: open_file())
         self.menu.add_entry_info(
             "<C-O>: Open file dialog\nChoose fits image path")
+
+        # Save
+        self.menu.add_command(
+            label='Save',
+            command=save_state)
+        get_root().bind_all("<Control-s>", lambda _: save_state())
+        self.menu.add_entry_info(
+            "<C-S>: Save Abism previous results\n"
+            "To abism-<date>.log in current directory")
 
         # Show header
         self.menu.add_command(
