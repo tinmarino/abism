@@ -425,7 +425,7 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     xmin, xmax, ymin, ymax = Order4((x1, x2, y1, y2), grid=grid)
     xmin, xmax, ymin, ymax = int(xmin), int(xmax), int(ymin), int(ymax)
 
-    x, y = np.arange(xmin, xmax+1), np.arange(ymin, ymax+1)
+    x, y = np.arange(xmin, xmax), np.arange(ymin, ymax)
     Y, X = np.meshgrid(y, x)
     array = grid[xmin:xmax, ymin:ymax]
 
