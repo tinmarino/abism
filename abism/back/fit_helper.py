@@ -13,7 +13,7 @@ import scipy.optimize
 
 from abism.back.leastsqbound import leastsqbound
 
-from abism.util import log
+from abism.util import log, get_state
 
 
 def polyN(x, params):
@@ -54,6 +54,10 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
     pfit and pfix (optional) and combines the two
     in 'A', in order to call F(X,A)
     """
+    # Stop it
+    if get_state().b_is_timed_out:
+        raise TimeoutError
+
     params = {}
     # build dic from parameters to fit and their values:
     for i, k in enumerate(pfitKeys):

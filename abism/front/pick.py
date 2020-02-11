@@ -15,7 +15,7 @@ from abism.back import Strehl
 from abism.plugin.stat_rectangle import show_statistic
 from abism.plugin.profile_line import show_profile
 
-from abism.util import log, get_root, get_state, timeout
+from abism.util import log, get_root, get_state
 
 
 class Pick(ABC):
@@ -52,22 +52,27 @@ class Pick(ABC):
     def on_done(self):
         """Return result to frontend (in tk main loop)"""
 
-    def launch_worker(self, event):
-        @timeout(1)
-        def wrap_work(_, obj):
+    def launch_worker(self, obj):
+        """Usually obj is event"""
+        def wrap_work(obj):
             self.work(obj)
+            self.done = True
 
         def wrap_on_done():
-            #if not self.done: return
+            if not self.done: return
             self.on_done()
             self.done = False
 
-        t = Thread(target=wrap_work, args=(self.done, event))
+        t = Thread(target=wrap_work, args=(obj,))
         t.start()
 
-        get_root().after(1000, wrap_on_done)
-        # for i in range(100):
-        #     get_root().after(100 * i, wrap_on_done)
+        def set_timeout():
+            get_state().b_is_timed_out = True
+
+        #get_root().after(1000, wrap_on_done)
+        get_root().after(1000, set_timeout)
+        for i in range(100):
+            get_root().after(100 * i, wrap_on_done)
 
 
     def on_rectangle(self, eclick, erelease):

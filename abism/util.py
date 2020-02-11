@@ -292,6 +292,9 @@ class AbismState(DotDic):
 
         self.verbose = parse_argument().verbose
 
+        # Synchro
+        self.b_is_timed_out = False
+
         # ImageInfo cutom type, setted when open_file
         self.image = None
 
@@ -461,28 +464,3 @@ def log(i, *args):
                     + '@' + basename(caller.co_filename) + ')')
 
     _get_logger().info(message)
-
-
-import multiprocessing
-def timeout(second):
-    '''
-    use as decorator to exit process if
-    function takes longer than s seconds
-    Link: https://stackoverflow.com/a/14924210/2544873
-    '''
-    def outer(fn):
-        def inner(*args, **kwargs):
-            p = multiprocessing.Process(target=fn, args=args, kwargs=kwargs)
-            p.start()
-            # Wait for some seconds or until process finishes
-            p.join(second)
-            # If thread is still active
-            if p.is_alive():
-                p.terminate()
-                p.join()
-                log(0, 'Error timeout for', fn)
-                sys.stdout.flush()
-            else:
-                args[0] = True
-        return inner
-    return outer
