@@ -5,20 +5,14 @@
 
 # Refactor
 
-* root_window containt and not extend a tk_Tk (better for ipy)
-  * Warning, some get_root().bind_all need it to bee the oldest ancestor
-
 * SthrelImage discirminator: Sthrel is just a wrapper, join them ?
 
 ## Latter feature
 
 * Add fit param button only if fit param are present (see ellipse)
   * Ellipse pick answer should delete fit param: I may give stat in place
-* 5h Get error for all answer, append them at the same time
 * 3h Argument parsing, link with AbismState
-* (Hard 5h) Embed jupyter client to speak to a kernel in tk loop
 * 1h Ellipse  (refactor in plugin)
-* 2h Datacube if more than 3 dimension
 * 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * Have a glimps at first guess which is really really important, especially for moffat
@@ -27,21 +21,13 @@
 ### Latter fix
 * More options, test my stuff (also on binary)
 
-### Latter refactor
-* frame_text, optionFrame many function, create subclass like optionElement
-* frame_text, base class has getten big
-
 # Always possible
 ################################################################################
 
-* More colorscheme and better interface to choose
 * Better preference saving, loading
   * Appdir module
   * In util, parse_argument and restart
-  * Log previous work, result
-  * Repeatable calculus
 * Clean code (especially backend)
   * Lint all
   * Beware the magic (FrameText 22, xtermTk, fontsize)
   * Consistent naming
-* UI: Add some colorscheme (material)
