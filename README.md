@@ -1,7 +1,12 @@
-# ABISM : Adaptive Background Interferometric Strehl Meter
+# ABISM: Adaptive Background Interferometric Strehl Meter
 
 
 __Install:__
+```sh
+pip install abism
+```
+
+or for developpers:
 ```sh
 pip install -U git+https://github.com/tinmarino/abism 
 ```

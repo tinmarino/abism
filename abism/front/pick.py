@@ -57,7 +57,7 @@ class Pick(ABC):
     def launch_worker(self, obj):
         """Launch worker async"""
         get_state().reset_answers()
-        AsyncWorker(lambda: self.work(obj), self.on_done, timeout=0.5).run()
+        AsyncWorker(lambda: self.work(obj), self.on_done, timeout=10).run()
 
     def on_rectangle(self, eclick, erelease):
         """Param: the extreme coord of the human drawn rectangle"""

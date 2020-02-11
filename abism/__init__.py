@@ -1,5 +1,5 @@
 """
-      Adaptative Background Interactive Strehl Meter,
+      Adaptative Background Interferometric Strehl Meter,
                      A Software made by
             Julien Girard and Martin Tourneboeuf
 
@@ -7,8 +7,9 @@
          Do whatever you want, want whatever you do
 
 Install:
-    1. git clone https://github.com/tinmarino/abism abism_source && cd abism_source
+    1. pip install abism
     2. pip install --user -U git+https://github.com/tinmarino/abism
+    3. git clone https://github.com/tinmarino/abism abism_source && cd abism_source
 
 Run:
     1. sh> abism
@@ -25,4 +26,4 @@ More:
     help(absim.back)  # Strehl estimation info
 
 """
-__version__ = '0.910'
+__version__ = '0.911'

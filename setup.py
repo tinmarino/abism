@@ -11,7 +11,10 @@ setuptools.setup(
     scripts=['scripts/abism'],
     author='Julien Girard, Martin Tourneboeuf',
     author_email='tinmarino@gmail.com',
-    description='GUI to mesure astrofisics image quality',
+    description=(
+        "Adaptative Background Interferometric Strehl Meter\n"
+        "Graphical user interface (GUI) "
+        "to mesure Astrophysics image quality (Strehl ratio)"),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tinmarino/abism",
