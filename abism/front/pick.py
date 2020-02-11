@@ -49,30 +49,53 @@ class Pick(ABC):
     def work(self, obj):
         """Work in the backend (can ba async)"""
 
+    @abstractmethod
     def on_done(self):
         """Return result to frontend (in tk main loop)"""
 
     def launch_worker(self, obj):
         """Usually obj is event"""
+        # List of timers
+        l_after_id = []
+
+        def delete_after_id():
+            """Delete timers"""
+            log(9, "Deleting timers")
+            for after_id in l_after_id:
+                get_root().after_cancel(after_id)
+            get_state().b_is_timed_out = False
+
         def wrap_work(obj):
-            self.work(obj)
-            self.done = True
+            """Call work"""
+            try:
+                log(9, "Working")
+                self.work(obj)
+                self.done = True
+                log(9, "End Working")
+            except TimeoutError:
+                log(-1, 'Error: Timeout: worker (fit) took too long '
+                    'and was destroyed')
+                delete_after_id()
+            finally:
+                get_state().b_is_timed_out = False
 
         def wrap_on_done():
+            """Call on_done"""
             if not self.done: return
-            self.on_done()
+            log(9, "Displaying result")
             self.done = False
-
-        t = Thread(target=wrap_work, args=(obj,))
-        t.start()
+            delete_after_id()
+            self.on_done()
 
         def set_timeout():
             get_state().b_is_timed_out = True
 
-        #get_root().after(1000, wrap_on_done)
-        get_root().after(1000, set_timeout)
+        t = Thread(target=wrap_work, args=(obj,))
+        t.start()
+
+        l_after_id.append(get_root().after(500, set_timeout))
         for i in range(100):
-            get_root().after(100 * i, wrap_on_done)
+            l_after_id.append(get_root().after(100 * i, wrap_on_done))
 
 
     def on_rectangle(self, eclick, erelease):
@@ -132,6 +155,7 @@ class PickNo(Pick):
     def connect(self): pass
     def disconnect(self): pass
     def work(self, obj): pass
+    def on_done(self): pass
 
 
 class PickOne(Pick):
@@ -189,6 +213,7 @@ class PickOne(Pick):
 
     def on_done(self):
         AR.show_answer()
+
 
 class PickBinary(Pick):
     """Binary System
@@ -259,6 +284,8 @@ class PickBinary(Pick):
 
     def work(self, obj):
         Strehl.BinaryStrehl(self.star1, self.star2)
+
+    def on_done(self):
         AR.show_answer()
 
 
@@ -279,7 +306,6 @@ class PickTightBinary(PickBinary):
 
     def work(self, obj):
         Strehl.TightBinaryStrehl(self.star1, self.star2)
-        AR.show_answer()
 
 
 class PickStat(Pick):
@@ -304,7 +330,9 @@ class PickStat(Pick):
             self.on_rectangle, drawtype='box',
             rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
-    def work(self, obj):
+    def work(self, obj): pass
+
+    def on_done(self):
         show_statistic(self.rectangle)
 
 
@@ -340,6 +368,8 @@ class PickProfile(Pick):
     def work(self, obj):
         self.point2 = [obj.point2[0], obj.point2[1]]
         self.point1 = [obj.point1[0], obj.point1[1]]
+
+    def on_done(self):
         show_profile(self.point1, self.point2)
 
 
@@ -388,4 +418,6 @@ class PickEllipse(Pick):
 
     def work(self, _):
         Strehl.EllipseEventStrehl(self.artist_ellipse)
+
+    def on_done(self):
         AR.show_answer()

@@ -292,7 +292,8 @@ class AbismState(DotDic):
 
         self.verbose = parse_argument().verbose
 
-        # Synchro
+        # Synchronisatiou
+        # making only atomic operation on me
         self.b_is_timed_out = False
 
         # ImageInfo cutom type, setted when open_file

@@ -56,6 +56,7 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
     """
     # Stop it
     if get_state().b_is_timed_out:
+        get_state().b_is_timed_out = False
         raise TimeoutError
 
     params = {}
