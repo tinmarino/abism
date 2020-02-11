@@ -3,7 +3,6 @@
     Used by menu_bar.py
 """
 from abc import ABC, abstractmethod
-from threading import Thread
 
 import matplotlib
 
@@ -15,7 +14,7 @@ from abism.back import Strehl
 from abism.plugin.stat_rectangle import show_statistic
 from abism.plugin.profile_line import show_profile
 
-from abism.util import log, get_root, get_state
+from abism.util import log, get_root, get_state, AsyncWorker
 
 
 class Pick(ABC):
@@ -47,56 +46,16 @@ class Pick(ABC):
 
     @abstractmethod
     def work(self, obj):
-        """Work in the backend (can ba async)"""
+        """Work in the backend (can ba async)
+        :param obj: <- event (usually)
+        """
 
     @abstractmethod
     def on_done(self):
         """Return result to frontend (in tk main loop)"""
 
     def launch_worker(self, obj):
-        """Usually obj is event"""
-        # List of timers
-        l_after_id = []
-
-        def delete_after_id():
-            """Delete timers"""
-            log(9, "Deleting timers")
-            for after_id in l_after_id:
-                get_root().after_cancel(after_id)
-            get_state().b_is_timed_out = False
-
-        def wrap_work(obj):
-            """Call work"""
-            try:
-                log(9, "Working")
-                self.work(obj)
-                self.done = True
-                log(9, "End Working")
-            except TimeoutError:
-                log(-1, 'Error: Timeout: worker (fit) took too long '
-                    'and was destroyed')
-                delete_after_id()
-            finally:
-                get_state().b_is_timed_out = False
-
-        def wrap_on_done():
-            """Call on_done"""
-            if not self.done: return
-            log(9, "Displaying result")
-            self.done = False
-            delete_after_id()
-            self.on_done()
-
-        def set_timeout():
-            get_state().b_is_timed_out = True
-
-        t = Thread(target=wrap_work, args=(obj,))
-        t.start()
-
-        l_after_id.append(get_root().after(500, set_timeout))
-        for i in range(100):
-            l_after_id.append(get_root().after(100 * i, wrap_on_done))
-
+        AsyncWorker(lambda: self.work(obj), self.on_done).run()
 
     def on_rectangle(self, eclick, erelease):
         """Param: the extreme coord of the human drawn rectangle"""

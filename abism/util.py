@@ -10,6 +10,7 @@ import inspect
 from os.path import dirname, abspath, basename
 from functools import lru_cache
 from enum import Enum
+from threading import Thread
 
 
 _parsed_args = None  # Arguments from argparse
@@ -465,3 +466,57 @@ def log(i, *args):
                     + '@' + basename(caller.co_filename) + ')')
 
     _get_logger().info(message)
+
+
+def set_timeout():
+    get_state().b_is_timed_out = True
+
+
+class AsyncWorker:
+    """Launch task in thread and after in timer
+    Manage b_is_timed_out
+    """
+    def __init__(self, task, after):
+        self.task = task
+        self.after = after
+
+        # List of timers
+        self.l_after_id = []
+        self.is_finished = False
+
+    def run(self):
+        # Run task
+        t = Thread(target=self.wrap_task)
+        t.start()
+
+        # Add timeout
+        self.l_after_id.append(get_root().after(500, set_timeout))
+
+        # Add after timers
+        for i in range(100):
+            self.l_after_id.append(get_root().after(100 * i, self.wrap_after))
+
+    def delete_after_id(self):
+        """Delete timers"""
+        for after_id in self.l_after_id:
+            get_root().after_cancel(after_id)
+        get_state().b_is_timed_out = False
+
+    def wrap_task(self):
+        """Call work"""
+        try:
+            self.task()
+            self.is_finished = True
+        except TimeoutError:
+            log(-1, 'Error: Timeout: worker (fit) took too long '
+                'and was destroyed')
+            self.delete_after_id()
+        finally:
+            get_state().b_is_timed_out = False
+
+    def wrap_after(self):
+        """Call on_done"""
+        if not self.is_finished: return
+        self.is_finished = False
+        self.delete_after_id()
+        self.after()
