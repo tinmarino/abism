@@ -84,10 +84,10 @@ def parse_argument():
 
     parser.add_argument(
         '--cut', metavar='CutType', type=str, nargs='?', action='store',
-        default='99.9%',
+        default=r'99.9%',
         help='Type of cut min and max value for image display scale '
              'Can in (%%) percentage or in (s) sigma '
-             '(99%, 3s, None')
+             '(99%%, 3s, None)')
 
     # Custom
     try:

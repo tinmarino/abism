@@ -12,7 +12,7 @@
 * Add fit param button only if fit param are present (see ellipse)
   * Ellipse pick answer should delete fit param: I may give stat in place
 * 3h Argument parsing, link with AbismState
-* 1h Ellipse  (refactor in plugin)
+* 1h Ellipse (refactor in plugin)
 * 2h TightBinary
   * Anisoplanetism = false: otherwise more degenerated, or think of it, give user the choice
 * Have a glimps at first guess which is really really important, especially for moffat
