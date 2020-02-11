@@ -4,9 +4,6 @@
 
 * Get a save log button to save all work until here (and delete it from RAM)
 
-## Feature -> Improve fit quality, robustness
-
-* Stop fit if more than 10s or user kill, or make a stop fit button
 
 # Latter
 ################################################################################
@@ -34,7 +31,6 @@
 
 ### Latter fix
 * More options, test my stuff (also on binary)
-* Zomming is recurvise and get stuck in some images (bottom)
 
 ### Latter refactor
 * frame_text, optionFrame many function, create subclass like optionElement

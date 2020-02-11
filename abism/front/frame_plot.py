@@ -64,6 +64,7 @@ class PlotFrame(tk.Frame):
 
         self._fig = None  # Figure
         self._arrow = None  # Button
+        self._l_cid = []  # mpl callback ids (to disconnect)
         # At bottom
         self._toolbar_frame = None  # Container for toolbar
         self._toolbar = None
@@ -160,6 +161,7 @@ class PlotFrame(tk.Frame):
             for ax in axes:
                 if event.inaxes == ax:
                     return ax
+            return None
 
         # Scroll
         def zoom_handler_wrapper(event):
@@ -176,8 +178,14 @@ class PlotFrame(tk.Frame):
                     event, get_event_ax(event, self._fig.axes),
                     callback=self._fig.canvas.draw)
 
-        self._fig.canvas.mpl_connect('scroll_event', zoom_handler_wrapper)
-        self._fig.canvas.mpl_connect('button_press_event', center_handler_wrapper)
+        # Diconnect && Connect
+        for cid in self._l_cid:
+            self._fig.canvas.mpl_disconnect(cid)
+        self._l_cid = []
+        self._l_cid.append(
+            self._fig.canvas.mpl_connect('scroll_event', zoom_handler_wrapper))
+        self._l_cid.append(
+            self._fig.canvas.mpl_connect('button_press_event', center_handler_wrapper))
 
     def reset_figure(self):
         self._fig.clf()
