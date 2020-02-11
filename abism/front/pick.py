@@ -55,7 +55,8 @@ class Pick(ABC):
         """Return result to frontend (in tk main loop)"""
 
     def launch_worker(self, obj):
-        AsyncWorker(lambda: self.work(obj), self.on_done).run()
+        """Launch worker async"""
+        AsyncWorker(lambda: self.work(obj), self.on_done, timeout=0.5).run()
 
     def on_rectangle(self, eclick, erelease):
         """Param: the extreme coord of the human drawn rectangle"""

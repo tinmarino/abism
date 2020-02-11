@@ -473,12 +473,16 @@ def set_timeout():
 
 
 class AsyncWorker:
-    """Launch task in thread and after in timer
-    Manage b_is_timed_out
-    """
-    def __init__(self, task, after):
+    """Create a async worker with timeout"""
+    def __init__(self, task, after, timeout=10):
+        """
+        :param task: <fct> to run in thread
+        :param after:  <fct> to run in timer
+        :param timeout: <int> second before killing task
+        """
         self.task = task
         self.after = after
+        self.timeout = timeout
 
         # List of timers
         self.l_after_id = []
@@ -490,7 +494,7 @@ class AsyncWorker:
         t.start()
 
         # Add timeout
-        self.l_after_id.append(get_root().after(500, set_timeout))
+        self.l_after_id.append(get_root().after(int(1000 * self.timeout), set_timeout))
 
         # Add after timers
         for i in range(100):
