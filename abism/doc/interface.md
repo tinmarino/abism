@@ -124,7 +124,7 @@ It can be done in different ways:
 4. __Annulus__: an annulus around the object is used
 5. __Fit__: the sky measurement during the fit (as an additional free parameter)
 
-Note: for annulus and 8rect: the distance to the star 
+Note: for annulus and 8rect: the distance to the star
 
 #### Photometry
 

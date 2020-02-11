@@ -143,20 +143,11 @@ class PlotFrame(tk.Frame):
         return self._toolbar._active in ('PAN', 'ZOOM')
 
     def redraw(self):
+        self.set_figure_skin()
         self._fig.canvas.draw()
 
     def extend_matplotlib(self):
         """Enable scroll with mouse"""
-        """
-        # Right click -> center
-        if event.button == 3:
-            log(5, 'Centering <- right click:', event)
-            center_handler(
-                event,
-                get_root().frame_image.get_figure().axes[0],
-                callback=get_root().frame_image.get_canvas().draw)
-            return
-        """
         def get_event_ax(event, axes):
             for ax in axes:
                 if event.inaxes == ax:

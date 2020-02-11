@@ -270,7 +270,7 @@ def plot1d_one():
 
     # Update skin && Legend && Draw
     ax.legend(loc=1, prop={'size': 8})
-    get_root().frame_fit.get_canvas().draw()
+    get_root().frame_fit.redraw()
 
 
 def plot1d_binary():
