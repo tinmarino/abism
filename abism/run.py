@@ -69,13 +69,13 @@ def run_async(*argument):
 
     def clear_all_cache():
         # pylint: disable = protected-access
-        import functools
-        import gc
+        from functools import _lru_cache_wrapper
+        from gc import collect, get_objects
 
-        gc.collect()
+        collect()
         wrappers = [
-            a for a in gc.get_objects()
-            if isinstance(a, functools._lru_cache_wrapper)]
+            a for a in get_objects()
+            if isinstance(a,_lru_cache_wrapper)]
 
         for wrapper in wrappers:
             wrapper.cache_clear()
@@ -86,7 +86,7 @@ def run_async(*argument):
     clear_all_cache()
 
     # Fake sys.args
-    sys.argv = ['ipy'] + list(argument)
+    sys.argv = ['ipython'] + list(argument)
     parse_argument()
 
     # Launch Thread
