@@ -15,24 +15,24 @@ import abism.front.tk_extension as tk_ext  # pylint: disable = unused-import
 
 @lru_cache(1)
 def photo_up():
-    """Return path of arrow_up icon"""
+    """ Return path of arrow_up icon """
     return tk.PhotoImage(file=root_path() + "res/arrow_up.gif", master=get_root())
 
 
 @lru_cache(1)
 def photo_down():
-    """Return path of arrow_down icon"""
+    """ Return path of arrow_down icon """
     return tk.PhotoImage(file=root_path() + "res/arrow_down.gif", master=get_root())
 
 
 @lru_cache(1)
 def icon_path():
-    """Return path of window icon"""
+    """ Return path of window icon """
     return root_path() + 'res/bato_chico.gif'
 
 
 def about_window():
-    """Pop about window
+    """ Pop about window
     Append it to (to)
     """
     from abism import __version__
@@ -53,7 +53,7 @@ def about_window():
 
 
 def system_open(path=""):
-    """Call system defautl open for file
+    """ Call system default open for file
     path: path of the file to oopen relative to abism root path
     """
     import shutil
@@ -84,6 +84,9 @@ def system_open(path=""):
 
 
 def abism_askopenfilename(**args):
+    """ Util: Popup window to get filepath
+    try GTK (Ubuntu) or else default TK
+    """
     try:
         from abism.plugin.gtk_window_open import gtk_askopenfilename
         fname = gtk_askopenfilename(**args)
@@ -96,7 +99,7 @@ def abism_askopenfilename(**args):
 
 
 def open_file():
-    """Open an image file
+    """ Open an image file
     A click on this button will open a window.
     You need to select a FITS image to load with Abism.
     This is an other way to load an image, the first one is to load it
@@ -126,7 +129,7 @@ def open_file():
 
 
 def toogle_header():
-    """Toogle header viewer"""
+    """ Toogle header viewer """
     from abism.plugin.window_text import WindowText
     def on_close():
         toogle_header.window_header.destroy()
@@ -149,7 +152,7 @@ toogle_header.window_header = None
 
 
 def toogle_manual():
-    """Toogle interface documentation window"""
+    """ Toogle interface documentation window """
     from abism.plugin.window_text import WindowText
 
     def on_close():
@@ -177,7 +180,7 @@ toogle_manual.window_manual = None
 
 
 def open_backgroud_and_substract():
-    """Subtract A background image"""
+    """ Subtract A background image """
     # Ask for background
     fp_sky = abism_askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])

@@ -6,12 +6,12 @@
                           Licence
          Do whatever you want, want whatever you do
 
-Install:
+Install, choose:
     1. pip install abism
     2. pip install --user -U git+https://github.com/tinmarino/abism
     3. git clone https://github.com/tinmarino/abism abism_source && cd abism_source
 
-Run:
+Run, choose:
     1. sh> abism
     2. sh> [bash | python] path/to/clone/abism.py
     3. sh> python -m abism
@@ -22,8 +22,8 @@ Run:
 They are all equivalent except the last one
 
 More:
-    help(absim.front)  # GUI info
-    help(absim.back)  # Strehl estimation info
+    help(abism.front)  # GUI info
+    help(abism.back)  # Strehl estimation info
 
 """
 __version__ = '0.911'

@@ -198,10 +198,10 @@ def Gaussian2D(xy, params):
     xt = xy[0]
     yt = xy[1]
     # tested the next thing
-    xp = (xt-params['center_x'])*np.cos(params['theta']) - \
-        (yt-params['center_y'])*np.sin(params['theta'])
-    yp = (xt-params['center_x'])*np.sin(params['theta']) + \
-        (yt-params['center_y'])*np.cos(params['theta'])
+    xp = (xt-params['center_x'])*np.cos(params['theta']) \
+       - (yt-params['center_y'])*np.sin(params['theta'])
+    yp = (xt-params['center_x'])*np.sin(params['theta']) \
+       + (yt-params['center_y'])*np.cos(params['theta'])
     res = params['background']+params['intensity'] * \
         np.exp(-(xp**2/params['spread_x']**2+yp**2/params['spread_y']**2))
     res[res > saturation] = saturation

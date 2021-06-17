@@ -34,10 +34,10 @@ class WindowRoot(tk.Tk):
         super().__init__()
         self.geometry(parse_argument().gui_geometry)
 
-        # Variables for my children
+        # Store variable context for my children
         get_state().tk_root = self
 
-        # Save spawned children
+        # Save spawned children for theme and close
         self.saved_children = []
         self.l_bind = []
 
@@ -48,10 +48,9 @@ class WindowRoot(tk.Tk):
         MenuBar(self)
 
         # ALL What is not the menu is a paned windows :
-        # I can rezie it with the mouse from left to right,
+        # Resizable with the mouse from left to right,
         # This (all but not the Menu) Frame is called MainPaned
-        self.paned_root = tk.PanedWindow(
-            self, orient=tk.HORIZONTAL)
+        self.paned_root = tk.PanedWindow(self, orient=tk.HORIZONTAL)
         self.paned_root.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # 2 Left: Add
@@ -67,7 +66,6 @@ class WindowRoot(tk.Tk):
         self.paned_root.add(right)
 
         self.set_image(parse_argument().image)
-
 
     def set_image(self, filepath):
         if not filepath: return
@@ -106,16 +104,13 @@ class WindowRoot(tk.Tk):
             from abism.util import EPick
             refresh_pick(EPick.ONE)
 
-
-
     def set_title(self):
-        """Create OS's window title, icon and Set geomrtry"""
+        """Set OS window title"""
         self.title('ABISM (' +
                    "/".join(str(get_state().image.name).split("/")[-3:]) + ')')
 
-
     def set_icon(self):
-        """Create OS Icon from resources"""
+        """Set OS window icon from resources"""
         if isfile(icon_path()):
             bitmap = tk.PhotoImage(file=icon_path(), master=self)
             self.tk.call('wm', 'iconphoto', self._w, bitmap)

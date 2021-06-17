@@ -1,5 +1,5 @@
 """
-    Run abism code sync or async
+    Run abism code: synchronous or asynchronous
 
 functions: run_sync, run_async
 """
@@ -27,7 +27,7 @@ def run_sync():
 
 
 def run_async(*argument):
-    """Returns: SthrelMeter, a cool object
+    """Returns: StrehlMeter, a cool object
     """
     from threading import Thread
     import sys
@@ -42,7 +42,7 @@ def run_async(*argument):
         __repr__ = str_pretty
 
     class AbismAsync(Thread):
-        """Asynchronous launch"""
+        """Thread content declaration"""
         def __init__(self):
             self.sm = StrehlMeter()
             self.sm.root = None

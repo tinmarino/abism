@@ -92,10 +92,8 @@ class ImageInfo():
 
     @staticmethod
     def from_file(filename):
-        """Builder"""
-        """Open image from path
+        """ Factory: Open image from path
         new_fits if a new file, and not cube scrolling
-        I know this is not front but so central ...
         """
         # Check in
         if not filename:
@@ -129,6 +127,7 @@ class ImageInfo():
 
     @staticmethod
     def from_2D(hdulist):
+        """ Factory: From 2D image """
         image = ImageInfo(hdulist[0].data)
         image.is_cube = False
         return image
@@ -136,7 +135,8 @@ class ImageInfo():
 
     @staticmethod
     def from_cube(hdulist):
-        """ TODO call image_frame.Cube(), to create or destroy
+        """ Factory: from 3D image
+        TODO call image_frame.Cube(), to create or destroy
         Here i got deleted 1bb47dccf2
         """
         # Dirty cut first dim for nasa sample
@@ -153,19 +153,23 @@ class ImageInfo():
 
 
     def update_cube(self):
+        """ Update im0 <- new cube index """
         im0 = self.hdulist[0].data[self.cube_num - 1]
         self.set_array(im0)
 
 
     def get_stat(self):
-        """Helper: readability counts
+        """ Getter
         Used for Sky, Background, Photometry, Object detection
         """
         return self.stat
 
 
     def substract_sky(self, fp_sky):
-        """Returns True if no problem"""
+        """ Subtraction of 2D image
+        arg1: filepath of the background fits image
+        return: True if no problem
+        """
         # Open
         bg_hdulist = fits.open(fp_sky)
 
@@ -181,7 +185,7 @@ class ImageInfo():
 
 
     def create_bad_pixel_mask(self):
-        """Create bad pixel mask from image grid"""
+        """ Create bad pixel mask from image grid """
         self.bpm = False * self.im0
         ground = median_filter(self.im0, size=(4, 4)) + self.stat.rms
         bol1 = np.abs(self.im0) > np.abs(3 * ground)
