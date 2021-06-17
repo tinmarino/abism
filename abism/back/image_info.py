@@ -76,7 +76,7 @@ class ImageInfo():
 
     def set_array(self, array):
         """Array info called from init and cube chage"""
-        self.im0 = array  # np.array the image !!
+        self.im0 = array.copy()  # np.array the image !!
 
         # Sorted image for cut and histograms
         self.sort = self.im0.flatten()
@@ -143,7 +143,7 @@ class ImageInfo():
         if len(hdulist[0].data.shape) > 3:
             hdulist[0].data = hdulist[0].data[0]
 
-        # we start with the last index
+        # Start with the last index
         cube_num = hdulist[0].data.shape[0]
         image = ImageInfo(hdulist[0].data[cube_num - 1])
         image.is_cube = True
@@ -154,9 +154,7 @@ class ImageInfo():
 
     def update_cube(self):
         """ Update im0 <- new cube index """
-        im0 = self.hdulist[0].data[self.cube_num - 1]
-        self.set_array(im0)
-
+        self.set_array(self.hdulist[0].data[self.cube_num - 1])
 
     def get_stat(self):
         """ Getter
@@ -185,7 +183,9 @@ class ImageInfo():
 
 
     def create_bad_pixel_mask(self):
-        """ Create bad pixel mask from image grid """
+        """ Create bad pixel mask from image grid
+        TODO should be relative to the ground especially when close to saturation
+        """
         self.bpm = False * self.im0
         ground = median_filter(self.im0, size=(4, 4)) + self.stat.rms
         bol1 = np.abs(self.im0) > np.abs(3 * ground)

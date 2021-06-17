@@ -351,8 +351,6 @@ def str_answers(answers):
     return stg
 
 
-
-
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called

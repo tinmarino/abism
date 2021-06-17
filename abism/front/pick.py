@@ -18,7 +18,7 @@ from abism.util import log, get_root, get_state, AsyncWorker
 
 
 class Pick(ABC):
-    """Class for a connection:
+    """ Class for an mouse input event connection
     image event -> operation (then result display)
     Note: disconnection is not generic:
         sometime a matplotlit callback_id
@@ -35,32 +35,34 @@ class Pick(ABC):
 
     @abstractmethod
     def connect(self):
-        """Canvas may have changed"""
+        """ Connect the mouse to this callback """
         log(3, 'Pick: connecting a', self.__class__.__name__, 'instance')
+        # Canvas may have changed
         self.canvas = get_root().frame_image.get_canvas()
         self.figure = get_root().frame_image.get_figure()
         self.ax = self.figure.axes[0]
 
     @abstractmethod
-    def disconnect(self): pass
+    def disconnect(self):
+        """ Unregister this input event callback """
 
     @abstractmethod
     def work(self, obj):
-        """Work in the backend (can ba async)
-        :param obj: <- event (usually)
+        """ Work in the backend (can ba async)
+        :arg obj: <- event (usually)
         """
 
     @abstractmethod
     def on_done(self):
-        """Return result to frontend (in tk main loop)"""
+        """ Return result to frontend (in tk main loop) """
 
     def launch_worker(self, obj):
-        """Launch worker async"""
+        """ Launch worker async"""
         get_state().reset_answers()
         AsyncWorker(lambda: self.work(obj), self.on_done, timeout=10).run()
 
     def on_rectangle(self, eclick, erelease):
-        """Param: the extreme coord of the human drawn rectangle"""
+        """ Param: the extreme coord of the human drawn rectangle """
         # Log && Save
         click = eclick.xdata, eclick.ydata
         release = erelease.xdata, erelease.ydata
@@ -92,7 +94,7 @@ class Pick(ABC):
 
 
     def pick_event(self, event):
-        """For mouse click PickOne or rectangle"""
+        """ For mouse click PickOne or rectangle """
         # Left click -> avoid shadowing rectangle selection
         if not event.inaxes or event.button == 1:
             return
@@ -302,7 +304,7 @@ class PickStat(Pick):
 
 
 class PickProfile(Pick):
-    """Linear Profile, cutted shape of a source
+    """ Linear Profile, cutted shape of a source
     Draw a line on the image. Some basic statistics on the pixels cutted by
     your line will be displayed in the 'star frame'. And a Curve will be
     displayed on the 'fit frame'. A pixel is included if the distance of its
@@ -325,10 +327,10 @@ class PickProfile(Pick):
         )
 
     def disconnect(self):
-        if self.artist_profile:
-            self.artist_profile.Disconnect()
-            self.artist_profile.RemoveArtist()
-            self.artist_profile = None
+        if not self.artist_profile: return
+        self.artist_profile.Disconnect()
+        self.artist_profile.RemoveArtist()
+        self.artist_profile = None
 
     def work(self, obj):
         self.point1 = [obj.point1[0], obj.point1[1]]
@@ -340,13 +342,11 @@ class PickProfile(Pick):
 
 
 class PickEllipse(Pick):
-    """Not used"""
+    """ Aperture of an ellipse given by user on matplotlib interface """
     def __init__(self):
         super().__init__()
         self.artist_ellipse = None
-
         self.bind_enter_id = None
-
 
     def connect(self):
         super().connect()
@@ -368,19 +368,11 @@ class PickEllipse(Pick):
         tk_fig = self.canvas.get_tk_widget()
         self.bind_enter_id = tk_fig.bind('<Enter>', lambda _: tk_fig.focus_set())
 
-
     def disconnect(self):
-        # Undraw
-        if self.artist_ellipse:
-            self.artist_ellipse.Disconnect()
-            self.artist_ellipse.RemoveArtist()
-            self.artist_ellipse = None
-
-        # Unbind
-        if self.bind_enter_id:
-            tk_fig = self.canvas.get_tk_widget()
-            tk_fig.unbind('<Enter>', self.bind_enter_id)
-
+        if not self.artist_ellipse: return
+        self.artist_ellipse.Disconnect()
+        self.artist_ellipse.RemoveArtist()
+        self.artist_ellipse = None
 
     def work(self, _):
         Strehl.EllipseEventStrehl(self.artist_ellipse)

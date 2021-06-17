@@ -65,10 +65,11 @@ def tktext_insert_warnings(self):
     stg = ''
 
     # Saturated
-    if 'intensity' not in get_state().d_fit_param:  # binary
-        intensity = get_state().d_fit_param["intensity0"] + get_state().d_fit_param["intensity1"]
-    else:
+    intensity = float('nan')
+    if 'intensity' in get_state().d_fit_param:  # binary
         intensity = get_state().d_fit_param["intensity"]
+    elif any(key in get_state().d_fit_param for key in ('intensity0', 'intensity1')):
+        intensity = get_state().d_fit_param["intensity0"] + get_state().d_fit_param["intensity1"]
 
     if intensity > get_root().header.non_linearity_level:
         if intensity > 1.0 * get_root().header.saturation_level:

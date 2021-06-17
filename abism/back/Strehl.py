@@ -205,45 +205,47 @@ def save_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
 
 
 def EllipseEventStrehl(ellipse):
-    """Main ellipse worker,
-    Param: ellipse artist with ru, rv, position
+    """ Input event callback: on user ellipse click
+    arg: ellipse: artist with ru, rv, position
     """
     if get_state().e_phot_type == EPhot.FIT:
         log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
 
-    # Not fit
+    # Not Chi2 as no fit
     set_aa(EA.CHI2, float('nan'))
 
     # Background
-    back_stat = EllipseEventBack(ellipse)
+    back_stat = get_ellipse_background(ellipse)
     set_aa(EA.BACKGROUND, back_stat.mean, error=back_stat.rms)
 
     # Photometry
-    phot_stat = EllipseEventPhot(ellipse)
+    phot_stat = get_ellipse_photometry(ellipse)
     phot = phot_stat.sum - phot_stat.number_count * back_stat.mean
     set_aa(EA.PHOTOMETRY, phot, error=phot_stat.rms)
 
-    # Get maximum (side effect)
-    EllipseEventMax(ellipse)
+    # Set answer peak
+    set_answer_ellipse_peak(ellipse)
 
     # Math
     save_strehl_ratio()
 
 
-def EllipseEventBack(obj):
-    """Return: background from ellipse <stat obj>"""
-    rui, rvi = obj.ru, obj.rv     # inner annulus
-    ruo, rvo = 2*obj.ru, 2 * obj.rv  # outer annulus
+def get_ellipse_background(ellipse):
+    """Return: background from ellipse <stat ellipse>"""
 
+    # Inner annulus
+    rui, rvi = ellipse.ru, ellipse.rv
     ell_i = IF.get_elliptical_aperture(
-        get_state().image.im0, center=(obj.x0, obj.y0),
-        uv=(rui, rvi), theta=obj.theta)
+        get_state().image.im0, center=(ellipse.x0, ellipse.y0),
+        uv=(rui, rvi), theta=ellipse.theta)
 
+    # Outer annulus
+    ruo, rvo = 2 * ellipse.ru, 2 * ellipse.rv  # outer annulus
     ell_o = IF.get_elliptical_aperture(
-        get_state().image.im0, center=(obj.x0, obj.y0),
-        uv=(ruo, rvo), theta=obj.theta)
+        get_state().image.im0, center=(ellipse.x0, ellipse.y0),
+        uv=(ruo, rvo), theta=ellipse.theta)
 
-    # annulus  inside out but not inside in
+    # Complete annulus := inside out but not inside in
     bol_a = ell_o ^ ell_i
 
     image_cut = get_state().image.im0[bol_a]
@@ -252,26 +254,28 @@ def EllipseEventBack(obj):
     return stat
 
 
-def EllipseEventPhot(obj):
+def get_ellipse_photometry(ellipse):
     """Elliptical phot
     Returns: photometry, total, number_count
     """
-    ellipse = IF.get_elliptical_aperture(
-        obj.array, center=(obj.x0, obj.y0),
-        uv=(obj.ru, obj.rv), theta=obj.theta)
+    bol = IF.get_elliptical_aperture(
+        get_state().image.im0, center=(ellipse.x0, ellipse.y0),
+        uv=(ellipse.ru, ellipse.rv), theta=ellipse.theta)
 
-    stat = get_array_stat(obj.array[ellipse])
+    stat = get_array_stat(get_state().image.im0[bol])
 
     return stat
 
 
-def EllipseEventMax(obj):
-    """Param: ellipse artist
+def set_answer_ellipse_peak(ellipse):
+    """ Set state answer for the peak of elliptical manual aperture
+    arg: ellipse artist
     With bad pixel filter
     Side Returns: local maximum, cetner <- answers
     """
-    rad = max(obj.ru, obj.rv)
-    r = (obj.x0-rad, obj.x0+rad+1, obj.y0-rad, obj.y0+rad+1)
+    rad = max(ellipse.ru, ellipse.rv)
+    r = (ellipse.x0 - rad, ellipse.x0 + rad + 1,
+         ellipse.y0 - rad, ellipse.y0 + rad + 1)
     local_max = IF.LocalMax(get_state().image.im0, r=r)
     x0, y0 = local_max[:2]
 
@@ -286,7 +290,7 @@ def EllipseEventMax(obj):
 
 
 def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
-    """Make photometry of region
+    """ Make photometry of region
     In: center, r99
         Only one reading variable photometric type
         background

@@ -7,7 +7,7 @@ import numpy as np
 from scipy.ndimage import median_filter
 import scipy.interpolate  # for LocalMax
 
-from abism.back.image_info import get_array_stat
+# from abism.back.image_info import get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
 from abism.util import log, get_state, DotDic
@@ -483,12 +483,12 @@ def correct_bad_pixel(grid):
     median = median_filter(grid, size=(3, 3))
     res = grid.copy()
     bol = np.abs(grid - median) > 3 * np.abs(median)
-    grid[bol] = median[bol]
-    return grid
+    res[bol] = median[bol]
+    return res
 
 
 def get_elliptical_aperture(grid, center=None, uv=None, theta=None):
-    """Returns a bol : grid[bol] <- you are in aperture"""
+    """ Returns a bol : grid[bol] <- you are in aperture """
     # Check in
     if None in (center, uv, theta):
         log(-1, 'Error: get_elliptical_aperture wrong parameters')
