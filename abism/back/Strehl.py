@@ -485,7 +485,10 @@ def save_strehl_ratio():
 
 
 def get_bessel_integer():
-    """Read wavelenght, pixel_scale, diameter, obstruction"""
+    """ Get bessel coeficient
+    Then theorical_intensity = photometry / bessel_integer
+    Read wavelenght, pixel_scale, diameter, obstruction
+    """
     bessel_integer = get_root().header.wavelength * \
         10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
     bessel_integer = bessel_integer**2 * 4 * \

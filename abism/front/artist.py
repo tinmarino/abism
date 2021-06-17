@@ -10,6 +10,7 @@ import matplotlib
 
 
 from abism.util import log
+from abism.front.util_front import is_toolbar_active
 
 
 class Artist:
@@ -473,12 +474,11 @@ class Profile(Artist):
             log(3, "artist.profile cannot disconnect release  ")
 
     def on_press(self, event):
-        # Check
+        # Clause: want axes and not active toolbar
         if not event.inaxes:
             return
         toolbar = event.inaxes.figure.canvas.toolbar
-        # pylint: disable = protected-access
-        if toolbar._active in ('PAN', 'ZOOM'):
+        if is_toolbar_active(toolbar):
             log(3, "WARNING: Zoom or Pan actif, "
                    "please unselect its before picking your object")
             return

@@ -179,6 +179,18 @@ def toogle_manual():
 toogle_manual.window_manual = None
 
 
+def is_toolbar_active(toolbar):
+    """ Check if a matplotlib toolbar is active
+    """
+    try:
+        from matplotlib.backend_bases import _Mode
+        res = toolbar.mode in (_Mode.ZOOM, _Mode.PAN)
+    except:
+        log(0, 'Deprecation Warning: toolbar._active do no longer exists, update matplotlib')
+        # pylint: disable = protected-access
+        res = toolbar._active in ('PAN', 'ZOOM')
+    return res
+
 def open_backgroud_and_substract():
     """ Subtract A background image """
     # Ask for background

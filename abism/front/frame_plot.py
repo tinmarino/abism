@@ -6,7 +6,8 @@
 import tkinter as tk
 import numpy as np
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas, \
+from matplotlib.backends.backend_tkagg import \
+    FigureCanvasTkAgg as FigureCanvas, \
     NavigationToolbar2Tk
 from numpy import sqrt, float32
 
@@ -16,6 +17,7 @@ from abism.front.matplotlib_extension import (
 from abism.front.util_front import photo_up, photo_down
 import abism.front.tk_extension as tk_ext
 import abism.front.util_front as G
+from abism.front.util_front import is_toolbar_active
 
 # Back
 from abism.back.ImageFunction import PixelMax
@@ -53,7 +55,7 @@ class RightFrame(tk.PanedWindow):
 
 
 class PlotFrame(tk.Frame):
-    """Frame with a mpl figure"""
+    """ Base Frame with a mpl figure """
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -139,8 +141,7 @@ class PlotFrame(tk.Frame):
         return self._toolbar
 
     def is_toolbar_active(self):
-        # pylint: disable = protected-access
-        return self._toolbar._active in ('PAN', 'ZOOM')
+        return is_toolbar_active(self._toolbar)
 
     def redraw(self):
         self.set_figure_skin()
