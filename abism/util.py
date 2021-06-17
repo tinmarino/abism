@@ -1,3 +1,4 @@
+# coding=utf-8
 """
     Abism util functions
 """
@@ -15,17 +16,17 @@ from datetime import datetime
 from collections import deque
 
 
-_parsed_args = None  # Arguments from argparse
+g_parsed_args = None  # Arguments from argparse
 
 
 @lru_cache(1)
 def parse_argument():
     """Do not call get_state here -> infinite loop"""
     # pylint: disable=global-statement
-    global _parsed_args
+    global g_parsed_args
 
     from argparse import ArgumentParser
-    from sys import argv
+    from sys import argv, executable
     parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
 
     # Image
@@ -98,13 +99,14 @@ def parse_argument():
         print('Argument Parsing error:', str(e))
         parsed_args = parser.parse_args([])
 
+    parsed_args.executable = executable
     parsed_args.script = argv[0]
     parsed_args.image = parsed_args.image[0]
 
     # set
-    _parsed_args = parsed_args
+    g_parsed_args = parsed_args
 
-    return _parsed_args
+    return g_parsed_args
 
 
 def get_colormap_list():
@@ -149,9 +151,9 @@ def get_av(enum_answer):
     return get_state().get_answer(enum_answer)
 
 
-def set_aa(enum_answer, value, *arg, unit=None, **args):
+def set_aa(enum_answer, value, *arg, **args):
     """Set Abism Answer shortcut"""
-    return get_state().add_answer(enum_answer, value, *arg, unit=unit, **args)
+    return get_state().add_answer(enum_answer, value, *arg, **args)
 
 
 def get_aa(enum_answer):
@@ -443,9 +445,10 @@ class AbismState(DotDic):
         self.set_timestamp()
         return self.answers
 
-    def add_answer(self, enum_answer, value, *arg, unit=None, **args):
+    def add_answer(self, enum_answer, value, *arg, **args):
+        """ Arg: unit in **args """
         # Craft
-        answer = self.craft_answer(enum_answer, value, *arg, unit=unit, **args)
+        answer = self.craft_answer(enum_answer, value, *arg, **args)
 
         # Save answer
         self.answers[enum_answer.name] = answer
@@ -453,7 +456,7 @@ class AbismState(DotDic):
         # Return
         return answer
 
-    def craft_answer(self, enum_answer, value, *arg, unit=None, **args):
+    def craft_answer(self, enum_answer, value, *arg, **args):
         from abism.answer import AnswerSky
 
         # Check if overwork
@@ -471,8 +474,7 @@ class AbismState(DotDic):
             answer = cls(text, value, *arg, **args)
 
         # Add unit
-        if unit is not None:
-            answer.unit = unit
+        answer.unit = args.get('unit', '')
 
         return answer
 
@@ -547,11 +549,10 @@ def restart():
 
     ###########
     # PREPARE STG command line args
-    stg = 'python ' + _parsed_args.script + ' '
-    arg_dic = vars(_parsed_args)
-    for key, value in arg_dic.items():
-        if key == 'script' or not value: continue
-        log(3, 'Cmd (key, value)', key, ' ', arg_dic[key])
+    stg = g_parsed_args.executable + ' ' + g_parsed_args.script + ' '
+    for key, value in vars(g_parsed_args).items():
+        if key in ('executable', 'script') or not value: continue
+        log(3, 'Cmd (key, value)', key, ' ', value)
         key = key.replace('_', '-')
         stg += '--' + key + ' ' + str(value) + ' '
     stg += '&'

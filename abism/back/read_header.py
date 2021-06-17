@@ -1,5 +1,5 @@
 """
-    Fits Header parser
+Fits Header parser
 
 Necessary:
     diameter        (real in m)     The primary diameter
@@ -66,11 +66,14 @@ def parse_header(header):
         return NacoHeader(header)
     if "SINFONI" in instrument:
         return SinfoniHeader(header)
+    if "MAOC" in instrument:
+        return MaocHeader(header)
 
     return Header(header)
 
 class WCSDefault:
-    def all_pix2world(self, x, y):
+    """ Default class for World Coordinate System """
+    def all_pix2world(self, _x, _y):
         return np.array([[float('nan'), float('nan')]])
 
 
@@ -123,6 +126,8 @@ class Header:
             self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
 
         # WAVELENGHT
+        if 'LAMBDA' in self.header:
+            self.wavelength = self.header['LAMBDA']
         if 'FILTER' in self.header:
             filt = self.header['FILTER']
             if filt == 'H':
@@ -156,7 +161,11 @@ class Header:
 
         # ""
         # APERTURE
-        if 'VLT'in self.telescope:
+        if 'OBSTRU' in self.header:
+            self.obstruction = self.header['OBSTRU']
+        if 'DIAMETER' in self.header:
+            self.diameter = self.header['DIAMETER']
+        elif 'VLT'in self.telescope:
             self.diameter = 8.0
             self.obstruction = 14.
         elif 'Baade'in self.telescope:
@@ -175,6 +184,8 @@ class Header:
         # baade
         if 'SCALE' in self.header:
             self.pixel_scale = self.header['SCALE']
+        elif 'PXSCALE' in self.header:
+            self.pixel_scale = self.header['PXSCALE']
         if (self.pixel_scale > 1e-6) & (self.pixel_scale < 1e-3):  # in deg
             self.pixel_scale *= 3600
 
@@ -369,3 +380,12 @@ class SinfoniHeader(Header):
             self.pixel_scale = opt1
 
         pixel_scale()
+
+class MaocHeader(Header):
+    """ Maoc 4m in cuba """
+    def __init__(self, header):
+        Header.__init__(self, header)
+
+        self.company = "DFM"
+        self.telescope = "MAOC"
+        self.instrument = self.header['INSTRUM']
