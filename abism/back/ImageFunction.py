@@ -60,6 +60,9 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
            "interpolation" # interpolation of the 5*5
     With bad pixel filter
     """
+    # Copy grid in => we will modify it for recursive call
+    grid = grid.copy()
+
     # INIT R
     if r is None:
         r = (center[0]-size, center[0]+size+1,
@@ -478,6 +481,7 @@ def get_profile_x(grid, center):
 def correct_bad_pixel(grid):
     """Smooth bad pixel <- Filter median"""
     median = median_filter(grid, size=(3, 3))
+    res = grid.copy()
     bol = np.abs(grid - median) > 3 * np.abs(median)
     grid[bol] = median[bol]
     return grid
