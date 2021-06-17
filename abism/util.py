@@ -29,6 +29,11 @@ def parse_argument():
     from sys import argv, executable
     parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
 
+    # Version
+    parser.add_argument(
+        '-V', '--version', action='store_true',
+        help='Print version and leave')
+
     # Image
     parser.add_argument(
         '-i', '--image', metavar='image.fits', type=str, action='append',
@@ -103,9 +108,15 @@ def parse_argument():
     parsed_args.script = argv[0]
     parsed_args.image = parsed_args.image[0]
 
-    # set
-    g_parsed_args = parsed_args
+    # Clause exit if --version
+    if parsed_args.version:
+        from abism import __version__
+        from sys import exit as sys_exit
+        print(__version__)
+        sys_exit(0)
 
+    # Set and Return
+    g_parsed_args = parsed_args
     return g_parsed_args
 
 
