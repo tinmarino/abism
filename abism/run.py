@@ -5,6 +5,7 @@ functions: run_sync, run_async
 """
 from abism.util import parse_argument
 
+
 def _run_helper(obj):
     """Returns: fill obj with some cool members"""
     # Create gui
@@ -32,6 +33,7 @@ def run_async(*argument):
     from threading import Thread
     import sys
     from abism.util import str_pretty
+
     class StrehlMeter:
         """StrehlMeter: object interface to Abism
         state   <- abism state frontend is sharing with backend
@@ -43,6 +45,7 @@ def run_async(*argument):
 
     class AbismAsync(Thread):
         """Thread content declaration"""
+
         def __init__(self):
             self.sm = StrehlMeter()
             self.sm.root = None
@@ -75,7 +78,7 @@ def run_async(*argument):
         collect()
         wrappers = [
             a for a in get_objects()
-            if isinstance(a,_lru_cache_wrapper)]
+            if isinstance(a, _lru_cache_wrapper)]
 
         for wrapper in wrappers:
             wrapper.cache_clear()

@@ -25,6 +25,7 @@ def get_fit_function():
 
     return fit_fct
 
+
 # Cache for profile
 get_fit_function.e_pick_type_cache = None
 
@@ -47,7 +48,7 @@ def get_binary_fct():
     fct_base = globals()[s_fit_type.replace("2D", "") + "2pt"]
 
     # Set function named params (aniso and same_psf)
-    fit_fct = lambda points, params: fct_base(
+    def fit_fct(points, params): return fct_base(
         points, params, aniso=aniso, same_psf=same_psf)
 
     # Log
@@ -65,7 +66,8 @@ def get_one_fct():
     s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
 
-    if aniso: s_fit_type += '2D'
+    if aniso:
+        s_fit_type += '2D'
 
     fit_fct = globals()[s_fit_type]
 
@@ -73,8 +75,6 @@ def get_one_fct():
     log(0, 'Fit Function:', fit_fct)
 
     return fit_fct
-
-
 
 
 ##########################
@@ -94,30 +94,33 @@ def Gaussian2pt(points, params, aniso=True, same_psf=True):
     if not aniso:
         a0, a1 = params['spread_x0'], params['spread_x1']
         if same_psf:
-            res = I0*np.exp(- ((x-x0)**2+(y-y0)**2)/a0**2) + \
-                I1*np.exp(- ((x-x1)**2+(y-y1)**2)/a0**2) + bck
+            res = I0 * np.exp(- ((x - x0)**2 + (y - y0)**2) / a0**2) + \
+                I1 * np.exp(- ((x - x1)**2 + (y - y1)**2) / a0**2) + bck
         else:  # including same_fit =0
-            res = I0*np.exp(- ((x-x0)**2+(y-y0)**2)/a0**2) + \
-                I1*np.exp(- ((x-x1)**2+(y-y1)**2)/a1**2) + bck
-
+            res = I0 * np.exp(- ((x - x0)**2 + (y - y0)**2) / a0**2) + \
+                I1 * np.exp(- ((x - x1)**2 + (y - y1)**2) / a1**2) + bck
 
     else:  # Aniso
         a0x, a1x = params['spread_x0'], params['spread_x1']
         a0y, a1y = params['spread_y0'], params['spread_y1']
 
-        x0p = (x-x0)*np.cos(params['theta'])-(y-y0)*np.sin(params['theta'])
-        y0p = (x-x0)*np.sin(params['theta'])+(y-y0)*np.cos(params['theta'])
+        x0p = (x - x0) * np.cos(params['theta']) - \
+            (y - y0) * np.sin(params['theta'])
+        y0p = (x - x0) * np.sin(params['theta']) + \
+            (y - y0) * np.cos(params['theta'])
 
-        x1p = (x-x1)*np.cos(params['theta'])-(y-y1)*np.sin(params['theta'])
-        y1p = (x-x1)*np.sin(params['theta'])+(y-y1)*np.cos(params['theta'])
+        x1p = (x - x1) * np.cos(params['theta']) - \
+            (y - y1) * np.sin(params['theta'])
+        y1p = (x - x1) * np.sin(params['theta']) + \
+            (y - y1) * np.cos(params['theta'])
 
         if same_psf:
           #           xp(-(xp**2/params['spread_x']**2+yp**2/params['spread_y']**2))
-            res = I0*np.exp(- (x0p/a0x)**2 - (y0p/a0y)**2) + \
-                I1*np.exp(- (x1p/a0x)**2 - (y1p/a0y)**2) + bck
+            res = I0 * np.exp(- (x0p / a0x)**2 - (y0p / a0y)**2) + \
+                I1 * np.exp(- (x1p / a0x)**2 - (y1p / a0y)**2) + bck
         else:  # including same_fit =0
-            res = I0*np.exp(- (x0p/a0x)**2 - (y0p/a0y)**2) + \
-                I1*np.exp(- (x1p/a1x)**2 - (y1p/a1y)**2) + bck
+            res = I0 * np.exp(- (x0p / a0x)**2 - (y0p / a0y)**2) + \
+                I1 * np.exp(- (x1p / a1x)**2 - (y1p / a1y)**2) + bck
 
     # Saturate
     res[res > saturation] = saturation
@@ -134,36 +137,40 @@ def Moffat2pt(points, params, aniso=True, same_psf=True):
     saturation = params['saturation']
     try:
         bck = params['background']
-    except:
+    except BaseException:
         bck = 0
 
     if not aniso:        # Circular psf
         a0, a1 = params['spread_x0'], params['spread_x1']
         b0, b1 = params['b0'], params['b1']
         if same_psf:  # here we don't fit a1 nor b1
-            res = I0 * (1 + ((x-x0)**2+(y-y0)**2)/a0**2)**(-b0)
-            res += I1 * (1 + ((x-x1)**2+(y-y1)**2)/a0**2)**(-b0)+bck
+            res = I0 * (1 + ((x - x0)**2 + (y - y0)**2) / a0**2)**(-b0)
+            res += I1 * (1 + ((x - x1)**2 + (y - y1)**2) / a0**2)**(-b0) + bck
         else:                     # including different psf
-            res = I0 * (1 + ((x-x0)**2+(y-y0)**2)/a0**2)**(-b0)
-            res += I1 * (1 + ((x-x1)**2+(y-y1)**2)/a1**2)**(-b1) + bck
+            res = I0 * (1 + ((x - x0)**2 + (y - y0)**2) / a0**2)**(-b0)
+            res += I1 * (1 + ((x - x1)**2 + (y - y1)**2) / a1**2)**(-b1) + bck
 
     else:  # including anisoplanetism
         a0x, a1x = params['spread_x0'], params['spread_x1']
         a0y, a1y = params['spread_y0'], params['spread_y1']
         b0, b1 = params['b0'], params['b1']
 
-        x0p = (x-x0)*np.cos(params['theta'])-(y-y0)*np.sin(params['theta'])
-        y0p = (x-x0)*np.sin(params['theta'])+(y-y0)*np.cos(params['theta'])
+        x0p = (x - x0) * np.cos(params['theta']) - \
+            (y - y0) * np.sin(params['theta'])
+        y0p = (x - x0) * np.sin(params['theta']) + \
+            (y - y0) * np.cos(params['theta'])
 
-        x1p = (x-x1)*np.cos(params['theta'])-(y-y1)*np.sin(params['theta'])
-        y1p = (x-x1)*np.sin(params['theta'])+(y-y1)*np.cos(params['theta'])
+        x1p = (x - x1) * np.cos(params['theta']) - \
+            (y - y1) * np.sin(params['theta'])
+        y1p = (x - x1) * np.sin(params['theta']) + \
+            (y - y1) * np.cos(params['theta'])
 
         if same_psf:
-            res = I0 * (1 + (x0p**2/a0x**2 + y0p**2/a0y**2))**(-b0)
-            res += I1 * (1 + (x1p**2/a0x**2 + y1p**2/a0y**2))**(-b0) + bck
+            res = I0 * (1 + (x0p**2 / a0x**2 + y0p**2 / a0y**2))**(-b0)
+            res += I1 * (1 + (x1p**2 / a0x**2 + y1p**2 / a0y**2))**(-b0) + bck
         else:      # including not same psf
-            res = I0 * (1 + (x0p**2/a0x**2 + y0p**2/a0y**2))**(-b0)
-            res += I1 * (1 + (x1p**2/a1x**2 + y1p**2/a1y**2))**(-b1)+bck
+            res = I0 * (1 + (x0p**2 / a0x**2 + y0p**2 / a0y**2))**(-b0)
+            res += I1 * (1 + (x1p**2 / a1x**2 + y1p**2 / a1y**2))**(-b1) + bck
 
     # Saturate
     res[res > saturation] = saturation
@@ -187,7 +194,7 @@ def Gaussian(points, params):
     I = params['intensity']
     cst = params['background']
     saturation = params['saturation']
-    res = I * np.exp(- ((x-x0)**2+(y-y0)**2)/a**2) + cst
+    res = I * np.exp(- ((x - x0)**2 + (y - y0)**2) / a**2) + cst
     res[res > saturation] = saturation
     return res
 
@@ -198,12 +205,12 @@ def Gaussian2D(xy, params):
     xt = xy[0]
     yt = xy[1]
     # tested the next thing
-    xp = (xt-params['center_x'])*np.cos(params['theta']) \
-       - (yt-params['center_y'])*np.sin(params['theta'])
-    yp = (xt-params['center_x'])*np.sin(params['theta']) \
-       + (yt-params['center_y'])*np.cos(params['theta'])
-    res = params['background']+params['intensity'] * \
-        np.exp(-(xp**2/params['spread_x']**2+yp**2/params['spread_y']**2))
+    xp = (xt - params['center_x']) * np.cos(params['theta']) \
+        - (yt - params['center_y']) * np.sin(params['theta'])
+    yp = (xt - params['center_x']) * np.sin(params['theta']) \
+        + (yt - params['center_y']) * np.cos(params['theta'])
+    res = params['background'] + params['intensity'] * \
+        np.exp(-(xp**2 / params['spread_x']**2 + yp**2 / params['spread_y']**2))
     res[res > saturation] = saturation
     return res
 
@@ -220,7 +227,7 @@ def Moffat(points, params):
     cst = params['background']
     saturation = params['saturation']
 
-    res = I * (1 + ((x-x0)**2+(y-y0)**2)/a**2)**(-b) + cst
+    res = I * (1 + ((x - x0)**2 + (y - y0)**2) / a**2)**(-b) + cst
     res[res > saturation] = saturation
     return res
 
@@ -234,13 +241,13 @@ def Moffat2D(xy, params):
     xt = xy[0]
     yt = xy[1]
     theta = params['theta']
-    xp = (xt-x0)*np.cos(theta)-(yt-y0)*np.sin(theta)
-    yp = (xt-x0)*np.sin(theta)+(yt-y0)*np.cos(theta)
+    xp = (xt - x0) * np.cos(theta) - (yt - y0) * np.sin(theta)
+    yp = (xt - x0) * np.sin(theta) + (yt - y0) * np.cos(theta)
     res = params['background']
     res += (params['intensity']
             * (1 + xp**2 / params['spread_x']**2
                + yp**2 / params['spread_y']**2)
-            **(-params['exponent']))
+            ** (-params['exponent']))
     res[res > saturation] = saturation
     return res
 
@@ -256,8 +263,8 @@ def Bessel1(points, params):
     saturation = params['saturation']
 
     # nb : r is directly divided by a
-    r = np.sqrt(((x-x0)**2 + (y-y0)**2)/a**2)
-    res = np.nan_to_num(2*jn(1, r)/r)**2 + np.float_(np.array(r) == 0)
+    r = np.sqrt(((x - x0)**2 + (y - y0)**2) / a**2)
+    res = np.nan_to_num(2 * jn(1, r) / r)**2 + np.float_(np.array(r) == 0)
     res *= params['intensity']
     res += params['background']
     res[res > saturation] = saturation
@@ -268,13 +275,13 @@ def Bessel12D(xy, params):
     saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
-    xp = (xt-params['center_x'])*np.cos(params['theta']) - \
-        (yt-params['center_y'])*np.sin(params['theta'])
-    yp = (xt-params['center_x'])*np.sin(params['theta']) + \
-        (yt-params['center_y'])*np.cos(params['theta'])
+    xp = (xt - params['center_x']) * np.cos(params['theta']) - \
+        (yt - params['center_y']) * np.sin(params['theta'])
+    yp = (xt - params['center_x']) * np.sin(params['theta']) + \
+        (yt - params['center_y']) * np.cos(params['theta'])
     # nb : r is directly divided by a
-    r = np.sqrt(xp**2/params['spread_x']**2 + yp**2/params['spread_y']**2)
-    res = np.nan_to_num((2*jn(1, r)/r)**2)
+    r = np.sqrt(xp**2 / params['spread_x']**2 + yp**2 / params['spread_y']**2)
+    res = np.nan_to_num((2 * jn(1, r) / r)**2)
     res *= params['intensity']
     res += params['background']
     res[res > saturation] = saturation
@@ -285,19 +292,20 @@ def DiffractionPatern(points, params):
     """Perfection cannot saturate"""
     x0 = params['center_x']
     y0 = params['center_y']
-    l = params['lambda']*10**(-6)  # wavelength
+    l = params['lambda'] * 10**(-6)  # wavelength
     p = params['phot']
     D = params['diameter']  # telescope diameter
-    pxl = params['pixelscale']/206265
+    pxl = params['pixelscale'] / 206265
     e = params['obstruction']  # centralobstruction
-    I = p * (1-e**2)/4/np.pi / (l/pxl/np.pi/D)**2
-    theta = (points[0]-x0)**2 + (points[1] -y0)**2
+    I = p * (1 - e**2) / 4 / np.pi / (l / pxl / np.pi / D)**2
+    theta = (points[0] - x0)**2 + (points[1] - y0)**2
     theta = np.sqrt(theta) * pxl
-    u = np.pi/l * D * theta
+    u = np.pi / l * D * theta
     if not e == 0:  # otherwise division by 0
         # + np.float_(np.array(r)==0)
-        res = np.nan_to_num((2*jn(1, u)/u - e**2 * 2*jn(1, e*u)/e/u)**2)
+        res = np.nan_to_num(
+            (2 * jn(1, u) / u - e**2 * 2 * jn(1, e * u) / e / u)**2)
     else:
-        res = np.nan_to_num((2*jn(1, u)/u)**2)
-    res *= I/(1-e**2)**2
+        res = np.nan_to_num((2 * jn(1, u) / u)**2)
+    res *= I / (1 - e**2)**2
     return res

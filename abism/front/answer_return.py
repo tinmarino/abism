@@ -31,7 +31,8 @@ def tktext_insert_answer(self, answer, with_error=False, tags=None):
     # # Convert unit && Convert tag
     if not isinstance(answer.unit, (list, tuple)):
         answer.unit = answer.unit, answer.unit
-    if not tags: tags = []
+    if not tags:
+        tags = []
 
     # Get set tab len
     i_tab = vars(self).get('i_tab_len', 0)
@@ -57,6 +58,8 @@ def tktext_insert_answer(self, answer, with_error=False, tags=None):
 
     # Insert
     self.insert(tk.END, stg, tags)
+
+
 tk.Text.insert_answer = tktext_insert_answer
 
 
@@ -69,7 +72,8 @@ def tktext_insert_warnings(self):
     if 'intensity' in get_state().d_fit_param:  # binary
         intensity = get_state().d_fit_param["intensity"]
     elif any(key in get_state().d_fit_param for key in ('intensity0', 'intensity1')):
-        intensity = get_state().d_fit_param["intensity0"] + get_state().d_fit_param["intensity1"]
+        intensity = get_state(
+        ).d_fit_param["intensity0"] + get_state().d_fit_param["intensity1"]
 
     if intensity > get_root().header.non_linearity_level:
         if intensity > 1.0 * get_root().header.saturation_level:
@@ -85,20 +89,27 @@ def tktext_insert_warnings(self):
 
     # Binary too far
     if get_state().e_pick_type in (EPick.BINARY, EPick.TIGHT):
-        max_dist = max(get_state().d_fit_param["spread_x0"] + get_state().d_fit_param["spread_x1"],
-                       get_state().d_fit_param["spread_y0"] + get_state().d_fit_param["spread_y1"])
-        sep = (get_state().d_fit_param["x0"] - get_state().d_fit_param["x1"])**2
-        sep += (get_state().d_fit_param["y0"] - get_state().d_fit_param["y1"])**2
+        max_dist = max(
+            get_state().d_fit_param["spread_x0"] +
+            get_state().d_fit_param["spread_x1"],
+            get_state().d_fit_param["spread_y0"] +
+            get_state().d_fit_param["spread_y1"])
+        sep = (get_state().d_fit_param["x0"] -
+               get_state().d_fit_param["x1"])**2
+        sep += (get_state().d_fit_param["y0"] -
+                get_state().d_fit_param["y1"])**2
         sep = np.sqrt(sep)
 
-        if max_dist*15 < sep:  # means too high separation
+        if max_dist * 15 < sep:  # means too high separation
             stg += "Wide Binary\npick objects individually\n"
 
-        if max_dist*3 > sep:  # means too high separation
+        if max_dist * 3 > sep:  # means too high separation
             stg += "Tight Binary\nmay be unreliable\n"
 
     # Insert
     self.insert(tk.END, stg, ['tag-important', 'tag-center'])
+
+
 tk.Text.insert_warnings = tktext_insert_warnings
 
 
@@ -110,6 +121,8 @@ def tktext_insert_answer_list(self, lst):
         with_error = ans[1] if l > 1 else False
         tags = ans[2] if l > 2 else None
         self.insert_answer(answer, with_error=with_error, tags=tags)
+
+
 tk.Text.insert_answer_list = tktext_insert_answer_list
 
 
@@ -134,6 +147,7 @@ def show_answer():
 
 class AnswerPrinter(ABC):
     """Base class to print answer in text frame"""
+
     def work(self, with_warning=True, on_coord=show_answer):
         # Grid tk text
         text = get_root().frame_answer.get_new_text_frame(on_coord)
@@ -165,6 +179,7 @@ class AnswerPrinter(ABC):
 
 class PrinterOne(AnswerPrinter):
     """For pick one"""
+
     def get_list(self):
         return [
             [EA.STREHL, True, ['tag-important']],
@@ -180,6 +195,7 @@ class PrinterOne(AnswerPrinter):
 
 class PrinterBinary(AnswerPrinter):
     """For binary pick or tight binary"""
+
     def get_list(self):
         return [
             [EA.STREHL1, True, ['tag-important']],
@@ -200,6 +216,7 @@ class PrinterBinary(AnswerPrinter):
 
 class PrinterEllipse(AnswerPrinter):
     """For ellipse pick"""
+
     def get_list(self):
         return [
             # TODO error
@@ -217,7 +234,9 @@ class PrinterEllipse(AnswerPrinter):
 
 
 def plot1d_one():
-    center = (get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y'])
+    center = (
+        get_state().d_fit_param['center_x'],
+        get_state().d_fit_param['center_y'])
     #################
     # PLOT radius profile
     params = get_state().d_fit_param
@@ -236,15 +255,21 @@ def plot1d_one():
     a = np.arange(min(x), max(x), 0.1)
     # RAW  DATA in X
     # x+0.5 to recenter the bar
-    ax.plot(x+0.5, y, color='black', drawstyle='steps', linestyle='--',
+    ax.plot(x + 0.5, y, color='black', drawstyle='steps', linestyle='--',
             linewidth=1, label='Data')
 
     # Plot encircle line
-    r99 = (get_state().d_fit_param['r99x']+get_state().d_fit_param['r99y'])/2
-    x0cut, x1cut = center[0]-r99, center[0]+r99
+    r99 = (get_state().d_fit_param['r99x'] +
+           get_state().d_fit_param['r99y']) / 2
+    x0cut, x1cut = center[0] - r99, center[0] + r99
     ax.axvline(x=x0cut, color='black', linestyle='-.', label='99% EE')
     ax.axvline(x=x1cut, color='black', linestyle='-.')
-    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle=':', label='Sky')
+    ax.axhline(
+        y=get_state().get_answer(
+            EA.BACKGROUND),
+        color='black',
+        linestyle=':',
+        label='Sky')
 
     # Plot Fit
     if get_state().s_fit_type != 'None':
@@ -252,22 +277,23 @@ def plot1d_one():
         ax.plot(a, I_theory, color='purple', linewidth=2, label='Fit')
 
     # Plot perfect diffraction pattern <- putain de if
-    if not get_root().header.wavelength*1e-6/get_root().header.diameter/(get_root().header.pixel_scale/206265) < 2:
+    if not get_root().header.wavelength * 1e-6 / get_root().header.diameter / \
+            (get_root().header.pixel_scale / 206265) < 2:
         params2 = {'diameter': get_root().header.diameter,
                    'lambda': get_root().header.wavelength,
                    'center_x': params['center_x'],
                    'center_y': params['center_y'],
                    'pixelscale': get_root().header.pixel_scale,
                    'phot': get_av(EA.PHOTOMETRY),
-                   'obstruction': get_root().header.obstruction/100,
+                   'obstruction': get_root().header.obstruction / 100,
                    }
         bessel = BF.DiffractionPatern((a, params['center_y']), params2)
-        ax.plot(a, bessel+ get_av(EA.BACKGROUND),
+        ax.plot(a, bessel + get_av(EA.BACKGROUND),
                 color='blue', linewidth=2, label='Ideal PSF')
 
     #  def Percentage(y):  # y is the intensity
     #      res = 100*(max(MyBessel)-get_state().get_answer(EA.BACKGROUND))*y
-    ax.set_xlim(center[0]-r99-5, center[0] + r99 + 5)
+    ax.set_xlim(center[0] - r99 - 5, center[0] + r99 + 5)
 
     # Update skin && Legend && Draw
     ax.legend(loc=1, prop={'size': 8})
@@ -278,20 +304,23 @@ def plot1d_binary():
     """Draw 1D of binary system"""
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
-    fwhm0, fwhm1 = get_state().d_fit_param["spread_x0"], get_state().d_fit_param["spread_x1"]
+    fwhm0, fwhm1 = get_state().d_fit_param["spread_x0"], get_state(
+    ).d_fit_param["spread_x1"]
 
     #######
     # EXTREMITIES OF PROFILE LINE ...
     # following the line x0,x1
     # Do not by pass the image borders
-    line_len = np.sqrt((x1-x0)**2 + (y1-y0)**2)
-    dx0 = (x0-x1) / line_len * 5 * fwhm0
-    dy0 = (y0-y1) / line_len * 5 * fwhm0
-    dx1 = (x1-x0) / line_len * 5 * fwhm1
-    dy1 = (y1-y0) / line_len * 5 * fwhm1
+    line_len = np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
+    dx0 = (x0 - x1) / line_len * 5 * fwhm0
+    dy0 = (y0 - y1) / line_len * 5 * fwhm0
+    dx1 = (x1 - x0) / line_len * 5 * fwhm1
+    dy1 = (y1 - y0) / line_len * 5 * fwhm1
 
-    extremity1 = IF.DoNotPassBorder(get_state().image.im0, (int(x0+dx0), int(y0+dy0)))
-    extremity2 = IF.DoNotPassBorder(get_state().image.im0, (int(x1+dx1), int(y1+dy1)))
+    extremity1 = IF.DoNotPassBorder(
+        get_state().image.im0, (int(x0 + dx0), int(y0 + dy0)))
+    extremity2 = IF.DoNotPassBorder(
+        get_state().image.im0, (int(x1 + dx1), int(y1 + dy1)))
 
     ab, od, points = IF.get_radial_line(
         get_state().image.im0, (extremity1, extremity2), return_point=1)
@@ -300,7 +329,6 @@ def plot1d_binary():
         s_fit_type = "Moffat2pt"
     else:
         s_fit_type = "Gaussian2pt"
-
 
     # Get star center
     ab_star1 = IF.project_on_radial_line(
@@ -319,8 +347,7 @@ def plot1d_binary():
         I_theory = vars(BF)[s_fit_type](
             (x_theory, y_theory), get_state().d_fit_param)
     else:
-        I_theory = 0*x_theory
-
+        I_theory = 0 * x_theory
 
     ################
     # PLOT
@@ -329,16 +356,23 @@ def plot1d_binary():
     # Plot fit (0.5 to center)
     ax.plot(ab_th, I_theory, label='Fitted PSF', color='purple', linewidth=2)
     # Plot data
-    ax.plot(ab, od, label='Real Profile', color='black', linestyle='steps', linewidth=1)
+    ax.plot(
+        ab,
+        od,
+        label='Real Profile',
+        color='black',
+        linestyle='steps',
+        linewidth=1)
     # Plot perfect diffraction pattern <- putain de if
-    if not get_root().header.wavelength*1e-6/get_root().header.diameter/(get_root().header.pixel_scale/206265) < 2:
+    if not get_root().header.wavelength * 1e-6 / get_root().header.diameter / \
+            (get_root().header.pixel_scale / 206265) < 2:
         params1 = {'diameter': get_root().header.diameter,
                    'lambda': get_root().header.wavelength,
                    'center_x': get_av(EA.STAR1)[1],
                    'center_y': get_av(EA.STAR1)[0],
                    'pixelscale': get_root().header.pixel_scale,
                    'phot': get_av(EA.PHOTOMETRY1),
-                   'obstruction': get_root().header.obstruction/100,
+                   'obstruction': get_root().header.obstruction / 100,
                    }
         bessel1 = BF.DiffractionPatern((x_theory, y_theory), params1)
         params2 = {'diameter': get_root().header.diameter,
@@ -347,14 +381,19 @@ def plot1d_binary():
                    'center_y': get_av(EA.STAR2)[0],
                    'pixelscale': get_root().header.pixel_scale,
                    'phot': get_av(EA.PHOTOMETRY2),
-                   'obstruction': get_root().header.obstruction/100,
+                   'obstruction': get_root().header.obstruction / 100,
                    }
         bessel2 = BF.DiffractionPatern((x_theory, y_theory), params2)
         ax.plot(ab_th, bessel1 + bessel2 + get_av(EA.BACKGROUND),
                 color='blue', linewidth=1, label='Ideal PSF')
 
     # Plot sky
-    ax.axhline(y=get_state().get_answer(EA.BACKGROUND), color='black', linestyle=':', label='Sky')
+    ax.axhline(
+        y=get_state().get_answer(
+            EA.BACKGROUND),
+        color='black',
+        linestyle=':',
+        label='Sky')
     # Plot star center
     ax.axvline(x=ab_star1, color='black', linestyle='-.', label='Star center')
     ax.axvline(x=ab_star2, color='black', linestyle='-.')
@@ -371,12 +410,14 @@ def plot1d_binary():
 
 def plot2d_one():
     """Note the fitted image is in leastqs bound return fit[3]"""
-    x0, y0 = get_state().d_fit_param["center_x"], get_state().d_fit_param["center_y"]
-    r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
-    dx1 = int(max(x0-4*r99x, 0))
-    dx2 = int(min(x0+4*r99x, len(get_state().image.im0) + 1))
-    dy1 = int(max(y0-4*r99y, 0))
-    dy2 = int(min(y0+4*r99y, len(get_state().image.im0) + 1))
+    x0, y0 = get_state().d_fit_param["center_x"], get_state(
+    ).d_fit_param["center_y"]
+    r99x, r99y = get_state(
+    ).d_fit_param["r99x"], get_state().d_fit_param["r99y"]
+    dx1 = int(max(x0 - 4 * r99x, 0))
+    dx2 = int(min(x0 + 4 * r99x, len(get_state().image.im0) + 1))
+    dy1 = int(max(y0 - 4 * r99y, 0))
+    dy2 = int(min(y0 + 4 * r99y, len(get_state().image.im0) + 1))
     r = (dx1, dx2, dy1, dy2)
 
     x, y = np.arange(r[0], r[1]), np.arange(r[2], r[3])
@@ -389,7 +430,7 @@ def plot2d_one():
             cmap=get_root().frame_image._cbar.mappable.get_cmap().name,
             origin='lower')
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-        #G.ax31.format_coord=lambda x,y: "%.1f"%get_state().image.im0[r[2]+y,r[0]+x]
+        # G.ax31.format_coord=lambda x,y: "%.1f"%get_state().image.im0[r[2]+y,r[0]+x]
         ax.format_coord = lambda x, y: ""
 
     def plot_fit(ax):
@@ -425,29 +466,43 @@ def plot2d_one():
     if get_state().e_sky_type == ESky.RECT8:
         rect = (x0 - params['r99x'], x0 + params['r99x'],
                 y0 - params['r99y'], y0 + params['r99y'])
-        var = IF.EightRectangleNoise(get_state().image.im0, rect, return_rectangle=1)[2]
+        var = IF.EightRectangleNoise(
+            get_state().image.im0, rect, return_rectangle=1)[2]
         for p in var:
-            center_tmp = (p[0][0]-r[0]-p[1]/2, p[0][1]-r[2]-p[2]/2)
+            center_tmp = (p[0][0] - r[0] - p[1] / 2, p[0][1] - r[2] - p[2] / 2)
             a = matplotlib.patches.Rectangle(
-                (center_tmp[1], center_tmp[0]), p[2], p[1], facecolor='orange', edgecolor='black')
+                (center_tmp[1],
+                 center_tmp[0]),
+                p[2],
+                p[1],
+                facecolor='orange',
+                edgecolor='black')
             ax2.add_patch(a)
-        center = x0 - r[0], y0-r[2]
+        center = x0 - r[0], y0 - r[2]
 
     # NOISE ANNULUS
     elif get_state().e_sky_type == ESky.ANNULUS:
         # INNER
         # TODO hardcode as in strehlimage.py
         tmpmin, tmpmax = 1.3, 1.6
-        tmpstep = (tmpmax-tmpmin)/3
+        tmpstep = (tmpmax - tmpmin) / 3
         lst = np.arange(tmpmin, tmpmax + tmpstep, tmpstep)
         for rt in lst:
-            width = 2*params["r99v"]*rt  # invert
-            height = 2*params["r99u"]*rt
-            angle = params["theta"] * 180./np.pi
+            width = 2 * params["r99v"] * rt  # invert
+            height = 2 * params["r99u"] * rt
+            angle = params["theta"] * 180. / np.pi
             x = params["center_y"] - r[2]
             y = params["center_x"] - r[0]
             a = matplotlib.patches.Ellipse(
-                (x, y), width, height, angle, fc="none", ec="yellow", linestyle="solid", alpha=0.6)
+                (x,
+                 y),
+                width,
+                height,
+                angle,
+                fc="none",
+                ec="yellow",
+                linestyle="solid",
+                alpha=0.6)
             ax2.add_patch(a)
 
     # PHOT RECT
@@ -455,14 +510,19 @@ def plot2d_one():
         tx = params["center_x"] - r[0]
         ty = params["center_y"] - r[2]
         a = matplotlib.patches.Rectangle(
-            (ty-params['r99y'], tx-params['r99x']), 2*params['r99y'], 2*params['r99x'], facecolor='none', edgecolor='black')
+            (ty - params['r99y'],
+             tx - params['r99x']),
+            2 * params['r99y'],
+            2 * params['r99x'],
+            facecolor='none',
+            edgecolor='black')
         ax2.add_patch(a)
 
     # PHOT ELL
     elif get_state().e_phot_type == EPhot.ELLIPTICAL:
-        width = 2*params["r99v"]
-        height = 2*params["r99u"]
-        angle = params["theta"] * 180./np.pi
+        width = 2 * params["r99v"]
+        height = 2 * params["r99u"]
+        angle = params["theta"] * 180. / np.pi
         x = params["center_y"] - r[2]
         y = params["center_x"] - r[0]
         a = matplotlib.patches.Ellipse(
@@ -474,9 +534,9 @@ def plot2d_one():
     ax1.set_title("True Image")
     ax2.set_title("Fit")
 
-    ax2.set_yticks((0, r[1]-r[0]))
+    ax2.set_yticks((0, r[1] - r[0]))
     ax2.set_yticklabels((str(int(r[0])), str(int(r[1]))))
-    ax2.set_xticks((0, r[3]-r[2]))
+    ax2.set_xticks((0, r[3] - r[2]))
     ax2.set_xticklabels((str(int(r[2])), str(int(r[3]))))
     ax1.set_xticks(())
     ax1.set_yticks(())
@@ -488,7 +548,7 @@ def plot2d_one():
 def plot2d_binary():
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
-    xr, yr = 3*abs(x0-x1), 3*abs(y0-y1)  # ditances
+    xr, yr = 3 * abs(x0 - x1), 3 * abs(y0 - y1)  # ditances
     side = max(xr, yr)  # side of the displayed square
     rx1, rx2 = int(min(x0, x1) - side / 2), int(max(x0, x1) + side / 2)
     ry1, ry2 = int(min(y0, y1) - side / 2), int(max(y0, y1) + side / 2)
@@ -522,8 +582,13 @@ def plot2d_binary():
         stg = "Moffat2pt"
         log(0, 'Warning, binary only has Gaussian and Moffat. Fallback to Moffat')
 
-    fit_fct = lambda points, params: vars(BF)[stg](
-        points, params, aniso=get_state().b_aniso, same_psf=get_state().b_same_psf)
+    def fit_fct(
+        points,
+        params): return vars(BF)[stg](
+        points,
+        params,
+        aniso=get_state().b_aniso,
+        same_psf=get_state().b_same_psf)
 
     ax2 = figure.add_subplot(122)
     ax2.imshow(
@@ -531,7 +596,7 @@ def plot2d_binary():
         vmin=get_state().i_image_min_cut, vmax=get_state().i_image_max_cut,
         cmap=cmap, origin='lower',
         # extent=[r[2],r[3],r[0],r[1]])#,aspect="auto")
-        )  # need to comment the extent other wise too crowded and need to change rect positio
-    #ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),get_state().d_fit_param)
+    )  # need to comment the extent other wise too crowded and need to change rect positio
+    # ax2.format_coord= lambda x,y:'%.1f'% vars(BF)[stg]((y,x),get_state().d_fit_param)
     ax2.format_coord = lambda x, y: ""
     get_root().frame_result.redraw()

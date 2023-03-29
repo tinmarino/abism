@@ -21,6 +21,7 @@ class AnswerSky(ABC):
     Note: overloaded operator to do some error arithmetic for free
 
     """
+
     def __init__(self, text, value, error=None):
         self.text = text
         self.value = value
@@ -44,7 +45,6 @@ class AnswerSky(ABC):
         s_err = str(self.error.value) if self.error else 'nan'
         return self.str_detector() + '±' + s_err + '<- ' + self.text
 
-
     def constant(self, cst, op):
         """Constant operation on self"""
         # pylint: disable = eval-used
@@ -52,7 +52,6 @@ class AnswerSky(ABC):
         val = eval('self.value' + op + str(cst))
         err = eval('self.error.value' + op + str(cst))
         return self.__class__(txt, val, error=err)
-
 
     def addition(self, other, op='+'):
         """Helper addition substraction"""
@@ -71,7 +70,6 @@ class AnswerSky(ABC):
         txt = self.text + op + other.text
         return self.__class__(txt, val, error=err)
 
-
     def multiplication(self, other, op='*'):
         """Helper for multiplication"""
         if isinstance(other, (int, float)):
@@ -89,7 +87,6 @@ class AnswerSky(ABC):
         err = np.sqrt(err) * val
 
         return AnswerNum(txt, val, error=err)
-
 
     def __add__(self, other):
         return self.addition(other, op='+')
@@ -171,6 +168,7 @@ class AnswerSky(ABC):
 
 class AnswerObject(AnswerSky):
     """Any object"""
+
     def str_detector(self):
         return str(self.value)
 
@@ -180,6 +178,7 @@ class AnswerObject(AnswerSky):
 
 class AnswerNum(AnswerSky):
     """A number"""
+
     def __init__(self, text, number, unit='', error=None):
         super().__init__(text, float(number), error=error)
         self.unit = unit
@@ -195,6 +194,7 @@ class AnswerPosition(AnswerSky):
     """A position on image: x, y or ra/dec
     Stored as x, y and a ref to wcs
     """
+
     def __init__(self, text, xy, error=None):
         super().__init__(text, xy, error=error)
         self.unit = [' [pxl]', ' [ra, dec]']
@@ -219,6 +219,7 @@ class AnswerLuminosity(AnswerSky):
     Require: zero point
              exposure time
     """
+
     def __init__(self, text, adu, error=None):
         super().__init__(text, adu, error=error)
         self.unit = [' [adu]', ' [mag]']
@@ -244,6 +245,7 @@ class AnswerFwhm(AnswerSky):
     """FWHM has diffrent values
     Need the pixel scale, separation too
     """
+
     def __init__(self, text, fwhm, error=None):
         super().__init__(text, fwhm, error=error)
         self.unit = [' [pxl]', ' [mas]']
@@ -264,11 +266,12 @@ class AnswerFwhm(AnswerSky):
 
     @staticmethod
     def format_value(a, b, e):
-        return  f'{a:.1f}, {b:.1f}, {e:.2f}'
+        return f'{a:.1f}, {b:.1f}, {e:.2f}'
 
 
 class AnswerDistance(AnswerSky):
     """Number of pixel or angular distance"""
+
     def __init__(self, text, xy, error=None):
         super().__init__(text, xy, error=error)
         self.unit = [' [pxl]', " ''"]
@@ -287,6 +290,7 @@ class AnswerAngle(AnswerSky):
     """Get a tuple (vector), returns its angle to the top
     Ex: x=0.02, y =10 => angle = 0
     """
+
     def __init__(self, text, xy, error=None):
         super().__init__(text, xy, error=error)
         self.unit = u'\xb0'
@@ -294,7 +298,7 @@ class AnswerAngle(AnswerSky):
     def str_detector(self):
         im_angle = np.arccos(self.value[1]) * 57.295779
         sign = np.sign(self.value[0])
-        im_angle = im_angle + (sign-1)*(-90)
+        im_angle = im_angle + (sign - 1) * (-90)
         return f'{im_angle:.2f}'
 
     def str_sky(self):
@@ -306,7 +310,7 @@ class AnswerAngle(AnswerSky):
         sign = np.sign(
             self.value[0] * get_root().frame_image.north_direction[0]
             + self.value[1] * get_root().frame_image.east_direction[1])
-        sky_angle = sky_angle + (sign-1)*(-90)
+        sky_angle = sky_angle + (sign - 1) * (-90)
         return f'{sky_angle:.2f}'
 
 
@@ -317,7 +321,7 @@ def get_pixel_scale():
     from abism.util import get_root
     try:  # Sinfoni
         pxll = get_root().header.sinf_pixel_scale
-    except:
+    except BaseException:
         pxll = get_root().header.pixel_scale
     return pxll
 
@@ -336,10 +340,10 @@ def decimal2hms(RADeg, delimiter):
 
     """
 
-    hours = (RADeg/360.0)*24
+    hours = (RADeg / 360.0) * 24
     # if hours < 10 and hours >= 1:
     if 1 <= hours < 10:
-        sHours = '0'+str(hours)[0]
+        sHours = '0' + str(hours)[0]
     elif hours >= 10:
         sHours = str(hours)[:2]
     elif hours < 1:
@@ -348,12 +352,12 @@ def decimal2hms(RADeg, delimiter):
         return 'nan'
 
     if str(hours).find('.') == -1:
-        mins = float(hours)*60.0
+        mins = float(hours) * 60.0
     else:
-        mins = float(str(hours)[str(hours).index('.'):])*60.0
+        mins = float(str(hours)[str(hours).index('.'):]) * 60.0
     # if mins<10 and mins>=1:
     if 1 <= mins < 10:
-        sMins = '0'+str(mins)[:1]
+        sMins = '0' + str(mins)[:1]
     elif mins >= 10:
         sMins = str(mins)[:2]
     elif mins < 1:
@@ -361,25 +365,25 @@ def decimal2hms(RADeg, delimiter):
     else:
         return 'nan'
 
-    secs = (hours-(float(sHours)+float(sMins)/60.0))*3600.0
+    secs = (hours - (float(sHours) + float(sMins) / 60.0)) * 3600.0
     # if secs < 10 and secs>0.001:
     if 0.001 < secs < 10:
-        sSecs = '0'+str(secs)[:str(secs).find('.')+4]
+        sSecs = '0' + str(secs)[:str(secs).find('.') + 4]
     elif secs < 0.0001:
         sSecs = '00.001'
     else:
-        sSecs = str(secs)[:str(secs).find('.')+4]
+        sSecs = str(secs)[:str(secs).find('.') + 4]
     if len(sSecs) < 5:
-        sSecs = sSecs+'00'      # So all to 3dp
+        sSecs = sSecs + '00'      # So all to 3dp
 
     if float(sSecs) == 60.000:
         sSecs = '00.00'
-        sMins = str(int(sMins)+1)
+        sMins = str(int(sMins) + 1)
     if int(sMins) == 60:
         sMins = '00'
-        sDeg = str(int(sDeg)+1)
+        sDeg = str(int(sDeg) + 1)
 
-    return sHours+delimiter+sMins+delimiter+sSecs
+    return sHours + delimiter + sMins + delimiter + sSecs
 
 
 def decimal2dms(decDeg, delimiter):
@@ -399,7 +403,7 @@ def decimal2dms(decDeg, delimiter):
     if decDeg > 0:
         # if decDeg < 10 and decDeg>=1:
         if 1 <= decDeg < 10:
-            sDeg = "0"+str(decDeg)[0]
+            sDeg = "0" + str(decDeg)[0]
         elif decDeg >= 10:
             sDeg = str(decDeg)[:2]
         elif decDeg < 1:
@@ -408,12 +412,12 @@ def decimal2dms(decDeg, delimiter):
             return 'nan'
 
         if str(decDeg).find(".") == -1:
-            mins = float(decDeg)*60.0
+            mins = float(decDeg) * 60.0
         else:
-            mins = float(str(decDeg)[str(decDeg).index("."):])*60
+            mins = float(str(decDeg)[str(decDeg).index("."):]) * 60
         # if mins<10 and mins>=1:
         if 1 <= mins < 10:
-            sMins = "0"+str(mins)[:1]
+            sMins = "0" + str(mins)[:1]
         elif mins >= 10:
             sMins = str(mins)[:2]
         elif mins < 1:
@@ -421,30 +425,30 @@ def decimal2dms(decDeg, delimiter):
         else:
             return 'nan'
 
-        secs = (decDeg-(float(sDeg)+float(sMins)/60.0))*3600.0
+        secs = (decDeg - (float(sDeg) + float(sMins) / 60.0)) * 3600.0
         # if secs<10 and secs>0:
         if 0 < secs < 10:
-            sSecs = "0"+str(secs)[:str(secs).find(".")+3]
+            sSecs = "0" + str(secs)[:str(secs).find(".") + 3]
         elif secs < 0.001:
             sSecs = "00.00"
         else:
-            sSecs = str(secs)[:str(secs).find(".")+3]
+            sSecs = str(secs)[:str(secs).find(".") + 3]
         if len(sSecs) < 5:
-            sSecs = sSecs+"0"   # So all to 2dp
+            sSecs = sSecs + "0"   # So all to 2dp
 
         if float(sSecs) == 60.00:
             sSecs = "00.00"
-            sMins = str(int(sMins)+1)
+            sMins = str(int(sMins) + 1)
         if int(sMins) == 60:
             sMins = "00"
-            sDeg = str(int(sDeg)+1)
+            sDeg = str(int(sDeg) + 1)
 
-        return "+"+sDeg+delimiter+sMins+delimiter+sSecs
+        return "+" + sDeg + delimiter + sMins + delimiter + sSecs
 
     else:
         # if decDeg>-10 and decDeg<=-1:
         if -10 < decDeg <= -1:
-            sDeg = "-0"+str(decDeg)[1]
+            sDeg = "-0" + str(decDeg)[1]
         elif decDeg <= -10:
             sDeg = str(decDeg)[:3]
         elif decDeg > -1:
@@ -453,12 +457,12 @@ def decimal2dms(decDeg, delimiter):
             return 'nan'
 
         if str(decDeg).find(".") == -1:
-            mins = float(decDeg)*-60.0
+            mins = float(decDeg) * -60.0
         else:
-            mins = float(str(decDeg)[str(decDeg).index("."):])*60
+            mins = float(str(decDeg)[str(decDeg).index("."):]) * 60
         # if mins<10 and mins>=1:
         if 1 <= mins < 10:
-            sMins = "0"+str(mins)[:1]
+            sMins = "0" + str(mins)[:1]
         elif mins >= 10:
             sMins = str(mins)[:2]
         elif mins < 1:
@@ -466,26 +470,26 @@ def decimal2dms(decDeg, delimiter):
         else:
             return 'nan'
 
-        secs = (decDeg-(float(sDeg)-float(sMins)/60.0))*3600.0
+        secs = (decDeg - (float(sDeg) - float(sMins) / 60.0)) * 3600.0
         # if secs>-10 and secs<0:
         # so don't get minus sign
         if -10 < secs < 0:
-            sSecs = "0"+str(secs)[1:str(secs).find(".")+3]
+            sSecs = "0" + str(secs)[1:str(secs).find(".") + 3]
         elif secs > -0.001:
             sSecs = "00.00"
         else:
-            sSecs = str(secs)[1:str(secs).find(".")+3]
+            sSecs = str(secs)[1:str(secs).find(".") + 3]
         if len(sSecs) < 5:
-            sSecs = sSecs+"0"   # So all to 2dp
+            sSecs = sSecs + "0"   # So all to 2dp
 
         if float(sSecs) == 60.00:
             sSecs = "00.00"
-            sMins = str(int(sMins)+1)
+            sMins = str(int(sMins) + 1)
         if int(sMins) == 60:
             sMins = "00"
-            sDeg = str(int(sDeg)-1)
+            sDeg = str(int(sDeg) - 1)
 
-        return sDeg+delimiter+sMins+delimiter+sSecs
+        return sDeg + delimiter + sMins + delimiter + sSecs
 
 
 def hms2decimal(RAString, delimiter):
@@ -508,10 +512,10 @@ def hms2decimal(RAString, delimiter):
     if len(RABits) > 1:
         RAHDecimal = float(RABits[0])
         if len(RABits) > 1:
-            RAHDecimal = RAHDecimal+(float(RABits[1])/60.0)
+            RAHDecimal = RAHDecimal + (float(RABits[1]) / 60.0)
         if len(RABits) > 2:
-            RAHDecimal = RAHDecimal+(float(RABits[2])/3600.0)
-        RADeg = (RAHDecimal/24.0)*360.0
+            RAHDecimal = RAHDecimal + (float(RABits[2]) / 3600.0)
+        RADeg = (RAHDecimal / 24.0) * 360.0
     else:
         RADeg = float(RAString)
 
@@ -539,14 +543,14 @@ def dms2decimal(decString, delimiter):
         decDeg = float(decBits[0])
         if decBits[0].find("-") != -1:
             if len(decBits) > 1:
-                decDeg = decDeg-(float(decBits[1])/60.0)
+                decDeg = decDeg - (float(decBits[1]) / 60.0)
             if len(decBits) > 2:
-                decDeg = decDeg-(float(decBits[2])/3600.0)
+                decDeg = decDeg - (float(decBits[2]) / 3600.0)
         else:
             if len(decBits) > 1:
-                decDeg = decDeg+(float(decBits[1])/60.0)
+                decDeg = decDeg + (float(decBits[1]) / 60.0)
             if len(decBits) > 2:
-                decDeg = decDeg+(float(decBits[2])/3600.0)
+                decDeg = decDeg + (float(decBits[2]) / 3600.0)
     else:
         decDeg = float(decString)
 

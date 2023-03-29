@@ -14,8 +14,10 @@ class WindowText(tk.Tk):
     def __init__(self, title='', geometry='', text='', color_md=False):
         super().__init__()
 
-        if title: self.title(title)
-        if geometry: self.geometry(geometry)
+        if title:
+            self.title(title)
+        if geometry:
+            self.geometry(geometry)
 
         self.find_num = [0]
         self.find_list = []
@@ -25,7 +27,11 @@ class WindowText(tk.Tk):
         # Replace markdown list
         self.txt = text
         if color_md:
-            self.txt = re.sub(r'^(\s*)\*', r'\1☀', self.txt, flags=re.MULTILINE)
+            self.txt = re.sub(
+                r'^(\s*)\*',
+                r'\1☀',
+                self.txt,
+                flags=re.MULTILINE)
 
         # Pack
         self.pack_head()
@@ -34,7 +40,6 @@ class WindowText(tk.Tk):
         # Color
         if color_md:
             MarkdownColorizer(self.tk_text, self.txt).colorize()
-
 
     def pack_body(self):
         """Pack text and scrollbar"""
@@ -66,7 +71,6 @@ class WindowText(tk.Tk):
         # Bind configure scroll
         self.scroll.config(command=self.tk_text.yview)
 
-
     def pack_head(self):
         """Pack buttons to scroll"""
         head_frame = tk.Frame(self)
@@ -97,7 +101,6 @@ class WindowText(tk.Tk):
             command=lambda: self._scroll("+")
         ).grid(row=0, column=3, sticky="nsew")
 
-
     def _find(self):
         """Find string from edit in text
         """
@@ -105,7 +108,8 @@ class WindowText(tk.Tk):
         self.tk_text.tag_remove('found', '1.0', tk.END)
         s_to_find = self.edit.get()
         log(9, 'Searching:', s_to_find)
-        if not s_to_find: return ''
+        if not s_to_find:
+            return ''
 
         # Reset
         if s_to_find != self.s_old:
@@ -129,7 +133,6 @@ class WindowText(tk.Tk):
         self.edit.focus_set()
 
         return s_to_find
-
 
     def _scroll(self, side):
         """AutoScroll when user click + or -"""
@@ -214,7 +217,8 @@ class MarkdownColorizer:
 
     def colorize(self):
         """Colorize text with markdown syntax"""
-        if len(self.txt) == 1: return
+        if len(self.txt) == 1:
+            return
 
         self.color_syntax()
         self.create_hlink()
@@ -225,7 +229,6 @@ class MarkdownColorizer:
             self.tk_text.tag_config(tag_name, **md_dic[tag_name][1])
         self.tk_text.tag_config('link', foreground='blue')
         self.tk_text.tag_config('hide', elide=True)
-
 
     def color_syntax(self):
         """Color with regex"""
@@ -245,14 +248,14 @@ class MarkdownColorizer:
                 if val is not None:
                     tag_name = key
                     break
-            if tag_name is None: continue
+            if tag_name is None:
+                continue
             tag_txt = group_dic[tag_name].replace(' ', '-')
             tag_txt = re.sub('#+-', '', tag_txt)
 
             ind1, ind2 = _coordinate(start, end, self.txt)
             self.tk_text.tag_add(tag_txt, ind1, ind2)
             self.tk_text.tag_add(tag_name, ind1, ind2)
-
 
     def create_hlink(self):
         """Create internal hlink"""
@@ -277,13 +280,13 @@ class MarkdownColorizer:
             tag_name = 'link_' + link
             try:
                 link_index = self.tk_text.tag_ranges(link)[0]
-            except:
+            except BaseException:
                 log(3, 'Link: could not find anchor for:', link)
                 link_index = 0
 
-
             def jump_tag(_, index):
-                if index == 0: return
+                if index == 0:
+                    return
                 self.tk_text.yview(index)
 
             def show_xterm_cursor(_):
@@ -309,7 +312,6 @@ class MarkdownColorizer:
             hide_s, hide_e = _coordinate(hide_1, hide_2, self.txt)
             self.tk_text.tag_add('hide', hide_s, hide_e)
 
-
     def hide_syntax(self):
         """Hide what need to be"""
         hidefilter = re.compile(r_elide, re.MULTILINE)
@@ -333,4 +335,6 @@ def _coordinate(start, end, string):
     if len(lcolsplitlines) != 0:
         lcolsplitlines = lcolsplitlines[len(lcolsplitlines) - 1]
     lcol = len(lcolsplitlines) + 1  # Ending Column
-    return '{}.{}'.format(srow, scol), '{}.{}'.format(lrow, lcol)  # , (lrow, lcol)
+    return '{}.{}'.format(
+        srow, scol), '{}.{}'.format(
+        lrow, lcol)  # , (lrow, lcol)

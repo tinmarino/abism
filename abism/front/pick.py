@@ -24,6 +24,7 @@ class Pick(ABC):
         sometime a matplotlit callback_id
         sometime a cutom artist
     """
+
     def __init__(self):
         log(3, 'Pick: creating a', self.__class__.__name__, 'instance')
         self.canvas = get_root().frame_image.get_canvas()
@@ -92,7 +93,6 @@ class Pick(ABC):
         # Work
         self.launch_worker(None)
 
-
     def pick_event(self, event):
         """ For mouse click PickOne or rectangle """
         # Left click -> avoid shadowing rectangle selection
@@ -116,6 +116,7 @@ class Pick(ABC):
 
 class PickNo(Pick):
     """Void class to do nothing"""
+
     def connect(self): pass
     def disconnect(self): pass
     def work(self, obj): pass
@@ -139,6 +140,7 @@ class PickOne(Pick):
     Gaussian for Strehl <5%, A Moffat for intermediate Strehl and a Bessel for
     strehl>60%."
     """
+
     def __init__(self):
         super().__init__()
         self.rectangle_selector = None
@@ -184,6 +186,7 @@ class PickBinary(Pick):
     If Binary button is green, make two click on a binary system : one on each
     star. A Binary fit will be processed. This is still in implementation.
     """
+
     def __init__(self):
         super().__init__()
         self.id_callback = None
@@ -199,14 +202,12 @@ class PickBinary(Pick):
             'button_press_event', self.connect_second)
         self.canvas.get_tk_widget()["cursor"] = "target"
 
-
     def disconnect(self):
         try:
             self.canvas.mpl_disconnect(self.id_callback)
-        except:
+        except BaseException:
             pass
         self.canvas.get_tk_widget()["cursor"] = ""
-
 
     def connect_second(self, event):
         """Second callback"""
@@ -225,10 +226,10 @@ class PickBinary(Pick):
         self.id_callback = self.canvas.mpl_connect(
             'button_press_event', self.connect_third)
 
-
     def connect_third(self, event):
         """After second click (final), do real work"""
-        if not event.inaxes: return
+        if not event.inaxes:
+            return
         log(0, "2nd point : ", event.xdata, event.ydata)
 
         # Save second click
@@ -248,7 +249,6 @@ class PickBinary(Pick):
         self.star1 = self.star2 = None
         self.connect()
 
-
     def work(self, obj):
         Strehl.BinaryStrehl(self.star1, self.star2)
 
@@ -258,6 +258,7 @@ class PickBinary(Pick):
 
 class PickTightBinary(PickBinary):
     """Binary that are close so the fit is harder"""
+
     def __init__(self):
         super().__init__()
         self.is_parent = True
@@ -270,13 +271,13 @@ class PickTightBinary(PickBinary):
         get_state().aniso = False
         get_state().same_psf_var = True
 
-
     def work(self, obj):
         Strehl.TightBinaryStrehl(self.star1, self.star2)
 
 
 class PickStat(Pick):
     """Draw a rectangle"""
+
     def __init__(self):
         super().__init__()
         self.rectangle_selector = None
@@ -293,9 +294,8 @@ class PickStat(Pick):
             "will give you some statistical information "
             "computed in the region-------------------")
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
-            self.ax,
-            self.on_rectangle, drawtype='box',
-            rectprops=dict(facecolor='red', edgecolor='black', alpha=0.5, fill=True))
+            self.ax, self.on_rectangle, drawtype='box', rectprops=dict(
+                facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
     def work(self, obj): pass
 
@@ -313,6 +313,7 @@ class PickProfile(Pick):
     'improvement' can be made including pixels more distant and making a mean
     of the stacked pixels for each position on the line."
     """
+
     def __init__(self):
         super().__init__()
         self.artist_profile = None
@@ -327,7 +328,8 @@ class PickProfile(Pick):
         )
 
     def disconnect(self):
-        if not self.artist_profile: return
+        if not self.artist_profile:
+            return
         self.artist_profile.Disconnect()
         self.artist_profile.RemoveArtist()
         self.artist_profile = None
@@ -343,6 +345,7 @@ class PickProfile(Pick):
 
 class PickEllipse(Pick):
     """ Aperture of an ellipse given by user on matplotlib interface """
+
     def __init__(self):
         super().__init__()
         self.artist_ellipse = None
@@ -366,10 +369,12 @@ class PickEllipse(Pick):
 
         # Bind mouse enter -> focus (for key)
         tk_fig = self.canvas.get_tk_widget()
-        self.bind_enter_id = tk_fig.bind('<Enter>', lambda _: tk_fig.focus_set())
+        self.bind_enter_id = tk_fig.bind(
+            '<Enter>', lambda _: tk_fig.focus_set())
 
     def disconnect(self):
-        if not self.artist_ellipse: return
+        if not self.artist_ellipse:
+            return
         self.artist_ellipse.Disconnect()
         self.artist_ellipse.RemoveArtist()
         self.artist_ellipse = None

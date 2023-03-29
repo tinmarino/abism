@@ -27,6 +27,7 @@ from abism.util import log, get_root, get_state
 
 class RightFrame(tk.PanedWindow):
     """Full Container"""
+
     def __init__(self, root, parent, width, height):
         # Save self
         root.paned_image = self
@@ -56,6 +57,7 @@ class RightFrame(tk.PanedWindow):
 
 class PlotFrame(tk.Frame):
     """ Base Frame with a mpl figure """
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -177,7 +179,9 @@ class PlotFrame(tk.Frame):
         self._l_cid.append(
             self._fig.canvas.mpl_connect('scroll_event', zoom_handler_wrapper))
         self._l_cid.append(
-            self._fig.canvas.mpl_connect('button_press_event', center_handler_wrapper))
+            self._fig.canvas.mpl_connect(
+                'button_press_event',
+                center_handler_wrapper))
 
     def reset_figure(self):
         self._fig.clf()
@@ -202,6 +206,7 @@ class PlotFrame(tk.Frame):
 
 class ImageFrame(PlotFrame):
     """Frame with science image"""
+
     def __init__(self, parent):
         super().__init__(parent)
         # Keep contours to remove them
@@ -218,7 +223,6 @@ class ImageFrame(PlotFrame):
 
         self.north_direction = [0, 0]
         self.east_direction = [0, 0]
-
 
     def draw_image(self, new_fits=True):
         """Init image
@@ -273,7 +277,8 @@ class ImageFrame(PlotFrame):
 
         def format_coordinate(x, y):
             x, y = int(x), int(y)
-            return "x=%4d, y=%4d, zmax=%5d, z=%5d" % (x, y, z_max(x, y), z(x, y))
+            return "x=%4d, y=%4d, zmax=%5d, z=%5d" % (
+                x, y, z_max(x, y), z(x, y))
 
         # Head up display
         ax.format_coord = format_coordinate
@@ -291,7 +296,6 @@ class ImageFrame(PlotFrame):
             get_root().frame_label.update_label()
 
         self.extend_matplotlib()
-
 
     def add_contour(self):
         im_stat = get_state().image.get_stat()
@@ -313,7 +317,8 @@ class ImageFrame(PlotFrame):
                 verts = path.vertices
                 diameter = np.min(verts.max(axis=0) - verts.min(axis=0))
                 max_diameter = 2
-                if level_id == 0: max_diameter = 10
+                if level_id == 0:
+                    max_diameter = 10
                 if diameter < max_diameter:
                     del level.get_paths()[kp]
 
@@ -321,11 +326,11 @@ class ImageFrame(PlotFrame):
             "clik again on contour to delete its.")
 
     def remove_contour(self):
-        if self.contours is None: return
+        if self.contours is None:
+            return
         for coll in self.contours.collections:
             coll.remove()
         self.contours = None
-
 
     def add_bpm(self):
         # Get points to plot
@@ -341,12 +346,11 @@ class ImageFrame(PlotFrame):
         self.bad_pixels = self._fig.axes[0].scatter(
             X, Y, c='r', marker="s")
 
-
     def remove_bpm(self):
-        if self.bad_pixels is None: return
+        if self.bad_pixels is None:
+            return
         self.bad_pixels.remove()
         self.bad_pixels = None
-
 
     def refresh_image(self):
         """Redraw image with new scale"""
@@ -367,7 +371,7 @@ class ImageFrame(PlotFrame):
         # Normalize
         mynorm = MyNormalize(
             vmin=i_min, vmax=i_max,
-            vmid=i_min-5,
+            vmid=i_min - 5,
             stretch=get_state().s_image_stretch)
 
         self._cbar.mappable.set_cmap(cmap)
@@ -379,14 +383,14 @@ class ImageFrame(PlotFrame):
         # Try to draw result frame
         try:
             for ax in get_root().frame_result.get_figure().axes:
-                if not ax.images: continue
+                if not ax.images:
+                    continue
                 mappable = ax.images[0]
                 mappable.set_norm(mynorm)
                 mappable.set_cmap(cmap)
             get_root().frame_result.redraw()
         except BaseException as e:
             log(2, "Draw cannot draw in Result Figure (bottom right):", e)
-
 
     def RemoveCompass(self):
         ax = self._fig.axes[0]
@@ -395,19 +399,26 @@ class ImageFrame(PlotFrame):
         ax.texts.remove(G.north_text)
         ax.texts.remove(G.east_text)
 
-
     def DrawCompass(self):
         """Draw WCS compass to see 'north'"""
         ax = self._fig.axes[0]
         im0 = get_state().image.im0.astype(float32)
 
-        if not (("CD1_1" in vars(get_root().header)) and ("CD2_2" in vars(get_root().header))):
+        if not (
+            ("CD1_1" in vars(
+                get_root().header)) and (
+                "CD2_2" in vars(
+                get_root().header))):
             log(0, "WARNING WCS Matrix not detected,",
                 "I don't know where the north is")
             get_root().header.CD1_1 = get_root().header.pixel_scale * 3600
             get_root().header.CD2_2 = get_root().header.pixel_scale * 3600
 
-        if not (("CD1_2" in vars(get_root().header)) and ("CD2_1" in vars(get_root().header))):
+        if not (
+            ("CD1_2" in vars(
+                get_root().header)) and (
+                "CD2_1" in vars(
+                get_root().header))):
             get_root().header.CD1_2, get_root().header.CD2_1 = 0, 0
 
         self.north_direction = [-get_root().header.CD1_2, -get_root().header.CD1_1] / \
@@ -446,7 +457,7 @@ class ImageFrame(PlotFrame):
                 arrowprops=dict(
                     arrowstyle="<-", facecolor="purple", edgecolor="purple"),
                 # connectionstyle="arc3"),
-                )
+            )
             G.east = ax.annotate(
                 "",
                 xy=arrow_center, xycoords=coord_type,
@@ -454,7 +465,7 @@ class ImageFrame(PlotFrame):
                 arrowprops=dict(
                     arrowstyle="<-", facecolor='red', edgecolor='red'),
                 # connectionstyle="arc3"),
-                )
+            )
             G.north_text = ax.annotate(
                 'N', xytext=north_point,
                 xy=north_point, textcoords=coord_type, color='purple')
@@ -465,6 +476,7 @@ class ImageFrame(PlotFrame):
 
 class FitFrame(PlotFrame):
     """Frame with the curve of the fit (1d)"""
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -481,6 +493,7 @@ class FitFrame(PlotFrame):
 
 class ResultFrame(PlotFrame):
     """Frame with some results, dependant on operation"""
+
     def __init__(self, parent):
         super().__init__(parent)
 

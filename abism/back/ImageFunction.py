@@ -13,7 +13,6 @@ from abism.back.fit_template_function import Moffat2D
 from abism.util import log, get_state, DotDic
 
 
-
 def DoNotPassBorder(grid, point2d):
     """Ensure point is in image
     Arg: grid <- image
@@ -47,8 +46,8 @@ def Order4(r, grid=None, intify=False):
     rx1 = max(rx1, 0)
     ry1 = max(ry1, 0)
     if grid is not None:
-        rx2 = min(rx2, len(grid)-1)
-        ry2 = min(ry2, len(grid[0])-1)
+        rx2 = min(rx2, len(grid) - 1)
+        ry2 = min(ry2, len(grid[0]) - 1)
     if intify:
         rx1, rx2, ry1, ry2 = list(map(int, [rx1, rx2, ry1, ry2]))
     return (rx1, rx2, ry1, ry2)
@@ -65,8 +64,8 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
 
     # INIT R
     if r is None:
-        r = (center[0]-size, center[0]+size+1,
-             center[1]-size, center[1]+size+1)
+        r = (center[0] - size, center[0] + size + 1,
+             center[1] - size, center[1] + size + 1)
 
     # CUT
     bound_int = list(map(int, r))
@@ -74,7 +73,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
 
     # FILT BAd PIXELS
     mIX = scipy.ndimage.uniform_filter(cut1, size=(3, 3))
-    bol1 = np.abs(cut1-mIX) > mIX
+    bol1 = np.abs(cut1 - mIX) > mIX
     cut1[bol1] = mIX[bol1]
 
     # 1st MAX
@@ -84,10 +83,10 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
 
     # INTERPOLATE
     if type == "interpolation":
-        xmin = int(max(0, coord1[0]-2))
-        xmax = int(min(coord1[0]+3, len(grid)))
-        ymin = int(max(0, coord1[1]-2))
-        ymax = int(min(coord1[1]+3, len(grid[0])))
+        xmin = int(max(0, coord1[0] - 2))
+        xmax = int(min(coord1[0] + 3, len(grid)))
+        ymin = int(max(0, coord1[1] - 2))
+        ymax = int(min(coord1[1] + 3, len(grid[0])))
         x = np.arange(xmin, xmax)
         y = np.arange(ymin, ymax)
         cut2 = grid[xmin: xmax, ymin: ymax]
@@ -102,22 +101,22 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
         # 2nd Max
         coord2 = np.unravel_index(zz.argmax(), zz.shape)
         log(3, "coord, cut ", coord2, cut2)
-        res = xx[coord2[0]],  yy[coord2[1]], zz[coord2[0], coord2[1]]
+        res = xx[coord2[0]], yy[coord2[1]], zz[coord2[0], coord2[1]]
 
     # GRAVITY CENTER
     else:  # including type == gravity
-        xmin = max(0, coord1[0]-1)
-        xmax = min(coord1[0]+2, len(cut1))
-        ymin = max(0, coord1[1]-1)
-        ymax = min(coord1[1]+2, len(cut1[0]))
+        xmin = max(0, coord1[0] - 1)
+        xmax = min(coord1[0] + 2, len(cut1))
+        ymin = max(0, coord1[1] - 1)
+        ymax = min(coord1[1] + 2, len(cut1[0]))
         x = np.arange(xmin, xmax)
         y = np.arange(ymin, ymax)
         cut2 = cut1[xmin: xmax, ymin: ymax]
         X, Y = np.meshgrid(x, y)
         norm = np.sum(cut2)
-        coord2 = np.sum(X*cut1) / norm, np.sum(Y * cut1) / norm
+        coord2 = np.sum(X * cut1) / norm, np.sum(Y * cut1) / norm
         log(3, "coord1, cut ", coord2, cut2)
-        res = coord2[0]+r[0],  coord2[1]+r[2],  cut2[coord2[0], coord2[1]]
+        res = coord2[0] + r[0], coord2[1] + r[2], cut2[coord2[0], coord2[1]]
 
     log(3, " LocalMax@ImageFunction.py : ", res)
     return res
@@ -134,14 +133,14 @@ def FindMaxWithBin(grid, rectangle):
     coord = np.unravel_index(cutted.argmax(), cutted.shape)
 
     # return x,y
-    return coord[0]+r[0], coord[1]+r[2]
+    return coord[0] + r[0], coord[1] + r[2]
 
 
 # Find one of the half Maximum without precision  in direction (x,-x,y,-y)
 def FWHM(grid, centermax, direction='average'):
     (x, y) = centermax  # center should be the max pixel.
     i, j = int(x), int(y)       # RETURN  float
-    max2 = grid[i, j]/2
+    max2 = grid[i, j] / 2
     if direction == 'average':
         res = FWHM(grid, centermax, direction='x')
         res += FWHM(grid, centermax, direction='-x')
@@ -160,9 +159,9 @@ def FWHM(grid, centermax, direction='average'):
                 j += 1
             if direction == 'z':
                 j -= 1
-            if grid[i][j] > grid[int(x)][int(y)]/2:
+            if grid[i][j] > grid[int(x)][int(y)] / 2:
                 break
-        fwhm = np.sqrt((j-y)**2+(i-x)**2)*2
+        fwhm = np.sqrt((j - y)**2 + (i - x)**2) * 2
         log(3, "FWHM2:", fwhm)
         return fwhm
 
@@ -175,7 +174,7 @@ def PixelMax(grid, r=None):
         r = 0, len(grid), 0, len(grid[0])
     cut1 = grid[r[0]: r[1], r[2]: r[3]]
     x, y = np.unravel_index(cut1.argmax(), cut1.shape)
-    return (r[0]+x, r[2] + y), cut1[x, y]
+    return (r[0] + x, r[2] + y), cut1[x, y]
 
 
 def EnergyRadius(grid, dic={}):
@@ -202,7 +201,8 @@ def EnergyRadius(grid, dic={}):
     # MOFFAT
     if 'Moffat' in s_fit_type:
         # r99 = r90
-        # r99u= params['spread_x'] * np.sqrt( (1-%)**(1/(1-params['exponent'])) -1 )
+        # r99u= params['spread_x'] * np.sqrt( (1-%)**(1/(1-params['exponent']))
+        # -1 )
         ap = 5  # 5 times the spread, for aperture,
         if params["exponent"] < 1:
             ap = 10
@@ -218,7 +218,7 @@ def EnergyRadius(grid, dic={}):
             # r99 = r90
             r99u, r99v = params['spread_x'] * ap, params['spread_y'] * ap
         else:
-            r99v, r99u = params['spread_x'] * ap,  params['spread_x'] * ap
+            r99v, r99u = params['spread_x'] * ap, params['spread_x'] * ap
 
     ############
     # BESSEL and None
@@ -231,7 +231,7 @@ def EnergyRadius(grid, dic={}):
         r99u = 5.8 * params['spread_x']
         r99v = 5.8 * params['spread_y']
     if (s_fit_type == 'None'):
-        r99u, r99v = params["r99x"],  params["r99y"]
+        r99u, r99v = params["r99x"], params["r99y"]
 
     ###########
     # r99x and r99y  ROTATE
@@ -261,9 +261,18 @@ def FwhmFromFit(fit_dic, err_dic):
     a_fwhm_x = AnswerDistance('Helper', 1, error=0)
     a_fwhm_y = AnswerDistance('Helper', 1, error=0)
 
-    a_spread_x = AnswerDistance('Helper', fit_dic['spread_x'], error=err_dic['spread_x'])
-    a_spread_y = AnswerDistance('Helper', fit_dic['spread_y'], error=err_dic['spread_y'])
-    a_intensity = AnswerNum('Helper', fit_dic['intensity'], error=err_dic['intensity'])
+    a_spread_x = AnswerDistance(
+        'Helper',
+        fit_dic['spread_x'],
+        error=err_dic['spread_x'])
+    a_spread_y = AnswerDistance(
+        'Helper',
+        fit_dic['spread_y'],
+        error=err_dic['spread_y'])
+    a_intensity = AnswerNum(
+        'Helper',
+        fit_dic['intensity'],
+        error=err_dic['intensity'])
 
     # Gaussian
     if 'Gaussian' in s_fit_type:
@@ -274,16 +283,19 @@ def FwhmFromFit(fit_dic, err_dic):
 
     # Moffat
     elif "Moffat" in s_fit_type:
-        a_exponent = AnswerNum('Helper', fit_dic['exponent'], error=err_dic['exponent'])
+        a_exponent = AnswerNum(
+            'Helper',
+            fit_dic['exponent'],
+            error=err_dic['exponent'])
         if fit_dic['exponent'] > 1:
             a_phot *= a_intensity * np.pi * a_spread_x * a_spread_y
             a_phot /= a_exponent - 1
         else:
             # TODO cleaner with error
             x = np.arange(int(fit_dic["center_x"] - 50),
-                          int(fit_dic["center_x"] + 50+1))
+                          int(fit_dic["center_x"] + 50 + 1))
             y = np.arange(int(fit_dic["center_y"] - 50),
-                          int(fit_dic["center_y"] + 50+1))
+                          int(fit_dic["center_y"] + 50 + 1))
             Y, X = np.meshgrid(x, y)
             cut = Moffat2D((X, Y), fit_dic)
             a_phot *= np.sum(cut)
@@ -303,12 +315,17 @@ def FwhmFromFit(fit_dic, err_dic):
         a_fwhm_x = 2 * a_spread_x * 1.61
         a_fwhm_y = 2 * a_spread_y * 1.61
 
-
     log(3, 'Fit: photometry, estimated from', s_fit_type, 'is', a_phot)
     return a_phot, a_fwhm_x, a_fwhm_y
 
 
-def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'distance': 1}):
+def EightRectangleNoise(
+    grid,
+    r,
+    return_rectangle=0,
+    dictionary={
+        'size': 4,
+        'distance': 1}):
     """Derive the noise from eight rectangle (of R/2 ) around the 99% Energy
     size =4 means that we devide by  4 the size of the rectangle
     distance = 2 means we go father by a factor 2 for star center (r center)
@@ -316,40 +333,42 @@ def EightRectangleNoise(grid, r, return_rectangle=0, dictionary={'size': 4, 'dis
     """
     rx1, rx2, ry1, ry2 = r
     distance, size = dictionary['distance'], dictionary['size']
-    rx1, rx2 = rx1 - distance*(rx2-rx1)/2, rx2 + distance*(rx2-rx1)/2
-    ry1, ry2 = ry1 - distance*(ry2-ry1)/2, ry2 + distance*(ry2-ry1)/2
+    rx1, rx2 = rx1 - distance * (rx2 - rx1) / \
+        2, rx2 + distance * (rx2 - rx1) / 2
+    ry1, ry2 = ry1 - distance * (ry2 - ry1) / \
+        2, ry2 + distance * (ry2 - ry1) / 2
     p = []
-    rx, ry, background, rms = (
-        rx2-rx1)/2/distance/size, (ry2-ry1)/2/distance/size, [], []  # we search the noise
+    rx, ry, background, rms = (rx2 - rx1) / 2 / distance / size, (ry2 - ry1) / \
+        2 / distance / size, [], []  # we search the noise
     for i in ['NW', 'N', 'NE', 'E', 'SE', 'S', 'SW', 'W']:
         if i == 'NW':
             # we define 8 boxes of noise
-            (ax1, ax2, ay1, ay2) = (rx1-rx, rx1, ry2, ry2+ry)
+            (ax1, ax2, ay1, ay2) = (rx1 - rx, rx1, ry2, ry2 + ry)
         if i == 'N':
-            (ax1, ax2, ay1, ay2) = ((rx1+rx2)/2 -
-                                    rx/2, (rx1+rx2)/2+rx/2, ry2, ry2+ry)
+            (ax1, ax2, ay1, ay2) = ((rx1 + rx2) / 2 - rx /
+                                    2, (rx1 + rx2) / 2 + rx / 2, ry2, ry2 + ry)
         if i == 'NE':
-            (ax1, ax2, ay1, ay2) = (rx2, rx2+rx, ry2, ry2+ry)
+            (ax1, ax2, ay1, ay2) = (rx2, rx2 + rx, ry2, ry2 + ry)
         if i == 'E':
-            (ax1, ax2, ay1, ay2) = (rx2, rx2+rx,
-                                    (ry1+ry2)/2-ry/2, (ry1+ry2)/2+ry/2)
+            (ax1, ax2, ay1, ay2) = (rx2, rx2 + rx,
+                                    (ry1 + ry2) / 2 - ry / 2, (ry1 + ry2) / 2 + ry / 2)
         if i == 'SE':
-            (ax1, ax2, ay1, ay2) = (rx2, rx2+rx, ry1-ry, ry1)
+            (ax1, ax2, ay1, ay2) = (rx2, rx2 + rx, ry1 - ry, ry1)
         if i == 'S':
-            (ax1, ax2, ay1, ay2) = ((rx1+rx2)/2 -
-                                    rx/2, (rx1+rx2)/2+rx/2, ry1-ry, ry1)
+            (ax1, ax2, ay1, ay2) = ((rx1 + rx2) / 2 - rx /
+                                    2, (rx1 + rx2) / 2 + rx / 2, ry1 - ry, ry1)
         if i == 'SW':
-            (ax1, ax2, ay1, ay2) = (rx1-rx, rx1, ry1-ry, ry1)
+            (ax1, ax2, ay1, ay2) = (rx1 - rx, rx1, ry1 - ry, ry1)
         if i == 'W':
-            (ax1, ax2, ay1, ay2) = (rx1-rx, rx1,
-                                    (ry1+ry2)/2-ry/2, (ry1+ry2)/2+ry/2)
-        image_cut = grid[int(ax1): int(ax2+1), int(ay1): int(ay2+1)]
+            (ax1, ax2, ay1, ay2) = (rx1 - rx, rx1,
+                                    (ry1 + ry2) / 2 - ry / 2, (ry1 + ry2) / 2 + ry / 2)
+        image_cut = grid[int(ax1): int(ax2 + 1), int(ay1): int(ay2 + 1)]
         background.append(np.mean(image_cut))
         rms.append(np.std(image_cut))
         log(3, "8rects: Background, rms :", background[-1], rms[-1])
         if return_rectangle:  # we draw the rectangles
             center, width, height = (
-                ((ax1+ax2)/2, (ay1+ay2)/2), (ax2-ax1), (ay2-ay1))
+                ((ax1 + ax2) / 2, (ay1 + ay2) / 2), (ax2 - ax1), (ay2 - ay1))
             p.append((center, width, height))
     background.sort()
     background = np.mean(background[2:6])
@@ -389,7 +408,7 @@ def find_bad_pixel(grid, r=None):
     res[b_bad] = mIX[b_bad]  # Almost useless becaused masked
 
     # Finally error
-    eIX = (IX-mIX).std() * np.ones(IX.shape)
+    eIX = (IX - mIX).std() * np.ones(IX.shape)
     b_ignore = np.logical_or(nan, inf)
     b_ignore = np.logical_or(b_ignore, b_bad)
     eIX[b_ignore] = float('inf')
@@ -408,7 +427,7 @@ def project_on_radial_line(point1_n_point2, point):
     length = np.sqrt(length)
 
     # Project
-    res = (x - x1) * (x2 - x1) + (y - y1) * (y2 -y1)
+    res = (x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)
     res /= length
     return res
 
@@ -421,8 +440,8 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     (x1, y1), (x2, y2) = point1_and_point2
 
     # Calculate line lenght
-    vect_r = ((x2-x1), (y2-y1))
-    lenght = np.sqrt(vect_r[1]**2+vect_r[0]**2)
+    vect_r = ((x2 - x1), (y2 - y1))
+    lenght = np.sqrt(vect_r[1]**2 + vect_r[0]**2)
 
     # Get the extreme points of the line on grid
     xmin, xmax, ymin, ymax = Order4((x1, x2, y1, y2), grid=grid)
@@ -433,10 +452,11 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     array = grid[xmin:xmax, ymin:ymax]
 
     # Radial array, cos of scalar product
-    R = ((X-x1)*(x2-x1) + (Y-y1)*(y2-y1)) / lenght
+    R = ((X - x1) * (x2 - x1) + (Y - y1) * (y2 - y1)) / lenght
     # Sin of scalar product
     # the distance of (X,Y) to x1,y1 projected on the line
-    d = (R*(x2-x1)/lenght-(X-x1))**2 + (R*(y2-y1)/lenght-(Y-y1))**2
+    d = (R * (x2 - x1) / lenght - (X - x1))**2 + \
+        (R * (y2 - y1) / lenght - (Y - y1))**2
 
     # Flaten all
     # the square distance of the point from the line
@@ -454,15 +474,15 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     od = od[od.nonzero()]  # think, but it works
     res = sorted(zip(ab, od))
     res = np.array(res)
-    #res[np.abs(IX-mIX)>(method[2]-1)*mIX] = mIX[np.abs(IX-mIX)>(method[2]-1)*mIX]
+    # res[np.abs(IX-mIX)>(method[2]-1)*mIX] = mIX[np.abs(IX-mIX)>(method[2]-1)*mIX]
 
     if return_point:
         X, Y = X[od.nonzero()], Y[od.nonzero()]
-        res2 = sorted(zip(ab, X, Y))
-        res2.sort()
+        res2 = sorted(sorted(zip(ab, X, Y)))
         res2 = np.array(res2)
         # abscice ordonate, points in array
-        return res[:, 0], res[:, 1], (res2[:, 1].astype("int"), res2[:, 2].astype("int"))
+        return res[:, 0], res[:, 1], (res2[:, 1].astype(
+            "int"), res2[:, 2].astype("int"))
 
     return res[:, 0], res[:, 1]  # abscice ordonate
 
@@ -471,10 +491,10 @@ def get_profile_x(grid, center):
     """Get profile along X
     Note: only used onces in answer_return
     """
-    r = (0, len(grid)-1, 0, len(grid[0]) - 1)
+    r = (0, len(grid) - 1, 0, len(grid[0]) - 1)
     r = Order4(r)
-    x = np.arange(int(r[0]), int(r[1])+1)
-    y = grid[int(r[0]):int(r[1])+1, int(center[1])]
+    x = np.arange(int(r[0]), int(r[1]) + 1)
+    y = grid[int(r[0]):int(r[1]) + 1, int(center[1])]
     return x, y
 
 
@@ -500,16 +520,16 @@ def get_elliptical_aperture(grid, center=None, uv=None, theta=None):
     cos = np.cos(theta)
     sin = np.sin(theta)
 
-    a = ((cos/ru)**2 + (sin/rv)**2)
-    b = ((sin/ru)**2 + (cos/rv)**2)
-    c = (np.sin(2 * theta) * (1./rv**2 - 1. / ru**2))
+    a = ((cos / ru)**2 + (sin / rv)**2)
+    b = ((sin / ru)**2 + (cos / rv)**2)
+    c = (np.sin(2 * theta) * (1. / rv**2 - 1. / ru**2))
 
-    x = np.arange(-x0, len(grid)-x0)  # invert IDK why
-    y = np.arange(-y0, len(grid[0])-y0)
+    x = np.arange(-x0, len(grid) - x0)  # invert IDK why
+    y = np.arange(-y0, len(grid[0]) - y0)
 
     # need to be in this order , tested with event ellipser!
     Y, X = np.meshgrid(y, x)
 
-    bol = a*X**2 + b*Y**2 + c*X*Y < 1
+    bol = a * X**2 + b * Y**2 + c * X * Y < 1
 
     return bol

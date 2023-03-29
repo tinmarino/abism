@@ -50,12 +50,13 @@ def strehl_one(rectangle):
     if get_state().e_phot_type and get_state().s_fit_type != "None":
         dI = get_state().d_fit_error["intensity"]
     else:
-        x0, y0 = int(get_state().d_fit_param["center_x"]), int(get_state().d_fit_param["center_y"])
-        mean = np.mean(get_state().image.im0[x0-1:x0+2, y0-1:y0+2])
+        x0, y0 = int(
+            get_state().d_fit_param["center_x"]), int(
+            get_state().d_fit_param["center_y"])
+        mean = np.mean(get_state().image.im0[x0 - 1:x0 + 2, y0 - 1:y0 + 2])
         dI = (get_state().d_fit_param["intensity"] - mean)
         dI /= 2
     set_aa(EA.INTENSITY, intensity, error=dI)
-
 
     # Get Background && Save
     background, rms = get_background(get_state().image.im0)
@@ -64,13 +65,14 @@ def strehl_one(rectangle):
     # Get photometry && Save
     # TODO better error from SI
     a_phot, a_fwhm_x, a_fwhm_y = IF.FwhmFromFit(psf_fit[0], psf_fit[1])
-    photometry, err_photometry, _, number_count = \
-        get_photometry(get_state().image.im0, background, rms, rectangle=rectangle, a_phot=a_phot)
+    photometry, err_photometry, _, number_count = get_photometry(
+        get_state().image.im0, background, rms, rectangle=rectangle, a_phot=a_phot)
     set_aa(EA.PHOTOMETRY, photometry, error=err_photometry)
 
     # Get Signal on noise && Save
     signal_on_noise = photometry / background / np.sqrt(number_count)
-    dsignal_on_noise = np.sqrt(err_photometry**2 + rms**2) / np.sqrt(number_count)
+    dsignal_on_noise = np.sqrt(
+        err_photometry**2 + rms**2) / np.sqrt(number_count)
     set_aa(EA.SN, signal_on_noise, error=dsignal_on_noise)
 
     # Save FWHM
@@ -149,7 +151,7 @@ def append_binary_info():
                     res[key.replace(s_num, "")] = dic[key]
             try:
                 res["exponent"] = dic["b" + s_num]
-            except:
+            except BaseException:
                 pass
         return fit_res, err_res
     fit_copy1, err_copy1 = copy_dic(fit_dic, err_dic, "0")
@@ -187,12 +189,12 @@ def save_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
     (dx0, dx1), (dy0, dy1) = error
 
     # Get separation distance <- Pythagora && Error
-    dist = np.sqrt((y1-y0)**2 + (x1-x0)**2)
+    dist = np.sqrt((y1 - y0)**2 + (x1 - x0)**2)
     dist_err = np.sqrt(dx0**2 + dx1**2 + dy0**2 + dy1**2)
 
     # Get angle TODO error
-    angle = np.array([(y1-y0), (x1-x0)])
-    angle /= np.sqrt((y0-y1)**2 + (x0-x1)**2)
+    angle = np.array([(y1 - y0), (x1 - x0)])
+    angle /= np.sqrt((y0 - y1)**2 + (x0 - x1)**2)
 
     # Save
     set_aa(EA.ORIENTATION, angle)
@@ -304,13 +306,16 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
     phot = err_phot = total = number_count = 0
     e_phot_type = get_state().e_phot_type
 
-    r99x, r99y = get_state().d_fit_param['r99x'], get_state().d_fit_param['r99y']
-    r99u, r99v = get_state().d_fit_param['r99u'], get_state().d_fit_param['r99v']
+    r99x, r99y = get_state(
+    ).d_fit_param['r99x'], get_state().d_fit_param['r99y']
+    r99u, r99v = get_state(
+    ).d_fit_param['r99u'], get_state().d_fit_param['r99v']
     theta = get_state().d_fit_param.get('theta', 0)
 
-    x0, y0 = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
-    ax1, ax2 = int(x0-r99x), int(x0+r99x)
-    ay1, ay2 = int(y0-r99y), int(y0+r99y)
+    x0, y0 = get_state().d_fit_param['center_x'], get_state(
+    ).d_fit_param['center_y']
+    ax1, ax2 = int(x0 - r99x), int(x0 + r99x)
+    ay1, ay2 = int(y0 - r99y), int(y0 + r99y)
 
     # Fit
     if e_phot_type == EPhot.FIT:
@@ -337,7 +342,7 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
         stat = get_array_stat(image_elliptic)
         number_count = stat.number_count
         total = stat.sum
-        phot = total  - number_count * background
+        phot = total - number_count * background
 
     # Manual
     elif e_phot_type == EPhot.MANUAL:
@@ -367,10 +372,12 @@ def get_background(grid):
     # 8 rects
     if background_type == ESky.RECT8:
         log(2, 'Getting Background in 8 rects')
-        xtmp, ytmp = get_state().d_fit_param['center_x'], get_state().d_fit_param['center_y']
-        r99x, r99y = get_state().d_fit_param["r99x"], get_state().d_fit_param["r99y"]
+        xtmp, ytmp = get_state().d_fit_param['center_x'], get_state(
+        ).d_fit_param['center_y']
+        r99x, r99y = get_state(
+        ).d_fit_param["r99x"], get_state().d_fit_param["r99y"]
         restmp = IF.EightRectangleNoise(
-            grid, (xtmp-r99x, xtmp+r99x, ytmp-r99y, ytmp+r99y))
+            grid, (xtmp - r99x, xtmp + r99x, ytmp - r99y, ytmp + r99y))
         background, rms = restmp["background"], restmp['rms']
         log(3, "ImageFunction.py : Background, I am in 8 rects ")
 
@@ -386,7 +393,8 @@ def get_background(grid):
         # Check if no fit which is incoherent
         # TODO not working well yet (Currently refactoring globals)
         if get_state().s_fit_type == "None":
-            log(0, "\n\n Warning, cannot estimate background with fit if fit type = None, "
+            log(0,
+                "\n\n Warning, cannot estimate background with fit if fit type = None, "
                 "return to Annnulus background")
             param = param.copy()
             param.update({"noise": "elliptical_annulus"})
@@ -395,7 +403,7 @@ def get_background(grid):
         try:
             background = get_state().d_fit_param['background']
             rms = get_state().d_fit_error['background']
-        except:
+        except BaseException:
             log(-1, 'Error: background not in fit parameters')
             rms = background = float('nan')
         background = get_state().d_fit_param["background"]
@@ -412,7 +420,8 @@ def get_background(grid):
         r99v = max(20, get_state().d_fit_param["r99v"])
         rui, rvi = 1.3 * r99u, 1.3 * r99v
         ruo, rvo = 1.6 * r99u, 1.3 * r99v
-        log(2, 'Getting Background from elliptical annulus: in', rui, rvi, 'out', ruo, rvo)
+        log(2, 'Getting Background from elliptical annulus: in',
+            rui, rvi, 'out', ruo, rvo)
 
         # Cut
         myrad = max(ruo, rvo) + 2  # In case
@@ -503,7 +512,7 @@ def get_bessel_integer():
     # Pi ... so irrational !
     π = np.pi
 
-    return (λ/(fps * π * D))**2  *  4*π/(1 - ε**2)
+    return (λ / (fps * π * D))**2 * 4 * π / (1 - ε**2)
 
 
 def get_equivalent_strehl_ratio(strehl, wavelength):

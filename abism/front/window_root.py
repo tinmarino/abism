@@ -21,7 +21,6 @@ from abism.back.image_info import ImageInfo
 from abism.util import log, parse_argument, get_state
 
 
-
 class WindowRoot(tk.Tk):
     """Main window app object
     May one day destroy util_front ...
@@ -29,6 +28,7 @@ class WindowRoot(tk.Tk):
         root_window = WindowRoot()
         root_window.mainloop()
     """
+
     def __init__(self):
         """Create main app"""
         super().__init__()
@@ -68,7 +68,8 @@ class WindowRoot(tk.Tk):
         self.set_image(parse_argument().image)
 
     def set_image(self, filepath):
-        if not filepath: return
+        if not filepath:
+            return
 
         # Craft ImageInfo
         get_state().image = ImageInfo.from_file(filepath)

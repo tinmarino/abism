@@ -75,6 +75,7 @@ def parse_header(header):
 
 class WCSDefault:
     """ Default class for World Coordinate System """
+
     def all_pix2world(self, _x, _y):
         """ Base method, return dummy coordinates """
         return np.array([[float('nan'), float('nan')]])
@@ -82,6 +83,7 @@ class WCSDefault:
 
 class Header:
     """Container"""
+
     def __init__(self, header):
         self.header = header
 
@@ -168,10 +170,10 @@ class Header:
             self.obstruction = self.header['OBSTRU']
         if 'DIAMETER' in self.header:
             self.diameter = self.header['DIAMETER']
-        elif 'VLT'in self.telescope:
+        elif 'VLT' in self.telescope:
             self.diameter = 8.0
             self.obstruction = 14.
-        elif 'Baade'in self.telescope:
+        elif 'Baade' in self.telescope:
             self.diameter = 6.0
             self.obstruction = 15
         elif "Keck" in self.telescope:
@@ -248,7 +250,8 @@ class Header:
 
                 for key in newheader.keys():
                     try:
-                        if int(key[-1]) >= 3 and key[:2] in ['CD', 'CR', 'CT', 'CU', 'NA']:
+                        if int(key[-1]) >= 3 and key[:2] in ['CD',
+                                                             'CR', 'CT', 'CU', 'NA']:
                             newheader['A' + key] = newheader.pop(key)
                     except ValueError:
                         # if key[-1] is not an int
@@ -268,15 +271,17 @@ class Header:
             for field in ('CTYPE1', 'CTYPE2'):
                 value = self.flathead.get('CTYPE1', '')
                 if len(value) > 8:
-                    self.flathead[field] = value[0:3] + value[len(value) - 8 + 3:]
+                    self.flathead[field] = value[0:3] + \
+                        value[len(value) - 8 + 3:]
 
             self.wcs = wcs.WCS(self.flathead)  # for coord transformation
 
             # Warning, dirty pig, thie depends on the shape of x
             if (self.wcs.all_pix2world([[0, 0]], 0) == [[1, 1]]).all():
-                self.wcs.all_pix2world = lambda x, y: np.array([[float('nan'), float('nan')]])
+                self.wcs.all_pix2world = lambda x, y: np.array(
+                    [[float('nan'), float('nan')]])
 
-        except:  # includding no wcs module
+        except BaseException:  # includding no wcs module
             import traceback
             log(0, traceback.format_exc(),
                 "WARNING I dit not manage to get WCS from wcs\n\n")
@@ -300,6 +305,7 @@ class Header:
 
 class NacoHeader(Header):
     """NaOS + Conica la lleva pero se la llevaron !"""
+
     def __init__(self, header):
         Header.__init__(self, header)
         self.company = "ESO"
@@ -346,6 +352,7 @@ class NacoHeader(Header):
 
 class SinfoniHeader(Header):
     """Sinfoni Instrument"""
+
     def __init__(self, header):
         Header.__init__(self, header)
 
@@ -384,8 +391,10 @@ class SinfoniHeader(Header):
 
         pixel_scale()
 
+
 class MaocHeader(Header):
     """ Maoc 4m in cuba """
+
     def __init__(self, header):
         Header.__init__(self, header)
 

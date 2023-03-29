@@ -18,6 +18,7 @@ from abism.util import log, get_state, set_aa, \
 
 class Fit(ABC):
     """Base class to perform a Fit"""
+
     def __init__(self, grid):
         self.grid = grid
 
@@ -48,10 +49,12 @@ class Fit(ABC):
         set_aa(EA.CHI2, self.result[2])
 
         # Log
-        log(0, "Fit efectuated in %f seconds" % (time.time() - start_time),
-            "with function:\n", self.fit_fct, '(if lambda, look above fit log)',
-            "\n\n\n\n"
-            )
+        log(0,
+            "Fit efectuated in %f seconds" % (time.time() - start_time),
+            "with function:\n",
+            self.fit_fct,
+            '(if lambda, look above fit log)',
+            "\n\n\n\n")
 
         log(9, 'Fit, result error', self.result[1])
         return self
@@ -84,7 +87,6 @@ class Fit(ABC):
 
         return supposed_param
 
-
     @abstractmethod
     def get_not_fitted(self):
         """Saturation and background
@@ -96,7 +98,6 @@ class Fit(ABC):
         if not self.b_saturated:
             doNotFit.append('saturation')
         return doNotFit
-
 
     @abstractmethod
     def get_bounds(self):
@@ -130,6 +131,7 @@ class Fit(ABC):
 
 class OnePsf(Fit):
     """Fit Point Spread Function of a single source"""
+
     def __init__(self, grid, rectangle, center=(0, 0), my_max=1):
         super().__init__(grid)
 
@@ -142,7 +144,6 @@ class OnePsf(Fit):
         # Change call if no fit
         if self.fit_fct is None:
             self.do_fit = self.no_fit
-
 
     def no_fit(self):
         fit_dic = {
@@ -164,7 +165,6 @@ class OnePsf(Fit):
         self.result = (fit_dic, err_dic, 0, None, 0)
         return self
 
-
     def get_xy_IX_eIX(self):
         # In center and bound
         rx1, rx2, ry1, ry2 = self.rectangle
@@ -172,14 +172,14 @@ class OnePsf(Fit):
 
         # Get working grid
         X, Y = np.arange(int(rx1), int(rx2)), np.arange(int(ry1), int(ry2))
-        y, x = np.meshgrid(Y, X)        # We have to inverse because of matrix way
+        # We have to inverse because of matrix way
+        y, x = np.meshgrid(Y, X)
         IX = self.grid[rx1:rx2, ry1:ry2]  # the cutted image
 
         # Mask bad pixel
         IX, _, eIX = IF.find_bad_pixel(IX)
 
         return (x, y), IX, eIX
-
 
     def get_supposed_parameters(self):
         supposed_param = super().get_supposed_parameters()
@@ -216,7 +216,6 @@ class OnePsf(Fit):
 
         return supposed_param
 
-
     def get_not_fitted(self):
         doNotFit = super().get_not_fitted()
         if not get_state().b_aniso:
@@ -224,12 +223,11 @@ class OnePsf(Fit):
             doNotFit.append("spread_y")
         return doNotFit
 
-
     def get_bounds(self):
 
         x0, y0 = self.center
         local_median = np.median(
-            self.grid[int(x0)-1:int(x0)+2, int(y0)-1: int(y0+2)])
+            self.grid[int(x0) - 1:int(x0) + 2, int(y0) - 1: int(y0 + 2)])
         bounds = super().get_bounds()
 
         bounds.update({
@@ -241,7 +239,6 @@ class OnePsf(Fit):
 
         return bounds
 
-
     def get_result(self):
         # Care if not aniso stuff to full x and y
         is_aniso = not get_state().b_aniso and self.fit_fct is not None
@@ -251,7 +248,7 @@ class OnePsf(Fit):
                     self.result[0]["spread"], self.result[0]["spread"]
                 self.result[1]["spread_y"], self.result[1]["spread_x"] = \
                     self.result[1]["spread"], self.result[1]["spread"]
-            except:
+            except BaseException:
                 self.result[0]["spread_y"], self.result[0]["spread_x"] = \
                     self.result[0]["spread_x"], self.result[0]["spread_x"]
                 self.result[1]["spread_y"], self.result[1]["spread_x"] = \
@@ -275,6 +272,7 @@ class BinaryPsf(Fit):
     """Fit two star function together
     TODO log in base class
     """
+
     def __init__(self, grid, star1, star2):
         super().__init__(grid)
         self.star1 = star1
@@ -282,15 +280,24 @@ class BinaryPsf(Fit):
 
         # Calculate distance between two pooints
         (x1, y1), (x2, y2) = self.star1, self.star2
-        self.star_distance = np.sqrt((x1-x2)**2 + (y1-y2)**2)
-        self.dist1 = min(IF.FWHM(self.grid, self.star1), self.star_distance / 2)
-        self.dist2 = min(IF.FWHM(self.grid, self.star2), self.star_distance / 2)
-
+        self.star_distance = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        self.dist1 = min(
+            IF.FWHM(
+                self.grid,
+                self.star1),
+            self.star_distance /
+            2)
+        self.dist2 = min(
+            IF.FWHM(
+                self.grid,
+                self.star2),
+            self.star_distance /
+            2)
 
     def get_xy_IX_eIX(self):
         # pylint: disable = too-many-locals
         (x1, y1), (x2, y2) = self.star1, self.star2
-        center = [(x1+x2)/2, (y1+y2)/2]
+        center = [(x1 + x2) / 2, (y1 + y2) / 2]
 
         # Define fitting space
         fit_range = self.star_distance + 5 * max(self.dist1, self.dist2)
@@ -306,14 +313,14 @@ class BinaryPsf(Fit):
         log(3, "----->IF.BinaryPSF :", "The fit is done between points ",
             (rx1, ry1), " and ", (rx2, ry2), "with fit", self.s_fit_type)
 
-        X, Y = np.arange(int(rx1), int(rx2)+1), np.arange(int(ry1), int(ry2)+1)
+        X, Y = np.arange(int(rx1), int(rx2) +
+                         1), np.arange(int(ry1), int(ry2) + 1)
         y, x = np.meshgrid(Y, X)
-        IX = self.grid[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
+        IX = self.grid[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
         IX, _, eIX = IF.find_bad_pixel(IX)
 
         log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
         return (x, y), IX, eIX
-
 
     def get_supposed_parameters(self):
         (x1, y1), (x2, y2) = self.star1, self.star2
@@ -334,7 +341,6 @@ class BinaryPsf(Fit):
         log(3, "Binary FiT, supposed parameters : ", supposed_param)
         return supposed_param
 
-
     def get_not_fitted(self):
         doNotFit = super().get_not_fitted()
         if get_state().b_same_psf:
@@ -353,7 +359,6 @@ class BinaryPsf(Fit):
 
         return doNotFit
 
-
     def get_bounds(self):
         # bd_x0 = (x1 - star_distance/2, x1 + star_distance/2)
         # bd_y0 = (y1 - star_distance/2, y1 + star_distance/2)
@@ -370,7 +375,6 @@ class BinaryPsf(Fit):
         })
 
         return bounds
-
 
     def get_result(self):
         # Declare: Restore not fitted variables
@@ -398,29 +402,30 @@ class BinaryPsf(Fit):
 
 class TightBinaryPsf(BinaryPsf):
     """Just better bounds"""
+
     def get_bounds(self):
         (x1, y1), (x2, y2) = self.star1, self.star2
 
         cut1 = get_state().image.im0[
-            int(x1-2): int(x1+2), int(y1-2): int(y1+2)]
+            int(x1 - 2): int(x1 + 2), int(y1 - 2): int(y1 + 2)]
         min1 = np.median(cut1)
         max1 = np.max(cut1)
-        max1 = 2*max1 - min1
+        max1 = 2 * max1 - min1
 
         cut2 = get_state().image.im0[
-            int(x2-2): int(x2+2), int(y2-2): int(y2+2)]
+            int(x2 - 2): int(x2 + 2), int(y2 - 2): int(y2 + 2)]
         min2 = np.median(cut2)
         max2 = np.max(cut2)
-        max2 = 2*max2 - min2
+        max2 = 2 * max2 - min2
 
         bounds = super().get_bounds()
         # we put the intensity positive because in a binary fit situation
         # ... you know.... who knows
         bounds.update({
-            'x0': (x1-2, x1+2),
-            'x1': (x2-2, x2+2),
-            'y0': (y1-2, y1+2),
-            'y1': (y2-2, y2+2),
+            'x0': (x1 - 2, x1 + 2),
+            'x1': (x2 - 2, x2 + 2),
+            'y0': (y1 - 2, y1 + 2),
+            'y1': (y2 - 2, y2 + 2),
             'intensity0': (min1, None),
             'intensity1': (min2, None)
         })

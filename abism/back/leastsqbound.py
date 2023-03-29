@@ -9,6 +9,7 @@ from scipy.optimize._minpack import _lmder, _lmdif
 
 from abism.util import log
 
+
 def _internal2external_grad(xi, bounds):
     """Calculate the internal (unconstrained) to external (constained)
     parameter gradiants.
@@ -87,9 +88,22 @@ def _external2internal_lambda(bound):
         return lambda x: arcsin((2. * (x - lower) / (upper - lower)) - 1.)
 
 
-def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
-                 col_deriv=0, ftol=1.49012e-8, xtol=1.49012e-8,
-                 gtol=0.0, maxfev=0, epsfcn=0.0, factor=100, diag=None, dic={}):
+def leastsqbound(
+        func,
+        x0,
+        args=(),
+        bounds=None,
+        Dfun=None,
+        full_output=0,
+        col_deriv=0,
+        ftol=1.49012e-8,
+        xtol=1.49012e-8,
+        gtol=0.0,
+        maxfev=0,
+        epsfcn=0.0,
+        factor=100,
+        diag=None,
+        dic={}):
     """Bounded minimization of the sum of squares of a set of equations.
 
     ::
@@ -260,7 +274,7 @@ def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
         if (maxfev == 0):
             maxfev = 200 * (n + 1)
         retval = _lmdif(wfunc, i0, args, full_output, ftol, xtol,
-                                 gtol, maxfev, epsfcn, factor, diag)
+                        gtol, maxfev, epsfcn, factor, diag)
     else:
         if col_deriv:
             mp._check_func('leastsq', 'Dfun', Dfun, x0, args, n, (n, m))
@@ -273,8 +287,8 @@ def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
             return Dfun(i2e(x), *args)
 
         retval = _lmder(func, wDfun, i0, args, full_output,
-                                 col_deriv, ftol, xtol, gtol, maxfev,
-                                 factor, diag)
+                        col_deriv, ftol, xtol, gtol, maxfev,
+                        factor, diag)
 
     errors = {0: ["Improper input parameters.", TypeError],
               1: ["Both actual and predicted relative reductions "
@@ -318,8 +332,12 @@ def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
     if full_output:
         # convert fjac from internal params to external
         grad = _internal2external_grad(retval[0], bounds)
-        retval[1]['fjac'] = (retval[1]['fjac'].T / take(grad,
-                                                        retval[1]['ipvt'] - 1)).T
+        retval[1]['fjac'] = (
+            retval[1]['fjac'].T /
+            take(
+                grad,
+                retval[1]['ipvt'] -
+                1)).T
         cov_x = None
         if info in [1, 2, 3, 4]:
             from numpy.dual import inv

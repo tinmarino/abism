@@ -21,6 +21,7 @@ from abism.util import get_state
 
 class DraggableColorbar:
     """The Scrollable colorbar"""
+
     def __init__(self, cbar, mappable, callback):
         self.cbar = cbar  # the colorbar
         self.mappable = mappable  # the imshow
@@ -28,7 +29,7 @@ class DraggableColorbar:
         self.press = None
         self.cycle = sorted([
             i for i in dir(plt.cm)
-            if ((hasattr(getattr(plt.cm, i), 'N')) and (not "_r" in i))])
+            if ((hasattr(getattr(plt.cm, i), 'N')) and ("_r" not in i))])
         self.cidpress = None
         self.cidrelease = None
         self.cidmotion = None
@@ -60,7 +61,7 @@ class DraggableColorbar:
         inverted_bool = False  # are we inverted scale (with "_r")
         try:
             tmpmap = get_state().s_image_color_map
-        except:  # if no G
+        except BaseException:  # if no G
             self.old["cmap"] = self.cbar.get_cmap().name
         if "_r" in tmpmap:
             inverted_bool = True
@@ -98,7 +99,6 @@ class DraggableColorbar:
         # Redraw
         self.callback()
 
-
     def on_motion(self, event):
         'on motion we will move the rect if the mouse is over us'
         if self.press is None:
@@ -112,11 +112,11 @@ class DraggableColorbar:
         scale = self.cbar.norm.vmax - self.cbar.norm.vmin
         perc = 0.1  # initially 0.03
         if event.button == 1:
-            self.cbar.norm.vmin -= (perc*scale)*np.sign(dy)
-            self.cbar.norm.vmax -= (perc*scale)*np.sign(dy)
+            self.cbar.norm.vmin -= (perc * scale) * np.sign(dy)
+            self.cbar.norm.vmax -= (perc * scale) * np.sign(dy)
         elif event.button == 3:
-            self.cbar.norm.vmin -= (perc*scale)*np.sign(dy)
-            self.cbar.norm.vmax += (perc*scale)*np.sign(dy)
+            self.cbar.norm.vmin -= (perc * scale) * np.sign(dy)
+            self.cbar.norm.vmax += (perc * scale) * np.sign(dy)
 
         # Set bounds
         get_state().i_image_max_cut = self.cbar.norm.vmax
@@ -124,7 +124,6 @@ class DraggableColorbar:
 
         # Redraw
         self.callback()
-
 
     def on_release(self, _):
         """Reset the press data
@@ -147,7 +146,7 @@ class MyNormalize(Normalize):
 
     def __init__(self, stretch='linear', exponent=5, vmid=None, vmin=None,
                  vmax=None, clip=False):
-        #pylint: disable=too-many-arguments
+        # pylint: disable=too-many-arguments
         '''
         Initalize an APLpyNormalize instance.
 
@@ -249,7 +248,6 @@ class MyNormalize(Normalize):
 
         return result
 
-
     def apply_stretch(self, result):
         if self.stretch == 'linear':
             pass
@@ -275,7 +273,6 @@ class MyNormalize(Normalize):
             raise Exception("Unknown stretch in APLpyNormalize: %s" %
                             self.stretch)
         return result
-
 
     def inverse(self, value):
 

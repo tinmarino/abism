@@ -18,9 +18,9 @@ from abism.util import log, get_root, quit_process, restart, get_state, \
     EPhot, ESky
 
 
-
 class LeftFrame(tk.Frame):
     """Full Container"""
+
     def __init__(self, root, parent):
         # Append self -> parent
         super().__init__(parent)
@@ -33,7 +33,8 @@ class LeftFrame(tk.Frame):
         root.frame_label = LabelFrame(text_paned, index=0, label_text='Info')
 
         # Add LabelFrame
-        root.frame_option = OptionFrame(text_paned, index=1, label_text='Option')
+        root.frame_option = OptionFrame(
+            text_paned, index=1, label_text='Option')
 
         # Add AnswerFrame
         root.frame_answer = AnswerFrame(text_paned, label_text='Result')
@@ -51,6 +52,7 @@ class TextFrame(tk.Frame):
     parent <- must be vertical pane
     children <- are grided
     """
+
     def __init__(self, parent, label_text='Frame', index=None):
         super().__init__(parent)
 
@@ -118,7 +120,8 @@ class TextFrame(tk.Frame):
         i_height = self.winfo_y() + 22
         if self._see_me:
             self._arrow.configure(image=photo_up())
-            i_height += 5 + max(0, self._last.winfo_y() - self._last.winfo_height())
+            i_height += 5 + max(0, self._last.winfo_y() -
+                                self._last.winfo_height())
         else:
             self._arrow.configure(image=photo_down())
         self._parent.sash_place(self._index, 0, i_height)
@@ -132,6 +135,7 @@ class TextFrame(tk.Frame):
         This trick is due to the fact widget will be updated at next tk loop
         """
         self.init_after(add_title=add_title)
+
         def will_refresh():
             self.update()
             self.toogle(visible=visible)
@@ -159,6 +163,7 @@ class TextFrame(tk.Frame):
 
 class LabelFrame(TextFrame):
     """Some conf"""
+
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
@@ -189,7 +194,8 @@ class LabelFrame(TextFrame):
             instrument = get_root().header.instrument
         telescope = re.sub("-U.", "",
                            get_root().header.telescope.replace("ESO-", ""))
-        text_n_props.append((company + " / " + telescope + " / " + instrument, {}))
+        text_n_props.append(
+            (company + " / " + telescope + " / " + instrument, {}))
 
         # Get is_reduced
         if "reduced_type" in vars(get_root().header):
@@ -232,7 +238,8 @@ class LabelFrame(TextFrame):
         bol1 /= get_root().header.diameter * (get_root().header.pixel_scale / 206265)
         bol1 = bol1 < 2
         bol2 = "sinf_pixel_scale" in vars(get_root().header)
-        # if bol2 sinf_pixel_scane is not in get_root().header, we dont call the next line
+        # if bol2 sinf_pixel_scane is not in get_root().header, we dont call
+        # the next line
         bol3 = bol2 and get_root().header.sinf_pixel_scale == 0.025
         bol3 = bol3 or (bol2 and (get_root().header.sinf_pixel_scale == 0.01))
 
@@ -252,6 +259,7 @@ class LabelFrame(TextFrame):
 
 class OptionFrame(TextFrame):
     """Some conf"""
+
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
         # Image parameter
@@ -275,7 +283,6 @@ class OptionFrame(TextFrame):
 
         self.init_after()
 
-
     # Image Parameters
     #############################################################
 
@@ -297,7 +304,7 @@ class OptionFrame(TextFrame):
             ["Obstruction (d2/d1)* [%]:", 'obstruction', float('nan')],
             ["Zero point [mag]: ", 'zpt', float('nan')],
             ["Exposure time [sec]: ", 'exptime', float('nan')],
-            ]
+        ]
 
     def set_image_parameter(self):
         """Set imageparameter, labels"""
@@ -335,7 +342,8 @@ class OptionFrame(TextFrame):
 
         # Loop for all needed variable
         # And grid their (label, entry)
-        for row, (text, key, value) in enumerate(self.get_image_parameter_list()):
+        for row, (text, key, value) in enumerate(
+                self.get_image_parameter_list()):
             # Init variable (may cut it)
             string_var = tk.StringVar()
             s_from_header = vars(get_root().header)[key]
@@ -372,7 +380,6 @@ class OptionFrame(TextFrame):
     def close_image_parameter(self):
         self.frame_image_parameter.destroy()
         self.will_update_sash()
-
 
     # Manual Cut
     #############################################################
@@ -438,7 +445,6 @@ class OptionFrame(TextFrame):
     def close_manual_cut(self):
         self.frame_manual_cut.destroy()
         self.will_update_sash()
-
 
     # More analysis
     #############################################################
@@ -514,7 +520,8 @@ class OptionFrame(TextFrame):
         self.frame_more_analysis.grid(sticky='nsew')
 
         # Pack title
-        label_more = tk_ext.TitleLabel(self.frame_more_analysis, text="More Options")
+        label_more = tk_ext.TitleLabel(
+            self.frame_more_analysis, text="More Options")
         label_more.pack(side=tk.TOP, anchor="w")
 
         # Pack rest
@@ -533,7 +540,7 @@ class OptionFrame(TextFrame):
         # Grid Menu: set photometric type
         def create_phot_menu(frame):
             menu_phot = tk.Menubutton(
-                frame, text=u'\u25be '+'Photometry',
+                frame, text=u'\u25be ' + 'Photometry',
                 relief=tk.RAISED)
             menu_phot.menu = tk.Menu(menu_phot, tearoff=False)
             menu_phot['menu'] = menu_phot.menu
@@ -555,8 +562,8 @@ class OptionFrame(TextFrame):
             string_var.set(get_state().e_phot_type)
             for text, tag in lst:
                 menu_phot.menu.add_radiobutton(
-                    label=text, command=lambda tag=tag: set_phot(string_var, tag),
-                    variable=string_var, value=tag)
+                    label=text, command=lambda tag=tag: set_phot(
+                        string_var, tag), variable=string_var, value=tag)
 
             return menu_phot
 
@@ -566,11 +573,10 @@ class OptionFrame(TextFrame):
         def create_noise_menu(frame):
             # Root
             menu = tk.Menubutton(
-                frame, text=u'\u25be '+'Background',
+                frame, text=u'\u25be ' + 'Background',
                 relief=tk.RAISED)
             menu.menu = tk.Menu(menu, tearoff=False)
             menu['menu'] = menu.menu
-
 
             lst = [
                 ["Annulus", ESky.ANNULUS],
@@ -595,8 +601,8 @@ class OptionFrame(TextFrame):
                         variable=string_var, value=tag)
                 else:
                     menu.menu.add_radiobutton(
-                        label=text, command=lambda tag=tag: set_noise(string_var, tag),
-                        variable=string_var, value=tag)
+                        label=text, command=lambda tag=tag: set_noise(
+                            string_var, tag), variable=string_var, value=tag)
 
             return menu
 
@@ -607,7 +613,7 @@ class OptionFrame(TextFrame):
         self.__class__.grid_more_checkbuttons(frame_more_grid)
 
         bu_close = tk.Button(
-            frame_more_grid, text=u'\u25b4 '+'Close',
+            frame_more_grid, text=u'\u25b4 ' + 'Close',
             command=self.toogle_more_analysis)
         bu_close.grid(column=0, columnspan=2)
 
@@ -616,7 +622,8 @@ class OptionFrame(TextFrame):
 
     def close_more_analysis(self):
         """Close the Frame"""
-        if not self.frame_more_analysis: return
+        if not self.frame_more_analysis:
+            return
 
         # Close sub frame
         self.close_manual_background()
@@ -625,7 +632,6 @@ class OptionFrame(TextFrame):
 
         # Refresh
         self.will_update_sash()
-
 
     # Manual background
     #############################################################
@@ -677,13 +683,15 @@ class OptionFrame(TextFrame):
         self.init_will_toogle(visible=True, add_title=False)
 
     def close_manual_background(self):
-        if not self.see_manual_background: return
+        if not self.see_manual_background:
+            return
         self.frame_manual_background.destroy()
         self.will_update_sash()
 
 
 class AnswerFrame(TextFrame):
     """Some conf"""
+
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
@@ -743,10 +751,10 @@ class AnswerFrame(TextFrame):
 
         # Declare button info
         if get_state().s_answer_unit == "detector":
-            s_button = u"\u21aa"+'To sky     '
+            s_button = u"\u21aa" + 'To sky     '
             s_label = "In detector units"
         else:
-            s_button = u"\u21aa"+'To detector'
+            s_button = u"\u21aa" + 'To detector'
             s_label = "In sky units"
 
         def on_change_coord():
@@ -789,7 +797,6 @@ class AnswerFrame(TextFrame):
             "<C-d>: Show/Hide Fit Dictionaries:\nparameters and errors")
         self.bu_fit.grid(row=0, column=2)
 
-
     def get_new_text_frame(self, convertion_callback):
         # Save visibility
         b_show_fit_param = self.text_fit_param is not None
@@ -805,7 +812,6 @@ class AnswerFrame(TextFrame):
         if b_show_fit_param:
             self.open_fit_param()
         return text
-
 
     def open_fit_param(self):
         self.bu_fit.configure(text=u'\u25b4 Hide Fit Param')
@@ -829,6 +835,7 @@ class AnswerFrame(TextFrame):
 
 class ButtonFrame(tk.Frame):
     """Frame 1 with quit, restart"""
+
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
@@ -858,7 +865,8 @@ class ButtonFrame(tk.Frame):
             self, text=u'\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toogle_image_parameter, **opts)
         get_root().bind_all(
-            "<Control-i>", lambda _: get_root().frame_option.toogle_image_parameter())
+            "<Control-i>",
+            lambda _: get_root().frame_option.toogle_image_parameter())
         self.bu_manual.set_hover_info(
             "<C-i>: Show/Hide Image parameters\n"
             "necessaries for Strehl mesurement (λ, pxl scale, diam, obstr)\n"
@@ -878,7 +886,6 @@ class ButtonFrame(tk.Frame):
     def config_button_image_more(self):
         self.bu_manual['background'] = tk_ext.scheme.parameter1
         self.bu_manual['text'] = u'\u25be ImageParameters'
-
 
     def toogle_cube(self):
         """Prepare Cube buttons"""
@@ -953,8 +960,6 @@ class ButtonFrame(tk.Frame):
             if get_state().pick is not None:
                 get_state().pick.disconnect()
                 get_state().pick.connect()
-
-
 
         # Button left
         bu_left = tk.Button(

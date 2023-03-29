@@ -34,24 +34,29 @@ def show_profile(point1, point2):
     if do_plot_fit:
         try:
             od_fit = fit_fct(points, get_state().d_fit_param)
-            ax.plot(ab, od_fit, color='purple', linewidth=2, label='Fitted PSF')
+            ax.plot(
+                ab,
+                od_fit,
+                color='purple',
+                linewidth=2,
+                label='Fitted PSF')
         except Exception as e:
             log(3, 'Warning, plot_profile could not plot fit, error:', e)
 
     # Redraw
-    log(8, "ProfileAnswer :", zip(points, get_state().image.im0[tuple(points)]))
+    log(8, "ProfileAnswer :", zip(
+        points, get_state().image.im0[tuple(points)]))
     ax.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.redraw()
-
 
     # Get stat
     ps = get_array_stat(get_state().image.im0[tuple(points)])
     # LEN
     tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-
     class StatPrinter(AnswerPrinter):
         """Stat values printer: with answer type"""
+
         def get_list(self):
             return [
                 [AnswerDistance('Length', tlen, error=1)],
@@ -60,6 +65,7 @@ def show_profile(point1, point2):
                 [AnswerLuminosity('Mean', ps.mean, error=np.sqrt(ps.rms))],
                 [AnswerLuminosity('Rms', ps.rms)]
             ]
+
     def print_answer():
         StatPrinter().work(with_warning=False, on_coord=print_answer)
     print_answer()

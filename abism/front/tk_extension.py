@@ -30,6 +30,7 @@ class ColorScheme:
     """Colors"""
     # pylint: disable=bad-whitespace
     # pylint: disable=attribute-defined-outside-init
+
     def __init__(self, e_scheme):
         self.set_solarized_var()
         self.init_solarized_default()
@@ -40,50 +41,50 @@ class ColorScheme:
 
     def set_solarized_var(self):
         """Init solarized varaibles"""
-        self.solarized_base03   = "#002b36"
-        self.solarized_base02   = "#073642"
-        self.solarized_base01   = "#586e75"
-        self.solarized_base00   = "#657b83"
-        self.solarized_base0    = "#839496"
-        self.solarized_base1    = "#93a1a1"
-        self.solarized_base2    = "#eee8d5"
-        self.solarized_base3    = "#fdf6e3"
-        self.solarized_yellow   = "#b58900"
-        self.solarized_orange   = "#cb4b16"
-        self.solarized_red      = "#dc322f"
-        self.solarized_magenta  = "#d33682"
-        self.solarized_violet   = "#6c71c4"
-        self.solarized_blue     = "#268bd2"
-        self.solarized_cyan     = "#2aa198"
-        self.solarized_green    = "#859900"
+        self.solarized_base03 = "#002b36"
+        self.solarized_base02 = "#073642"
+        self.solarized_base01 = "#586e75"
+        self.solarized_base00 = "#657b83"
+        self.solarized_base0 = "#839496"
+        self.solarized_base1 = "#93a1a1"
+        self.solarized_base2 = "#eee8d5"
+        self.solarized_base3 = "#fdf6e3"
+        self.solarized_yellow = "#b58900"
+        self.solarized_orange = "#cb4b16"
+        self.solarized_red = "#dc322f"
+        self.solarized_magenta = "#d33682"
+        self.solarized_violet = "#6c71c4"
+        self.solarized_blue = "#268bd2"
+        self.solarized_cyan = "#2aa198"
+        self.solarized_green = "#859900"
 
     def init_solarized_default(self):
         """Dark and light"""
-        self.sash               = self.solarized_blue
-        self.quit               = self.solarized_red
-        self.important          = self.solarized_red
-        self.restart            = self.solarized_cyan
-        self.parameter1         = self.solarized_blue
-        self.parameter2         = self.solarized_green
-        self.label_title_fg     = self.solarized_blue
+        self.sash = self.solarized_blue
+        self.quit = self.solarized_red
+        self.important = self.solarized_red
+        self.restart = self.solarized_cyan
+        self.parameter1 = self.solarized_blue
+        self.parameter2 = self.solarized_green
+        self.label_title_fg = self.solarized_blue
 
     def init_dark(self):
         """Solarized dark"""
-        self.bg                 = self.solarized_base02
-        self.fg                 = self.solarized_base2
-        self.bu                 = self.solarized_base01
-        self.bu_hi              = self.solarized_base00
-        self.label_title_bg     = self.solarized_base03
-        self.bg_extreme         = "#000000"
+        self.bg = self.solarized_base02
+        self.fg = self.solarized_base2
+        self.bu = self.solarized_base01
+        self.bu_hi = self.solarized_base00
+        self.label_title_bg = self.solarized_base03
+        self.bg_extreme = "#000000"
 
     def init_light(self):
         """Solarized light"""
-        self.bg                 = "#ffffff"  # self.solarized_base3
-        self.fg                 = self.solarized_base03
-        self.bu                 = self.solarized_base2
-        self.bu_hi              = self.solarized_base3
-        self.label_title_bg     = self.solarized_base3
-        self.bg_extreme         = "#ffffff"
+        self.bg = "#ffffff"  # self.solarized_base3
+        self.fg = self.solarized_base03
+        self.bu = self.solarized_base2
+        self.bu_hi = self.solarized_base3
+        self.label_title_bg = self.solarized_base3
+        self.bg_extreme = "#ffffff"
 
 
 # Global waiting for a better idea
@@ -132,6 +133,7 @@ def from_dic(victim, dic_getter):
 
 class Button(tk.Button):
     """Button arguments"""
+
     def __init__(self, *args, **kw):
         dic = get_button_dic()
         dic.update(kw)
@@ -144,7 +146,7 @@ class Button(tk.Button):
                 scheme.restart,
                 scheme.parameter1,
                 scheme.parameter2,
-                ):
+        ):
             return
         self.configure(get_button_dic())
 
@@ -153,6 +155,7 @@ class Frame(tk.Frame):
     """Some frame (frame_plot) contain a figure (_fig)
     that must be updated as matplotlib (hide set_figure_skin here)
     """
+
     def __init__(self, *args, **kw):
         self.dic_getter = lambda: {'bg': scheme.bg}
         dic = self.dic_getter()
@@ -164,10 +167,10 @@ class Frame(tk.Frame):
         self.configure(**self.dic_getter())
         self.set_figure_skin()
 
-
     def set_figure_skin(self):
         """Update skin, caller must redraw"""
-        if not '_fig' in vars(self): return
+        if '_fig' not in vars(self):
+            return
         fg = scheme.fg
         bg = scheme.bg
 
@@ -195,8 +198,6 @@ class Frame(tk.Frame):
 
         # Redraw
         self._fig.canvas.draw()
-
-
 
 
 tk.Button = Button
@@ -287,6 +288,7 @@ class HoverInfo:
     """Helper class to show a label when mouse on a widget
     Alais toolTip by its author
     """
+
     def __init__(self, widget):
         self.widget = widget
         self.tipwindow = None
@@ -298,7 +300,8 @@ class HoverInfo:
     def show(self, text, index=None):
         """Get param in and launch display timer"""
         # Check in: do not work twice
-        if self.on_work: return
+        if self.on_work:
+            return
         self.on_work = True
         self.text = text
 
@@ -320,7 +323,8 @@ class HoverInfo:
     def show_now(self):
         """Display text in tooltip window"""
         # Check in: maybe too late, if user left -> hide triggered
-        if not self.on_work: return
+        if not self.on_work:
+            return
 
         # Hide my bro
         self.hide()
@@ -343,7 +347,8 @@ class HoverInfo:
         self.on_work = False
 
         # If feasable, destroy tip window
-        if not self.tipwindow: return
+        if not self.tipwindow:
+            return
         self.tipwindow.destroy()
         self.tipwindow = None
 
@@ -352,16 +357,19 @@ def tk_bind_widget_hover(self):
     def enter(_):
         self.hover_info.hide()
         self.hover_info.show(self.hover_text)
+
     def leave(_):
         self.hover_info.hide()
     self.bind('<Enter>', enter)
     self.bind('<Leave>', leave)
+
 
 def tk_set_hover_info(self, text):
     """Set hover info to widget"""
     self.hover_info = HoverInfo(self)
     self.hover_text = text
     self.bind_widget_hover()
+
 
 # Create widget member function to add info on hover
 tk.Widget.bind_widget_hover = tk_bind_widget_hover
@@ -380,20 +388,23 @@ def on_menu_hover(self):
     elif self.hover_info:
         self.hover_info.hide()
 
+
 def bind_menu_hover(self):
     self.bind("<<MenuSelect>>", lambda _: self.on_menu_hover())
     self.bind("<Leave>", lambda _: self.hover_info.hide())
     self.bind("<FocusOut>", lambda _: self.hover_info.hide())
     self.bind("<FocusIn>", lambda _: self.activate(666))
 
+
 def add_entry_info(self, text):
     """Add info to last entry"""
     idx = self.index(tk.END)
-    if not 'idx_text' in vars(self):
+    if 'idx_text' not in vars(self):
         self.idx_text = {}
         self.hover_info = HoverInfo(self)
     self.idx_text.update({idx: text})
     self.bind_menu_hover()
+
 
 # Create Menu add_entry_info function member
 tk.Menu.bind_menu_hover = bind_menu_hover
@@ -408,11 +419,15 @@ tk.Menu.on_menu_hover = on_menu_hover
 
 # Replace Tk to keep a refrence to change color (very important)
 tk.Tk_save = tk.Tk
+
+
 class tk_Tk(tk.Tk_save):
     """A root that is added tho children and remove on delete"""
+
     def __init__(self):
         super().__init__()
-        if get_root() is None: return
+        if get_root() is None:
+            return
 
         # Bind close
         def on_close():
@@ -424,5 +439,6 @@ class tk_Tk(tk.Tk_save):
         # Bind root binding
         for text, cmd in get_root().l_bind:
             self.bind_all(text, cmd)
+
 
 tk.Tk = tk_Tk

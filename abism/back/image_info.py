@@ -13,6 +13,7 @@ from abism.util import log, get_state, DotDic
 
 class ImageStat(DotDic):
     """Container mean, median, rms, min, max, number_count, sum"""
+
     def __init__(self, image):
         # pylint: disable = super-init-not-called
         # Sort
@@ -32,7 +33,7 @@ class ImageStat(DotDic):
             return
 
         # Median
-        middle = (self.number_count-1) // 2
+        middle = (self.number_count - 1) // 2
         if self.number_count % 2:
             self.median = sort[middle]
         else:
@@ -51,6 +52,7 @@ class ImageInfo():
         - Maybe I should put it in AbismState but ...
         - that does not change anything anyway
     """
+
     def __init__(self, array):
         """np.array of the image
         Warning, it NaN values are zeroed
@@ -89,7 +91,6 @@ class ImageInfo():
         # TODO pretty mask ... takes time
         self.im0[np.isnan(self.im0)] = 0
 
-
     @staticmethod
     def from_file(filename):
         """ Factory: Open image from path
@@ -124,14 +125,12 @@ class ImageInfo():
 
         return image
 
-
     @staticmethod
     def from_2D(hdulist):
         """ Factory: From 2D image """
         image = ImageInfo(hdulist[0].data)
         image.is_cube = False
         return image
-
 
     @staticmethod
     def from_cube(hdulist):
@@ -151,7 +150,6 @@ class ImageInfo():
         image.i_cube_len = cube_num
         return image
 
-
     def update_cube(self):
         """ Update im0 <- new cube index """
         self.set_array(self.hdulist[0].data[self.cube_num - 1])
@@ -161,7 +159,6 @@ class ImageInfo():
         Used for Sky, Background, Photometry, Object detection
         """
         return self.stat
-
 
     def substract_sky(self, fp_sky):
         """ Subtraction of 2D image
@@ -181,7 +178,6 @@ class ImageInfo():
         self.im0 -= bg0
         return True
 
-
     def create_bad_pixel_mask(self):
         """ Create bad pixel mask from image grid
         TODO should be relative to the ground especially when close to saturation
@@ -190,7 +186,6 @@ class ImageInfo():
         ground = median_filter(self.im0, size=(4, 4)) + self.stat.rms
         bol1 = np.abs(self.im0) > np.abs(3 * ground)
         self.bpm[bol1] = True
-
 
     def get_cut_minmax(self):
         """Returns: (min, max) cut in ADU for the viewable image"""
@@ -208,7 +203,10 @@ class ImageInfo():
                 )
                 ([eE][+-]?\d+)?  # finally, optionally match an exponent
             """)
-            cut_value = float(re.search(re_float, get_state().s_image_cut).group(0))
+            cut_value = float(
+                re.search(
+                    re_float,
+                    get_state().s_image_cut).group(0))
             log(5, 'Get MinMaxCut for', cut_type, ':', cut_value)
 
         # No Clipping
@@ -238,7 +236,6 @@ class ImageInfo():
 
         return min_cut, max_cut
 
-
     def sky(self, dic=None):
         """Recursive sigmaclipping to estimate the sky bg
             @param grid: the image np.array
@@ -267,7 +264,6 @@ class ImageInfo():
         dic.update(stat)
         log(5, 'Sky cut: ', dic)
 
-
         # Check if finished
         bolt = dic["rms"] > (1. - dic["error"]) * rms_old
         bolt = bolt & (dic["rms"] < (1. + dic["error"]) * rms_old)
@@ -279,7 +275,6 @@ class ImageInfo():
 
         # Finished
         return dic
-
 
     def RectanglePhot(self, r):
         """
@@ -296,7 +291,7 @@ class ImageInfo():
         rx1, rx2, ry1, ry2 = list(map(int, r))
 
         # Cut image
-        cutted = self.im0[int(rx1):int(rx2+1), int(ry1):int(ry2+1)]
+        cutted = self.im0[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
 
         # Smooth bad pixel <- Filter median
         median = median_filter(cutted, size=(3, 3))

@@ -10,6 +10,7 @@ import abism.front.tk_extension as tk_ext
 from abism.util import *
 import abism.util as util
 
+
 def create_debug_console():
     # pylint: disable = too-many-locals
     # Create root
@@ -24,8 +25,8 @@ def create_debug_console():
     text_user.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     text_user.focus_force()
 
-
     # Append run
+
     def on_run():
         # pylint: disable=exec-used
         # Read
@@ -59,7 +60,10 @@ def create_debug_console():
 
     # Append quit
     button = tk.Button(
-        bu_frame, text='QUIT', command=root.destroy, bg=tk_ext.scheme.solarized_red)
+        bu_frame,
+        text='QUIT',
+        command=root.destroy,
+        bg=tk_ext.scheme.solarized_red)
     but_list.append(button)
 
     # Pack all

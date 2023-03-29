@@ -21,9 +21,9 @@ from abism.util import (
 )
 
 
-
 class MenuBar(tk.Frame):
     """Full Menu Bar, autopack, the only one exported"""
+
     def __init__(self, parent):
         """Create the menu bar (autopack top)"""
         super().__init__(parent)
@@ -38,7 +38,7 @@ class MenuBar(tk.Frame):
                 AnalysisMenu,
                 ViewMenu,
                 ToolMenu,
-                ]):
+        ]):
             # Same weight
             self.columnconfigure(col, weight=1)
             # Create
@@ -49,6 +49,7 @@ class MenuBar(tk.Frame):
 
 class ButtonMenu(tk.Menubutton):
     """Base class for a top menu button (with a dropdown)"""
+
     def __init__(self, parent):
         # Prepare argument dic
         l_args = {'text': u"\u25be" + self.get_text()}
@@ -69,6 +70,7 @@ class ButtonMenu(tk.Menubutton):
 
 class AbismMenu(ButtonMenu):
     """ABISM"""
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -96,10 +98,8 @@ class AbismMenu(ButtonMenu):
             label='Quit',
             command=quit_process)
 
-
     def get_text(self):
         return 'ABISM'
-
 
     def get_colorscheme_cascade(self):
         """Create the submenu"""
@@ -107,17 +107,20 @@ class AbismMenu(ButtonMenu):
 
         menu.add_radiobutton(
             label='Dark Solarized',
-            command=lambda: tk_ext.change_root_scheme(tk_ext.Scheme.DARK_SOLARIZED))
+            command=lambda: tk_ext.change_root_scheme(
+                tk_ext.Scheme.DARK_SOLARIZED))
 
         menu.add_radiobutton(
             label='Light Solarized',
-            command=lambda: tk_ext.change_root_scheme(tk_ext.Scheme.LIGHT_SOLARIZED))
+            command=lambda: tk_ext.change_root_scheme(
+                tk_ext.Scheme.LIGHT_SOLARIZED))
 
         return menu
 
 
 class FileMenu(ButtonMenu):
     """Open new file"""
+
     def __init__(self, parent):
         """Menu, open_image, header
             args is a dictionnary containing the arguments to make all menuENtry
@@ -150,13 +153,13 @@ class FileMenu(ButtonMenu):
         self.menu.add_entry_info(
             "<C-H>: Open Header viewer window")
 
-
     def get_text(self):
         return 'File'
 
 
 class AnalysisMenu(ButtonMenu):
     """Fit, Pick <- Choose Star analysis method"""
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -164,7 +167,6 @@ class AnalysisMenu(ButtonMenu):
 
         self.add_fit_menu()
         self.add_pick_menu()
-
 
     def add_fit_menu(self):
         self.menu.add_command(
@@ -191,7 +193,8 @@ class AnalysisMenu(ButtonMenu):
         self.menu.add_command(
             label=u"\u25be More Options",
             command=on_more)
-        self.menu.add_entry_info("<C-M>: Display additional frame for more options")
+        self.menu.add_entry_info(
+            "<C-M>: Display additional frame for more options")
         get_root().bind_all("<Control-m>", lambda _: on_more())
 
         # Keep index to change label
@@ -219,7 +222,7 @@ class AnalysisMenu(ButtonMenu):
         ]
 
         for text, enum, info, keys in lst2:
-            cmd = lambda enum=enum: refresh_pick(enum)
+            def cmd(enum=enum): return refresh_pick(enum)
             self.menu.add_radiobutton(
                 label=text, command=cmd,
                 variable=get_state().tk_pick, value=enum)
@@ -227,20 +230,26 @@ class AnalysisMenu(ButtonMenu):
             get_root().bind_all(keys, lambda _, cmd=cmd: cmd())
             self.menu.add_entry_info(info)
 
-
     def get_text(self):
         return 'Analysis'
 
     def toogle_more_options(self):
         """More photometry options frame"""
         if get_root().frame_option.is_more_analysis_visible():
-            self.menu.entryconfig(self.index_more, label=u'\u25b4 '+'Less Option')
+            self.menu.entryconfig(
+                self.index_more,
+                label=u'\u25b4 ' +
+                'Less Option')
         else:
-            self.menu.entryconfig(self.index_more, label=u'\u25be '+'More Option')
+            self.menu.entryconfig(
+                self.index_more,
+                label=u'\u25be ' +
+                'More Option')
 
 
 class ViewMenu(ButtonMenu):
     """Color, Cut, Scale <- Appearance of image"""
+
     def __init__(self, parent):
         super().__init__(parent)
         self.style = 'column'
@@ -250,10 +259,8 @@ class ViewMenu(ButtonMenu):
         self.add_scale_column()
         self.add_cut_column()
 
-
     def get_text(self):
         return 'View'
-
 
     def add_color_column(self):
         """Color drop"""
@@ -335,7 +342,6 @@ class ViewMenu(ButtonMenu):
                 command=lambda: on_change_stretch(string_var),
                 variable=string_var, value=i[2])
 
-
     def add_cut_column(self):
         """Cut min max of the iamge scale"""
         self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED,
@@ -378,6 +384,7 @@ class ViewMenu(ButtonMenu):
 
 class ToolMenu(ButtonMenu):
     """Generic awesome tool. Usually in plugin"""
+
     def __init__(self, parent):
         """Menu, open_image, header
         args is a dictionnary containing the arguments to make all menuENtry
@@ -386,7 +393,7 @@ class ToolMenu(ButtonMenu):
         super().__init__(parent)
 
         # Profile
-        cmd = lambda: refresh_pick(EPick.PROFILE)
+        def cmd(): return refresh_pick(EPick.PROFILE)
         self.menu.add_radiobutton(
             label='Profile', command=cmd,
             variable=get_state().tk_pick, value=EPick.PROFILE)
@@ -395,7 +402,7 @@ class ToolMenu(ButtonMenu):
             "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
         # Stat
-        cmd = lambda: refresh_pick(EPick.STAT)
+        def cmd(): return refresh_pick(EPick.STAT)
         self.menu.add_radiobutton(
             label='Stat', command=cmd,
             variable=get_state().tk_pick, value=EPick.STAT)
@@ -404,7 +411,7 @@ class ToolMenu(ButtonMenu):
             "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
 
         # Ellipse
-        cmd = lambda: refresh_pick(EPick.ELLIPSE)
+        def cmd(): return refresh_pick(EPick.ELLIPSE)
         self.menu.add_radiobutton(
             label='Ellipse', command=cmd,
             variable=get_state().tk_pick, value=EPick.ELLIPSE)
@@ -432,7 +439,6 @@ class ToolMenu(ButtonMenu):
         self.menu.add_entry_info(
             "<C-T>J: Open jupyter console window\n"
             "Requires: xterm, jupyter")
-
 
     def get_text(self):
         return 'Tools'

@@ -3,15 +3,16 @@
     Requires GTK, so will usually fail
     But the tk ask open file is so ugly, and FileOpen may come too
 """
+from gi.repository import Gtk, GLib
 import os
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
 
 
 class GtkDialog(Gtk.FileChooserDialog):
     """The dialog to open a fits image"""
+
     def __init__(self, parent=None, title='', filetypes=None, initialdir=''):
         super().__init__(
             title=title,
@@ -28,7 +29,6 @@ class GtkDialog(Gtk.FileChooserDialog):
         for text_n_regex in filetypes:
             self.add_one_filter(text_n_regex)
 
-
     def get_response(self):
         """Born, Work and die"""
         fname = ''
@@ -41,7 +41,6 @@ class GtkDialog(Gtk.FileChooserDialog):
         GLib.timeout_add(100, Gtk.main_quit)
         # Dodo
         return fname
-
 
     def add_one_filter(self, text_n_regex):
         text, regex = text_n_regex

@@ -10,6 +10,7 @@ from abism.front.answer_return import AnswerPrinter
 from abism.util import get_state, log
 from abism.answer import AnswerDistance, AnswerLuminosity, AnswerNum
 
+
 def show_statistic(rectangle):
     """Get and Print statistics from a rectangle selection"""
     # Get stat <- subarray
@@ -23,6 +24,7 @@ def show_statistic(rectangle):
 
     class StatPrinter(AnswerPrinter):
         """Stat values printer: with answer type"""
+
         def get_list(self):
             return [
                 [AnswerDistance('DimX', rectangle[1] - rectangle[0])],
@@ -35,6 +37,7 @@ def show_statistic(rectangle):
                 [AnswerLuminosity('Median', stat.median, error=stat.rms / i_sq_nb), True],
                 [AnswerLuminosity('Rms', stat.rms)]
             ]
+
     def print_answer():
         StatPrinter().work(with_warning=False, on_coord=print_answer)
     print_answer()

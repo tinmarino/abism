@@ -27,7 +27,8 @@ def parse_argument():
 
     from argparse import ArgumentParser
     from sys import argv, executable
-    parser = ArgumentParser(description='Adaptive Background Interferometric Strehl Meter')
+    parser = ArgumentParser(
+        description='Adaptive Background Interferometric Strehl Meter')
 
     # Version
     parser.add_argument(
@@ -72,21 +73,29 @@ def parse_argument():
         default=700,
         help='separator (image vertical) position from top (in pixel)')
 
-
     # Image View
     ############
 
     # Colormap
     parser.add_argument(
-        '-c', '--cmap', metavar='ColorMap', type=str, nargs='?', action='store',
+        '-c',
+        '--cmap',
+        metavar='ColorMap',
+        type=str,
+        nargs='?',
+        action='store',
         default='bone',
         help='Colormap for the image')
 
     parser.add_argument(
-        '--stretch', metavar='StretchFunction', type=str, nargs='?', action='store',
+        '--stretch',
+        metavar='StretchFunction',
+        type=str,
+        nargs='?',
+        action='store',
         default='log',
         help='Stretch function of the displayed image '
-             '(linear, sqrt, square, log, arcsinh')
+        '(linear, sqrt, square, log, arcsinh')
 
     parser.add_argument(
         '--cut', metavar='CutType', type=str, nargs='?', action='store',
@@ -100,7 +109,8 @@ def parse_argument():
         # Parse from sys args
         parsed_args = parser.parse_args()
     except SystemExit as e:
-        if str(e) == '0': sys.exit()
+        if str(e) == '0':
+            sys.exit()
         print('Argument Parsing error:', str(e))
         parsed_args = parser.parse_args([])
 
@@ -182,14 +192,16 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
     """
     # pylint: disable = too-many-arguments, dangerous-default-value
     # Check in: recursion depth
-    if rec >= depth: return ''
+    if rec >= depth:
+        return ''
 
     # Init
     s_indent = ' ' * indent * rec
     stg = s_indent
 
     # Print key && Check if silent
-    if key != '': stg += str(key) + ': '
+    if key != '':
+        stg += str(key) + ': '
     if str(key) in silent or type(obj).__name__ in silent:
         stg += "\n" + ' ' * (indent) * (rec + 1) + "Silenced !\n"
         return stg
@@ -210,7 +222,8 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
     # Recurse
     items = dict(sorted(items)).items()
     for k, v in items:
-        stg += str_pretty(v, indent=indent, rec=rec+1, key=k, silent=silent) + "\n"
+        stg += str_pretty(v, indent=indent, rec=rec + 1,
+                          key=k, silent=silent) + "\n"
 
     # Return without empty lines
     return re.sub(r'\n\s*\n', '\n', stg)[:-1]
@@ -283,10 +296,12 @@ class EPhot(Enum):
     See implementation in fit_strehl.py
     """
     FIT = 'Mesured from the fitted function'
-    ELLIPTICAL = ('Mesured from an elliptical aperture containing 99%% of the energy, '
-                  'which bound are determined by the fit')
-    RECTANGLE = ('Mesured from a rectangle aperture containing 99%% of the energy, '
-                 'which bound are determined by the fit')
+    ELLIPTICAL = (
+        'Mesured from an elliptical aperture containing 99%% of the energy, '
+        'which bound are determined by the fit')
+    RECTANGLE = (
+        'Mesured from a rectangle aperture containing 99%% of the energy, '
+        'which bound are determined by the fit')
     MANUAL = 'Mesured from the rectangle section total inensity'
 
 
@@ -365,6 +380,7 @@ def str_answers(answers):
 class AbismState(DotDic):
     """Confiugration from user (front) to science (back)"""
     # pylint: disable = super-init-not-called
+
     def __init__(self):
         import tkinter as tk
 
@@ -487,7 +503,6 @@ class AbismState(DotDic):
 
         return answer
 
-
     def get_answer_obj(self, enum_answer):
         return self.answers[enum_answer.name]
 
@@ -525,7 +540,8 @@ def save_state():
         stg += str_answers(item.answers) + "\n"
 
         stg += "# Fit Dictionary\n\n"
-        stg += str_fit_param(item.d_fit_param, item.d_fit_error, no_tab=True)[0]
+        stg += str_fit_param(item.d_fit_param,
+                             item.d_fit_error, no_tab=True)[0]
         stg += "\n\n" + "-" * 80 + "\n"
 
     with open(fpath, 'w') as f:
@@ -560,7 +576,8 @@ def restart():
     # PREPARE STG command line args
     stg = g_parsed_args.executable + ' ' + g_parsed_args.script + ' '
     for key, value in vars(g_parsed_args).items():
-        if key in ('executable', 'script') or not value: continue
+        if key in ('executable', 'script') or not value:
+            continue
         log(3, 'Cmd (key, value)', key, ' ', value)
         key = key.replace('_', '-')
         stg += '--' + key + ' ' + str(value) + ' '
@@ -572,7 +589,8 @@ def restart():
     # DESTROY AND LAUNCH
     os.system(stg)         # I call an other instance
     quit_process()
-    # As the loop is now opened, this may not be necessary but anyway it is safer
+    # As the loop is now opened, this may not be necessary but anyway it is
+    # safer
 
 
 @lru_cache(1)
@@ -602,7 +620,8 @@ def _get_logger():
 
 def log(i, *args):
     """Log utility read verbose"""
-    if get_state().verbose < i: return
+    if get_state().verbose < i:
+        return
 
     message = str(i) + ': ' + ' '.join([str(arg) for arg in args])
     if get_state().verbose > 3:
@@ -620,6 +639,7 @@ def set_timeout():
 
 class AsyncWorker:
     """Create a async worker with timeout"""
+
     def __init__(self, task, after, timeout=10):
         """
         :param task: <fct> to run in thread
@@ -640,7 +660,8 @@ class AsyncWorker:
         t.start()
 
         # Add timeout
-        self.l_after_id.append(get_root().after(int(1000 * self.timeout), set_timeout))
+        self.l_after_id.append(get_root().after(
+            int(1000 * self.timeout), set_timeout))
 
         # Add after timers
         for i in range(100):
@@ -666,7 +687,8 @@ class AsyncWorker:
 
     def wrap_after(self):
         """Call on_done"""
-        if not self.is_finished: return
+        if not self.is_finished:
+            return
         self.is_finished = False
         self.delete_after_id()
         self.after()

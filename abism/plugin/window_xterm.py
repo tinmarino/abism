@@ -74,7 +74,8 @@ def on_resize(event, queue):
     # Magic && Check
     magic_x, magic_y = 6.1, 13
     log(3, 'Resize (w, h):', event.width, event.height)
-    if not queue.queue: return
+    if not queue.queue:
+        return
 
     # Calculate
     width = int(event.width / magic_x)
@@ -138,11 +139,11 @@ def get_system_command(cfile):
     return ''
 
 
-
 def create_system_console(s_cmd):
     """System terminal"""
     log(1, 'Launching ', s_cmd)
-    if not s_cmd: return
+    if not s_cmd:
+        return
     sp.Popen(s_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
 
 
@@ -170,9 +171,12 @@ def launch_kernel():
 
     # Init kernel
     init_ipython_kernel(
-        user_ns={**globals(), **locals()}, redirect_stdio=True, banner=get_banner(),
-        logger=logger
-    )
+        user_ns={
+            **globals(),
+            **locals()},
+        redirect_stdio=True,
+        banner=get_banner(),
+        logger=logger)
 
     # Read output
     while True:
@@ -193,7 +197,7 @@ def launch_kernel():
 def create_jupyter_console():
     thread = Thread(target=launch_kernel)
     thread.start()
-    #create_tk_console()
+    # create_tk_console()
 
 
 if __name__ == '__main__':

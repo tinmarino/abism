@@ -15,6 +15,7 @@ from abism.front.util_front import is_toolbar_active
 
 class Artist:
     """Default artist, generic drawer"""
+
     def __init__(self, figure, ax, array=None, callback=None):
         """array is the array called by imshow"""
         self.fig = figure
@@ -37,11 +38,11 @@ class Annulus(Artist):
     image)  , see in Abism 0.5, 0.6
     Note 2020: Well in your dream !
     """
+
     def __init__(self, figure, ax, array=None, callback=None):
         super().__init__(figure, ax, array=array, callback=callback)
         self.fig = figure
         self.ax = ax
-
 
         self.artist_list = []  # Filled in InitAnnulus and modified in event_motion
         # number of key operation to make like if you press 5r,
@@ -108,9 +109,9 @@ class Annulus(Artist):
         try:
             try:
                 self.num_key = int(self.num_key + event.key)
-            except:
+            except BaseException:
                 self.num_key = int(str(self.num_key) + event.key)
-        except:
+        except BaseException:
             if self.num_key == "":
                 self.num_key = 1
             for _ in range(self.num_key):
@@ -167,7 +168,6 @@ class Annulus(Artist):
         elif string == "right":
             self.y0 += 1
 
-
     def RemoveArtist(self, draw=True):
         for i in self.artist_list:
             i.remove()
@@ -207,24 +207,25 @@ class Annulus(Artist):
         """ Draw inner outer and photometry ellipse """
         # self.RemoveArtist(draw=False)
 
-        # theta is the same, just, x and y direction where change by width and height
+        # theta is the same, just, x and y direction where change by width and
+        # height
         theta = 180 * self.theta / np.pi
 
         def Out(ell):
-            ell.width = 2*self.outter_u * self.rapport   # array to image invert
+            ell.width = 2 * self.outter_u * self.rapport   # array to image invert
             ell.height = 2 * self.outter_u
             ell.center = (self.y0, self.x0)
             ell.angle = theta
-            #'solid' | 'dashed' | 'dashdot' | 'dotted'
+            # 'solid' | 'dashed' | 'dashdot' | 'dotted'
 
         def In(ell):
-            ell.width = 2*self.inner_u * self.rapport   # array to image invert
+            ell.width = 2 * self.inner_u * self.rapport   # array to image invert
             ell.height = 2 * self.inner_u
             ell.center = (self.y0, self.x0)
             ell.angle = theta
 
         def Ell(ell):
-            ell.width = 2*self.ru * self.rapport   # array to image invert
+            ell.width = 2 * self.ru * self.rapport   # array to image invert
             ell.height = 2 * self.ru
             ell.center = (self.y0, self.x0)
             ell.angle = theta
@@ -235,8 +236,9 @@ class Annulus(Artist):
 
         self.DrawArtist()
 
+    # called first, all params possible should be here., even if it is just
+    # None
 
-    # called first, all params possible should be here., even if it is just None
     def ParamDefiner(self):
 
         # SPHERE
@@ -255,6 +257,7 @@ class Annulus(Artist):
 
 class Ellipse(Artist):
     """Draw an ellipse"""
+
     def __init__(self, figure, ax, array=None, callback=None):
         """array is the array called by imshow"""
         super().__init__(figure, ax, array=array, callback=callback)
@@ -386,7 +389,8 @@ class Ellipse(Artist):
         return press_dic
 
     def on_zoom(self, _):
-        if self.zoom_bool: return
+        if self.zoom_bool:
+            return
 
         self.RemoveArtist(draw=False)  # Important not to draw if zoom
         self.bg = self.fig.canvas.copy_from_bbox(self.ax.bbox)
@@ -394,7 +398,7 @@ class Ellipse(Artist):
     def RemoveArtist(self, draw=True):
         try:
             self.artist.remove()
-        except:
+        except BaseException:
             log(3, "I cannot remove artist Ellispe")
         if draw:
             self.fig.canvas.draw()
@@ -409,13 +413,15 @@ class Ellipse(Artist):
 
     def Draw(self):
         self.artist.center = (self.y0, self.x0)
-        self.artist.width = 2*self.rv   # array to image invert
+        self.artist.width = 2 * self.rv   # array to image invert
         self.artist.height = 2 * self.ru
-        # theta is the same, just, x and y direction where change by width and height
+        # theta is the same, just, x and y direction where change by width and
+        # height
         self.artist.angle = 180 * self.theta / np.pi
         self.DrawArtist()
 
-    # called first, all params possible should be here., even if it is just None
+    # called first, all params possible should be here., even if it is just
+    # None
     def ParamDefiner(self):
 
         # ELLIPSE
@@ -441,6 +447,7 @@ class Profile(Artist):
     """Alias Line
     Callback : recevese self (point1 and point2)
     """
+
     def __init__(self, fig, ax, callback=None):
         super().__init__(fig, ax, array=None, callback=callback)
 
@@ -462,15 +469,15 @@ class Profile(Artist):
     def Disconnect(self):
         try:
             self.fig.canvas.mpl_disconnect(self.cid_press_event)
-        except:
+        except BaseException:
             log(3, "artist.profile cannot deisconnect press ")
         try:
             self.fig.canvas.mpl_disconnect(self.cid_motion_event)
-        except:
+        except BaseException:
             log(3, "artist.profile cannot disconnect motion ")
         try:
             self.fig.canvas.mpl_disconnect(self.cid_release_event)
-        except:
+        except BaseException:
             log(3, "artist.profile cannot disconnect release  ")
 
     def on_press(self, event):
@@ -510,11 +517,11 @@ class Profile(Artist):
         if self.l is not None:
             try:
                 self.ax.lines.pop(0)
-            except:
+            except BaseException:
                 pass
             try:
                 self.l.remove()  # in case we have no l yet
-            except:
+            except BaseException:
                 pass
         self.l = None
         if draw:

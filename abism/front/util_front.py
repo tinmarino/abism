@@ -16,13 +16,19 @@ import abism.front.tk_extension as tk_ext  # pylint: disable = unused-import
 @lru_cache(1)
 def photo_up():
     """ Return path of arrow_up icon """
-    return tk.PhotoImage(file=root_path() + "res/arrow_up.gif", master=get_root())
+    return tk.PhotoImage(
+        file=root_path() +
+        "res/arrow_up.gif",
+        master=get_root())
 
 
 @lru_cache(1)
 def photo_down():
     """ Return path of arrow_down icon """
-    return tk.PhotoImage(file=root_path() + "res/arrow_down.gif", master=get_root())
+    return tk.PhotoImage(
+        file=root_path() +
+        "res/arrow_down.gif",
+        master=get_root())
 
 
 @lru_cache(1)
@@ -91,7 +97,7 @@ def abism_askopenfilename(**args):
         from abism.plugin.gtk_window_open import gtk_askopenfilename
         fname = gtk_askopenfilename(**args)
         log(3, "Open: GTK returned:", fname)
-    except:
+    except BaseException:
         from tkinter.filedialog import askopenfilename
         fname = askopenfilename(**args)
         log(3, "Open: TK returned:", fname)
@@ -110,7 +116,7 @@ def open_file():
     try:
         initialdir = "/".join(get_state().image.name.split("/")[: -1])
         initialdir = initialdir or os.getcwd()
-    except:
+    except BaseException:
         initialdir = os.getcwd()
 
     # Pop window to ask for a file
@@ -118,7 +124,8 @@ def open_file():
         title="Open a FITS image",
         filetypes=[("FITS", "*.fits"), ("allfiles", "*")],
         initialdir=initialdir)
-    if not s_file: return
+    if not s_file:
+        return
 
     # Stringify && Log
     s_file = str(s_file)
@@ -131,6 +138,7 @@ def open_file():
 def toogle_header():
     """ Toogle header viewer """
     from abism.plugin.window_text import WindowText
+
     def on_close():
         toogle_header.window_header.destroy()
         toogle_header.window_header = None
@@ -148,6 +156,8 @@ def toogle_header():
 
     toogle_header.window_header.protocol('WM_DELETE_WINDOW', on_close)
     toogle_header.window_header.mainloop()
+
+
 toogle_header.window_header = None
 
 
@@ -176,6 +186,8 @@ def toogle_manual():
 
     toogle_manual.window_manual.protocol('WM_DELETE_WINDOW', on_close)
     toogle_manual.window_manual.mainloop()
+
+
 toogle_manual.window_manual = None
 
 
@@ -185,11 +197,12 @@ def is_toolbar_active(toolbar):
     try:
         from matplotlib.backend_bases import _Mode
         res = toolbar.mode in (_Mode.ZOOM, _Mode.PAN)
-    except:
+    except BaseException:
         log(0, 'Deprecation Warning: toolbar._active do no longer exists, update matplotlib')
         # pylint: disable = protected-access
         res = toolbar._active in ('PAN', 'ZOOM')
     return res
+
 
 def open_backgroud_and_substract():
     """ Subtract A background image """
