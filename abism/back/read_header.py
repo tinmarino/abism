@@ -5,7 +5,7 @@ Fits Header parser
 
 Necessary:
     diameter        (real in m)     The primary diameter
-    wavelenght      (real in um)    The wavelength of the detection
+    wavelength      (real in um)    The wavelength of the detection
     obstruction     (real in %)     The percentage in area of the central
                                     obstruction. This is 14%**2 for VLT i guess,
     pixel_scale     (real in arsec/pixel) The number anguler size of one p
@@ -32,7 +32,7 @@ Helper:
                                     ESO, CFHT, Carnergie...
 
     instrument      (string)        Name of the camera. Can be used to
-                                    automatially retrieve informations.
+                                    automatically retrieve information.
     reduced_type    (string)        RAW or REDUCED
 
     saturation_level  (real ADU)    The ADU of saturation of the CCD, proper to
@@ -130,7 +130,7 @@ class Header:
         if 'HIERARCH ESO PRO TYPE' in self.header:
             self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
 
-        # WAVELENGHT
+        # WAVELENGTH
         if 'LAMBDA' in self.header:
             self.wavelength = self.header['LAMBDA']
         if 'FILTER' in self.header:
@@ -276,7 +276,7 @@ class Header:
 
             self.wcs = wcs.WCS(self.flathead)  # for coord transformation
 
-            # Warning, dirty pig, thie depends on the shape of x
+            # Warning, dirty pig, this depends on the shape of x
             if (self.wcs.all_pix2world([[0, 0]], 0) == [[1, 1]]).all():
                 self.wcs.all_pix2world = lambda x, y: np.array(
                     [[float('nan'), float('nan')]])
@@ -366,7 +366,7 @@ class SinfoniHeader(Header):
 
         # StrehlKey
         self.wavelength = float(
-            self.header['HIERARCH ESO INS GRAT1 WLEN']) / 1000
+            self.header['HIERARCH ESO INS GREAT1 WLEN']) / 1000
         self.diameter = 8.0
         self.obstruction = 14.
 

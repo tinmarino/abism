@@ -108,7 +108,7 @@ In `more option` button.
 
 ### Sky and Photometry measurement
 
-From `more option` button in `Analisys` menu button
+From `more option` button in `Analysis` menu button
 
 Strehl measurement requires to model the star profile in perfect (i.e. space) conditions. To scale the diffraction pattern of a star, it is required to measure its intensity.
 Sky measurement is required for photometric measurement (to be subtracted).
@@ -167,16 +167,16 @@ At the bottom of the window, you can see:
 | KeyBind | Command          | Comment |
 | ---     | ---              | --- |
 | `<C-B>` | **B**ackward     | cube image |
-| `<C-D>` | **D**ictionaries | Toogle fit parameters and errors |
+| `<C-D>` | **D**ictionaries | Toggle fit parameters and errors |
 | `<C-F>` | **F**orward      | cube image |
-| `<C-H>` | open **H**eader  | Toogle popup |
-| `<C-I>` | **I**mage param  | Toogle Frame |
-| `<C-K>` | s**K**y coord    | Toogle anwser coordinate system |
-| `<C-M>` | **M**ore option  | Toogle Frame |
+| `<C-H>` | open **H**eader  | Toggle popup |
+| `<C-I>` | **I**mage param  | Toggle Frame |
+| `<C-K>` | s**K**y coord    | Toggle answer coordinate system |
+| `<C-M>` | **M**ore option  | Toggle Frame |
 | `<C-O>` | **O**pen file    | Popup |
 | `<C-R>` | **R**estart      | !! Irreversible !! |
 | `<C-S>` | **S**ave         | Previous (100) results |
-| `<C-?>` | **?** What **?** | Toogle current popud md viewer |
+| `<C-?>` | **?** What **?** | Toggle current popud md viewer |
 
 
 | KeyBind  | Command                | Comment |

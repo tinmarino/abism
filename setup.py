@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-ABISM module instalation script
+ABISM module installation script
 """
 
 import setuptools
@@ -20,7 +20,7 @@ setuptools.setup(
     description=(
         'Adaptative Background Interferometric Strehl Meter\n'
         'Graphical user interface (GUI) '
-        'to mesure Astrophysics image quality (Strehl ratio)'),
+        'to measure Astrophysics image quality (Strehl ratio)'),
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/tinmarino/abism',

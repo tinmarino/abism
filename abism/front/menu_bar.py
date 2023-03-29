@@ -12,7 +12,7 @@ from abism.plugin.window_xterm import create_jupyter_console
 from abism.plugin.histogram import histopopo
 
 from abism.front.util_front import system_open, about_window, \
-    open_file, toogle_header, toogle_manual
+    open_file, toggle_header, toggle_manual
 import abism.front.tk_extension as tk_ext
 
 from abism.util import (
@@ -80,8 +80,8 @@ class AbismMenu(ButtonMenu):
 
         self.menu.add_command(
             label='Interface Manual',
-            command=toogle_manual)
-        get_root().bind_root("<Control-question>", lambda _: toogle_manual())
+            command=toggle_manual)
+        get_root().bind_root("<Control-question>", lambda _: toggle_manual())
         self.menu.add_entry_info(
             "<C-?>: Open interface manual with system (.md)")
 
@@ -123,8 +123,8 @@ class FileMenu(ButtonMenu):
 
     def __init__(self, parent):
         """Menu, open_image, header
-            args is a dictionnary containing the arguments to make all menuENtry
-            identical, logical, responsible, pratical
+            args is a dictionary containing the arguments to make all menuENtry
+            identical, logical, responsible, practical
         """
         super().__init__(parent)
 
@@ -148,8 +148,8 @@ class FileMenu(ButtonMenu):
         # Show header
         self.menu.add_command(
             label='Display Header',
-            command=toogle_header)
-        get_root().bind_root("<Control-h>", lambda _: toogle_header())
+            command=toggle_header)
+        get_root().bind_root("<Control-h>", lambda _: toggle_header())
         self.menu.add_entry_info(
             "<C-H>: Open Header viewer window")
 
@@ -187,7 +187,7 @@ class AnalysisMenu(ButtonMenu):
                 variable=string_var, value=text)
 
         def on_more():
-            get_root().frame_option.toogle_more_analysis(parent=self)
+            get_root().frame_option.toggle_more_analysis(parent=self)
 
         # Add button more options
         self.menu.add_command(
@@ -233,7 +233,7 @@ class AnalysisMenu(ButtonMenu):
     def get_text(self):
         return 'Analysis'
 
-    def toogle_more_options(self):
+    def toggle_more_options(self):
         """More photometry options frame"""
         if get_root().frame_option.is_more_analysis_visible():
             self.menu.entryconfig(
@@ -343,7 +343,7 @@ class ViewMenu(ButtonMenu):
                 variable=string_var, value=i[2])
 
     def add_cut_column(self):
-        """Cut min max of the iamge scale"""
+        """Cut min max of the image scale"""
         self.menu.add_command(label="CUTS", bg=None, state=tk.DISABLED,
                               columnbreak=1)
 
@@ -370,7 +370,7 @@ class ViewMenu(ButtonMenu):
 
         def on_manual():
             get_state().s_image_cut = 'Manual'
-            get_root().frame_option.toogle_manual_cut()
+            get_root().frame_option.toggle_manual_cut()
 
         # Add manual cut trigger
         self.menu.add_radiobutton(
@@ -387,8 +387,8 @@ class ToolMenu(ButtonMenu):
 
     def __init__(self, parent):
         """Menu, open_image, header
-        args is a dictionnary containing the arguments to make all menuENtry
-        identical, logical, responsible, pratical
+        args is a dictionary containing the arguments to make all menuENtry
+        identical, logical, responsible, practical
         """
         super().__init__(parent)
 
@@ -408,7 +408,7 @@ class ToolMenu(ButtonMenu):
             variable=get_state().tk_pick, value=EPick.STAT)
         get_root().bind_all("<Control-p>s", lambda _, cmd=cmd: cmd())
         self.menu.add_entry_info(
-            "<C-P>S: Draw a rectangle\nDisplay image statitics in this rectangle")
+            "<C-P>S: Draw a rectangle\nDisplay image statistics in this rectangle")
 
         # Ellipse
         def cmd(): return refresh_pick(EPick.ELLIPSE)

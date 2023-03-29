@@ -27,7 +27,7 @@ def histopopo(figure, image_sorted):
                linestyle='-', linewidth=2)
     ax.set_xticklabels(image_sorted)
 
-    # Caclulate histogram
+    # Calculate histogram
     ax.hist(image_sorted, 100, log=True)  # n, bin, patches
 
     # Fraw

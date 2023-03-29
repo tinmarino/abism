@@ -27,7 +27,7 @@ Info|  ESO/Baade/Unk    |   :                      .lc.      :  ..   |  7
 +-----------------------+   :               ..               :  :,   | 11
 Option|                 |   :             ..                 :  l:   | 12
 ------+                 |   :           .,xK0l'              :  o:   | 13
-Wavelenght      1.6     |   :           .KMMMWl.             :  dc   | 14
+Wavelength      1.6     |   :           .KMMMWl.             :  dc   | 14
 Pixel Scale     0.20409 |   :          ..d0KKk.              :  kl   | 15
 Diameter        6.0     |   :             .. .               :  Oo   | 16
 Obstruction     15      |   :    .lc.                        :  0o   | 17

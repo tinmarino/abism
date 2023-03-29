@@ -1,5 +1,5 @@
 """
-Dragable
+Draggable
 this module is imported from this web site :
 http://www.ster.kuleuven.be/~pieterd/python/html/plotting/interactive_colorbar.html
 it aims to create a colorbar with some events and connecxions,
@@ -148,7 +148,7 @@ class MyNormalize(Normalize):
                  vmax=None, clip=False):
         # pylint: disable=too-many-arguments
         '''
-        Initalize an APLpyNormalize instance.
+        Initialize an APLpyNormalize instance.
 
         Optional Keyword Arguments:
 
@@ -176,7 +176,7 @@ class MyNormalize(Normalize):
         if vmax < vmin:
             raise Exception("vmax should be larger than vmin")
 
-        # Call original initalization routine
+        # Call original initialization routine
         Normalize.__init__(self, vmin=vmin, vmax=vmax, clip=clip)
 
         # Save parameters
@@ -332,11 +332,11 @@ def get_center_and_radius(_, ax):
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
 
-    # Mesure radius
+    # Measure radius
     rx = (xlim[1] - xlim[0]) * .5
     ry = (ylim[1] - ylim[0]) * .5
 
-    # Mesure center
+    # Measure center
     cx = xlim[0] + rx
     cy = ylim[0] + ry
 

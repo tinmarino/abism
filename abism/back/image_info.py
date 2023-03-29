@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 """
-    The class you always dreamt of ... is in your dreams
+The class you always dreamt of ... is in your dreams
 """
+
 import re
 import numpy as np
 from astropy.io import fits
@@ -77,7 +80,7 @@ class ImageInfo():
         self.release = (0., 0.)  # You guess ?
 
     def set_array(self, array):
-        """Array info called from init and cube chage"""
+        """Array info called from init and cube change"""
         self.im0 = array.copy()  # np.array the image !!
 
         # Sorted image for cut and histograms
@@ -160,7 +163,7 @@ class ImageInfo():
         """
         return self.stat
 
-    def substract_sky(self, fp_sky):
+    def subtract_sky(self, fp_sky):
         """ Subtraction of 2D image
         arg1: filepath of the background fits image
         return: True if no problem
@@ -174,7 +177,7 @@ class ImageInfo():
             log(0, 'ERROR : Science image and Background image should have the same shape')
             return False
 
-        # Substract arrays
+        # Subtract arrays
         self.im0 -= bg0
         return True
 
@@ -280,7 +283,7 @@ class ImageInfo():
         """
         :param r: (rx1,rx2,ry1,ry2), it should be ordered
             kand defining a rectangle
-        # exact is for the taking the percentage of the cutted pixel or not
+        # exact is for the taking the percentage of the cut pixel or not
         # median is a median filter of 3 pixel square and 2 sigma clipping
         # in_border is examining if r is in the grid, otherwise, cannot calculate.
 
@@ -291,21 +294,21 @@ class ImageInfo():
         rx1, rx2, ry1, ry2 = list(map(int, r))
 
         # Cut image
-        cutted = self.im0[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
+        cut = self.im0[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
 
         # Smooth bad pixel <- Filter median
-        median = median_filter(cutted, size=(3, 3))
-        bol = np.abs(cutted - median) > 3 * median
-        cutted[bol] = median[bol]
+        median = median_filter(cut, size=(3, 3))
+        bol = np.abs(cut - median) > 3 * median
+        cut[bol] = median[bol]
 
         # Get stats
-        stat = get_array_stat(cutted)
+        stat = get_array_stat(cut)
         stat.number_count = (ry2 - ry1) * (rx2 - rx1)
         return stat
 
 
 def get_array_stat(grid):
     """Helper for readability
-    Get statistic dicitonary from a grid
+    Get statistic dictionary from a grid
     """
     return ImageInfo(grid).get_stat()

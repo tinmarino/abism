@@ -3,7 +3,7 @@
 ## Feature
 
 * Theta profile, profile along the major axis
-* Contrast Map, image with constrat as intensity
+* Contrast Map, image with constraint as intensity
 * Recursive annulus phot
 
 ## Interface

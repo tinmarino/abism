@@ -14,7 +14,7 @@ import numpy as np
 class AnswerSky(ABC):
     """ Abism answer from BackEnd, base class
     Variables:
-        text:   textual name of varaible
+        text:   textual name of variable
         value:  object value of the variable
         error:  other AnswerSky (of same class) representing the error
                 the error has no error!
@@ -61,7 +61,7 @@ class AnswerSky(ABC):
         return self.__class__(txt, val, error=err)
 
     def addition(self, other, operator='+'):
-        """Helper addition substraction"""
+        """Helper addition subtraction"""
         if isinstance(other, (int, float)):
             return self.constant(other, operator)
         if self.__class__ != other.__class__:
@@ -225,7 +225,7 @@ class AnswerPosition(AnswerSky):
 
 
 class AnswerLuminosity(AnswerSky):
-    """Luminosity stored in adu, convertable to mag
+    """Luminosity stored in adu, convertible to mag
     Require: zero point
              exposure time
     """
@@ -252,7 +252,7 @@ class AnswerLuminosity(AnswerSky):
 
 
 class AnswerFwhm(AnswerSky):
-    """ FWHM has diffrent values
+    """ FWHM has different values
     Need the pixel scale, separation too
     """
 
@@ -265,19 +265,19 @@ class AnswerFwhm(AnswerSky):
         pxll = get_pixel_scale()
 
         # Apply pixel scale
-        axis_a, axis_b, excentricity = self.value
+        axis_a, axis_b, eccentricity = self.value
         axis_a *= pxll * 1000
         axis_b *= pxll * 1000
 
-        return self.__class__.format_value(axis_a, axis_b, excentricity)
+        return self.__class__.format_value(axis_a, axis_b, eccentricity)
 
     def str_detector(self):
         return self.__class__.format_value(*self.value)
 
     @staticmethod
-    def format_value(axis_a, axis_b, excentricity):
+    def format_value(axis_a, axis_b, eccentricity):
         """ Stringify ellipse values """
-        return f'{axis_a:.1f}, {axis_b:.1f}, {excentricity:.2f}'
+        return f'{axis_a:.1f}, {axis_b:.1f}, {eccentricity:.2f}'
 
 
 class AnswerDistance(AnswerSky):

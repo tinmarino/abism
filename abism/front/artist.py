@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-ABISM artist collectino for drwaing figures in matplotlib
+ABISM artist collectino for drawing figures in matplotlib
 Classes ar Cicle Annulus, Square, etc and they inherit from my custom Artist
 
 Note that all x,y are given for an array, in the image display, x and y must be switched
@@ -42,7 +42,7 @@ class Artist(ABC):
 
 class Annulus(Artist):
     """ This is actually the Annulus even, but it could be a "ellipse" event or
-    whatever can fit in the canvas class (rectangle, polygone...) , actually I
+    whatever can fit in the canvas class (rectangle, polygon...) , actually I
     deleted the ellispe event, which can be usefull because not every body want
     the annulus for the background, but maybe make a super fast photometry,
     like knowing the instrument, you know the PSF FWHM and can auto create the
@@ -139,11 +139,11 @@ class Annulus(Artist):
         if string == "r":    # ru
             self.ru -= 1
             self.inner_u -= 1
-            self.outter_u -= 1
+            self.outer_u -= 1
         elif string == "R":   # ru
             self.ru += 1
             self.inner_u += 1
-            self.outter_u += 1
+            self.outer_u += 1
 
         # RV
         elif string == "e":    # ru
@@ -153,9 +153,9 @@ class Annulus(Artist):
 
         # OUTER
         elif string == "o":    # ru
-            self.outter_u -= 1
+            self.outer_u -= 1
         elif string == "O":    # ru
-            self.outter_u += 1
+            self.outer_u += 1
 
         # INNER
         elif string == "i":    # ru
@@ -223,8 +223,8 @@ class Annulus(Artist):
         theta = 180 * self.theta / np.pi
 
         def Out(ell):
-            ell.width = 2 * self.outter_u * self.rapport   # array to image invert
-            ell.height = 2 * self.outter_u
+            ell.width = 2 * self.outer_u * self.rapport   # array to image invert
+            ell.height = 2 * self.outer_u
             ell.center = (self.y0, self.x0)
             ell.angle = theta
             # 'solid' | 'dashed' | 'dashdot' | 'dotted'
@@ -263,7 +263,7 @@ class Annulus(Artist):
 
         # Annnulus
         self.inner_u = 10  # called i
-        self.outter_u = 20  # called o
+        self.outer_u = 20  # called o
 
 
 class Ellipse(Artist):

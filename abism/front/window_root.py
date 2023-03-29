@@ -89,7 +89,7 @@ class WindowRoot(tk.Tk):
         self.header = get_state().image.header
 
         # Draw Cube button
-        self.frame_button.toogle_cube()
+        self.frame_button.toggle_cube()
 
         # Redraw
         self.frame_image.draw_image()

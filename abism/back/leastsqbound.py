@@ -11,7 +11,7 @@ from abism.util import log
 
 
 def _internal2external_grad(xi, bounds):
-    """Calculate the internal (unconstrained) to external (constained)
+    """Calculate the internal (unconstrained) to external (constrained)
     parameter gradiants.
     """
     grad = empty_like(xi)
@@ -207,9 +207,9 @@ def leastsqbound(
     min sum((ydata - f(xdata, params))**2, axis=0)
     params
 
-    Contraints on the parameters are enforced using an internal parameter list
-    with appropiate transformations such that these internal parameters can be
-    optimized without constraints. The transfomation between a given internal
+    Constraints on the parameters are enforced using an internal parameter list
+    with appropriate transformations such that these internal parameters can be
+    optimized without constraints. The transformation between a given internal
     parameter, p_i, and a external parameter, p_e, are as follows:
 
     With ``min`` and ``max`` bounds defined ::

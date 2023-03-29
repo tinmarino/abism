@@ -1,6 +1,6 @@
 """
     Helper console to run python code in the loop
-    For devloppers now (maybe one day embed jupyter kernel in main window)
+    For developers now (maybe one day embed jupyter kernel in main window)
 """
 import tkinter as tk
 
@@ -33,7 +33,7 @@ def create_debug_console():
         cmd = text_user.get("1.0", tk.END)
         # Eval
         if cmd == "help":
-            cmd = "quit() # to disable interative shell "
+            cmd = "quit() # to disable interactive shell "
             cmd += "\nimport sys ; sys.exit() # to kill Abism "
             log(0, cmd)
         else:

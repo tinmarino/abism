@@ -126,11 +126,11 @@ def FindMaxWithBin(grid, rectangle):
     """arg =  grid and r : 3*3 median filter
     """
     r = rectangle
-    cutted = grid[r[0]:r[1], r[2]:r[3]]
+    cut = grid[r[0]:r[1], r[2]:r[3]]
     # Median file 3 x 3 (fuzz)
-    cutted = median_filter(cutted, size=(3, 3))
+    cut = median_filter(cut, size=(3, 3))
     # Get peak
-    coord = np.unravel_index(cutted.argmax(), cutted.shape)
+    coord = np.unravel_index(cut.argmax(), cut.shape)
 
     # return x,y
     return coord[0] + r[0], coord[1] + r[2]
@@ -180,7 +180,7 @@ def PixelMax(grid, r=None):
 def EnergyRadius(grid, dic={}):
     """We first define r99u and v following the spread direction
     x and y respectively, but these are arbitrary due to the fit
-    we then transfroms it to r99x and R99y
+    we then transforms it to r99x and R99y
     Returns: (r99uv), (r99xy)
     """
     params = dic  # because no update
@@ -327,7 +327,7 @@ def EightRectangleNoise(
         'size': 4,
         'distance': 1}):
     """Derive the noise from eight rectangle (of R/2 ) around the 99% Energy
-    size =4 means that we devide by  4 the size of the rectangle
+    size =4 means that we divide by  4 the size of the rectangle
     distance = 2 means we go father by a factor 2 for star center (r center)
     we suppose order in r
     """
@@ -382,7 +382,7 @@ def EightRectangleNoise(
 def find_bad_pixel(grid, r=None):
     """Compare with the median filter
     Verbose: In the method we define in arg1 the number of pixel to include in the median
-    and in arg2, the max differnce between true image and median
+    and in arg2, the max difference between true image and median
     the bad pixels can be noise or warm pixel
     :param r: ordered rectangle bounds to cut grid
     """
@@ -422,7 +422,7 @@ def project_on_radial_line(point1_n_point2, point):
     (x1, y1), (x2, y2) = point1_n_point2
     x, y = point
 
-    # get line lenght
+    # get line length
     length = (x2 - x1)**2 + (y2 - y1)**2
     length = np.sqrt(length)
 
@@ -439,9 +439,9 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     # Parse in
     (x1, y1), (x2, y2) = point1_and_point2
 
-    # Calculate line lenght
+    # Calculate line length
     vect_r = ((x2 - x1), (y2 - y1))
-    lenght = np.sqrt(vect_r[1]**2 + vect_r[0]**2)
+    length = np.sqrt(vect_r[1]**2 + vect_r[0]**2)
 
     # Get the extreme points of the line on grid
     xmin, xmax, ymin, ymax = Order4((x1, x2, y1, y2), grid=grid)
@@ -452,11 +452,11 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     array = grid[xmin:xmax, ymin:ymax]
 
     # Radial array, cos of scalar product
-    R = ((X - x1) * (x2 - x1) + (Y - y1) * (y2 - y1)) / lenght
+    R = ((X - x1) * (x2 - x1) + (Y - y1) * (y2 - y1)) / length
     # Sin of scalar product
     # the distance of (X,Y) to x1,y1 projected on the line
-    d = (R * (x2 - x1) / lenght - (X - x1))**2 + \
-        (R * (y2 - y1) / lenght - (Y - y1))**2
+    d = (R * (x2 - x1) / length - (X - x1))**2 + \
+        (R * (y2 - y1) / length - (Y - y1))**2
 
     # Flaten all
     # the square distance of the point from the line
@@ -489,7 +489,7 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
 
 def get_profile_x(grid, center):
     """Get profile along X
-    Note: only used onces in answer_return
+    Note: only used once in answer_return
     """
     r = (0, len(grid) - 1, 0, len(grid[0]) - 1)
     r = Order4(r)

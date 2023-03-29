@@ -323,7 +323,7 @@ class MarkdownColorizer:
 
 
 def _coordinate(start, end, string):
-    """Get coordinate from stirng position index"""
+    """Get coordinate from string position index"""
     # Starting row
     srow = string[:start].count('\n') + 1
     scolsplitlines = string[:start].split('\n')

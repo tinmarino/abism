@@ -77,7 +77,7 @@ sub transform{
     write_file $fp2, $out;
 }
 
-# Convert ot png
+# Convert to png
 sub convert{
     system <<EOF,
 dot -Tsvg $fp2  > $fp3 && xdg-open $fp3

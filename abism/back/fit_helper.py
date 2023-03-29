@@ -1,9 +1,9 @@
 """
     Helper to make a 2D function (i.e Gaussian) fit an array
-IDEA: fit Y = F(X,A) where A is a dictionnary describing the
+IDEA: fit Y = F(X,A) where A is a dictionary describing the
 parameters of the function.
 
-note that the items in the dictionnary should all be scalar!
+note that the items in the dictionary should all be scalar!
 """
 from functools import reduce
 
@@ -33,7 +33,7 @@ def polyN(x, params):
 
 
 def radial2dgrid(radius, sample, center=[0, 0]):
-    """Conver circle to grid"""
+    """Convert circle to grid"""
     x = np.linspace(-radius, radius, sample) + center[1]
     y = np.linspace(-radius, radius, sample) + center[0]
     xi1 = np.tile(x, sample)
@@ -49,7 +49,7 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
     """
     interface to leastsq from scipy:
     - x,y,err are the data
-    - pfit is a list of the paramters
+    - pfit is a list of the parameters
     - pfitsKeys are the keys to build the dict
     pfit and pfix (optional) and combines the two
     in 'A', in order to call F(X,A)
@@ -98,13 +98,13 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
 
 def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                verbose=False, doNotFit=[], epsfcn=1e-7,
-               ftol=1e-4, fullOuput=True, bounds={}):
+               ftol=1e-4, fullOutput=True, bounds={}):
     """
     - params is a Dict containing the first guess.
 
     - bounds = {"theta":[-0.1,3.24]} even if after it will be a list with same indexation as fitOnly
 
-    - fits 'y +- err = func(x,params)'. errors are optionnal.
+    - fits 'y +- err = func(x,params)'. errors are optional.
 
     - fitOnly is a LIST of keywords to fit. By default, it fits all
       parameters in 'params'. Alternatively, one can give a list of
@@ -157,7 +157,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                          args=(fitOnly, x, y, err, func, pfix, verbose),
                          full_output=True, epsfcn=epsfcn, ftol=ftol)
 
-    # best fit -> agregate to pfix
+    # best fit -> aggregate to pfix
     for i, k in enumerate(fitOnly):
         pfix[k] = plsq[i]
 

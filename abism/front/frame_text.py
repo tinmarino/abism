@@ -11,7 +11,7 @@ import re
 import tkinter as tk
 
 from abism.front.util_front import photo_up, photo_down, \
-    open_backgroud_and_substract
+    open_background_and_subtract
 import abism.front.tk_extension as tk_ext
 
 from abism.util import log, get_root, quit_process, restart, get_state, \
@@ -74,7 +74,7 @@ class TextFrame(tk.Frame):
         # Place button to resize
         if self._index is not None:
             self._arrow = tk.Button(
-                self, command=self.toogle, image=photo_up())
+                self, command=self.toggle, image=photo_up())
             self._arrow.place(relx=1., rely=0., anchor="ne")
 
         # Place a label for the eye
@@ -92,7 +92,7 @@ class TextFrame(tk.Frame):
         self._last = tk.Label(self, height=0, width=0)
         self._last.grid()
 
-    def toogle(self, visible=None):
+    def toggle(self, visible=None):
         """Toggle visibility: Hide and show"""
         # Check: not work if last
         if self._index is None:
@@ -116,7 +116,7 @@ class TextFrame(tk.Frame):
             ',more=', self._last.winfo_y() - self._last.winfo_height()
             )
 
-        # Toogle sash
+        # Toggle sash
         i_height = self.winfo_y() + 22
         if self._see_me:
             self._arrow.configure(image=photo_up())
@@ -129,7 +129,7 @@ class TextFrame(tk.Frame):
         # Log after
         log(3, 'New sash pos: height=', i_height)
 
-    def init_will_toogle(self, visible=True, add_title=True):
+    def init_will_toggle(self, visible=True, add_title=True):
         """Best way to showme: Place last and togfle later
         Usually called to set visible when some widget added
         This trick is due to the fact widget will be updated at next tk loop
@@ -138,7 +138,7 @@ class TextFrame(tk.Frame):
 
         def will_refresh():
             self.update()
-            self.toogle(visible=visible)
+            self.toggle(visible=visible)
         self.after_idle(will_refresh)
 
     def will_update_sash(self):
@@ -168,7 +168,7 @@ class LabelFrame(TextFrame):
         super().__init__(parent, **args)
 
     def update_label(self):
-        """Called later, display what I retrived from header
+        """Called later, display what I retrieved from header
         warning: expand not working well
         ESO /  not ESO
         NAco/vlt
@@ -228,7 +228,7 @@ class LabelFrame(TextFrame):
         if bolt:
             lbl = "WARNING: some parameters not found"
             text_n_props.append((lbl, {"fg": "red"}))
-            get_root().frame_option.toogle_image_parameter()
+            get_root().frame_option.toggle_image_parameter()
         else:
             lbl = "Parameters read from header"
             text_n_props.append((lbl, {"fg": "blue"}))
@@ -254,7 +254,7 @@ class LabelFrame(TextFrame):
             label.grid(column=0, sticky="nsew")
 
         # Show me
-        self.init_will_toogle()
+        self.init_will_toggle()
 
 
 class OptionFrame(TextFrame):
@@ -277,7 +277,7 @@ class OptionFrame(TextFrame):
         self.frame_more_analysis = None
         self.parent_more_analysis = None
 
-        # Manual Bacground
+        # Manual Background
         self.see_manual_background = False
         self.frame_manual_background = None
 
@@ -286,7 +286,7 @@ class OptionFrame(TextFrame):
     # Image Parameters
     #############################################################
 
-    def toogle_image_parameter(self):
+    def toggle_image_parameter(self):
         self.see_image_parameter = not self.see_image_parameter
         if self.see_image_parameter:
             self.open_image_parameter()
@@ -375,7 +375,7 @@ class OptionFrame(TextFrame):
             self.image_parameter_entry_dic[key] = entry
 
         # Show me
-        self.init_will_toogle(visible=True, add_title=False)
+        self.init_will_toggle(visible=True, add_title=False)
 
     def close_image_parameter(self):
         self.frame_image_parameter.destroy()
@@ -384,7 +384,7 @@ class OptionFrame(TextFrame):
     # Manual Cut
     #############################################################
 
-    def toogle_manual_cut(self):
+    def toggle_manual_cut(self):
         """Stupid switch"""
         self.see_manual_cut = not self.see_manual_cut
         log(5, "Manual Cut see me ?", self.see_manual_cut)
@@ -440,7 +440,7 @@ class OptionFrame(TextFrame):
         bu_close.grid(column=0, columnspan=2)
 
         # Redraw
-        self.init_will_toogle(visible=True, add_title=False)
+        self.init_will_toggle(visible=True, add_title=False)
 
     def close_manual_cut(self):
         self.frame_manual_cut.destroy()
@@ -449,15 +449,15 @@ class OptionFrame(TextFrame):
     # More analysis
     #############################################################
 
-    def toogle_more_analysis(self, parent=None):
+    def toggle_more_analysis(self, parent=None):
         self.see_more_analysis = not self.see_more_analysis
 
         # Keep ref to change label
         if parent is not None:
             self.parent_more_analysis = parent
 
-        # Toogle menu
-        self.parent_more_analysis.toogle_more_options()
+        # Toggle menu
+        self.parent_more_analysis.toggle_more_options()
 
         # Discriminate show / hide
         if self.see_more_analysis:
@@ -482,7 +482,7 @@ class OptionFrame(TextFrame):
             if get_state().b_same_psf:
                 msg = "Same psf: Both stars are fitted with same psf"
             else:
-                msg = "Not same psf: Each star is fitted with independant psf"
+                msg = "Not same psf: Each star is fitted with independent psf"
             log(0, msg)
 
         def on_change_saturated(int_var):
@@ -531,10 +531,10 @@ class OptionFrame(TextFrame):
         frame_more_grid.columnconfigure(0, weight=1)
         frame_more_grid.columnconfigure(1, weight=1)
 
-        # Grid button: substract background
+        # Grid button: subtract background
         bu_subtract_bg = tk.Button(
-            frame_more_grid, text='SubstractBackground',
-            command=open_backgroud_and_substract)
+            frame_more_grid, text='SubtractBackground',
+            command=open_background_and_subtract)
         bu_subtract_bg.grid(row=0, column=0, columnspan=2, sticky="nswe")
 
         # Grid Menu: set photometric type
@@ -554,7 +554,7 @@ class OptionFrame(TextFrame):
 
             def set_phot(_, tag):
                 """Passing string_var to avoid gc"""
-                log(3, 'Setting Photometry mesurement:', tag, '->', tag.value)
+                log(3, 'Setting Photometry measurement:', tag, '->', tag.value)
                 get_state().e_phot_type = tag
 
             # Add radio buttons:
@@ -587,7 +587,7 @@ class OptionFrame(TextFrame):
             ]
 
             def set_noise(_, tag):
-                log(3, 'Setting background mesurement:', tag, '->', tag.value)
+                log(3, 'Setting background measurement:', tag, '->', tag.value)
                 get_state().e_sky_type = tag
                 if tag == ESky.NONE:
                     get_state().i_background = 0
@@ -597,7 +597,7 @@ class OptionFrame(TextFrame):
             for text, tag in lst:
                 if tag == ESky.MANUAL:
                     menu.menu.add_radiobutton(
-                        label=text, command=self.toogle_manual_background,
+                        label=text, command=self.toggle_manual_background,
                         variable=string_var, value=tag)
                 else:
                     menu.menu.add_radiobutton(
@@ -614,11 +614,11 @@ class OptionFrame(TextFrame):
 
         bu_close = tk.Button(
             frame_more_grid, text=u'\u25b4 ' + 'Close',
-            command=self.toogle_more_analysis)
+            command=self.toggle_more_analysis)
         bu_close.grid(column=0, columnspan=2)
 
         # Show me
-        self.init_will_toogle(visible=True, add_title=False)
+        self.init_will_toggle(visible=True, add_title=False)
 
     def close_more_analysis(self):
         """Close the Frame"""
@@ -636,7 +636,7 @@ class OptionFrame(TextFrame):
     # Manual background
     #############################################################
 
-    def toogle_manual_background(self):
+    def toggle_manual_background(self):
         """Create manual background frame"""
         self.see_manual_background = not self.see_manual_background
         if self.see_manual_background:
@@ -656,7 +656,7 @@ class OptionFrame(TextFrame):
         def on_enter(string_var):
             i_in = float(string_var.get())
             get_state().i_background = i_in
-            log(0, "ManualBackground setted to:", i_in)
+            log(0, "ManualBackground set to:", i_in)
 
         # Grid label
         label = tk.Label(
@@ -680,7 +680,7 @@ class OptionFrame(TextFrame):
         button.grid(row=1, column=0, columnspan=2)
 
         # Show Me
-        self.init_will_toogle(visible=True, add_title=False)
+        self.init_will_toggle(visible=True, add_title=False)
 
     def close_manual_background(self):
         if not self.see_manual_background:
@@ -742,8 +742,8 @@ class AnswerFrame(TextFrame):
 
         return text
 
-    def grid_top_button(self, convertion_callback):
-        """Grid coordinate convertion and Show fit dic"""
+    def grid_top_button(self, conversion_callback):
+        """Grid coordinate conversion and Show fit dic"""
         # Fit type middle
         fit_type_label = tk.Label(
             self, justify=tk.CENTER, text=get_state().s_fit_type)
@@ -763,14 +763,14 @@ class AnswerFrame(TextFrame):
             else:
                 get_state().s_answer_unit = 'detector'
             self.close_fit_param()
-            convertion_callback()
+            conversion_callback()
 
         # Label showing current coord
         label = tk.Label(
             self, text=s_label, justify=tk.LEFT, anchor="nw")
         label.grid(row=1, column=0, sticky=tk.W)
 
-        # Button to change coordonate
+        # Button to change coordinate
         bu_coord = tk.Button(
             self, text=s_button, command=on_change_coord)
         bu_coord.grid(row=0, column=3, sticky=tk.E)
@@ -780,7 +780,7 @@ class AnswerFrame(TextFrame):
             "<C-k>: Change coordinate system of displayed answer\n"
             "sKy <-> detector")
 
-        def on_toogle_param():
+        def on_toggle_param():
             if self.text_fit_param is None:
                 self.open_fit_param()
             else:
@@ -789,15 +789,15 @@ class AnswerFrame(TextFrame):
         # Show fit dctionary
         self.bu_fit = tk.Button(
             self, text=u'\u25be Show Fit Param',
-            command=on_toogle_param)
+            command=on_toggle_param)
 
         get_root().bind_all(
-            "<Control-d>", lambda _: on_toogle_param())
+            "<Control-d>", lambda _: on_toggle_param())
         self.bu_fit.set_hover_info(
             "<C-d>: Show/Hide Fit Dictionaries:\nparameters and errors")
         self.bu_fit.grid(row=0, column=2)
 
-    def get_new_text_frame(self, convertion_callback):
+    def get_new_text_frame(self, conversion_callback):
         # Save visibility
         b_show_fit_param = self.text_fit_param is not None
 
@@ -805,7 +805,7 @@ class AnswerFrame(TextFrame):
         self.clear()
 
         # Button to change cord
-        self.grid_top_button(convertion_callback)
+        self.grid_top_button(conversion_callback)
         text = self.grid_text_answer()
 
         # Restore visibility (fit_param)
@@ -863,13 +863,13 @@ class ButtonFrame(tk.Frame):
         opts.update({'background': tk_ext.scheme.parameter1})
         self.bu_manual = tk.Button(
             self, text=u'\u25be ' + 'ImageParameters',
-            command=get_root().frame_option.toogle_image_parameter, **opts)
+            command=get_root().frame_option.toggle_image_parameter, **opts)
         get_root().bind_all(
             "<Control-i>",
-            lambda _: get_root().frame_option.toogle_image_parameter())
+            lambda _: get_root().frame_option.toggle_image_parameter())
         self.bu_manual.set_hover_info(
             "<C-i>: Show/Hide Image parameters\n"
-            "necessaries for Strehl mesurement (λ, pxl scale, diam, obstr)\n"
+            "necessaries for Strehl measurement (λ, pxl scale, diam, obstr)\n"
             "or to give sky coordinates (zpt, exposure)")
 
         # Grid
@@ -887,7 +887,7 @@ class ButtonFrame(tk.Frame):
         self.bu_manual['background'] = tk_ext.scheme.parameter1
         self.bu_manual['text'] = u'\u25be ImageParameters'
 
-    def toogle_cube(self):
+    def toggle_cube(self):
         """Prepare Cube buttons"""
         # Try to destroy if not a cube
         # Create a cube interface else

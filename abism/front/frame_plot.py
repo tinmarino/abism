@@ -108,12 +108,12 @@ class PlotFrame(tk.Frame):
     def init_toolbar_button(self):
         """Create toolbar button"""
         self._arrow = tk.Button(
-            self, command=self.toogle_toolbar, image=photo_up())
+            self, command=self.toggle_toolbar, image=photo_up())
         self._arrow.place(relx=1., rely=1., anchor="se")
-        self.toogle_toolbar()
+        self.toggle_toolbar()
 
-    def toogle_toolbar(self):
-        """Toogle toolbar visibility"""
+    def toggle_toolbar(self):
+        """Toggle toolbar visibility"""
         self._see_toolbar = not self._see_toolbar
 
         # CREATE
@@ -124,7 +124,7 @@ class PlotFrame(tk.Frame):
 
         # DESTROY
         else:
-            log(3, "Hidding toolbar")
+            log(3, "Hiding toolbar")
             self._arrow.configure(image=photo_up())
             self._toolbar_frame.grid_forget()
 
@@ -239,7 +239,7 @@ class ImageFrame(PlotFrame):
         # Create axes
         ax = self._fig.add_subplot(111)
 
-        # Get image arry
+        # Get image array
         im0 = get_state().image.im0.astype(float32)
 
         # Display
@@ -248,7 +248,7 @@ class ImageFrame(PlotFrame):
             vmin=get_state().i_image_min_cut,
             vmax=get_state().i_image_max_cut,
             cmap=get_state().s_image_color_map,
-            # orgin=lower to get low y down
+            # origin=lower to get low y down
             origin='lower')
 
         # Compass
@@ -288,7 +288,7 @@ class ImageFrame(PlotFrame):
         get_state().i_image_min_cut = i_min
         get_state().i_image_max_cut = i_max
 
-        # I don't know why I need to pu that at the end but it worls like that
+        # I don't know why I need to pu that at the end but it world like that
         # # does not work it put in Science Variables
         if new_fits:
             # Draw
@@ -323,7 +323,7 @@ class ImageFrame(PlotFrame):
                     del level.get_paths()[kp]
 
         log(0, "---> Contour of 3 and 5 sigma, "
-            "clik again on contour to delete its.")
+            "click again on contour to delete its.")
 
     def remove_contour(self):
         if self.contours is None:
@@ -430,7 +430,7 @@ class ImageFrame(PlotFrame):
         coord_type = "axes fraction"
         if coord_type == "axes fraction":    # for the arrow in the image, axes fraction
             arrow_center = [0.95, 0.1]  # in figura fraction
-            # -  because y is upside down       think raw collumn
+            # -  because y is upside down       think raw column
             north_point = arrow_center + self.north_direction / 10
             east_point = arrow_center + self.east_direction / 15
 
@@ -438,7 +438,7 @@ class ImageFrame(PlotFrame):
         elif coord_type == "data":
             # in figure fraction
             arrow_center = [0.945 * len(im0), 0.1 * len(im0)]
-            # -  because y is upside down       think raw collumn
+            # -  because y is upside down       think raw column
             north_point = [arrow_center + self.north_direction / 20 * len(im0),
                            arrow_center - self.north_direction / 20 * len(im0)]
             east_point = [north_point[1] + self.east_direction / 20 * len(im0),

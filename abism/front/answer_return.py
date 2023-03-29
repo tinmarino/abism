@@ -287,7 +287,7 @@ def plot1d_one():
                    'phot': get_av(EA.PHOTOMETRY),
                    'obstruction': get_root().header.obstruction / 100,
                    }
-        bessel = BF.DiffractionPatern((a, params['center_y']), params2)
+        bessel = BF.DiffractionPattern((a, params['center_y']), params2)
         ax.plot(a, bessel + get_av(EA.BACKGROUND),
                 color='blue', linewidth=2, label='Ideal PSF')
 
@@ -374,7 +374,7 @@ def plot1d_binary():
                    'phot': get_av(EA.PHOTOMETRY1),
                    'obstruction': get_root().header.obstruction / 100,
                    }
-        bessel1 = BF.DiffractionPatern((x_theory, y_theory), params1)
+        bessel1 = BF.DiffractionPattern((x_theory, y_theory), params1)
         params2 = {'diameter': get_root().header.diameter,
                    'lambda': get_root().header.wavelength,
                    'center_x': get_av(EA.STAR2)[1],
@@ -383,7 +383,7 @@ def plot1d_binary():
                    'phot': get_av(EA.PHOTOMETRY2),
                    'obstruction': get_root().header.obstruction / 100,
                    }
-        bessel2 = BF.DiffractionPatern((x_theory, y_theory), params2)
+        bessel2 = BF.DiffractionPattern((x_theory, y_theory), params2)
         ax.plot(ab_th, bessel1 + bessel2 + get_av(EA.BACKGROUND),
                 color='blue', linewidth=1, label='Ideal PSF')
 

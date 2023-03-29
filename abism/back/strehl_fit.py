@@ -79,7 +79,7 @@ class Fit(ABC):
         else:
             supposed_param['background'] = 0
 
-        # Saturation stair top: supposing 30.000 <- 007 is not enought
+        # Saturation stair top: supposing 30.000 <- 007 is not enough
         if self.b_saturated:
             supposed_param['saturation'] = 5000
         else:
@@ -174,7 +174,7 @@ class OnePsf(Fit):
         X, Y = np.arange(int(rx1), int(rx2)), np.arange(int(ry1), int(ry2))
         # We have to inverse because of matrix way
         y, x = np.meshgrid(Y, X)
-        IX = self.grid[rx1:rx2, ry1:ry2]  # the cutted image
+        IX = self.grid[rx1:rx2, ry1:ry2]  # the cut image
 
         # Mask bad pixel
         IX, _, eIX = IF.find_bad_pixel(IX)
@@ -278,7 +278,7 @@ class BinaryPsf(Fit):
         self.star1 = star1
         self.star2 = star2
 
-        # Calculate distance between two pooints
+        # Calculate distance between two points
         (x1, y1), (x2, y2) = self.star1, self.star2
         self.star_distance = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
         self.dist1 = min(

@@ -5,7 +5,7 @@ from abism.util import get_state, log, EPick
 
 
 def get_fit_function():
-    """Rember last for profile"""
+    """Remember last for profile"""
     # Alias <- side
     e_pick_type = get_state().e_pick_type
 
@@ -200,7 +200,7 @@ def Gaussian(points, params):
 
 
 def Gaussian2D(xy, params):
-    """params: center_x,center_y,theta,backgroudn,intensity,spread_x,spread_y """
+    """params: center_x,center_y,theta,backgrounds,intensity,spread_x,spread_y """
     saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
@@ -288,7 +288,7 @@ def Bessel12D(xy, params):
     return res
 
 
-def DiffractionPatern(points, params):
+def DiffractionPattern(points, params):
     """Perfection cannot saturate"""
     x0 = params['center_x']
     y0 = params['center_y']

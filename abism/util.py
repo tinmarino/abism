@@ -5,7 +5,7 @@ Abism utility functions
 """
 
 # pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
-# pylint: disable=consider-using-f-string  # Old school way of formating
+# pylint: disable=consider-using-f-string  # Old school way of formatting
 
 # Standard
 import sys
@@ -42,12 +42,12 @@ def parse_argument():
     # Image
     parser.add_argument(
         '-i', '--image', metavar='image.fits', type=str, action='append',
-        help='image to diplay: filepath of the .fits')
+        help='image to display: filepath of the .fits')
 
     parser.add_argument(
         'image', metavar='image.fits', type=str, nargs='?', action='append',
         default='',
-        help='image to diplay: the first one is chosen')
+        help='image to display: the first one is chosen')
 
     parser.add_argument(
         '-v', '--verbose', type=int, action='store',
@@ -141,8 +141,8 @@ def get_colormap_list():
         magma       <- the (3) others have a high too yellow (
     Diverging:
         RdYlBlu     <- high contrast (need one), more than Spectral
-        PrGn        <- diffrent: 2 colors: no blue, rew, black, white
-    Miscellanous:
+        PrGn        <- different: 2 colors: no blue, rew, black, white
+    Miscellaneous:
         cubehelix   <- enhanced B&W (with some pink, greeny blue) awesome!
 
     """
@@ -299,18 +299,18 @@ class EPhot(Enum):
     """ Photometric type: enum, description
     See implementation in fit_strehl.py
     """
-    FIT = 'Mesured from the fitted function'
+    FIT = 'Measured from the fitted function'
     ELLIPTICAL = (
-        'Mesured from an elliptical aperture containing 99%% of the energy, '
+        'Measured from an elliptical aperture containing 99%% of the energy, '
         'which bound are determined by the fit')
     RECTANGLE = (
-        'Mesured from a rectangle aperture containing 99%% of the energy, '
+        'Measured from a rectangle aperture containing 99%% of the energy, '
         'which bound are determined by the fit')
-    MANUAL = 'Mesured from the rectangle section total inensity'
+    MANUAL = 'Measured from the rectangle section total inensity'
 
 
 class ESky(Enum):
-    """Sky mesurement methos: enum, description"""
+    """ Sky measurement methods: enum, description """
     ANNULUS = 'Elliptical annulus around object'
     FIT = 'Fitted sky parameter (alias background)'
     RECT8 = ('8 Rectangles around object, distance estimated from fit, '
@@ -391,7 +391,7 @@ class AbismState(DotDic):
 
         self.verbose = parse_argument().verbose
 
-        # ImageInfo cutom type, setted when open_file
+        # ImageInfo custom type, set when open_file
         self.image = None
 
         # The returns dictionary: EAnswer -> Answser Object
@@ -413,7 +413,7 @@ class AbismState(DotDic):
         # Record the root gui for get_root
         self.tk_root = None
 
-        # The last pick string, to dissconnect
+        # The last pick string, to disconnect
         self.e_pick_type = EPick.ONE
         self.pick = None
         self.tk_pick = tk.StringVar()
@@ -500,7 +500,7 @@ class AbismState(DotDic):
         # Retrieve class ctor from enum
         text, cls = enum_answer.value
 
-        # Craft anwser
+        # Craft answer
         if isinstance(value, AnswerSky):
             answer = value
             answer.text = text

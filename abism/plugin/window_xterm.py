@@ -2,7 +2,7 @@
     Create:
         1. Jupyter kernel <- in current state
         2. Xterm console <- in new tk window
-        3. Jupyter clien <- in xterm
+        3. Jupyter client <- in xterm
 
     Xterm arguments:
         -l  log

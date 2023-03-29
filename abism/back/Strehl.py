@@ -1,7 +1,7 @@
 """
     Strehl meter
-    TODO prettify, the function division is nto judicious:
-        Error goes along with mesure (always)
+    TODO prettify, the function division is not judicious:
+        Error goes along with measure (always)
 """
 import numpy as np
 
@@ -89,7 +89,7 @@ def strehl_one(rectangle):
 
 
 def craft_fwhm(a_fwhm_x, a_fwhm_y):
-    # (Long, Short axe, Excentricity)
+    # (Long, Short axe, Eccentricity)
     # TODO error propagation, get cool for fwhm
     fwhm_a = max(a_fwhm_x.value, a_fwhm_y.value)
     fwhm_b = min(a_fwhm_x.value, a_fwhm_y.value)
@@ -140,7 +140,7 @@ def append_binary_info():
         rms = err_dic['background']
     set_aa(EA.BACKGROUND, fit_dic['background'], error=rms)
 
-    # Get parameter for each star individualy
+    # Get parameter for each star individually
     def copy_dic(fit_dic, err_dic, s_num):
         """Copy dic replaceing some `0` and `1`"""
         fit_res = fit_dic.copy()
@@ -211,7 +211,7 @@ def EllipseEventStrehl(ellipse):
     arg: ellipse: artist with ru, rv, position
     """
     if get_state().e_phot_type == EPhot.FIT:
-        log(0, "Warning: Ellipse Mesurement ignoring fit photometric type")
+        log(0, "Warning: Ellipse Measurement ignoring fit photometric type")
 
     # Not Chi2 as no fit
     set_aa(EA.CHI2, float('nan'))
@@ -250,7 +250,7 @@ def get_ellipse_background(ellipse):
     # Complete annulus := inside out but not inside in
     bol_a = ell_o ^ ell_i
 
-    # Return stat of the cutted section
+    # Return stat of the cut section
     image_cut = get_state().image.im0[bol_a]
     return get_array_stat(image_cut)
 
@@ -297,7 +297,7 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
         background
         a_phot, fit photometry
     Returns: photometry, total, number_count
-             1. total phtotometric adu (backgound subtracted)
+             1. total phtotometric adu (background subtracted)
              Other. to estimate error
     Note Background must be called before
     TODO answer class compatible (in / out) so I get rms
@@ -324,14 +324,14 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
         err_phot = a_phot.error.value
         number_count = r99u * r99y
 
-    # Rectangle apperture
+    # Rectangle aperture
     elif e_phot_type == EPhot.RECTANGLE:
         log(3, 'Photometry <- encircled energy (i.e. rectangle)')
         total = np.sum(grid[ax1:ax2, ay1:ay2])
         number_count = 4 * r99x * r99y
         phot = total - number_count * background
 
-    # Elliptical apperture
+    # Elliptical aperture
     elif e_phot_type == EPhot.ELLIPTICAL:
         log(3, 'Photometry <- elliptical aperture')
         grid = IF.correct_bad_pixel(grid)
@@ -346,14 +346,14 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
 
     # Manual
     elif e_phot_type == EPhot.MANUAL:
-        log(3, "Photometry <- manual")
+        log(3, 'Photometry <- manual')
         stat = get_state().image.RectanglePhot(rectangle)
         total = stat.sum
         number_count = stat.number_count
         phot = total - number_count * background
 
     else:
-        log(0, "Error: Photometry do not know tipe:", e_phot_type)
+        log(0, 'Error: Photometry do not know type:', e_phot_type)
 
     if err_phot == 0:
         err_phot = 2 * rms * np.sqrt(number_count)
@@ -449,7 +449,7 @@ def get_background(grid):
         background = tmp["mean"]
 
     else:
-        log(-1, 'Error: I dont know sky mesure type', get_state.e_sky_type)
+        log(-1, 'Error: I dont know sky measure type', get_state.e_sky_type)
         rms = background = float('nan')
 
     log(3, 'Background returned:', background, rms)
@@ -495,13 +495,13 @@ def save_strehl_ratio():
 
 
 def get_bessel_integer():
-    """ Get bessel coeficient
-    Ex: theorical_intensity = photometry / get_bessel_integer()
-    In: wavelenght, pixel_scale, diameter, obstruction
+    """ Get bessel coefficient
+    Ex: theoretical_intensity = photometry / get_bessel_integer()
+    In: wavelength, pixel_scale, diameter, obstruction
     Out: float like 24.53
     Doc: See the integral of the bessel (and obstruted aperture) in advanced doc
     """
-    # Lambda: wavelenght in meter
+    # Lambda: wavelength in meter
     λ = get_root().header.wavelength / 10**6
     # Focal Plane Scale: pixel size in radian
     fps = get_root().header.pixel_scale / 206265

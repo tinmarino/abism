@@ -135,60 +135,60 @@ def open_file():
     get_root().set_image(s_file)
 
 
-def toogle_header():
-    """ Toogle header viewer """
+def toggle_header():
+    """ Toggle header viewer """
     from abism.plugin.window_text import WindowText
 
     def on_close():
-        toogle_header.window_header.destroy()
-        toogle_header.window_header = None
+        toggle_header.window_header.destroy()
+        toggle_header.window_header = None
 
-    # Toogle hide
-    if toogle_header.window_header is not None:
+    # Toggle hide
+    if toggle_header.window_header is not None:
         on_close()
         return
 
-    toogle_header.window_header = WindowText(
+    toggle_header.window_header = WindowText(
         title='headder(' + get_state().image.name + ')',
         geometry='1000x1000+0+0',
         text=get_root().header.header.tostring(sep="\n")
     )
 
-    toogle_header.window_header.protocol('WM_DELETE_WINDOW', on_close)
-    toogle_header.window_header.mainloop()
+    toggle_header.window_header.protocol('WM_DELETE_WINDOW', on_close)
+    toggle_header.window_header.mainloop()
 
 
-toogle_header.window_header = None
+toggle_header.window_header = None
 
 
-def toogle_manual():
-    """ Toogle interface documentation window """
+def toggle_manual():
+    """ Toggle interface documentation window """
     from abism.plugin.window_text import WindowText
 
     def on_close():
-        toogle_manual.window_manual.destroy()
-        toogle_manual.window_manual = None
+        toggle_manual.window_manual.destroy()
+        toggle_manual.window_manual = None
 
-    # Toogle hide
-    if toogle_manual.window_manual is not None:
+    # Toggle hide
+    if toggle_manual.window_manual is not None:
         on_close()
         return
 
     fpath = root_path() + 'doc/interface.md'
     with open(fpath, 'r') as f:
         text = f.read()
-    toogle_manual.window_manual = WindowText(
+    toggle_manual.window_manual = WindowText(
         title='ABISM interface manual',
         geometry='800x1000+0+0',
         text=text,
         color_md=True,
     )
 
-    toogle_manual.window_manual.protocol('WM_DELETE_WINDOW', on_close)
-    toogle_manual.window_manual.mainloop()
+    toggle_manual.window_manual.protocol('WM_DELETE_WINDOW', on_close)
+    toggle_manual.window_manual.mainloop()
 
 
-toogle_manual.window_manual = None
+toggle_manual.window_manual = None
 
 
 def is_toolbar_active(toolbar):
@@ -204,12 +204,12 @@ def is_toolbar_active(toolbar):
     return res
 
 
-def open_backgroud_and_substract():
+def open_background_and_subtract():
     """ Subtract A background image """
     # Ask for background
     fp_sky = abism_askopenfilename(
         filetypes=[("fitsfiles", "*.fits"), ("allfiles", "*")])
 
-    # Substract and Redraw
-    if get_state().image.substract_sky(fp_sky):
+    # Subtract and Redraw
+    if get_state().image.subtract_sky(fp_sky):
         get_root().frame_image.draw_image()

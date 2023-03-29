@@ -40,7 +40,7 @@ class ColorScheme:
             self.init_light()
 
     def set_solarized_var(self):
-        """Init solarized varaibles"""
+        """Init solarized variables"""
         self.solarized_base03 = "#002b36"
         self.solarized_base02 = "#073642"
         self.solarized_base01 = "#586e75"
@@ -93,7 +93,7 @@ scheme = ColorScheme(Scheme.LIGHT_SOLARIZED)
 
 def get_button_dic():
     return dict(
-        # Cutom
+        # Custom
         highlightcolor=scheme.bu_hi,
         bg=scheme.bu,
         fg=scheme.fg,
@@ -110,7 +110,7 @@ def from_dic(victim, dic_getter):
     """Factory: class from a dic for tk class proxy
     Usurpating a victim (proxified) class calling it in my init
     victim: class proxified
-    dic_getter: funtion to get a dic, if a dic itself: not updatable
+    dic_getter: function to get a dic, if a dic itself: not updatable
     """
     name = 'Abism_' + victim.__name__
     bases = (victim,)
@@ -346,7 +346,7 @@ class HoverInfo:
         # Block tip creation until new event
         self.on_work = False
 
-        # If feasable, destroy tip window
+        # If feasible, destroy tip window
         if not self.tipwindow:
             return
         self.tipwindow.destroy()
@@ -417,7 +417,7 @@ tk.Menu.on_menu_hover = on_menu_hover
 ######################################################################
 
 
-# Replace Tk to keep a refrence to change color (very important)
+# Replace Tk to keep a reference to change color (very important)
 tk.Tk_save = tk.Tk
 
 

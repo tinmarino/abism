@@ -22,7 +22,7 @@ class Pick(ABC):
     image event -> operation (then result display)
     Note: disconnection is not generic:
         sometime a matplotlit callback_id
-        sometime a cutom artist
+        sometime a custom artist
     """
 
     def __init__(self):
@@ -49,7 +49,7 @@ class Pick(ABC):
 
     @abstractmethod
     def work(self, obj):
-        """ Work in the backend (can ba async)
+        """ Work in the backend (can be async)
         :arg obj: <- event (usually)
         """
 
@@ -105,7 +105,7 @@ class Pick(ABC):
             return
 
         if event.button == 2:
-            # Reamining button 2 -> Save bounds <- click +/- 15
+            # Remaining button 2 -> Save bounds <- click +/- 15
             log(1, 'Making a selection 30 pixels around', event)
             self.rectangle = (
                 event.ydata - 20, event.ydata + 20,
@@ -126,8 +126,8 @@ class PickNo(Pick):
 class PickOne(Pick):
     """Pick One Star
     This button should be green and the zoom button of the image toolbar
-    unpressed. If it is pressed, clik again on it. You then have to draw a
-    rectangle aroung the star to mesure the strehl ratio around this star.  A
+    unpressed. If it is pressed, click again on it. You then have to draw a
+    rectangle around the star to measure the strehl ratio around this star.  A
     first fit will be computed in the rectangle you've just drawn. Then the
     photometry of the star will be computed according to the photometry and
     background measurement type you chose in 'MoreOption' in the file menu. By
@@ -304,8 +304,8 @@ class PickStat(Pick):
 
 
 class PickProfile(Pick):
-    """ Linear Profile, cutted shape of a source
-    Draw a line on the image. Some basic statistics on the pixels cutted by
+    """ Linear Profile, cut shape of a source
+    Draw a line on the image. Some basic statistics on the pixels cut by
     your line will be displayed in the 'star frame'. And a Curve will be
     displayed on the 'fit frame'. A pixel is included if the distance of its
     center is 0.5 pixel away from the line. This is made to prevent to many

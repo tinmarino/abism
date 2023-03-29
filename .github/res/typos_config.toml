@@ -18,3 +18,5 @@ default.extend-ignore-re = [
 ]
 
 [default.extend-words]
+# for **B**ackward in ./abism/doc/interface.md
+ackward = "ackward"

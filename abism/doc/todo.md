@@ -1,4 +1,4 @@
-* Sky: see how is is estimated annulus and 8rect, because it must be feeded to fit but depends on fit
+* Sky: see how is is estimated annulus and 8rect, because it must be fed to fit but depends on fit
 
 # Latter
 ################################################################################
