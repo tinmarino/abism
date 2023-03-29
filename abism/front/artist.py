@@ -262,7 +262,7 @@ class Annulus(Artist):
     # None
 
     def param_definer(self):
-        """ Set paramters at start (hardcode) """
+        """ Set parameters at start (hardcode) """
 
         # SPHERE
         self.radius = 10

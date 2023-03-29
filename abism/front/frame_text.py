@@ -713,7 +713,7 @@ class OptionFrame(TextFrame):
 
 
 class AnswerFrame(TextFrame):
-    """ Some configuration for the frane with the results """
+    """ Some configuration for the frame with the results """
 
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
