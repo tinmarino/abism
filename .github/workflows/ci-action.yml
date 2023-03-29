@@ -1,0 +1,48 @@
+---
+# Copied from previous .travis.yml by tinmarino the 2023-03-09
+
+# Commented out to avoid verbosity on github commit status
+name: "CI ABISM"
+
+# yamllint disable-line rule:truthy
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  Typos:
+    # Copied from: https://github.com/junegunn/fzf/blob/master/
+    # -- .github/workflows/typos.yml
+    name: Typos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: crate-ci/typos@v1.13.16
+        with:
+          files: .
+          config: .github/res/typos_config.toml
+
+
+  Pylint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: pip install pylint
+      - run: pylint abism.py setup.py abism
+
+
+  Yamllint:
+    # Copied from: https://github.com/junegunn/fzf/blob/master/
+    # -- .github/workflows/typos.yml
+    name: Yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: .github/workflows/ci-action.yml
