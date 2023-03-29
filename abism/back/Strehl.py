@@ -248,10 +248,9 @@ def get_ellipse_background(ellipse):
     # Complete annulus := inside out but not inside in
     bol_a = ell_o ^ ell_i
 
+    # Return stat of the cutted section
     image_cut = get_state().image.im0[bol_a]
-    stat = get_array_stat(image_cut)
-
-    return stat
+    return get_array_stat(image_cut)
 
 
 def get_ellipse_photometry(ellipse):
@@ -408,7 +407,7 @@ def get_background(grid):
 
     # Elliptical annulus
     elif background_type == ESky.ANNULUS:
-        # TODO hardcode as in AnswerReturn
+        # TODO hardcode as in answer_return
         r99u = max(20, get_state().d_fit_param["r99u"])
         r99v = max(20, get_state().d_fit_param["r99v"])
         rui, rvi = 1.3 * r99u, 1.3 * r99v
@@ -459,12 +458,14 @@ def save_strehl_ratio():
     a_photometry = get_aa(EA.PHOTOMETRY)
     a_intensity = get_aa(EA.INTENSITY)
     wavelength = get_root().header.wavelength
-    log(5, 'Calculating Strehl with', "\n"
-        'sky =', a_sky, "\n"
-        'intensity =', a_intensity, "\n"
-        'photometry =', a_photometry, "\n"
-        'bessel_integer =', bessel_integer, "\n"
-        'wavelength =', wavelength, "\n")
+
+    # Log for debug
+    log(5, 'Calculating Strehl with\n'
+        f'sky = {a_sky}\n'
+        f'intensity = {a_intensity}\n'
+        f'photometry = {a_photometry}\n'
+        f'bessel_integer = {bessel_integer}\n'
+        f'wavelength = {wavelength}\n')
 
     # Get theoretical intensity && Save
     a_Ith = a_photometry / bessel_integer
@@ -479,25 +480,34 @@ def save_strehl_ratio():
     err_strehl = a_strehl.error.value * strehl_eq / a_strehl.value
     set_aa(EA.STREHL_EQ, 100 * strehl_eq, error=100 * err_strehl, unit=' %')
 
-    # Saven for error just after
+    # Save for error just after
     set_aa(EA.INTENSITY_THEORY, a_Ith)
     set_aa(EA.BESSEL_INTEGER, bessel_integer)
 
 
 def get_bessel_integer():
     """ Get bessel coeficient
-    Then theorical_intensity = photometry / bessel_integer
-    Read wavelenght, pixel_scale, diameter, obstruction
+    Ex: theorical_intensity = photometry / get_bessel_integer()
+    In: wavelenght, pixel_scale, diameter, obstruction
+    Out: float like 24.53
+    Doc: See the integral of the bessel (and obstruted aperture) in advanced doc
     """
-    bessel_integer = get_root().header.wavelength * \
-        10**(-6.) / np.pi / (get_root().header.pixel_scale/206265) / get_root().header.diameter
-    bessel_integer = bessel_integer**2 * 4 * \
-        np.pi / (1-(get_root().header.obstruction/100)**2)
-    return bessel_integer
+    # Lambda: wavelenght in meter
+    λ = get_root().header.wavelength / 10**6
+    # Focal Plane Scale: pixel size in radian
+    fps = get_root().header.pixel_scale / 206265
+    # Epsilon: obstruction fraction
+    ε = get_root().header.obstruction / 100
+    # Diameter of the primary miroir in meter
+    D = get_root().header.diameter
+    # Pi ... so irrational !
+    π = np.pi
+
+    return (λ/(fps * π * D))**2  *  4*π/(1 - ε**2)
 
 
 def get_equivalent_strehl_ratio(strehl, wavelength):
-    """Get equivalent Strehl ration at 2.17"""
+    """ Get equivalent Strehl ration at 2.17 """
     if strehl < 0:
         factor = 0
     else:

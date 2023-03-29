@@ -5,7 +5,7 @@ import numpy as np
 
 from abism.back import ImageFunction as IF
 from abism.back.image_info import get_array_stat
-from abism.front.AnswerReturn import AnswerPrinter
+from abism.front.answer_return import AnswerPrinter
 
 from abism.util import get_state, log
 from abism.answer import AnswerDistance, AnswerLuminosity, AnswerNum

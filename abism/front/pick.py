@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import matplotlib
 
 from abism.front import artist
-from abism.front import AnswerReturn as AR
+from abism.front import answer_return
 
 from abism.back import Strehl
 
@@ -176,7 +176,7 @@ class PickOne(Pick):
         Strehl.strehl_one(self.rectangle)
 
     def on_done(self):
-        AR.show_answer()
+        answer_return.show_answer()
 
 
 class PickBinary(Pick):
@@ -253,7 +253,7 @@ class PickBinary(Pick):
         Strehl.BinaryStrehl(self.star1, self.star2)
 
     def on_done(self):
-        AR.show_answer()
+        answer_return.show_answer()
 
 
 class PickTightBinary(PickBinary):
@@ -378,4 +378,4 @@ class PickEllipse(Pick):
         Strehl.EllipseEventStrehl(self.artist_ellipse)
 
     def on_done(self):
-        AR.show_answer()
+        answer_return.show_answer()

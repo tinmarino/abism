@@ -469,7 +469,7 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
 
 def get_profile_x(grid, center):
     """Get profile along X
-    Note: only used onces in AnswerReturn
+    Note: only used onces in answer_return
     """
     r = (0, len(grid)-1, 0, len(grid[0]) - 1)
     r = Order4(r)

@@ -1,11 +1,11 @@
 """Constrained multivariate least-squares optimization"""
 
-import warnings
-
 from numpy import array, take, eye, triu, transpose, dot
 from numpy import empty_like, sqrt, cos, sin, arcsin
-from scipy.optimize.minpack import _check_func
-from scipy.optimize import _minpack, leastsq
+from scipy.optimize import leastsq
+# Dirty: Import protected helpers
+from scipy.optimize import _minpack_py as mp
+from scipy.optimize._minpack import _lmder, _lmdif
 
 from abism.util import log
 
@@ -245,7 +245,7 @@ def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
         raise ValueError('length of x0 != length of bounds')
     if not isinstance(args, tuple):
         args = (args,)
-    shape = _check_func('leastsq', 'func', func, x0, args, n)[0]
+    shape = mp._check_func('leastsq', 'func', func, x0, args, n)[0]
     log(1, "Shape id check leastsq", shape)
     m = shape[0]
     if n > m:
@@ -259,20 +259,20 @@ def leastsqbound(func, x0, args=(), bounds=None, Dfun=None, full_output=0,
     if Dfun is None:
         if (maxfev == 0):
             maxfev = 200 * (n + 1)
-        retval = _minpack._lmdif(wfunc, i0, args, full_output, ftol, xtol,
+        retval = _lmdif(wfunc, i0, args, full_output, ftol, xtol,
                                  gtol, maxfev, epsfcn, factor, diag)
     else:
         if col_deriv:
-            _check_func('leastsq', 'Dfun', Dfun, x0, args, n, (n, m))
+            mp._check_func('leastsq', 'Dfun', Dfun, x0, args, n, (n, m))
         else:
-            _check_func('leastsq', 'Dfun', Dfun, x0, args, n, (m, n))
+            mp._check_func('leastsq', 'Dfun', Dfun, x0, args, n, (m, n))
         if (maxfev == 0):
             maxfev = 100 * (n + 1)
 
         def wDfun(x, *args):  # wrapped Dfun
             return Dfun(i2e(x), *args)
 
-        retval = _minpack._lmder(func, wDfun, i0, args, full_output,
+        retval = _lmder(func, wDfun, i0, args, full_output,
                                  col_deriv, ftol, xtol, gtol, maxfev,
                                  factor, diag)
 

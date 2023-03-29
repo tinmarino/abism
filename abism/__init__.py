@@ -26,4 +26,4 @@ More:
     help(abism.back)  # Strehl estimation info
 
 """
-__version__ = '0.913'
+__version__ = '0.914'

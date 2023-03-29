@@ -73,9 +73,9 @@ def tktext_insert_warnings(self):
 
     if intensity > get_root().header.non_linearity_level:
         if intensity > 1.0 * get_root().header.saturation_level:
-            stg += "!!! SATURATED !!!  Strehl is UNRELIABLE\n"
+            stg += "!!! SATURATED !!!\nStrehl is UNRELIABLE\n"
         else:
-            stg += "!!! NON-LINEAR Strehl may be  unreliable\n"
+            stg += "!!! NON-LINEAR !!!\nStrehl may be unreliable\n"
 
     # Undersampled
     is_undersampled = "sinf_pixel_scale" in vars(get_root().header)

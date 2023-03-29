@@ -7,7 +7,7 @@ from abism.back import ImageFunction as IF
 from abism.back.fit_template_function import get_fit_function
 from abism.back.image_info import get_array_stat
 
-from abism.front.AnswerReturn import AnswerPrinter
+from abism.front.answer_return import AnswerPrinter
 
 from abism.util import get_state, get_root, log
 from abism.answer import AnswerDistance, AnswerLuminosity

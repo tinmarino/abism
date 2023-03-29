@@ -1,3 +1,5 @@
+# pylint: disable=too-few-public-methods,too-many-instance-attributes
+
 """
 Fits Header parser
 
@@ -46,7 +48,6 @@ from astropy import wcs
 from abism.util import log
 
 
-
 def parse_header(header):
     """ the objects is fits.open(image)[0]"""
 
@@ -71,9 +72,11 @@ def parse_header(header):
 
     return Header(header)
 
+
 class WCSDefault:
     """ Default class for World Coordinate System """
     def all_pix2world(self, _x, _y):
+        """ Base method, return dummy coordinates """
         return np.array([[float('nan'), float('nan')]])
 
 
@@ -223,9 +226,9 @@ class Header:
             if 'HIERARCH ESO DET DIT' in self.header:
                 self.exptime = self.header['HIERARCH ESO DET DIT']
 
-        self.WCSKey()
+        self.wcs_key()
 
-    def WCSKey(self):  # and zpt for all classes
+    def wcs_key(self):  # and zpt for all classes
         """Fill WCS"""
         try:
             def flatten_header(header):
@@ -246,7 +249,7 @@ class Header:
                 for key in newheader.keys():
                     try:
                         if int(key[-1]) >= 3 and key[:2] in ['CD', 'CR', 'CT', 'CU', 'NA']:
-                            newheader.rename_key(key, 'A' + key, force=True)
+                            newheader['A' + key] = newheader.pop(key)
                     except ValueError:
                         # if key[-1] is not an int
                         pass
@@ -314,9 +317,9 @@ class NacoHeader(Header):
         if 'HIERARCH ESO PRO TYPE' in self.header:
             self.reduced_type = self.header['HIERARCH ESO PRO TYPE']
 
-        self.Saturation()
+        self.saturation()
 
-    def Saturation(self):
+    def saturation(self):
         """Check if non-linear or even staturated"""
         if 'HIERARCH ESO DET NCORRS NAME' in self.header:
             self.ncor = self.header['HIERARCH ESO DET NCORRS NAME']
