@@ -1,5 +1,22 @@
 # ABISM: Adaptive Background Interferometric Strehl Meter
 
+A graphical user interface (GUI) to measure the Strehl ratio of astronomical images,
+i.e. the quality of adaptive optics system on optical telescopes.
+
+# Quickstart
+
+```bash
+# Install Abism
+pip install -U git+https://github.com/tinmarino/abism 
+
+# Download test resource
+wget https://github.com/tinmarino/abism/wiki/crowded.fits
+
+# Launch the GUI
+abism crowded.fits
+```
+
+# Step by step
 
 __Install:__
 ```sh
@@ -17,10 +34,6 @@ from shell:
 abism image.fits
 ```
 
-__What:__
-A graphical user interface (GUI) to measure the strehl ratio.
-Meaning the quality (.fits) image from a telescope with adaptive optics.
-
 
 __Who:__
 For observer astronomers using adaptive optics
@@ -31,10 +44,11 @@ Notice the warning that we are reaching the non-linearity detector limit.
 We did not take time to measure the error of the measure if non linear, it is very detector dependant.
 
 
-<img  align="center" width=80% src="./abism/doc/abism_v0.900.png">
+<img align="center" width=80% src="./abism/doc/abism_v0.900.png">
 
 
-__More:__
+# More
+
 from ipython:
 
 ```python
@@ -48,7 +62,8 @@ sm = run_async('--verbose', '1', './image.fits')
 print(sm.state)
 ```
 
+# Credits
 
-__License:__ Do whatever you want with the code
+__License__: Do whatever you want with the code
 
-__Authors:__ Julien Girard, Martin Tourneboeuf
+__Authors__: [Julien Girard](https://www.juliengirard.space), [Martin Tourneboeuf](https://tinmarino.github.io)
