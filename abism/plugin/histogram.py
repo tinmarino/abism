@@ -1,4 +1,7 @@
-"""This is drawing the histogram of pixel values. It may be usefull.
+#!/usr/bin/env python3
+
+"""
+This is drawing the histogram of pixel values. It may be usefull.
 Programmers, We can implement a selection of the scale cut of the image
 with a dragging the vertical lines., with a binning of the image,
 this could even be in real time.
@@ -14,21 +17,21 @@ def histopopo(figure, image_sorted):
     """
     # Reset figure
     figure.clf()
-    ax = figure.add_subplot(111)
+    axe = figure.add_subplot(111)
     # Hide x, y label in toolbar
-    ax.format_coord = lambda x, y: ''
+    axe.format_coord = lambda x, y: ''
 
     # Draw tick
-    for tick in ax.xaxis.get_major_ticks():
+    for tick in axe.xaxis.get_major_ticks():
         tick.label.set_fontsize(14)
-    ax.axvline(x=get_state().i_image_min_cut,
+    axe.axvline(x=get_state().i_image_min_cut,
                linestyle='-', linewidth=2)
-    ax.axvline(x=get_state().i_image_max_cut,
+    axe.axvline(x=get_state().i_image_max_cut,
                linestyle='-', linewidth=2)
-    ax.set_xticklabels(image_sorted)
+    axe.set_xticklabels(image_sorted)
 
     # Calculate histogram
-    ax.hist(image_sorted, 100, log=True)  # n, bin, patches
+    axe.hist(image_sorted, 100, log=True)  # n, bin, patches
 
     # Fraw
     figure.canvas.draw()

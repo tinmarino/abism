@@ -1,7 +1,12 @@
+#!/usr/bin/env python3
+
 """
-    Helper to open a tk window with some text
+Helper to open a tk window with some text
 used by manual and header
 """
+
+# pylint: disable=consider-using-f-string  # Old code ...
+
 import re
 import tkinter as tk
 
@@ -198,11 +203,11 @@ md_dic = {
 }
 
 # Regex to hide (second loop)
-r_elide = r'^# |^## |^### |^#### |__|\*\*|`'
+R_ELIDE = r'^# |^## |^### |^#### |__|\*\*|`'
 
 
 # Regex for link [visible](#intenal_link)
-r_link = r'\[(.*?)\]\((.*?)\)'
+R_LINK = r'\[(.*?)\]\((.*?)\)'
 
 
 class MarkdownColorizer:
@@ -225,6 +230,7 @@ class MarkdownColorizer:
         self.hide_syntax()
 
         # Configure tag color
+        # pylint: disable=consider-using-dict-items  # I do not want now
         for tag_name in md_dic:
             self.tk_text.tag_config(tag_name, **md_dic[tag_name][1])
         self.tk_text.tag_config('link', foreground='blue')
@@ -233,8 +239,8 @@ class MarkdownColorizer:
     def color_syntax(self):
         """Color with regex"""
         r_stg = '|'.join(
-            '(?P<%s>' % key + md_dic[key][0] + ')'
-            for key in md_dic)
+            '(?P<%s>' % key + value[0] + ')'
+            for key, value in md_dic.items())
         txtfilter = re.compile(r_stg, re.MULTILINE)
 
         for i in txtfilter.finditer(self.txt):
@@ -260,7 +266,7 @@ class MarkdownColorizer:
     def create_hlink(self):
         """Create internal hlink"""
         # pylint: disable = too-many-locals
-        linkfilter = re.compile(r_link, re.MULTILINE)
+        linkfilter = re.compile(R_LINK, re.MULTILINE)
         l_hide = []
         for i in linkfilter.finditer(self.txt):
             start = i.start()
@@ -280,6 +286,7 @@ class MarkdownColorizer:
             tag_name = 'link_' + link
             try:
                 link_index = self.tk_text.tag_ranges(link)[0]
+            # pylint: disable=broad-except
             except BaseException:
                 log(3, 'Link: could not find anchor for:', link)
                 link_index = 0
@@ -300,6 +307,7 @@ class MarkdownColorizer:
             self.tk_text.tag_config(tag_name, foreground='#268bd2')  # blue
             self.tk_text.tag_bind(tag_name, "<Enter>", show_on_cursor)
             self.tk_text.tag_bind(tag_name, "<Leave>", show_xterm_cursor)
+            # pylint: disable=cell-var-from-loop  # Yes, I am crazy
             self.tk_text.tag_bind(
                 tag_name, '<Button-1>',
                 lambda e, li=link_index: jump_tag(e, li))
@@ -314,7 +322,7 @@ class MarkdownColorizer:
 
     def hide_syntax(self):
         """Hide what need to be"""
-        hidefilter = re.compile(r_elide, re.MULTILINE)
+        hidefilter = re.compile(R_ELIDE, re.MULTILINE)
         for i in hidefilter.finditer(self.txt):
             start = i.start()
             end = i.end() - 1

@@ -1,16 +1,21 @@
-"""
-    Create:
-        1. Jupyter kernel <- in current state
-        2. Xterm console <- in new tk window
-        3. Jupyter client <- in xterm
+#!/usr/bin/env python3
 
-    Xterm arguments:
-        -l  log
-        -lc unicode
-        -lf +file descriptor: to log to file
-        -sb scrollback ability on
-        -c  +command: send command (just spawn, no exec like -e)
 """
+Create:
+    1. Jupyter kernel <- in current state
+    2. Xterm console <- in new tk window
+    3. Jupyter client <- in xterm
+
+Xterm arguments:
+    -l  log
+    -lc unicode
+    -lf +file descriptor: to log to file
+    -sb scrollback ability on
+    -c  +command: send command (just spawn, no exec like -e)
+"""
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
+
 import tkinter as tk
 import subprocess as sp
 import re
@@ -23,11 +28,11 @@ from time import sleep
 import logging
 
 # pylint: disable = unused-wildcard-import, wildcard-import, unused-import
-import abism.util as util
 from abism.util import *
 
 
 def create_tk_console():
+    """ Main: create a Tk window with a console """
     # Init
     root = tk.Tk()
     queue = Queue()
@@ -39,7 +44,8 @@ def create_tk_console():
     wid = termf.winfo_id()
 
     # Allow window resize
-    sp.Popen("""echo '*VT100.allowWindowOps: true' | xrdb -merge""", shell=True)
+    with sp.Popen("""echo '*VT100.allowWindowOps: true' | xrdb -merge""", shell=True):
+        pass
 
     # Craft command
     cmd = (
@@ -54,23 +60,22 @@ def create_tk_console():
     log(3, 'Launching:', cmd)
 
     # Spawn Xterm
-    process = sp.Popen(
-        cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    log(3, 'Xterm pid:', process.pid)
+    with sp.Popen(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE) as process:
+        log(3, 'Xterm pid:', process.pid)
 
-    # Get pts
-    thread = Thread(target=lambda: get_xterm_pts(termf, process, queue))
-    thread.start()
+        # Get pts
+        thread = Thread(target=lambda: get_xterm_pts(termf, process, queue))
+        thread.start()
 
-    # Set resize callback
-    termf.bind("<Configure>", lambda event: on_resize(event, queue))
+        # Set resize callback
+        termf.bind("<Configure>", lambda event: on_resize(event, queue))
 
     # Start
     root.mainloop()
 
 
 def on_resize(event, queue):
-    """On resize: send escape sequence to pts"""
+    """ On resize: send escape sequence to pts """
     # Magic && Check
     magic_x, magic_y = 6.1, 13
     log(3, 'Resize (w, h):', event.width, event.height)
@@ -84,12 +89,12 @@ def on_resize(event, queue):
     ctl = f"\u001b[8;{height};{width}t"
 
     # Send to pts
-    with open(queue.queue[0], 'w') as f:
-        f.write(ctl)
+    with open(queue.queue[0], mode='w', encoding='utf-8') as fil:
+        fil.write(ctl)
 
 
 def get_xterm_pts(parent, process, queue):
-    """Retrieve pts(`process`) -> `queue`"""
+    """ Retrieve pts(`process`) -> `queue` """
     while True:
         out = process.stdout.readline().decode()
         log(3, 'Xterm out' + out)
@@ -112,14 +117,16 @@ def get_xterm_pts(parent, process, queue):
 
 
 def get_banner():
+    """ Return window banner string (Functional hardcoding) """
     return """Hello from ABISM background kernel Tread
-print(sm)
+print(state)
 print(root)
 """
 
 
 def get_system_command(cfile):
-    s_ipy_cmd = "jupyter console --existing {}".format(cfile)
+    """ Return system command to run to spawn a xterm jupyter """
+    s_ipy_cmd = f'jupyter console --existing {cfile}'
 
     is_ix = which('jupyter-console')
     is_ix = is_ix and which('sh')
@@ -132,9 +139,9 @@ def get_system_command(cfile):
         return f"""do shell script "open '{s_ipy_cmd}'" """
 
     # Windows ?
-    log(-1, f"Error: abism do not know how to open a jupyter client on your "
-        "system with connection file {cfile}.\n"
-        "Have you installed jupyter-console? Are you on windows?"
+    log(-1, 'Error: abism do not know how to open a jupyter client on your '
+        'system with connection file {cfile}.\n'
+        'Have you installed jupyter-console? Are you on windows?'
         )
     return ''
 
@@ -144,7 +151,8 @@ def create_system_console(s_cmd):
     log(1, 'Launching ', s_cmd)
     if not s_cmd:
         return
-    sp.Popen(s_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    with sp.Popen(s_cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE):
+        pass
 
 
 def launch_kernel():
@@ -156,17 +164,17 @@ def launch_kernel():
     # Import
     try:
         from background_zmq_ipython import init_ipython_kernel
-    except ImportError as e:
+    except ImportError as exc:
         log(0, "Error: cannot import background_zmq_ipython,\n"
             "install: background_zmq_ipython and xterm\n"
-            "and try again", e)
+            "and try again", exc)
         return False
     sio = StringIO()
     logger = logging.Logger("ABISM kernel", level=logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sio))
 
     # Prepare namespacte()
-    sm = get_state()
+    state = get_state()
     root = get_root()
 
     # Init kernel
@@ -195,6 +203,7 @@ def launch_kernel():
 
 
 def create_jupyter_console():
+    """ Main function """
     thread = Thread(target=launch_kernel)
     thread.start()
     # create_tk_console()

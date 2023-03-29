@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 """
-    Profile line user shower, callback of a tool
+Profile line user shower, callback of a tool
 """
+
 import numpy as np
 
 from abism.back import ImageFunction as IF
@@ -14,16 +17,16 @@ from abism.answer import AnswerDistance, AnswerLuminosity
 
 
 def show_profile(point1, point2):
-    """Callback for Profile Pick: 1 and 2D"""
+    """ Callback for Profile Pick: 1 and 2D """
     # Get data to plot
-    ab, od, points = IF.get_radial_line(
+    abscissa, ordinate, points = IF.get_radial_line(
         get_state().image.im0, (point1, point2), return_point=1)
 
     # Plot <- Reset
-    ax = get_root().frame_fit.reset_figure_ax()
+    axe = get_root().frame_fit.reset_figure_ax()
 
     # Data
-    ax.plot(ab, od, color='black', drawstyle='steps', linestyle='--',
+    axe.plot(abscissa, ordinate, color='black', drawstyle='steps', linestyle='--',
             linewidth=1, label="Data")
 
     # Fit
@@ -34,23 +37,24 @@ def show_profile(point1, point2):
     if do_plot_fit:
         try:
             od_fit = fit_fct(points, get_state().d_fit_param)
-            ax.plot(
-                ab,
+            axe.plot(
+                abscissa,
                 od_fit,
                 color='purple',
                 linewidth=2,
                 label='Fitted PSF')
-        except Exception as e:
-            log(3, 'Warning, plot_profile could not plot fit, error:', e)
+        # pylint: disable=broad-except
+        except Exception as exc:
+            log(3, 'Warning, plot_profile could not plot fit, error:', exc)
 
     # Redraw
     log(8, "ProfileAnswer :", zip(
         points, get_state().image.im0[tuple(points)]))
-    ax.legend(loc=1, prop={'size': 8})
+    axe.legend(loc=1, prop={'size': 8})
     get_root().frame_fit.redraw()
 
     # Get stat
-    ps = get_array_stat(get_state().image.im0[tuple(points)])
+    profile_stat = get_array_stat(get_state().image.im0[tuple(points)])
     # LEN
     tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
@@ -60,10 +64,10 @@ def show_profile(point1, point2):
         def get_list(self):
             return [
                 [AnswerDistance('Length', tlen, error=1)],
-                [AnswerLuminosity('Min', ps.min, error=ps.rms), True],
-                [AnswerLuminosity('Max', ps.max, error=ps.rms), True],
-                [AnswerLuminosity('Mean', ps.mean, error=np.sqrt(ps.rms))],
-                [AnswerLuminosity('Rms', ps.rms)]
+                [AnswerLuminosity('Min', profile_stat.min, error=profile_stat.rms), True],
+                [AnswerLuminosity('Max', profile_stat.max, error=profile_stat.rms), True],
+                [AnswerLuminosity('Mean', profile_stat.mean, error=np.sqrt(profile_stat.rms))],
+                [AnswerLuminosity('Rms', profile_stat.rms)]
             ]
 
     def print_answer():

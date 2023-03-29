@@ -1,17 +1,21 @@
-"""
-    Open File dialog for my Ubuntu 19.10 / Gnome 3
-    Requires GTK, so will usually fail
-    But the tk ask open file is so ugly, and FileOpen may come too
-"""
-from gi.repository import Gtk, GLib
-import os
+#!/usr/bin/env python3
 
-import gi
-gi.require_version('Gtk', '3.0')
+"""
+Open File dialog for my Ubuntu 19.10 / Gnome 3
+
+Requires GTK, so will usually fail
+But the tk ask open file is so ugly, and FileOpen may come too
+"""
+
+from os.path import abspath
+from gi.repository import Gtk, GLib
+
+from gi import require_version
+require_version('Gtk', '3.0')
 
 
 class GtkDialog(Gtk.FileChooserDialog):
-    """The dialog to open a fits image"""
+    """ The dialog to open a fits image """
 
     def __init__(self, parent=None, title='', filetypes=None, initialdir=''):
         super().__init__(
@@ -24,13 +28,13 @@ class GtkDialog(Gtk.FileChooserDialog):
             Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
         if initialdir:
-            self.set_current_folder(os.path.abspath(initialdir))
+            self.set_current_folder(abspath(initialdir))
 
         for text_n_regex in filetypes:
             self.add_one_filter(text_n_regex)
 
     def get_response(self):
-        """Born, Work and die"""
+        """ Born, Work and die """
         fname = ''
         # Metro
         from_gtk = self.run()
@@ -43,6 +47,7 @@ class GtkDialog(Gtk.FileChooserDialog):
         return fname
 
     def add_one_filter(self, text_n_regex):
+        """ Util to create a filter widget """
         text, regex = text_n_regex
         filter_text = Gtk.FileFilter()
         filter_text.set_name(text)
@@ -51,7 +56,7 @@ class GtkDialog(Gtk.FileChooserDialog):
 
 
 def gtk_askopenfilename(**args):
-    """Returns filename given by user"""
+    """ Returns filename given by user """
     dialog = GtkDialog(parent=None, **args)
     res = dialog.get_response()
     Gtk.main()
@@ -59,6 +64,7 @@ def gtk_askopenfilename(**args):
 
 
 def test():
+    """ Small test window used for dev """
     gtk_askopenfilename(
         title="Open a FITS image",
         filetypes=[("FITS", "*.fits"), ('Python', '*.py'), ("allfiles", "*")],

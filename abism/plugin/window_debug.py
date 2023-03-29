@@ -1,17 +1,20 @@
-"""
-    Helper console to run python code in the loop
-    For developers now (maybe one day embed jupyter kernel in main window)
-"""
-import tkinter as tk
+#!/usr/bin/env python3
 
+"""
+Helper console to run python code in the loop
+For developers now (maybe one day embed jupyter kernel in main window)
+"""
+
+import tkinter as tk
 import abism.front.tk_extension as tk_ext
 
 # pylint: disable = unused-wildcard-import, wildcard-import, unused-import
 from abism.util import *
-import abism.util as util
+from abism import util
 
 
 def create_debug_console():
+    """ Main: Fork a debug console window """
     # pylint: disable = too-many-locals
     # Create root
     root = tk.Tk()
@@ -21,7 +24,7 @@ def create_debug_console():
     # frame = tk.Frame(root)
     # frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     text_user = tk.Text(root)
-    text_user.insert(tk.INSERT, "print(sm)")
+    text_user.insert(tk.INSERT, "print(state)")
     text_user.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     text_user.focus_force()
 
@@ -38,7 +41,7 @@ def create_debug_console():
             log(0, cmd)
         else:
             # Some helpers
-            sm = get_state()  # pylint: disable = possibly-unused-variable
+            state = get_state()  # pylint: disable = possibly-unused-variable
             exec(cmd, globals(), locals())
 
     # Pack button frame && Init configure
@@ -67,8 +70,8 @@ def create_debug_console():
     but_list.append(button)
 
     # Pack all
-    for bu in but_list:
-        bu.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+    for button in but_list:
+        button.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
 
     # Go
     root.mainloop()

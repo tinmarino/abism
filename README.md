@@ -7,7 +7,7 @@ i.e. the quality of adaptive optics system on optical telescopes.
 
 ```bash
 # Install Abism
-pip install -U git+https://github.com/tinmarino/abism  # or just `pip install abism` for non-developers
+pip3 install -U git+https://github.com/tinmarino/abism  # or just `pip install abism` for non-developers
 
 # Download a test image
 wget https://github.com/tinmarino/abism/wiki/crowded.fits
