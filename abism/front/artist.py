@@ -8,6 +8,9 @@ Note that all x,y are given for an array, in the image display, x and y must be 
 IDEA: refactor: mutualize more code
 """
 
+# pylint: disable=broad-except
+# pylint: disable=too-many-instance-attributes
+
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -65,8 +68,8 @@ class Annulus(Artist):
         if array is not None:
             self.array = array
 
-        self.ParamDefiner()  # initial parameters, at the end of this file
-        self.Init(None)
+        self.param_definer()  # initial parameters, at the end of this file
+        self.init(None)
         self.connect()
         plt.show()  # otherwise, nothing
 
@@ -77,7 +80,7 @@ class Annulus(Artist):
         self.fig.canvas.mpl_disconnect(self.cid_zoom)
 
     def connect(self):
-        """matplotlib connections, the connections are "self"
+        """ matplotlib connections, the connections are "self"
         because we need to disconnect it (replace connect by disconnect)
         """
         # Motion
@@ -94,27 +97,30 @@ class Annulus(Artist):
 
         # Zoom
         self.cid_zoom = self.fig.canvas.mpl_connect(
-            'draw_event', self.Init)
+            'draw_event', self.init)
 
         ###################
         # EVENTS
         ##################
 
     def on_motion(self, event):
+        """ Event: on motion => move """
         log(9, "annulus detect motion")
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
-        self.Draw()
+        self.draw()
         return
 
     def on_click(self, event):
+        """ Event: on motion => work """
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
         self.callback(self)
 
     def on_press(self, event):
+        """ Event: on motion => redraw """
         if not event.inaxes:
             return
         try:
@@ -126,41 +132,41 @@ class Annulus(Artist):
             if self.num_key == "":
                 self.num_key = 1
             for _ in range(self.num_key):
-                self.Modify(event.key)
+                self.modify(event.key)
             self.num_key = ""
-        self.Draw()
+        self.draw()
         return
 
-    def Modify(self, string):
-        """To modify self parameters, called by AnnulusOnpress"""
+    def modify(self, string):
+        """ To modify self parameters, called by AnnulusOnpress """
         # pylint: disable = too-many-branches
 
-        # rU
-        if string == "r":    # ru
-            self.ru -= 1
+        # radius_u
+        if string == "r":    # radius_u
+            self.radius_u -= 1
             self.inner_u -= 1
             self.outer_u -= 1
-        elif string == "R":   # ru
-            self.ru += 1
+        elif string == "R":   # radius_u
+            self.radius_u += 1
             self.inner_u += 1
             self.outer_u += 1
 
-        # RV
-        elif string == "e":    # ru
+        # radius_v
+        elif string == "e":    # radius_u
             self.rapport /= 1.11
-        elif string == "E":    # ru
+        elif string == "E":    # radius_u
             self.rapport /= 0.9
 
         # OUTER
-        elif string == "o":    # ru
+        elif string == "o":    # radius_u
             self.outer_u -= 1
-        elif string == "O":    # ru
+        elif string == "O":    # radius_u
             self.outer_u += 1
 
         # INNER
-        elif string == "i":    # ru
+        elif string == "i":    # radius_u
             self.inner_u -= 1
-        elif string == "I":    # ru
+        elif string == "I":    # radius_u
             self.inner_u += 1
 
         # THETA ANGLE
@@ -179,7 +185,8 @@ class Annulus(Artist):
         elif string == "right":
             self.y0 += 1
 
-    def RemoveArtist(self, draw=True):
+    def remove_artist(self, draw=True):
+        """ Clear """
         for i in self.artist_list:
             i.remove()
             # try : i.remove()
@@ -188,7 +195,8 @@ class Annulus(Artist):
         if draw:
             self.fig.canvas.draw()
 
-    def DrawArtist(self):
+    def draw_artist(self):
+        """ Draw figure """
         self.fig.canvas.restore_region(self.bg)  # create backup
         for i in self.artist_list:
             self.axe.draw_artist(i)  # create artist
@@ -196,9 +204,9 @@ class Annulus(Artist):
             # except : pass
         self.fig.canvas.blit(self.axe.bbox)  # blit both
 
-    def Init(self, _):
+    def init(self, _):
         """Unused event (bad design)"""
-        self.RemoveArtist(draw=False)  # Important not to draw
+        self.remove_artist(draw=False)  # Important not to draw
         # self.fig.canvas.draw()
         self.bg = self.fig.canvas.copy_from_bbox(self.axe.bbox)
 
@@ -214,51 +222,55 @@ class Annulus(Artist):
             self.axe.add_patch(ell)
             self.artist_list.append(ell)
 
-    def Draw(self):  # All the ellipses
+    def draw(self):  # All the ellipses
         """ Draw inner outer and photometry ellipse """
-        # self.RemoveArtist(draw=False)
+        # self.remove_artist(draw=False)
 
         # theta is the same, just, x and y direction where change by width and
         # height
         theta = 180 * self.theta / np.pi
 
-        def Out(ell):
+        def draw_out(ell):
+            """ Helper: outer range """
             ell.width = 2 * self.outer_u * self.rapport   # array to image invert
             ell.height = 2 * self.outer_u
             ell.center = (self.y0, self.x0)
             ell.angle = theta
             # 'solid' | 'dashed' | 'dashdot' | 'dotted'
 
-        def In(ell):
+        def draw_in(ell):
+            """ Helper: inner range """
             ell.width = 2 * self.inner_u * self.rapport   # array to image invert
             ell.height = 2 * self.inner_u
             ell.center = (self.y0, self.x0)
             ell.angle = theta
 
-        def Ell(ell):
-            ell.width = 2 * self.ru * self.rapport   # array to image invert
-            ell.height = 2 * self.ru
+        def draw_ell(ell):
+            """ Helper: Ellipse """
+            ell.width = 2 * self.radius_u * self.rapport   # array to image invert
+            ell.height = 2 * self.radius_u
             ell.center = (self.y0, self.x0)
             ell.angle = theta
 
-        Out(self.artist_list[0])
-        In(self.artist_list[1])
-        Ell(self.artist_list[2])
+        draw_out(self.artist_list[0])
+        draw_in(self.artist_list[1])
+        draw_ell(self.artist_list[2])
 
-        self.DrawArtist()
+        self.draw_artist()
 
     # called first, all params possible should be here., even if it is just
     # None
 
-    def ParamDefiner(self):
+    def param_definer(self):
+        """ Set paramters at start (hardcode) """
 
         # SPHERE
         self.radius = 10
 
         # ELLIPSE
-        self.ru = 10          # called r (radius)
+        self.radius_u = 10          # called r (radius)
         self.rapport = 1     # called by e (eccentricity)
-        # self.rv = self.ru *self.rapport # stille used by ellipse
+        # self.radius_v = self.radius_u *self.rapport # stille used by ellipse
         self.theta = 0         # called t or a (theta, angle)
 
         # Annnulus
@@ -267,7 +279,7 @@ class Annulus(Artist):
 
 
 class Ellipse(Artist):
-    """Draw an ellipse"""
+    """ Draw an ellipse """
 
     def __init__(self, figure, axe, array=None, callback=None):
         """array is the array called by imshow"""
@@ -280,8 +292,8 @@ class Ellipse(Artist):
         self.zoom_bool = False
         self.bg = None
 
-        self.ParamDefiner()  # initial parameters, at the end of this file
-        self.DrawArtist()
+        self.param_definer()  # initial parameters, at the end of this file
+        self.draw_artist()
         self.connect()
         plt.show()
         # self.fig.canvas.show()  # otherwise, nothing
@@ -314,40 +326,45 @@ class Ellipse(Artist):
             'draw_event', self.on_zoom)
 
     def on_motion(self, event):
+        """ Event: move mouse -> set and redraw ellipse """
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
-        self.Draw()
+        self.draw()
         return
 
     def on_click(self, event):  # mouse click
+        """ Event: click mouse -> work """
         if not event.inaxes:
             return
         self.y0, self.x0 = event.xdata, event.ydata
         self.callback()
 
     def on_press(self, event):
+        """ Event: press mouse -> start pane and zoom """
         # pylint: disable = too-many-locals
         log(5, 'Ellipse receive:', event)
         self.zoom_bool = True
 
         def a_inc():
-            self.ru += 1; self.rv += 1
+            self.radius_u += 1
+            self.radius_v += 1
 
         def a_dec():
-            self.ru -= 1; self.rv -= 1
+            self.radius_u -= 1
+            self.radius_v -= 1
 
         def u_inc():
-            self.ru += 1
+            self.radius_u += 1
 
         def u_dec():
-            self.ru -= 1
+            self.radius_u -= 1
 
         def v_inc():
-            self.rv += 1
+            self.radius_v += 1
 
         def v_dec():
-            self.rv -= 1
+            self.radius_v -= 1
 
         def r_inc():
             self.theta -= 0.174  # 10 degree in rad
@@ -355,19 +372,20 @@ class Ellipse(Artist):
         def r_dec():
             self.theta += 0.174  # 10 degree in rad
 
-        def up():
+        def pane_up():
             self.x0 -= 1
 
-        def down():
+        def pane_down():
             self.x0 += 1
 
-        def left():
+        def pane_left():
             self.y0 -= 1
 
-        def right():
+        def pane_right():
             self.y0 += 1
 
-        def prt(): log(0, vars(self))
+        def prt():
+            log(0, vars(self))
 
         press_dic = {
             # eXpand
@@ -389,21 +407,21 @@ class Ellipse(Artist):
             "o": r_dec,
 
             # position
-            "up": up,
-            "k": up,
-            "J": up,
+            "up": pane_up,
+            "k": pane_up,
+            "J": pane_up,
 
-            "down": down,
-            "j": down,
-            "K": down,
+            "down": pane_down,
+            "j": pane_down,
+            "K": pane_down,
 
-            "left": left,
-            "h": left,
-            "L": left,
+            "left": pane_left,
+            "h": pane_left,
+            "L": pane_left,
 
-            "right": right,
-            "l": right,
-            "H": right,
+            "right": pane_right,
+            "l": pane_right,
+            "H": pane_right,
 
             # Print, like Photon, it is its own anti-command
             "p": prt,
@@ -413,19 +431,21 @@ class Ellipse(Artist):
         if event.key in press_dic:
             press_dic[event.key]()
 
-        self.Draw()
+        self.draw()
         self.zoom_bool = False
 
         return press_dic
 
     def on_zoom(self, _):
+        """ Event: zoom """
         if self.zoom_bool:
             return
 
-        self.RemoveArtist(draw=False)  # Important not to draw if zoom
+        self.remove_artist(draw=False)  # Important not to draw if zoom
         self.bg = self.fig.canvas.copy_from_bbox(self.axe.bbox)
 
-    def RemoveArtist(self, draw=True):
+    def remove_artist(self, draw=True):
+        """ Destroy helper """
         try:
             self.artist.remove()
         except BaseException:
@@ -433,30 +453,33 @@ class Ellipse(Artist):
         if draw:
             self.fig.canvas.draw()
 
-    def DrawArtist(self):
+    def draw_artist(self):
+        """ Draw helper """
         self.fig.canvas.restore_region(self.bg)  # create backup
         if self.zoom_bool:
-            self.RemoveArtist()
+            self.remove_artist()
             self.axe.add_patch(self.artist)  # needed !!
         self.axe.draw_artist(self.artist)  # create artist
         self.fig.canvas.blit(self.axe.bbox)  # s blit both
 
-    def Draw(self):
+    def draw(self):
+        """ Malplotlib binding to draw """
         self.artist.center = (self.y0, self.x0)
-        self.artist.width = 2 * self.rv   # array to image invert
-        self.artist.height = 2 * self.ru
+        self.artist.width = 2 * self.radius_v   # array to image invert
+        self.artist.height = 2 * self.radius_u
         # theta is the same, just, x and y direction where change by width and
         # height
         self.artist.angle = 180 * self.theta / np.pi
-        self.DrawArtist()
+        self.draw_artist()
 
     # called first, all params possible should be here., even if it is just
     # None
-    def ParamDefiner(self):
+    def param_definer(self):
+        """ Init param """
 
         # ELLIPSE
-        self.ru = 20          # called r (radius)
-        self.rv = 20          # called by e (eccentricity)
+        self.radius_u = 20          # called r (radius)
+        self.radius_v = 20          # called by e (eccentricity)
         self.theta = 0         # called t or a (theta, angle)
 
         # facecolor, edgecolor,linestyle,alpha    for out, in , phot
@@ -464,7 +487,7 @@ class Ellipse(Artist):
         self.artist = matplotlib.patches.Ellipse(
             xy=(200, 200), width=100, height=100,
             facecolor=i[0], edgecolor=i[1], linestyle=i[2], alpha=i[3])
-        self.RemoveArtist(draw=False)  # Important not to draw if zoom
+        self.remove_artist(draw=False)  # Important not to draw if zoom
         self.bg = self.fig.canvas.copy_from_bbox(self.axe.bbox)
         self.axe.add_patch(self.artist)  # it works like this so why to ask
 
@@ -474,7 +497,7 @@ class Ellipse(Artist):
 
 
 class Profile(Artist):
-    """Alias Line
+    """ Alias Line
     Callback : recevese self (point1 and point2)
     """
 
@@ -483,12 +506,13 @@ class Profile(Artist):
 
         self.point1 = None
         self.point2 = None
-        self.l = None
+        self.line = None
         self.bg = None
 
         self.connect()
 
     def connect(self):
+        """ Start """
         self.cid_press_event = self.fig.canvas.mpl_connect(
             "button_press_event", self.on_press)
         self.cid_motion_event = self.fig.canvas.mpl_connect(
@@ -497,6 +521,7 @@ class Profile(Artist):
             "button_release_event", self.on_release)
 
     def disconnect(self):
+        """ End """
         try:
             self.fig.canvas.mpl_disconnect(self.cid_press_event)
         except BaseException:
@@ -511,6 +536,7 @@ class Profile(Artist):
             log(3, "artist.profile cannot disconnect release  ")
 
     def on_press(self, event):
+        """ Event: press -> start line """
         # Clause: want axes and not active toolbar
         if not event.inaxes:
             return
@@ -520,47 +546,51 @@ class Profile(Artist):
                    "please unselect its before picking your object")
             return
 
-        self.RemoveArtist(draw=True)  # Important not to draw
+        self.remove_artist(draw=True)  # Important not to draw
         self.point1 = [event.ydata, event.xdata]
         self.bg = self.fig.canvas.copy_from_bbox(self.axe.bbox)
 
-        self.l = matplotlib.lines.Line2D(xdata=(0, 0), ydata=(
+        self.line = matplotlib.lines.Line2D(xdata=(0, 0), ydata=(
             0, 0), linewidth=2, color='red', alpha=1)
-        self.DrawArtist()
+        self.draw_artist()
 
         return
 
     def on_motion(self, event):
+        """ Event: move mouse -> set and redraw artist """
         if self.point1 is None:
             return
         self.point2 = [event.ydata, event.xdata]
         # here we invert because matplotlib take x y and we work in row column
-        self.l.set_data([[self.point1[1], self.point2[1]],
+        self.line.set_data([[self.point1[1], self.point2[1]],
                          [self.point1[0], self.point2[0]]])
-        self.DrawArtist()
+        self.draw_artist()
 
     def on_release(self, _):
+        """ Event: release -> work """
         self.callback(self)
         self.point1 = None
 
-    def RemoveArtist(self, draw=True):
-        if self.l is not None:
+    def remove_artist(self, draw=True):
+        """ Remove line and binding """
+        if self.line is not None:
             try:
                 self.axe.lines.pop(0)
             except BaseException:
                 pass
             try:
-                self.l.remove()  # in case we have no l yet
+                self.line.remove()  # in case we have no l yet
             except BaseException:
                 pass
-        self.l = None
+        self.line = None
         if draw:
             self.fig.canvas.draw()
 
-    def DrawArtist(self):
+    def draw_artist(self):
+        """ Draw line """
         self.fig.canvas.restore_region(self.bg)  # create backup
-        self.axe.add_line(self.l)
-        self.axe.draw_artist(self.l)  # create artist
-        self.l.remove()
+        self.axe.add_line(self.line)
+        self.axe.draw_artist(self.line)  # create artist
+        self.line.remove()
         self.fig.canvas.blit(self.axe.bbox)  # blit both
         # self.fig.canvas.draw_idle()

@@ -51,7 +51,7 @@ def create_debug_console():
 
     # Append Run
     button = tk.Button(
-        bu_frame, text="Run", command=on_run, bg=tk_ext.scheme.solarized_blue)
+        bu_frame, text="Run", command=on_run, bg=tk_ext.SCHEME.solarized_blue)
     but_list.append(button)
 
     # Append clear
@@ -66,7 +66,7 @@ def create_debug_console():
         bu_frame,
         text='QUIT',
         command=root.destroy,
-        bg=tk_ext.scheme.solarized_red)
+        bg=tk_ext.SCHEME.solarized_red)
     but_list.append(button)
 
     # Pack all

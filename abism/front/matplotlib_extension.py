@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 Draggable
 this module is imported from this web site :
@@ -12,6 +14,9 @@ if you want to add a scaling fct, like arctan, you need to add it in "call" and 
 Should remove abism sutff and git to it as params
 """
 
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=broad-except  # To get GUI working
+
 import pylab as plt
 import numpy as np
 from matplotlib.colors import Normalize
@@ -20,7 +25,7 @@ from abism.util import get_state
 
 
 class DraggableColorbar:
-    """The Scrollable colorbar"""
+    """ The Scrollable colorbar """
 
     def __init__(self, cbar, mappable, callback):
         self.cbar = cbar  # the colorbar
@@ -75,7 +80,7 @@ class DraggableColorbar:
             index += 1
         elif event.key == 'up':
             index -= 1
-        elif event.key == 'left' or event.key == "right":
+        elif event.key in ('left', 'right'):
             _r_bool = True
 
         else:
@@ -107,16 +112,16 @@ class DraggableColorbar:
             return
         self.old["norm"] = self.cbar.norm
         yprev = self.press[1]
-        dy = event.y - yprev
+        delta = event.y - yprev
         self.press = event.x, event.y
         scale = self.cbar.norm.vmax - self.cbar.norm.vmin
         perc = 0.1  # initially 0.03
         if event.button == 1:
-            self.cbar.norm.vmin -= (perc * scale) * np.sign(dy)
-            self.cbar.norm.vmax -= (perc * scale) * np.sign(dy)
+            self.cbar.norm.vmin -= (perc * scale) * np.sign(delta)
+            self.cbar.norm.vmax -= (perc * scale) * np.sign(delta)
         elif event.button == 3:
-            self.cbar.norm.vmin -= (perc * scale) * np.sign(dy)
-            self.cbar.norm.vmax += (perc * scale) * np.sign(dy)
+            self.cbar.norm.vmin -= (perc * scale) * np.sign(delta)
+            self.cbar.norm.vmax += (perc * scale) * np.sign(delta)
 
         # Set bounds
         get_state().i_image_max_cut = self.cbar.norm.vmax
@@ -126,28 +131,27 @@ class DraggableColorbar:
         self.callback()
 
     def on_release(self, _):
-        """Reset the press data
+        """ Reset the press data
         Param: event: unused
         """
         self.press = None
 
     def disconnect(self):
-        """disconnect all the stored connection ids"""
+        """ Disconnect all the stored connection ids """
         self.cbar.patch.figure.canvas.mpl_disconnect(self.cidpress)
         self.cbar.patch.figure.canvas.mpl_disconnect(self.cidrelease)
         self.cbar.patch.figure.canvas.mpl_disconnect(self.cidmotion)
 
 
 class MyNormalize(Normalize):
-    '''
-    A Normalize class for imshow that allows different stretching functions
+    """ A Normalize class for imshow that allows different stretching functions
     for astronomical images.
-    '''
+    """
 
     def __init__(self, stretch='linear', exponent=5, vmid=None, vmin=None,
                  vmax=None, clip=False):
         # pylint: disable=too-many-arguments
-        '''
+        """
         Initialize an APLpyNormalize instance.
 
         Optional Keyword Arguments:
@@ -171,7 +175,7 @@ class MyNormalize(Normalize):
             *clip*: [ True | False ]
                 If clip is True and the given value falls outside the range,
                 the returned value will be 0 or 1, whichever is closer.
-        '''
+        """
 
         if vmax < vmin:
             raise Exception("vmax should be larger than vmin")
@@ -249,6 +253,7 @@ class MyNormalize(Normalize):
         return result
 
     def apply_stretch(self, result):
+        """ Apply stretch from user """
         if self.stretch == 'linear':
             pass
 
@@ -270,8 +275,7 @@ class MyNormalize(Normalize):
             result = np.ma.power(result, self.exponent)
 
         else:
-            raise Exception("Unknown stretch in APLpyNormalize: %s" %
-                            self.stretch)
+            raise Exception(f'Unknown stretch in APLpyNormalize: {self.stretch}')
         return result
 
     def inverse(self, value):
@@ -317,38 +321,36 @@ class MyNormalize(Normalize):
             val = np.ma.power(val, (1. / self.exponent))
 
         else:
-
-            raise Exception("Unknown stretch in APLpyNormalize: %s" %
-                            self.stretch)
+            raise Exception(f'Unknown stretch in APLpyNormalize: {self.stretch}')
 
         return vmin + val * (vmax - vmin)
 
 
-def get_center_and_radius(_, ax):
-    """Return center, radius, both are (x, y) tuples
-    Param: event, ax
+def get_center_and_radius(_, axe):
+    """ Return center, radius, both are (x, y) tuples
+    Param: event, axe
     """
     # Get the current x and y limits
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
+    xlim = axe.get_xlim()
+    ylim = axe.get_ylim()
 
     # Measure radius
-    rx = (xlim[1] - xlim[0]) * .5
-    ry = (ylim[1] - ylim[0]) * .5
+    radius_x = (xlim[1] - xlim[0]) * .5
+    radiux_y = (ylim[1] - ylim[0]) * .5
 
     # Measure center
-    cx = xlim[0] + rx
-    cy = ylim[0] + ry
+    center_x = xlim[0] + radius_x
+    center_y = ylim[0] + radiux_y
 
-    return (cx, cy), (rx, ry)
+    return (center_x, center_y), (radius_x, radiux_y)
 
 
-def zoom_handler(event, ax, callback=plt.draw, base_scale=1.2):
-    """Zoom on canvas on event
+def zoom_handler(event, axe, callback=plt.draw, base_scale=1.2):
+    """ Zoom on canvas on event
     Then call callback (to redraw)
     """
     # Get image center and radius
-    center, radius = get_center_and_radius(event, ax)
+    center, radius = get_center_and_radius(event, axe)
 
     # Discriminate in / out
     if event.button == 'up':
@@ -362,24 +364,25 @@ def zoom_handler(event, ax, callback=plt.draw, base_scale=1.2):
         scale_factor = 1
 
     # Set new limits
-    ax.set_xlim([center[0] - radius[0] * scale_factor,
+    axe.set_xlim([center[0] - radius[0] * scale_factor,
                  center[0] + radius[0] * scale_factor])
-    ax.set_ylim([center[1] - radius[1] * scale_factor,
+    axe.set_ylim([center[1] - radius[1] * scale_factor,
                  center[1] + radius[1] * scale_factor])
 
     # Redraw
     callback()
 
 
-def center_handler(event, ax, callback=plt.draw):
+def center_handler(event, axe, callback=plt.draw):
+    """ Action: center image """
     # Get image center and radius
-    _, radius = get_center_and_radius(event, ax)
+    _, radius = get_center_and_radius(event, axe)
     click = (event.xdata, event.ydata)
 
     # Set new limits
-    ax.set_xlim([click[0] - radius[0],
+    axe.set_xlim([click[0] - radius[0],
                  click[0] + radius[0]])
-    ax.set_ylim([click[1] - radius[1],
+    axe.set_ylim([click[1] - radius[1],
                  click[1] + radius[1]])
 
     # Redraw

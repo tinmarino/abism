@@ -1,12 +1,18 @@
-"""
-    Extend some tk class and method for:
-    1. Skin
-    2. Aliases functionality like inseting an abism answer in a text widget
-    Should be imported soon enough
+#!/usr/bin/env python3
 
-    This is faster as moving all to tkk, but if you want to, have a look at:
-    link: https://github.com/fgirault/tkcode <- tkcode a ttk text editor (pretty)
 """
+Extend and MonkeyPatch some tk class and method for:
+1. Skin
+2. Aliases functionality like inseting an abism answer in a text widget
+Should be imported soon enough
+
+This is faster as moving all to tkk, but if you want to, have a look at:
+link: https://github.com/fgirault/tkcode <- tkcode a ttk text editor (pretty)
+"""
+
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=broad-except  # To get GUI working
+
 from enum import Enum
 
 import tkinter as tk
@@ -27,8 +33,7 @@ class Scheme(Enum):
 
 
 class ColorScheme:
-    """Colors"""
-    # pylint: disable=bad-whitespace
+    """ Color scheme container"""
     # pylint: disable=attribute-defined-outside-init
 
     def __init__(self, e_scheme):
@@ -40,7 +45,7 @@ class ColorScheme:
             self.init_light()
 
     def set_solarized_var(self):
-        """Init solarized variables"""
+        """ Init solarized variables """
         self.solarized_base03 = "#002b36"
         self.solarized_base02 = "#073642"
         self.solarized_base01 = "#586e75"
@@ -59,7 +64,7 @@ class ColorScheme:
         self.solarized_green = "#859900"
 
     def init_solarized_default(self):
-        """Dark and light"""
+        """ Dark and light """
         self.sash = self.solarized_blue
         self.quit = self.solarized_red
         self.important = self.solarized_red
@@ -69,34 +74,35 @@ class ColorScheme:
         self.label_title_fg = self.solarized_blue
 
     def init_dark(self):
-        """Solarized dark"""
+        """ Solarized dark """
         self.bg = self.solarized_base02
         self.fg = self.solarized_base2
-        self.bu = self.solarized_base01
+        self.button = self.solarized_base01
         self.bu_hi = self.solarized_base00
         self.label_title_bg = self.solarized_base03
         self.bg_extreme = "#000000"
 
     def init_light(self):
-        """Solarized light"""
+        """ Solarized light """
         self.bg = "#ffffff"  # self.solarized_base3
         self.fg = self.solarized_base03
-        self.bu = self.solarized_base2
+        self.button = self.solarized_base2
         self.bu_hi = self.solarized_base3
         self.label_title_bg = self.solarized_base3
         self.bg_extreme = "#ffffff"
 
 
 # Global waiting for a better idea
-scheme = ColorScheme(Scheme.LIGHT_SOLARIZED)
+SCHEME = ColorScheme(Scheme.LIGHT_SOLARIZED)
 
 
 def get_button_dic():
+    """ Return tkinter style dict from hardcoded scheme above """
     return dict(
         # Custom
-        highlightcolor=scheme.bu_hi,
-        bg=scheme.bu,
-        fg=scheme.fg,
+        highlightcolor=SCHEME.bu_hi,
+        bg=SCHEME.button,
+        fg=SCHEME.fg,
 
         # Always
         bd=3,
@@ -107,7 +113,7 @@ def get_button_dic():
 
 
 def from_dic(victim, dic_getter):
-    """Factory: class from a dic for tk class proxy
+    """ Factory: class from a dic for tk class proxy
     Usurpating a victim (proxified) class calling it in my init
     victim: class proxified
     dic_getter: function to get a dic, if a dic itself: not updatable
@@ -132,7 +138,7 @@ def from_dic(victim, dic_getter):
 
 
 class Button(tk.Button):
-    """Button arguments"""
+    """ Button arguments """
 
     def __init__(self, *args, **kw):
         dic = get_button_dic()
@@ -140,12 +146,13 @@ class Button(tk.Button):
         super().__init__(*args, **dic)
 
     def update_skin(self):
+        """ Redraw whole style """
         # Do not change favourites buttons ...
         if self['bg'] in (
-                scheme.quit,
-                scheme.restart,
-                scheme.parameter1,
-                scheme.parameter2,
+                SCHEME.quit,
+                SCHEME.restart,
+                SCHEME.parameter1,
+                SCHEME.parameter2,
         ):
             return
         self.configure(get_button_dic())
@@ -157,12 +164,13 @@ class Frame(tk.Frame):
     """
 
     def __init__(self, *args, **kw):
-        self.dic_getter = lambda: {'bg': scheme.bg}
+        self.dic_getter = lambda: {'bg': SCHEME.bg}
         dic = self.dic_getter()
         dic.update(kw)
         super().__init__(*args, **dic)
 
     def update_skin(self):
+        """ Redraw whole style """
         log(5, 'Updating skin Label with', self.dic_getter())
         self.configure(**self.dic_getter())
         self.set_figure_skin()
@@ -171,30 +179,31 @@ class Frame(tk.Frame):
         """Update skin, caller must redraw"""
         if '_fig' not in vars(self):
             return
-        fg = scheme.fg
-        bg = scheme.bg
+        fg = SCHEME.fg
+        bg = SCHEME.bg
 
         # Figure
+        # pylint: disable=no-member  # MPL
         self._fig.set_facecolor(bg)
 
-        # Ax
-        for ax in self._fig.axes:
+        # Axe
+        for axe in self._fig.axes:
             # Spine
-            ax.spines['bottom'].set_color(fg)
-            ax.spines['top'].set_color(fg)
-            ax.spines['right'].set_color(fg)
-            ax.spines['left'].set_color(fg)
+            axe.spines['bottom'].set_color(fg)
+            axe.spines['top'].set_color(fg)
+            axe.spines['right'].set_color(fg)
+            axe.spines['left'].set_color(fg)
 
             # Tick
-            ax.tick_params(axis='x', colors=fg)
-            ax.tick_params(axis='y', colors=fg)
+            axe.tick_params(axis='x', colors=fg)
+            axe.tick_params(axis='y', colors=fg)
 
             # Label
-            ax.yaxis.label.set_color(fg)
-            ax.xaxis.label.set_color(fg)
+            axe.yaxis.label.set_color(fg)
+            axe.xaxis.label.set_color(fg)
 
             # Title
-            ax.title.set_color(fg)
+            axe.title.set_color(fg)
 
         # Redraw
         self._fig.canvas.draw()
@@ -204,45 +213,45 @@ tk.Button = Button
 tk.Frame = Frame
 
 TitleLabel = from_dic(tk.Label, lambda: {
-    'bg': scheme.label_title_bg,
-    'fg': scheme.label_title_fg,
+    'bg': SCHEME.label_title_bg,
+    'fg': SCHEME.label_title_fg,
     'font': tk.font.Font(size=10),
     'padx': 3,
-    'highlightbackground': scheme.label_title_fg,
-    'highlightcolor': scheme.label_title_fg,
+    'highlightbackground': SCHEME.label_title_fg,
+    'highlightcolor': SCHEME.label_title_fg,
     'highlightthickness': 1,
 })
 
 tk.Menubutton = from_dic(tk.Menubutton, lambda: {
-    'bg': scheme.bg, 'fg': scheme.fg, 'width': 8, 'relief': tk.FLAT
+    'bg': SCHEME.bg, 'fg': SCHEME.fg, 'width': 8, 'relief': tk.FLAT
 })
 
 tk.Checkbutton = from_dic(tk.Checkbutton, lambda: {
     **get_button_dic(),
-    'bg': scheme.bg, 'anchor': 'w', 'selectcolor': scheme.bg_extreme
+    'bg': SCHEME.bg, 'anchor': 'w', 'selectcolor': SCHEME.bg_extreme
 })
 
 tk.PanedWindow = from_dic(tk.PanedWindow, lambda: {
-    'bg': scheme.sash, 'sashwidth': 2, 'sashpad': 0,
+    'bg': SCHEME.sash, 'sashwidth': 2, 'sashpad': 0,
     'showhandle': 0, 'borderwidth': 0, 'sashrelief': tk.RAISED
 })
 
 tk.Text = from_dic(tk.Text, lambda: {
-    'bg': scheme.bg, 'fg': scheme.fg, 'font': tk.font.Font(size=12),
+    'bg': SCHEME.bg, 'fg': SCHEME.fg, 'font': tk.font.Font(size=12),
     'padx': 12, 'pady': 12,
     'highlightthickness': 0, 'borderwidth': 0, 'relief': tk.FLAT,
 })
 
-tk.Scrollbar = from_dic(tk.Scrollbar, lambda: {'bg': scheme.bu})
+tk.Scrollbar = from_dic(tk.Scrollbar, lambda: {'bg': SCHEME.button})
 
-tk.Canvas = from_dic(tk.Canvas, lambda: {'bg': scheme.bu})
+tk.Canvas = from_dic(tk.Canvas, lambda: {'bg': SCHEME.button})
 
 tk.Entry = from_dic(tk.Entry, lambda: {
-    'bg': scheme.bg, 'fg': scheme.fg, 'bd': 0
+    'bg': SCHEME.bg, 'fg': SCHEME.fg, 'bd': 0
 })
 
 tk.Label = from_dic(tk.Label, lambda: {
-    'bg': scheme.bg, 'fg': scheme.fg
+    'bg': SCHEME.bg, 'fg': SCHEME.fg
 })
 
 
@@ -256,7 +265,7 @@ def children_do(widget, callback):
 
 
 def update_widget_skin(widget):
-    """Update the skin of a widget"""
+    """ Update the skin of a widget """
     log(9, 'Updating:', widget.__class__.__name__)
 
     custom_call = getattr(widget, 'update_skin', None)
@@ -265,16 +274,17 @@ def update_widget_skin(widget):
         log(9, 'And is instance of PlotFrame ------------')
     else:
         widget.configure(
-            bg=scheme.bg,
-            fg=scheme.fg
+            bg=SCHEME.bg,
+            fg=SCHEME.fg
         )
 
 
 def change_root_scheme(in_scheme):
+    """ Change the style of root widget => all """
     # pylint: disable = global-statement
-    global scheme
+    global SCHEME
     root = get_root()
-    scheme = ColorScheme(in_scheme)
+    SCHEME = ColorScheme(in_scheme)
     for widget in (root, *root.saved_children):
         children_do(widget, update_widget_skin)
 
@@ -285,7 +295,7 @@ def change_root_scheme(in_scheme):
 
 
 class HoverInfo:
-    """Helper class to show a label when mouse on a widget
+    """ Helper class to show a label when mouse on a widget
     Alais toolTip by its author
     """
 
@@ -310,9 +320,9 @@ class HoverInfo:
             return
 
         # Calculate position
-        self.x, self.y, cx, cy = self.widget.bbox("insert")
-        self.x += cx + self.widget.winfo_rootx() + 130
-        self.y += cy + self.widget.winfo_rooty() + 20
+        self.x, self.y, x_offset, y_offset = self.widget.bbox("insert")
+        self.x += x_offset + self.widget.winfo_rootx() + 130
+        self.y += y_offset + self.widget.winfo_rooty() + 20
         if index is not None:
             self.x += self.widget.xposition(index)
             self.y += self.widget.yposition(index)
@@ -321,7 +331,7 @@ class HoverInfo:
         self.widget.after(300, self.show_now)
 
     def show_now(self):
-        """Display text in tooltip window"""
+        """ Display text in tooltip window """
         # Check in: maybe too late, if user left -> hide triggered
         if not self.on_work:
             return
@@ -332,7 +342,7 @@ class HoverInfo:
         # Create widget toplevel
         self.tipwindow = tk.Toplevel(self.widget)
         self.tipwindow.wm_overrideredirect(1)
-        self.tipwindow.wm_geometry("+%d+%d" % (self.x, self.y))
+        self.tipwindow.wm_geometry(f'+{self.x:d}+{self.y:d}')
 
         # Pack label
         label = tk.Label(
@@ -342,7 +352,7 @@ class HoverInfo:
         label.pack(ipadx=1)
 
     def hide(self):
-        """Hide hover info window"""
+        """ Hide hover info window """
         # Block tip creation until new event
         self.on_work = False
 
@@ -354,6 +364,7 @@ class HoverInfo:
 
 
 def tk_bind_widget_hover(self):
+    """ Bind widget on mouse hover event """
     def enter(_):
         self.hover_info.hide()
         self.hover_info.show(self.hover_text)
@@ -365,7 +376,7 @@ def tk_bind_widget_hover(self):
 
 
 def tk_set_hover_info(self, text):
-    """Set hover info to widget"""
+    """ Set hover info to widget """
     self.hover_info = HoverInfo(self)
     self.hover_text = text
     self.bind_widget_hover()
@@ -377,7 +388,7 @@ tk.Widget.set_hover_info = tk_set_hover_info
 
 
 def on_menu_hover(self):
-    """Callback: On <<MenuSelect>>
+    """ Callback: On <<MenuSelect>>
     called by add_entry_info
     """
     index_active = self.index(tk.ACTIVE)
@@ -390,6 +401,7 @@ def on_menu_hover(self):
 
 
 def bind_menu_hover(self):
+    """ Bind menu on mouse hover """
     self.bind("<<MenuSelect>>", lambda _: self.on_menu_hover())
     self.bind("<Leave>", lambda _: self.hover_info.hide())
     self.bind("<FocusOut>", lambda _: self.hover_info.hide())
@@ -397,7 +409,7 @@ def bind_menu_hover(self):
 
 
 def add_entry_info(self, text):
-    """Add info to last entry"""
+    """ Add info to last entry """
     idx = self.index(tk.END)
     if 'idx_text' not in vars(self):
         self.idx_text = {}
@@ -421,8 +433,8 @@ tk.Menu.on_menu_hover = on_menu_hover
 tk.Tk_save = tk.Tk
 
 
-class tk_Tk(tk.Tk_save):
-    """A root that is added tho children and remove on delete"""
+class TkTk(tk.Tk_save):
+    """ The monkey patched root that is added to children and remove on delete """
 
     def __init__(self):
         super().__init__()
@@ -441,4 +453,4 @@ class tk_Tk(tk.Tk_save):
             self.bind_all(text, cmd)
 
 
-tk.Tk = tk_Tk
+tk.Tk = TkTk

@@ -1,7 +1,12 @@
+#!/usr/bin/env python3
+
 """
-    Pick star and call back
-    Used by menu_bar.py
+Pick star and call back
+Used by menu_bar.py
 """
+
+# pylint: disable=broad-except
+
 from abc import ABC, abstractmethod
 
 import matplotlib
@@ -115,16 +120,23 @@ class Pick(ABC):
 
 
 class PickNo(Pick):
-    """Void class to do nothing"""
+    """ Void class to do nothing, so remove bindings """
 
-    def connect(self): pass
-    def disconnect(self): pass
-    def work(self, obj): pass
-    def on_done(self): pass
+    def connect(self):
+        """ Dummy """
+
+    def disconnect(self):
+        """ Dummy """
+
+    def work(self, obj):
+        """ Dummy """
+
+    def on_done(self):
+        """ Dummy """
 
 
 class PickOne(Pick):
-    """Pick One Star
+    """ Pick One Star
     This button should be green and the zoom button of the image toolbar
     unpressed. If it is pressed, click again on it. You then have to draw a
     rectangle around the star to measure the strehl ratio around this star.  A
@@ -154,6 +166,7 @@ class PickOne(Pick):
         log(0, "\n\n\n________________________________\n|Pick One|:\n"
             "    1/Draw a rectangle around your star with left button\n"
             "    2/Click on star 'center' with right button")
+        # pylint: disable=unexpected-keyword-arg
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
             self.axe,
             self.on_rectangle, drawtype='box',
@@ -293,13 +306,16 @@ class PickStat(Pick):
             "|Pick Stat| : draw a rectangle around a region and ABISM "
             "will give you some statistical information "
             "computed in the region-------------------")
+        # pylint: disable=unexpected-keyword-arg
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
             self.axe, self.on_rectangle, drawtype='box', rectprops=dict(
                 facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
-    def work(self, obj): pass
+    def work(self, obj):
+        """ I will work with on_done """
 
     def on_done(self):
+        """ When ready show the stat in answer frame """
         show_statistic(self.rectangle)
 
 
@@ -331,7 +347,7 @@ class PickProfile(Pick):
         if not self.artist_profile:
             return
         self.artist_profile.disconnect()
-        self.artist_profile.RemoveArtist()
+        self.artist_profile.remove_artist()
         self.artist_profile = None
 
     def work(self, obj):
@@ -376,7 +392,7 @@ class PickEllipse(Pick):
         if not self.artist_ellipse:
             return
         self.artist_ellipse.disconnect()
-        self.artist_ellipse.RemoveArtist()
+        self.artist_ellipse.remove_artist()
         self.artist_ellipse = None
 
     def work(self, _):

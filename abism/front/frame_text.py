@@ -1,12 +1,20 @@
-"""
-    The Tkinter Frame For text / butto ninterface (left)
-
-    Label
-    Option
-    Answer
+#!/usr/bin/env python3
 
 """
+The Tkinter Frame For text / butto ninterface (left)
+
+Label
+Option
+Answer
+"""
+
+# pylint: disable=too-many-lines  # TODO this should be refactored
+# pylint: disable=broad-except  # To get GUI working
+# pylint: disable=too-many-ancestors  # tkinter
+# pylint: disable=consider-using-f-string  # old code
+
 import re
+from math import isnan  # Avoid fail in label
 
 import tkinter as tk
 
@@ -19,7 +27,7 @@ from abism.util import log, get_root, quit_process, restart, get_state, \
 
 
 class LeftFrame(tk.Frame):
-    """Full Container"""
+    """ Full Container """
 
     def __init__(self, root, parent):
         # Append self -> parent
@@ -79,6 +87,7 @@ class TextFrame(tk.Frame):
 
         # Place a label for the eye
         if add_title:
+            # pylint: disable=no-member  # Yes I can place
             tk_ext.TitleLabel(self, text=self._label_text).place(x=0, y=0)
 
         # Place last widget
@@ -220,7 +229,6 @@ class LabelFrame(TextFrame):
         text_n_props.append((lbl, {}))
 
         # Header reads Strehl variables ?
-        from math import isnan
         bolt = isnan(get_root().header.diameter)
         bolt = bolt or isnan(get_root().header.wavelength)
         bolt = bolt or isnan(get_root().header.obstruction)
@@ -258,7 +266,8 @@ class LabelFrame(TextFrame):
 
 
 class OptionFrame(TextFrame):
-    """Some conf"""
+    """ Some configuration container """
+    # pylint: disable=too-many-instance-attributes  # this is conf
 
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
@@ -287,6 +296,7 @@ class OptionFrame(TextFrame):
     #############################################################
 
     def toggle_image_parameter(self):
+        """ Action: Toggle the image parameter frame """
         self.see_image_parameter = not self.see_image_parameter
         if self.see_image_parameter:
             self.open_image_parameter()
@@ -297,8 +307,9 @@ class OptionFrame(TextFrame):
 
     @staticmethod
     def get_image_parameter_list():
+        """ Helper: Return the list of image parameter fields """
         return [
-            [u'Wavelength* [\u03BCm]:', 'wavelength', float('nan')],
+            ['Wavelength* [\u03BCm]:', 'wavelength', float('nan')],
             ["Pixel scale* [''/pix]: ", 'pixel_scale', float('nan')],
             ["Diameter* [m]:", 'diameter', float('nan')],
             ["Obstruction (d2/d1)* [%]:", 'obstruction', float('nan')],
@@ -307,7 +318,7 @@ class OptionFrame(TextFrame):
         ]
 
     def set_image_parameter(self):
-        """Set imageparameter, labels"""
+        """ Fill imageparameter labels """
         log(0, "New image parameters:")
         for label, key, badvalue in self.get_image_parameter_list():
             value = float(self.image_parameter_entry_dic[key].get())
@@ -326,13 +337,15 @@ class OptionFrame(TextFrame):
         get_root().frame_label.update_label()
 
     def open_image_parameter(self):
+        """ Open the image parameter frame """
         # Grid new frame
         self.frame_image_parameter = tk.Frame(self)
         self.frame_image_parameter.grid(sticky='nsew')
 
         # Pack title
-        tl = tk_ext.TitleLabel(self.frame_image_parameter, text='Parameters')
-        tl.pack(side=tk.TOP, anchor="w")
+        title_label = tk_ext.TitleLabel(self.frame_image_parameter, text='Parameters')
+        # pylint: disable=no-member  # Yes I can pack
+        title_label.pack(side=tk.TOP, anchor="w")
 
         # Pack grid frame
         frame_manual_grid = tk.Frame(self.frame_image_parameter)
@@ -378,6 +391,7 @@ class OptionFrame(TextFrame):
         self.init_will_toggle(visible=True, add_title=False)
 
     def close_image_parameter(self):
+        """ Close the image parameter frame """
         self.frame_image_parameter.destroy()
         self.will_update_sash()
 
@@ -385,7 +399,7 @@ class OptionFrame(TextFrame):
     #############################################################
 
     def toggle_manual_cut(self):
-        """Stupid switch"""
+        """ Toggle the manual cut frame """
         self.see_manual_cut = not self.see_manual_cut
         log(5, "Manual Cut see me ?", self.see_manual_cut)
         if self.see_manual_cut:
@@ -394,13 +408,15 @@ class OptionFrame(TextFrame):
             self.close_manual_cut()
 
     def open_manual_cut(self):
+        """ Open the manual cut frame """
         # Grid main
         self.frame_manual_cut = tk.Frame(self)
         self.frame_manual_cut.grid(sticky='nsew')
 
         # Pack title
-        lt = tk_ext.TitleLabel(self.frame_manual_cut, text="Cut image scale")
-        lt.pack(side=tk.TOP, anchor="w")
+        title_label = tk_ext.TitleLabel(self.frame_manual_cut, text="Cut image scale")
+        # pylint: disable=no-member  # Yes I can pack
+        title_label.pack(side=tk.TOP, anchor="w")
 
         # Pack rest
         parent = tk.Frame(self.frame_manual_cut)
@@ -422,20 +438,20 @@ class OptionFrame(TextFrame):
                ["Min cut", get_state().i_image_min_cut]]
         for text, value in lst:
             # Label
-            l = tk.Label(parent, text=text)
-            l.grid(column=0, sticky="snew")
+            label = tk.Label(parent, text=text)
+            label.grid(column=0, sticky="snew")
 
             # Entry
             string_var = tk.StringVar()
             string_var.set("%.1f" % value)
             string_vars.append(string_var)
-            e = tk.Entry(parent, width=10, textvariable=string_var)
-            e.grid(column=1, sticky="nsew")
-            e.bind('<Return>', set_cuts)
+            entry = tk.Entry(parent, width=10, textvariable=string_var)
+            entry.grid(column=1, sticky="nsew")
+            entry.bind('<Return>', set_cuts)
 
         # Grid close
         bu_close = tk.Button(
-            parent, text=u'\u25b4 ' + 'Close',
+            parent, text='\u25b4 ' + 'Close',
             command=self.close_manual_cut)
         bu_close.grid(column=0, columnspan=2)
 
@@ -443,6 +459,7 @@ class OptionFrame(TextFrame):
         self.init_will_toggle(visible=True, add_title=False)
 
     def close_manual_cut(self):
+        """ Close the manual cut frame """
         self.frame_manual_cut.destroy()
         self.will_update_sash()
 
@@ -450,6 +467,7 @@ class OptionFrame(TextFrame):
     #############################################################
 
     def toggle_more_analysis(self, parent=None):
+        """ Toggle the more frame """
         self.see_more_analysis = not self.see_more_analysis
 
         # Keep ref to change label
@@ -467,6 +485,7 @@ class OptionFrame(TextFrame):
 
     @staticmethod
     def grid_more_checkbuttons(frame):
+        """ Helper to open the more frame """
         # Define callback
         def on_change_aniso(int_var):
             get_state().b_aniso = int_var.get()
@@ -509,11 +528,11 @@ class OptionFrame(TextFrame):
             check.grid(column=0, columnspan=2, sticky='nwse')
 
     def is_more_analysis_visible(self):
-        """Used by menu bar"""
+        """ Used by menu bar """
         return self.see_more_analysis
 
     def open_more_analysis(self):
-        """Create More Frame"""
+        """ Open the more frame """
         # Grid root
         self.frame_more_analysis = tk.Frame(
             get_root().frame_option)
@@ -522,6 +541,7 @@ class OptionFrame(TextFrame):
         # Pack title
         label_more = tk_ext.TitleLabel(
             self.frame_more_analysis, text="More Options")
+        # pylint: disable=no-member  # Yes I can pack
         label_more.pack(side=tk.TOP, anchor="w")
 
         # Pack rest
@@ -540,7 +560,7 @@ class OptionFrame(TextFrame):
         # Grid Menu: set photometric type
         def create_phot_menu(frame):
             menu_phot = tk.Menubutton(
-                frame, text=u'\u25be ' + 'Photometry',
+                frame, text='\u25be ' + 'Photometry',
                 relief=tk.RAISED)
             menu_phot.menu = tk.Menu(menu_phot, tearoff=False)
             menu_phot['menu'] = menu_phot.menu
@@ -571,9 +591,10 @@ class OptionFrame(TextFrame):
 
         # Grid menu: set noise type (or background estimation)
         def create_noise_menu(frame):
+            """ Open the noise sub menu """
             # Root
             menu = tk.Menubutton(
-                frame, text=u'\u25be ' + 'Background',
+                frame, text='\u25be ' + 'Background',
                 relief=tk.RAISED)
             menu.menu = tk.Menu(menu, tearoff=False)
             menu['menu'] = menu.menu
@@ -613,7 +634,7 @@ class OptionFrame(TextFrame):
         self.__class__.grid_more_checkbuttons(frame_more_grid)
 
         bu_close = tk.Button(
-            frame_more_grid, text=u'\u25b4 ' + 'Close',
+            frame_more_grid, text='\u25b4 ' + 'Close',
             command=self.toggle_more_analysis)
         bu_close.grid(column=0, columnspan=2)
 
@@ -621,7 +642,7 @@ class OptionFrame(TextFrame):
         self.init_will_toggle(visible=True, add_title=False)
 
     def close_more_analysis(self):
-        """Close the Frame"""
+        """ Close the Frame """
         if not self.frame_more_analysis:
             return
 
@@ -637,7 +658,7 @@ class OptionFrame(TextFrame):
     #############################################################
 
     def toggle_manual_background(self):
-        """Create manual background frame"""
+        """ Toggle the manual background frame """
         self.see_manual_background = not self.see_manual_background
         if self.see_manual_background:
             self.open_manual_background()
@@ -645,6 +666,7 @@ class OptionFrame(TextFrame):
             self.close_manual_background()
 
     def open_manual_background(self):
+        """ Open the manual background frame """
         get_state().e_sky_type = ESky.MANUAL
 
         # Grid root
@@ -675,7 +697,7 @@ class OptionFrame(TextFrame):
         # Grid close button
         button = tk.Button(
             self.frame_manual_background,
-            text=u'\u25b4 ' + 'Close',
+            text='\u25b4 ' + 'Close',
             command=self.close_manual_background)
         button.grid(row=1, column=0, columnspan=2)
 
@@ -683,6 +705,7 @@ class OptionFrame(TextFrame):
         self.init_will_toggle(visible=True, add_title=False)
 
     def close_manual_background(self):
+        """ Close the manual background frame """
         if not self.see_manual_background:
             return
         self.frame_manual_background.destroy()
@@ -690,7 +713,7 @@ class OptionFrame(TextFrame):
 
 
 class AnswerFrame(TextFrame):
-    """Some conf"""
+    """ Some configuration for the frane with the results """
 
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
@@ -707,16 +730,17 @@ class AnswerFrame(TextFrame):
         self.init_after()
 
     def init_after(self, add_title=True):
-        """Add fit type label"""
+        """ Add fit type label """
         # Title left
         label = tk_ext.TitleLabel(self, text=self._label_text)
+        # pylint: disable=no-member  # Yes I can pack
         label.grid(row=0, column=0, sticky=tk.W)
 
         # Add also standard above
         super().init_after(add_title=False)
 
     def grid_text_answer(self):
-        """Grid tk text for results
+        """ Grid tk text for results
         Return: tk text to be filled
         """
         # Create text
@@ -733,9 +757,9 @@ class AnswerFrame(TextFrame):
 
         # Configure Text
         text.bind("<Configure>", on_resize_text)
-        text.tag_configure('tag-important', foreground=tk_ext.scheme.important)
+        text.tag_configure('tag-important', foreground=tk_ext.SCHEME.important)
         text.tag_configure('tag-center', justify=tk.CENTER)
-        text.tag_configure('tag-blue', foreground=tk_ext.scheme.solarized_blue)
+        text.tag_configure('tag-blue', foreground=tk_ext.SCHEME.solarized_blue)
 
         # Grid text
         text.grid(row=2, columnspan=4, sticky='new')
@@ -743,7 +767,7 @@ class AnswerFrame(TextFrame):
         return text
 
     def grid_top_button(self, conversion_callback):
-        """Grid coordinate conversion and Show fit dic"""
+        """ Grid coordinate conversion and Show fit dic """
         # Fit type middle
         fit_type_label = tk.Label(
             self, justify=tk.CENTER, text=get_state().s_fit_type)
@@ -751,10 +775,10 @@ class AnswerFrame(TextFrame):
 
         # Declare button info
         if get_state().s_answer_unit == "detector":
-            s_button = u"\u21aa" + 'To sky     '
+            s_button = "\u21aa" + 'To sky     '
             s_label = "In detector units"
         else:
-            s_button = u"\u21aa" + 'To detector'
+            s_button = "\u21aa" + 'To detector'
             s_label = "In sky units"
 
         def on_change_coord():
@@ -788,7 +812,7 @@ class AnswerFrame(TextFrame):
 
         # Show fit dctionary
         self.bu_fit = tk.Button(
-            self, text=u'\u25be Show Fit Param',
+            self, text='\u25be Show Fit Param',
             command=on_toggle_param)
 
         get_root().bind_all(
@@ -798,6 +822,7 @@ class AnswerFrame(TextFrame):
         self.bu_fit.grid(row=0, column=2)
 
     def get_new_text_frame(self, conversion_callback):
+        """ Open new frame """
         # Save visibility
         b_show_fit_param = self.text_fit_param is not None
 
@@ -814,7 +839,8 @@ class AnswerFrame(TextFrame):
         return text
 
     def open_fit_param(self):
-        self.bu_fit.configure(text=u'\u25b4 Hide Fit Param')
+        """ Open fit parameter frame """
+        self.bu_fit.configure(text='\u25b4 Hide Fit Param')
         self.text_fit_param = tk.Text(self)
         self.text_fit_param.grid(row=2, columnspan=4, sticky='new')
 
@@ -825,8 +851,9 @@ class AnswerFrame(TextFrame):
             self.i_tab_1 * 12, tk.LEFT, self.i_tab_2 * 12, tk.LEFT))
 
     def close_fit_param(self):
+        """ Close fit parameter frame """
         try:
-            self.bu_fit.configure(text=u'\u25be Show Fit Param')
+            self.bu_fit.configure(text='\u25be Show Fit Param')
             self.text_fit_param.destroy()
         except BaseException:
             pass
@@ -845,13 +872,13 @@ class ButtonFrame(tk.Frame):
         opts = {}
 
         # Create Quit
-        opts.update({'background': tk_ext.scheme.quit})
+        opts.update({'background': tk_ext.SCHEME.quit})
         bu_quit = tk.Button(
             self, text='QUIT',
             command=quit_process, **opts)
 
         # Create Restart
-        opts.update({'background': tk_ext.scheme.restart})
+        opts.update({'background': tk_ext.SCHEME.restart})
         bu_restart = tk.Button(
             self, text='RESTART',
             command=restart, **opts)
@@ -860,9 +887,9 @@ class ButtonFrame(tk.Frame):
             "<C-R>: Restart Absim with the same command line")
 
         # Create Expand Image Parameter
-        opts.update({'background': tk_ext.scheme.parameter1})
+        opts.update({'background': tk_ext.SCHEME.parameter1})
         self.bu_manual = tk.Button(
-            self, text=u'\u25be ' + 'ImageParameters',
+            self, text='\u25be ' + 'ImageParameters',
             command=get_root().frame_option.toggle_image_parameter, **opts)
         get_root().bind_all(
             "<Control-i>",
@@ -880,15 +907,17 @@ class ButtonFrame(tk.Frame):
         self.bu_manual.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
     def config_button_image_less(self):
-        self.bu_manual['background'] = tk_ext.scheme.parameter2
-        self.bu_manual['text'] = u'\u25b4 ImageParameters'
+        """ Configure button less unicode """
+        self.bu_manual['background'] = tk_ext.SCHEME.parameter2
+        self.bu_manual['text'] = '\u25b4 ImageParameters'
 
     def config_button_image_more(self):
-        self.bu_manual['background'] = tk_ext.scheme.parameter1
-        self.bu_manual['text'] = u'\u25be ImageParameters'
+        """ Configure button more unicode """
+        self.bu_manual['background'] = tk_ext.SCHEME.parameter1
+        self.bu_manual['text'] = '\u25be ImageParameters'
 
     def toggle_cube(self):
-        """Prepare Cube buttons"""
+        """ Prepare Cube buttons """
         # Try to destroy if not a cube
         # Create a cube interface else
         if not get_state().image.is_cube:
@@ -898,12 +927,14 @@ class ButtonFrame(tk.Frame):
             self.open_cube()
 
     def close_cube(self):
+        """ Close cube frame """
         try:
             self.frame_cube.destroy()
         except BaseException:
             pass
 
     def open_cube(self):
+        """ Open cube frame """
         # Gird Frame
         self.frame_cube = tk.Frame(self)
         self.frame_cube.grid(sticky='nsew', columnspan=2)
@@ -911,8 +942,9 @@ class ButtonFrame(tk.Frame):
         # Conf && ad title
         for i in range(3):
             self.frame_cube.columnconfigure(i, weight=1)
-        lt = tk_ext.TitleLabel(self.frame_cube, text="Cube Number")
-        lt.grid(row=0, column=0, columnspan=3, sticky="w")
+        title_label = tk_ext.TitleLabel(self.frame_cube, text="Cube Number")
+        # pylint: disable=no-member  # Yes I can pack
+        title_label.grid(row=0, column=0, columnspan=3, sticky="w")
 
         # Define tk variable (1 based)
         int_var = tk.IntVar()
@@ -937,9 +969,9 @@ class ButtonFrame(tk.Frame):
                 cube_num = 1
 
             # Get limits
-            ax = get_root().frame_image.get_figure().axes[0]
-            xlim = ax.get_xlim()
-            ylim = ax.get_ylim()
+            axe = get_root().frame_image.get_figure().axes[0]
+            xlim = axe.get_xlim()
+            ylim = axe.get_ylim()
             print(xlim, ylim)
 
             # Set and update
@@ -949,9 +981,9 @@ class ButtonFrame(tk.Frame):
             get_root().frame_image.draw_image(new_fits=False)
 
             # Set limits
-            ax = get_root().frame_image.get_figure().axes[0]
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
+            axe = get_root().frame_image.get_figure().axes[0]
+            axe.set_xlim(xlim)
+            axe.set_ylim(ylim)
 
             # Refresh
             get_root().frame_image.refresh_image()

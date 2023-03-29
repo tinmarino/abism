@@ -1,6 +1,11 @@
+#!/usr/bin/env python3
+
 """
-    Create Menu bar <- MenuBarMaker
+Create Menu bar <- MenuBarMaker
 """
+
+# pylint:disable=too-many-ancestors  # tkinter
+
 import re
 
 import tkinter as tk
@@ -52,7 +57,7 @@ class ButtonMenu(tk.Menubutton):
 
     def __init__(self, parent):
         # Prepare argument dic
-        l_args = {'text': u"\u25be" + self.get_text()}
+        l_args = {'text': '\u25be' + self.get_text()}
 
         # Init
         super().__init__(parent, **l_args)
@@ -65,11 +70,12 @@ class ButtonMenu(tk.Menubutton):
 
     @abstractmethod
     def get_text(self):
+        """ Return text of the menu button """
         return ''
 
 
 class AbismMenu(ButtonMenu):
-    """ABISM"""
+    """ ABISM """
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -102,7 +108,7 @@ class AbismMenu(ButtonMenu):
         return 'ABISM'
 
     def get_colorscheme_cascade(self):
-        """Create the submenu"""
+        """ Create the submenu """
         menu = tk.Menu(self)
 
         menu.add_radiobutton(
@@ -119,10 +125,10 @@ class AbismMenu(ButtonMenu):
 
 
 class FileMenu(ButtonMenu):
-    """Open new file"""
+    """ Open new file """
 
     def __init__(self, parent):
-        """Menu, open_image, header
+        """ Menu, open_image, header
             args is a dictionary containing the arguments to make all menuENtry
             identical, logical, responsible, practical
         """
@@ -158,7 +164,7 @@ class FileMenu(ButtonMenu):
 
 
 class AnalysisMenu(ButtonMenu):
-    """Fit, Pick <- Choose Star analysis method"""
+    """ Fit, Pick <- Choose Star analysis method """
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -169,6 +175,7 @@ class AnalysisMenu(ButtonMenu):
         self.add_pick_menu()
 
     def add_fit_menu(self):
+        """ Add the Fit type menu button """
         self.menu.add_command(
             label="Fit Type", bg=None, state=tk.DISABLED)
 
@@ -191,7 +198,7 @@ class AnalysisMenu(ButtonMenu):
 
         # Add button more options
         self.menu.add_command(
-            label=u"\u25be More Options",
+            label='\u25be More Options',
             command=on_more)
         self.menu.add_entry_info(
             "<C-M>: Display additional frame for more options")
@@ -201,6 +208,7 @@ class AnalysisMenu(ButtonMenu):
         self.index_more = self.menu.index(tk.END)
 
     def add_pick_menu(self):
+        """ Add the "pick type" menu button """
         self.menu.add_command(
             label="Pick Object(s)", bg=None, state=tk.DISABLED, columnbreak=1)
 
@@ -222,7 +230,8 @@ class AnalysisMenu(ButtonMenu):
         ]
 
         for text, enum, info, keys in lst2:
-            def cmd(enum=enum): return refresh_pick(enum)
+            def cmd(enum=enum):
+                return refresh_pick(enum)
             self.menu.add_radiobutton(
                 label=text, command=cmd,
                 variable=get_state().tk_pick, value=enum)
@@ -238,12 +247,12 @@ class AnalysisMenu(ButtonMenu):
         if get_root().frame_option.is_more_analysis_visible():
             self.menu.entryconfig(
                 self.index_more,
-                label=u'\u25b4 ' +
+                label='\u25b4 ' +
                 'Less Option')
         else:
             self.menu.entryconfig(
                 self.index_more,
-                label=u'\u25be ' +
+                label='\u25be ' +
                 'More Option')
 
 
@@ -393,29 +402,32 @@ class ToolMenu(ButtonMenu):
         super().__init__(parent)
 
         # Profile
-        def cmd(): return refresh_pick(EPick.PROFILE)
+        def profile_cmd():
+            return refresh_pick(EPick.PROFILE)
         self.menu.add_radiobutton(
-            label='Profile', command=cmd,
+            label='Profile', command=profile_cmd,
             variable=get_state().tk_pick, value=EPick.PROFILE)
-        get_root().bind_all("<Control-p>p", lambda _, cmd=cmd: cmd())
+        get_root().bind_all("<Control-p>p", lambda _, cmd=profile_cmd: profile_cmd())
         self.menu.add_entry_info(
             "<C-P>P: Draw a line\nDisplay image intensity along this line")
 
         # Stat
-        def cmd(): return refresh_pick(EPick.STAT)
+        def stat_cmd():
+            return refresh_pick(EPick.STAT)
         self.menu.add_radiobutton(
-            label='Stat', command=cmd,
+            label='Stat', command=stat_cmd,
             variable=get_state().tk_pick, value=EPick.STAT)
-        get_root().bind_all("<Control-p>s", lambda _, cmd=cmd: cmd())
+        get_root().bind_all("<Control-p>s", lambda _, cmd=stat_cmd: stat_cmd())
         self.menu.add_entry_info(
             "<C-P>S: Draw a rectangle\nDisplay image statistics in this rectangle")
 
         # Ellipse
-        def cmd(): return refresh_pick(EPick.ELLIPSE)
+        def ellipse_cmd():
+            return refresh_pick(EPick.ELLIPSE)
         self.menu.add_radiobutton(
-            label='Ellipse', command=cmd,
+            label='Ellipse', command=ellipse_cmd,
             variable=get_state().tk_pick, value=EPick.ELLIPSE)
-        get_root().bind_all("<Control-p>e", lambda _, cmd=cmd: cmd())
+        get_root().bind_all("<Control-p>e", lambda _, cmd=ellipse_cmd: ellipse_cmd())
         self.menu.add_entry_info(
             "<C-P>E: Draw an ellipse where photometry is performed")
 
@@ -426,16 +438,16 @@ class ToolMenu(ButtonMenu):
             "<C-T>H: Display image intensity histogram")
 
         # Legacy console (tk)
-        cmd = create_debug_console
-        self.menu.add_radiobutton(label='Legacy Console', command=cmd)
-        get_root().bind_all("<Control-t>d", lambda _, cmd=cmd: cmd())
+        self.menu.add_radiobutton(label='Legacy Console', command=create_debug_console)
+        get_root().bind_all("<Control-t>d", lambda _,
+            cmd=create_debug_console: create_debug_console())
         self.menu.add_entry_info(
             "<C-T>D: Open debug console window")
 
         # Jupyter
-        cmd = create_jupyter_console
-        self.menu.add_radiobutton(label='Jupyter Console', command=cmd)
-        get_root().bind_all("<Control-t>j", lambda _, cmd=cmd: cmd())
+        self.menu.add_radiobutton(label='Jupyter Console', command=create_jupyter_console)
+        get_root().bind_all("<Control-t>j", lambda _,
+            cmd=create_jupyter_console: create_jupyter_console())
         self.menu.add_entry_info(
             "<C-T>J: Open jupyter console window\n"
             "Requires: xterm, jupyter")
@@ -445,6 +457,7 @@ class ToolMenu(ButtonMenu):
 
 
 def open_histogram():
+    """ Open Histogram Frame """
     print("Calling histogram")
     histopopo(
         get_root().frame_fit.get_figure(),
@@ -452,8 +465,9 @@ def open_histogram():
 
 
 def refresh_pick(enum):
-    """Disconnect old pick event and connect new one"""
-    import abism.front.pick as pick
+    """ Disconnect old pick event and connect new one """
+    # pylint: disable=import-outside-toplevel
+    from abism.front import pick
 
     pick_dic = {
         EPick.NO: pick.PickNo,

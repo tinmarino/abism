@@ -1,7 +1,14 @@
+#!/usr/bin/env python3
+
 """
-    The Tkinter Frame using matplotlib
-    The right part of the gui with plots
+The Tkinter Frame using matplotlib
+The right part of the gui with plots
 """
+
+# pylint: disable=too-many-ancestors  # Inherit from matplotlib
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=broad-except  # To get GUI working
+
 # Module
 import tkinter as tk
 import numpy as np
@@ -84,10 +91,10 @@ class PlotFrame(tk.Frame):
         Toolbar requires canvas
         """
         # Figure
-        fig.set_facecolor(tk_ext.scheme.bg)
+        fig.set_facecolor(tk_ext.SCHEME.bg)
 
         self._canvas = FigureCanvas(fig, master=self)
-        self._canvas.get_tk_widget()['bg'] = tk_ext.scheme.bg
+        self._canvas.get_tk_widget()['bg'] = tk_ext.SCHEME.bg
         # No borders: used to locate focus
         self._canvas.get_tk_widget()["highlightthickness"] = 0
         self._canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
@@ -96,13 +103,14 @@ class PlotFrame(tk.Frame):
         self._toolbar_frame = tk.Frame(self)
         self._toolbar_frame.grid(row=1, column=0, sticky="nsew")
         self._toolbar = NavigationToolbar2Tk(self._canvas, self._toolbar_frame)
-        self._toolbar["bg"] = tk_ext.scheme.bg
+        self._toolbar["bg"] = tk_ext.SCHEME.bg
         for i in self._toolbar.winfo_children():
-            i["bg"] = tk_ext.scheme.bg
+            i["bg"] = tk_ext.SCHEME.bg
         self._toolbar.grid(row=0, column=0, sticky="nsew")
 
     def init_label(self, s_label):
         """Create label bottom left"""
+        # pylint: disable=no-member  # Yes I can place
         tk_ext.TitleLabel(self, text=s_label).place(x=0, y=0)
 
     def init_toolbar_button(self):
@@ -129,32 +137,34 @@ class PlotFrame(tk.Frame):
             self._toolbar_frame.grid_forget()
 
     def get_figure(self):
-        """Return the figure for a direct matplotlib use
+        """ Return the figure for a direct matplotlib use
         You should avoid that
         """
         return self._fig
 
     def get_canvas(self):
-        """Getter for global"""
+        """ Getter for global """
         return self._canvas
 
     def get_toolbar(self):
-        """Getter for global"""
+        """ Getter for global """
         return self._toolbar
 
     def is_toolbar_active(self):
+        """ Check if the toolbar is active """
         return is_toolbar_active(self._toolbar)
 
     def redraw(self):
+        """ Redraw figure canvas for interactivity """
         self.set_figure_skin()
         self._fig.canvas.draw()
 
     def extend_matplotlib(self):
-        """Enable scroll with mouse"""
+        """ Enable scroll with mouse """
         def get_event_ax(event, axes):
-            for ax in axes:
-                if event.inaxes == ax:
-                    return ax
+            for axe in axes:
+                if event.inaxes == axe:
+                    return axe
             return None
 
         # Scroll
@@ -184,6 +194,7 @@ class PlotFrame(tk.Frame):
                 center_handler_wrapper))
 
     def reset_figure(self):
+        """ Clear figure """
         self._fig.clf()
         self.extend_matplotlib()
         return self._fig
@@ -193,19 +204,19 @@ class PlotFrame(tk.Frame):
             format_coord=lambda x, y: '',
             xlabel='', ylabel='',
     ):
-        """Reset figure, return ax
+        """ Reset figure, return axe
         format_coord: fct x,y -> format
         """
         self.reset_figure()
-        ax = self._fig.add_subplot(111)
-        ax.format_coord = format_coord
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        return ax
+        axe = self._fig.add_subplot(111)
+        axe.format_coord = format_coord
+        axe.set_xlabel(xlabel)
+        axe.set_ylabel(ylabel)
+        return axe
 
 
 class ImageFrame(PlotFrame):
-    """Frame with science image"""
+    """ Frame with science image """
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -237,13 +248,13 @@ class ImageFrame(PlotFrame):
             log(5, 'InitImage, cannot delete cbar')
 
         # Create axes
-        ax = self._fig.add_subplot(111)
+        axe = self._fig.add_subplot(111)
 
         # Get image array
         im0 = get_state().image.im0.astype(float32)
 
         # Display
-        drawing = ax.imshow(
+        drawing = axe.imshow(
             im0,
             vmin=get_state().i_image_min_cut,
             vmax=get_state().i_image_max_cut,
@@ -253,10 +264,10 @@ class ImageFrame(PlotFrame):
 
         # Compass
         try:
-            self.RemoveCompass()
+            self.remove_compass()
         except BaseException:
             pass
-        self.DrawCompass()
+        self.draw_compass()
 
         # ColorBar && TooBar
         self._toolbar.update()
@@ -265,7 +276,7 @@ class ImageFrame(PlotFrame):
         self._cbar.connect()
 
         # Image levels
-        def z(x, y):
+        def z_here(x, y):
             try:
                 res = im0[y, x]
             except IndexError:
@@ -277,11 +288,10 @@ class ImageFrame(PlotFrame):
 
         def format_coordinate(x, y):
             x, y = int(x), int(y)
-            return "x=%4d, y=%4d, zmax=%5d, z=%5d" % (
-                x, y, z_max(x, y), z(x, y))
+            return f'x={x:4d}, y={y:4d}, zmax={z_max(x, y):5d}, z={z_here(x, y):5d}'
 
         # Head up display
-        ax.format_coord = format_coordinate
+        axe.format_coord = format_coordinate
 
         # Cut
         i_min, i_max = get_state().image.get_cut_minmax()
@@ -298,6 +308,7 @@ class ImageFrame(PlotFrame):
         self.extend_matplotlib()
 
     def add_contour(self):
+        """ Feature: Add contour level on image """
         im_stat = get_state().image.get_stat()
         mean, rms = im_stat.mean, im_stat.rms
 
@@ -305,13 +316,14 @@ class ImageFrame(PlotFrame):
         sigmas = [1, 2, 4, 8, 16, 32]
 
         im0 = get_state().image.im0.astype(float32)
+        # pylint: disable=unsubscriptable-object  # matplotlib private
         self.contours = self._fig.axes[0].contour(
             im0, [mean + i * rms for i in sigmas],
             origin='lower', cmap='plasma_r',
             linewidths=1)
 
         for level_id, level in enumerate(self.contours.collections):
-            for kp, path in reversed(list(enumerate(level.get_paths()))):
+            for key_path, path in reversed(list(enumerate(level.get_paths()))):
                 # go in reversed order due to deletions!
                 # (N,2)-shape array of contour line coordinates
                 verts = path.vertices
@@ -320,12 +332,13 @@ class ImageFrame(PlotFrame):
                 if level_id == 0:
                     max_diameter = 10
                 if diameter < max_diameter:
-                    del level.get_paths()[kp]
+                    del level.get_paths()[key_path]
 
         log(0, "---> Contour of 3 and 5 sigma, "
             "click again on contour to delete its.")
 
     def remove_contour(self):
+        """ Remove on image contour """
         if self.contours is None:
             return
         for coll in self.contours.collections:
@@ -333,6 +346,7 @@ class ImageFrame(PlotFrame):
         self.contours = None
 
     def add_bpm(self):
+        """ Add on image Bad Pixel Map """
         # Get points to plot
         if get_state().image.bpm is None:
             get_state().image.create_bad_pixel_mask()
@@ -343,17 +357,19 @@ class ImageFrame(PlotFrame):
         Y, X = points_bpm[:, 0], points_bpm[:, 1]
 
         # Plot "scatter plot"
+        # pylint: disable=unsubscriptable-object  # matplotlib private
         self.bad_pixels = self._fig.axes[0].scatter(
             X, Y, c='r', marker="s")
 
     def remove_bpm(self):
+        """ Remove the on image BPM """
         if self.bad_pixels is None:
             return
         self.bad_pixels.remove()
         self.bad_pixels = None
 
     def refresh_image(self):
-        """Redraw image with new scale"""
+        """ Redraw image with new scale """
 
         cmap = get_state().s_image_color_map
         i_min, i_max = get_state().i_image_min_cut, get_state().i_image_max_cut
@@ -382,26 +398,29 @@ class ImageFrame(PlotFrame):
 
         # Try to draw result frame
         try:
-            for ax in get_root().frame_result.get_figure().axes:
-                if not ax.images:
+            for axe in get_root().frame_result.get_figure().axes:
+                if not axe.images:
                     continue
-                mappable = ax.images[0]
+                mappable = axe.images[0]
                 mappable.set_norm(mynorm)
                 mappable.set_cmap(cmap)
             get_root().frame_result.redraw()
-        except BaseException as e:
-            log(2, "Draw cannot draw in Result Figure (bottom right):", e)
+        except BaseException as exc:
+            log(2, "Draw cannot draw in Result Figure (bottom right):", exc)
 
-    def RemoveCompass(self):
-        ax = self._fig.axes[0]
-        ax.texts.remove(G.north)
-        ax.texts.remove(G.east)
-        ax.texts.remove(G.north_text)
-        ax.texts.remove(G.east_text)
+    def remove_compass(self):
+        """ Remove the compass on image """
+        # pylint: disable=unsubscriptable-object  # matplotlib private
+        axe = self._fig.axes[0]
+        axe.texts.remove(G.north)
+        axe.texts.remove(G.east)
+        axe.texts.remove(G.north_text)
+        axe.texts.remove(G.east_text)
 
-    def DrawCompass(self):
-        """Draw WCS compass to see 'north'"""
-        ax = self._fig.axes[0]
+    def draw_compass(self):
+        """ Draw WCS compass to see 'north' """
+        # pylint: disable=unsubscriptable-object  # matplotlib private
+        axe = self._fig.axes[0]
         im0 = get_state().image.im0.astype(float32)
 
         if not (
@@ -449,7 +468,7 @@ class ImageFrame(PlotFrame):
         #################
         # 2/ DRAW        0 is the end of the arrow
         if get_root().header.wcs is not None:
-            G.north = ax.annotate(
+            G.north = axe.annotate(
                 "",
                 # we invert to get the text at the end of the arrwo
                 xy=arrow_center, xycoords=coord_type,
@@ -458,7 +477,7 @@ class ImageFrame(PlotFrame):
                     arrowstyle="<-", facecolor="purple", edgecolor="purple"),
                 # connectionstyle="arc3"),
             )
-            G.east = ax.annotate(
+            G.east = axe.annotate(
                 "",
                 xy=arrow_center, xycoords=coord_type,
                 xytext=east_point, textcoords=coord_type, color="red",
@@ -466,16 +485,16 @@ class ImageFrame(PlotFrame):
                     arrowstyle="<-", facecolor='red', edgecolor='red'),
                 # connectionstyle="arc3"),
             )
-            G.north_text = ax.annotate(
+            G.north_text = axe.annotate(
                 'N', xytext=north_point,
                 xy=north_point, textcoords=coord_type, color='purple')
-            G.east_text = ax.annotate(
+            G.east_text = axe.annotate(
                 'E', xytext=east_point,
                 xy=east_point, textcoords=coord_type, color='red')
 
 
 class FitFrame(PlotFrame):
-    """Frame with the curve of the fit (1d)"""
+    """ Frame with the curve of the fit (1d) """
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -492,7 +511,7 @@ class FitFrame(PlotFrame):
 
 
 class ResultFrame(PlotFrame):
-    """Frame with some results, dependant on operation"""
+    """ Frame with some results, dependant on operation """
 
     def __init__(self, parent):
         super().__init__(parent)

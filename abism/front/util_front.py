@@ -1,12 +1,21 @@
+#!/usr/bin/env python3
+
 """
-    Utility function for Abism GUI
+Utility function for Abism GUI
 """
+
+# pylint: disable=broad-except  # To get GUI working
+# pylint: disable=import-outside-toplevel
 
 # Standard
 import os
 from functools import lru_cache
+from shutil import which
+from subprocess import call
 
 import tkinter as tk
+
+from abism import __version__  # To show it
 
 from abism.util import root_path, log, get_root, get_state
 
@@ -41,14 +50,13 @@ def about_window():
     """ Pop about window
     Append it to (to)
     """
-    from abism import __version__
     # Init
     root = tk.Tk()
 
     # Conf
     root.title("About Abism")
     txt = ("Adaptive Background Interactive Strehl Meter\n"
-           "ABISM version " + __version__ + " (2013 -- 2020) \n"
+           "ABISM version " + __version__ + " (2013 -- 2023) \n"
            "Authors: Girard Julien, Tourneboeuf Martin\n"
            "Emails: juliengirard@gmail.com tinmarino@gmail.com\n")
     label = tk.Label(root, text=txt)
@@ -62,29 +70,27 @@ def system_open(path=""):
     """ Call system default open for file
     path: path of the file to oopen relative to abism root path
     """
-    import shutil
-    import subprocess
     full_path = root_path() + path
 
     fct = None
     # Paranal acroread
     if not fct and path.endswith('.pdf'):
-        fct = shutil.which("acroread")
+        fct = which("acroread")
 
     # Linux sxdg-open
     if not fct:
-        fct = shutil.which("xdg-open")
+        fct = which("xdg-open")
 
     # Linux see
     if not fct:
-        fct = shutil.which("see")
+        fct = which("see")
 
     # Mac open
     if not fct:
-        fct = shutil.which("open")
+        fct = which("open")
 
     if fct:
-        subprocess.call(fct + " " + full_path + " &", shell=True)
+        call(fct + " " + full_path + " &", shell=True)
     else:
         log(0, "ERROR system open : need to be implemented ")
 
@@ -137,6 +143,7 @@ def open_file():
 
 def toggle_header():
     """ Toggle header viewer """
+
     from abism.plugin.window_text import WindowText
 
     def on_close():
@@ -163,6 +170,7 @@ toggle_header.window_header = None
 
 def toggle_manual():
     """ Toggle interface documentation window """
+
     from abism.plugin.window_text import WindowText
 
     def on_close():
@@ -175,8 +183,8 @@ def toggle_manual():
         return
 
     fpath = root_path() + 'doc/interface.md'
-    with open(fpath, 'r') as f:
-        text = f.read()
+    with open(fpath, mode='r', encoding='utf-8') as fil:
+        text = fil.read()
     toggle_manual.window_manual = WindowText(
         title='ABISM interface manual',
         geometry='800x1000+0+0',
@@ -192,8 +200,7 @@ toggle_manual.window_manual = None
 
 
 def is_toolbar_active(toolbar):
-    """ Check if a matplotlib toolbar is active
-    """
+    """ Check if a matplotlib toolbar is active """
     try:
         from matplotlib.backend_bases import _Mode
         res = toolbar.mode in (_Mode.ZOOM, _Mode.PAN)

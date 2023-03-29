@@ -141,13 +141,13 @@ def get_system_command(cfile):
     # Windows ?
     log(-1, 'Error: abism do not know how to open a jupyter client on your '
         'system with connection file {cfile}.\n'
-        'Have you installed jupyter-console? Are you on windows?'
+        'Tip: Have you installed jupyter-console? Are you on windows?'
         )
     return ''
 
 
 def create_system_console(s_cmd):
-    """System terminal"""
+    """ System terminal """
     log(1, 'Launching ', s_cmd)
     if not s_cmd:
         return
@@ -156,7 +156,7 @@ def create_system_console(s_cmd):
 
 
 def launch_kernel():
-    """Launch a kernel (ipy, jupyter)
+    """ Launch a kernel (ipy, jupyter)
     The kernel is in a other thread
     that is why we need (200 lines) background-zmd-ipython
     """
@@ -166,7 +166,7 @@ def launch_kernel():
         from background_zmq_ipython import init_ipython_kernel
     except ImportError as exc:
         log(0, "Error: cannot import background_zmq_ipython,\n"
-            "install: background_zmq_ipython and xterm\n"
+            "Tip: install: background_zmq_ipython and xterm\n"
             "and try again", exc)
         return False
     sio = StringIO()
@@ -206,7 +206,7 @@ def create_jupyter_console():
     """ Main function """
     thread = Thread(target=launch_kernel)
     thread.start()
-    # create_tk_console()
+    create_tk_console()
 
 
 if __name__ == '__main__':
