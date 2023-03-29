@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
+
 """
-    Run abism code: synchronous or asynchronous
+Run abism code: synchronous or asynchronous
 
 functions: run_sync, run_async
 """
@@ -18,8 +22,6 @@ def _run_helper(obj):
 
 def run_sync():
     """Never returns"""
-    class Namespace:
-        """Cheat"""
     parse_argument()
     print('Parsed initially:', parse_argument())
 
@@ -100,3 +102,8 @@ def run_async(*argument):
 
     # Return to caller
     return abism_async.sm
+
+
+class Namespace:
+    # pylint: disable=all
+    """ Cheat: just a dict """

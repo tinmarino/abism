@@ -1,7 +1,11 @@
-# coding=utf-8
+#!/usr/bin/env python3
+
 """
-    Abism util functions
+Abism utility functions
 """
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
+# pylint: disable=consider-using-f-string  # Old school way of formating
 
 # Standard
 import sys
@@ -16,14 +20,14 @@ from datetime import datetime
 from collections import deque
 
 
-g_parsed_args = None  # Arguments from argparse
+G_PARSED_ARGS = None  # Arguments from argparse
 
 
 @lru_cache(1)
 def parse_argument():
     """Do not call get_state here -> infinite loop"""
     # pylint: disable=global-statement
-    global g_parsed_args
+    global G_PARSED_ARGS
 
     from argparse import ArgumentParser
     from sys import argv, executable
@@ -108,10 +112,10 @@ def parse_argument():
     try:
         # Parse from sys args
         parsed_args = parser.parse_args()
-    except SystemExit as e:
-        if str(e) == '0':
+    except SystemExit as exception:
+        if str(exception) == '0':
             sys.exit()
-        print('Argument Parsing error:', str(e))
+        print('Argument Parsing error:', str(exception))
         parsed_args = parser.parse_args([])
 
     parsed_args.executable = executable
@@ -126,8 +130,8 @@ def parse_argument():
         sys_exit(0)
 
     # Set and Return
-    g_parsed_args = parsed_args
-    return g_parsed_args
+    G_PARSED_ARGS = parsed_args
+    return G_PARSED_ARGS
 
 
 def get_colormap_list():
@@ -221,9 +225,9 @@ def str_pretty(obj, indent=2, depth=4, rec=0, key='', silent=[]):
     stg += '(' + type(obj).__name__ + ')\n'
     # Recurse
     items = dict(sorted(items)).items()
-    for k, v in items:
-        stg += str_pretty(v, indent=indent, rec=rec + 1,
-                          key=k, silent=silent) + "\n"
+    for cr_key, cr_value in items:
+        stg += str_pretty(cr_value, indent=indent, rec=rec + 1,
+                          key=cr_key, silent=silent) + "\n"
 
     # Return without empty lines
     return re.sub(r'\n\s*\n', '\n', stg)[:-1]
@@ -247,7 +251,7 @@ class EA(Enum):
 
     # Main
     STREHL = ['Strehl', AnswerNum]
-    STREHL_EQ = [u'Eq. SR(2.17\u03bcm)', AnswerNum]
+    STREHL_EQ = ['Eq. SR(2.17\u03bcm)', AnswerNum]
 
     # Detail <- used for calculation
     CENTER = ['Center', AnswerPosition]
@@ -292,7 +296,7 @@ class EPick(Enum):
 
 
 class EPhot(Enum):
-    """Photometric type: enum, description
+    """ Photometric type: enum, description
     See implementation in fit_strehl.py
     """
     FIT = 'Mesured from the fitted function'
@@ -316,7 +320,7 @@ class ESky(Enum):
 
 
 def str_fit_param(d_fit_param, d_fit_error, no_tab=True):
-    """Stringify fit parameters
+    """ Stringify fit parameters
     Used by save and frame_text
     """
     i_tab_1 = i_tab_2 = 0
@@ -324,19 +328,19 @@ def str_fit_param(d_fit_param, d_fit_error, no_tab=True):
     s_after = ''
     for key in sorted(d_fit_param):
         # Key
-        line = key + ":"
+        line = key + ':'
         i_tab_1 = max(i_tab_1, len(line))
 
         # Value
-        line += "\t" + "{0:.4f}".format(d_fit_param[key])
+        line += f'\t{d_fit_param[key]:.4f}'
         i_tab_2 = max(i_tab_2, len(line))
 
         # Error
         if key in d_fit_error:
-            line += "\t" + "± {0:.4f}\n".format(d_fit_error[key])
+            line += f'\t± {d_fit_error[key]:.4f}\n'
             stg += line
         else:
-            line += "\n"
+            line += '\n'
             s_after += line
 
     stg += s_after
@@ -349,6 +353,7 @@ def str_fit_param(d_fit_param, d_fit_error, no_tab=True):
 
 
 def str_answers(answers):
+    """ Stringify answers """
     stg = ''
     stg = "%-20s" % "Name:" + "detector ± error \t sky ± error\n"
     for answer in answers.values():
@@ -378,8 +383,8 @@ def str_answers(answers):
 
 
 class AbismState(DotDic):
-    """Confiugration from user (front) to science (back)"""
-    # pylint: disable = super-init-not-called
+    """ Configuration from user (front) to science (back) """
+    # pylint: disable=super-init-not-called,too-many-instance-attributes
 
     def __init__(self):
         import tkinter as tk
@@ -438,7 +443,7 @@ class AbismState(DotDic):
         self.s_answer_unit = 'detector'  # detector or 'sky'
 
     def copy(self):
-        """Used for deque"""
+        """ Used for deque """
         # pylint: disable = attribute-defined-outside-init
         res = DotDic()
         res.answers = self.answers
@@ -452,17 +457,20 @@ class AbismState(DotDic):
         return res
 
     def set_timestamp(self):
+        """ Set the timestamp according to datetime.now() """
         self.s_timestamp = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 
     def str_fit_param(self):
-        """Helper for frame_text"""
+        """ Helper for frame_text """
         return str_fit_param(self.d_fit_param, self.d_fit_error, no_tab=False)
 
     def append_deq(self):
+        """ Append this answer to deque """
         if len(self.answers) != 0:
             self.deq_save.appendleft(self.copy())
 
     def reset_answers(self):
+        """ Reset self """
         # Save
         self.append_deq()
         # Create new
@@ -482,6 +490,7 @@ class AbismState(DotDic):
         return answer
 
     def craft_answer(self, enum_answer, value, *arg, **args):
+        """ Factory """
         from abism.answer import AnswerSky
 
         # Check if overwork
@@ -504,10 +513,11 @@ class AbismState(DotDic):
         return answer
 
     def get_answer_obj(self, enum_answer):
+        """ Get object from enum key (name) """
         return self.answers[enum_answer.name]
 
     def get_answer(self, enum_answer):
-        """Get only the value"""
+        """ Get only the value """
         return self.get_answer_obj(enum_answer).value
 
     def __repr__(self):
@@ -516,52 +526,54 @@ class AbismState(DotDic):
 
 
 def save_state():
-    """Called with ctrl-S"""
+    """ Called with ctrl-S """
     s_date = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
     fpath = os.getcwd() + '/abism-' + s_date + '.log'
 
     get_state().append_deq()
     deq = get_state().deq_save
-    l = len(deq)
+    deq_len = len(deq)
 
-    if l == 0:
+    if deq_len == 0:
         log(0, 'No answers to save')
         return
 
-    stg = f"Abism log of {s_date} with {l} items\n\n"
+    stg = f'Abism log of {s_date} with {deq_len} items\n\n'
     for item in deq:
-        stg += "\n# Meta\n\n"
+        stg += '\n# Meta\n\n'
         stg += '%-20s%s\n' % ('Date:', item.s_timestamp)
         stg += '%-20s%s\n' % ('Pick:', item.s_pick)
         stg += '%-20s%s\n' % ('Fct:', item.s_fit_type)
         stg += '%-20s%s\n' % ('Clicks:', item.l_click) + "\n"
 
-        stg += "# Answers\n\n"
+        stg += '# Answers\n\n'
         stg += str_answers(item.answers) + "\n"
 
-        stg += "# Fit Dictionary\n\n"
+        stg += '# Fit Dictionary\n\n'
         stg += str_fit_param(item.d_fit_param,
                              item.d_fit_error, no_tab=True)[0]
-        stg += "\n\n" + "-" * 80 + "\n"
+        stg += '\n\n' + "-" * 80 + "\n"
 
-    with open(fpath, 'w') as f:
-        f.write(stg)
+    with open(fpath, mode='w', encoding="utf-8") as file_state:
+        file_state.write(stg)
 
     get_state().deq_save.clear()
-    log(0, f'Saved {l} answers to {fpath}')
+    log(0, f'Saved {deq_len} answers to {fpath}')
 
 
 @lru_cache(1)
 def get_state():
+    """ Getter to export """
     return AbismState()
 
 
 def get_root():
+    """ Returns the Tk root object from where I can get all """
     return get_state().tk_root
 
 
 def quit_process():
-    """Kill process"""
+    """ Kill process, clean destroy """
     log(1, 'Closing Abism, Goodbye. Come back soon.' + "\n" + 100 * '_' + 3 * "\n")
     get_root().destroy()
     sys.exit(0)
@@ -574,8 +586,8 @@ def restart():
 
     ###########
     # PREPARE STG command line args
-    stg = g_parsed_args.executable + ' ' + g_parsed_args.script + ' '
-    for key, value in vars(g_parsed_args).items():
+    stg = G_PARSED_ARGS.executable + ' ' + G_PARSED_ARGS.script + ' '
+    for key, value in vars(G_PARSED_ARGS).items():
         if key in ('executable', 'script') or not value:
             continue
         log(3, 'Cmd (key, value)', key, ' ', value)
@@ -603,17 +615,17 @@ def root_path():
 def _get_logger():
     import logging
     # Logger
-    logFormatter = logging.Formatter(
+    log_formatter = logging.Formatter(
         'ABISM: %(asctime)-8s: %(message)s',
         '%H:%M:%S')
 
-    consoleHandler = logging.StreamHandler()
-    consoleHandler.setLevel(logging.INFO)
-    consoleHandler.setFormatter(logFormatter)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(log_formatter)
 
     logger = logging.getLogger('ABISM')
     logger.setLevel(logging.INFO)
-    logger.handlers = [consoleHandler]
+    logger.handlers = [console_handler]
 
     return logger
 
@@ -634,6 +646,7 @@ def log(i, *args):
 
 
 def set_timeout():
+    """ Set a timeout to next killable operation """
     get_state().b_is_timed_out = True
 
 
@@ -656,8 +669,8 @@ class AsyncWorker:
 
     def run(self):
         # Run task
-        t = Thread(target=self.wrap_task)
-        t.start()
+        thread = Thread(target=self.wrap_task)
+        thread.start()
 
         # Add timeout
         self.l_after_id.append(get_root().after(

@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
+
 """
-    List of AnswerSky
+List of AnswerSky
 """
 
 from abc import ABC, abstractmethod
@@ -8,7 +12,7 @@ import numpy as np
 
 
 class AnswerSky(ABC):
-    """Abism answer from BackEnd, base class
+    """ Abism answer from BackEnd, base class
     Variables:
         text:   textual name of varaible
         value:  object value of the variable
@@ -19,7 +23,6 @@ class AnswerSky(ABC):
         on detector: what you see, (on image is overused)
 
     Note: overloaded operator to do some error arithmetic for free
-
     """
 
     def __init__(self, text, value, error=None):
@@ -33,50 +36,54 @@ class AnswerSky(ABC):
         self.unit = ''
 
     @abstractmethod
-    def str_sky(self): pass
+    def str_sky(self):
+        """ Will be overloaded depending on the sky unit (distance, luminosity, etc) """
 
     @abstractmethod
-    def str_detector(self): pass
+    def str_detector(self):
+        """ Will be overloaded depending on the detector unit (pixel, arbitrary unit, etc) """
 
     def __str__(self):
+        """ For humans => Same as for bot """
         return self.__repr__()
 
     def __repr__(self):
+        """ For bots """
         s_err = str(self.error.value) if self.error else 'nan'
         return self.str_detector() + '±' + s_err + '<- ' + self.text
 
-    def constant(self, cst, op):
-        """Constant operation on self"""
+    def constant(self, constant, operator):
+        """ Constant operation on self """
         # pylint: disable = eval-used
-        txt = self.text + op + str(cst)
-        val = eval('self.value' + op + str(cst))
-        err = eval('self.error.value' + op + str(cst))
+        txt = self.text + operator + str(constant)
+        val = eval('self.value' + operator + str(constant))
+        err = eval('self.error.value' + operator + str(constant))
         return self.__class__(txt, val, error=err)
 
-    def addition(self, other, op='+'):
+    def addition(self, other, operator='+'):
         """Helper addition substraction"""
         if isinstance(other, (int, float)):
-            return self.constant(other, op)
+            return self.constant(other, operator)
         if self.__class__ != other.__class__:
             raise NotImplementedError
 
-        if op == '+':
+        if operator == '+':
             val = self.value + other.value
         else:
             val = self.value - other.value
         err1 = 0 if self.error is None else self.error.value
         err2 = 0 if other.error is None else other.error.value
         err = np.sqrt(err1**2 + err2**2)
-        txt = self.text + op + other.text
+        txt = self.text + operator + other.text
         return self.__class__(txt, val, error=err)
 
-    def multiplication(self, other, op='*'):
+    def multiplication(self, other, operator='*'):
         """Helper for multiplication"""
         if isinstance(other, (int, float)):
-            return self.constant(other, op)
-        txt = self.text + op + other.text
+            return self.constant(other, operator)
+        txt = self.text + operator + other.text
 
-        if op == '*':
+        if operator == '*':
             val = self.value * other.value
         else:
             val = self.value / other.value
@@ -89,10 +96,10 @@ class AnswerSky(ABC):
         return AnswerNum(txt, val, error=err)
 
     def __add__(self, other):
-        return self.addition(other, op='+')
+        return self.addition(other, operator='+')
 
     def __sub__(self, other):
-        return self.addition(other, op='-')
+        return self.addition(other, operator='-')
 
     def __rsub__(self, other):
         return other.__sub__(self)
@@ -111,51 +118,53 @@ class AnswerSky(ABC):
         return self.__class__(txt, val, error=err)
 
     @staticmethod
-    def power(bv, be, ev, ee):
-        """xʸ -> log(|x|) * err(y) ⊕ y * err(x) (more or less)
+    def power(base_value, base_error, exponent_value, exponent_error):
+        """ xʸ -> log(|x|) * err(y) ⊕ y * err(x) (more or less)
         Where ⊕ is the harmonic sum
         In: base value, base error, exponent value, exponent error
         """
-        if bv == 0:
+        if base_value == 0:
             err = 0
         else:
-            err = (np.log(abs(bv)) * ee)**2
-            err += (ev * be)**2
+            err = (np.log(abs(base_value)) * exponent_error)**2
+            err += (exponent_value * base_error)**2
             err = np.sqrt(err)
         return err
 
     def __pow__(self, other):
+        """ Overload ** operator """
         # Get error and value (in case not an answer)
         if isinstance(other, (int, float)):
-            ov = other
-            oe = 0
-            ot = str(other)
+            other_value = other
+            other_error = 0
+            other_text = str(other)
         else:
-            ov = other.value
-            oe = other.error.value
-            ot = other.text
+            other_value = other.value
+            other_error = other.error.value
+            other_text = other.text
 
-        txt = '(' + self.text + ')' + '**(' + ot + ')'
-        val = self.value**ov
-        err = AnswerSky.power(self.value, self.error.value, ov, oe)
+        txt = '(' + self.text + ')' + '**(' + other_text + ')'
+        val = self.value**other_value
+        err = AnswerSky.power(self.value, self.error.value, other_value, other_error)
         return AnswerNum(txt, val, error=err)
 
     def __rpow__(self, other):
         if isinstance(other, (int, float)):
-            ov = other
-            oe = 0
-            ot = str(other)
+            other_value = other
+            other_error = 0
+            other_text = str(other)
         else:
-            ov = other.value
-            oe = other.error.value
-            ot = other.text
+            other_value = other.value
+            other_error = other.error.value
+            other_text = other.text
 
-        txt = '(' + ot + ')' + '**(' + self.text + ')'
-        val = ov**self.value
-        err = AnswerSky.power(self.value, self.error.value, ov, oe)
+        txt = '(' + other_text + ')' + '**(' + self.text + ')'
+        val = other_value**self.value
+        err = AnswerSky.power(self.value, self.error.value, other_value, other_error)
         return AnswerNum(txt, val, error=err)
 
     def sqrt(self):
+        """ Helper method for making `**0.5` more readable"""
         return self.__pow__(0.5)
 
     __radd__ = __add__
@@ -167,7 +176,7 @@ class AnswerSky(ABC):
 
 
 class AnswerObject(AnswerSky):
-    """Any object"""
+    """ Any object """
 
     def str_detector(self):
         return str(self.value)
@@ -177,7 +186,7 @@ class AnswerObject(AnswerSky):
 
 
 class AnswerNum(AnswerSky):
-    """A number"""
+    """ A number """
 
     def __init__(self, text, number, unit='', error=None):
         super().__init__(text, float(number), error=error)
@@ -191,7 +200,7 @@ class AnswerNum(AnswerSky):
 
 
 class AnswerPosition(AnswerSky):
-    """A position on image: x, y or ra/dec
+    """ A position on image: x, y or ra/dec
     Stored as x, y and a ref to wcs
     """
 
@@ -201,16 +210,17 @@ class AnswerPosition(AnswerSky):
 
     def str_sky(self):
         from abism.util import get_root
-        x, y = self.value
+        x_pix, y_pix = self.value
         wcs = get_root().header.wcs
-        ra, dec = wcs.all_pix2world(np.array([[x, y]]), 0)[0]
+        # pylint: disable=invalid-name
+        ra, dec = wcs.all_pix2world(np.array([[x_pix, y_pix]]), 0)[0]
         s_ra, s_dec = format_sky(ra, dec)
         return s_ra + ' , ' + s_dec
 
     def str_detector(self):
-        x, y = self.value
-        s_x = f'{x:,.3f}'.replace(',', ' ')
-        s_y = f'{y:,.3f}'.replace(',', ' ')
+        x_pix, y_pix = self.value
+        s_x = f'{x_pix:,.3f}'.replace(',', ' ')
+        s_y = f'{y_pix:,.3f}'.replace(',', ' ')
         return s_x + ' , ' + s_y
 
 
@@ -242,7 +252,7 @@ class AnswerLuminosity(AnswerSky):
 
 
 class AnswerFwhm(AnswerSky):
-    """FWHM has diffrent values
+    """ FWHM has diffrent values
     Need the pixel scale, separation too
     """
 
@@ -255,18 +265,19 @@ class AnswerFwhm(AnswerSky):
         pxll = get_pixel_scale()
 
         # Apply pixel scale
-        a, b, e = self.value
-        a *= pxll * 1000
-        b *= pxll * 1000
+        axis_a, axis_b, excentricity = self.value
+        axis_a *= pxll * 1000
+        axis_b *= pxll * 1000
 
-        return self.__class__.format_value(a, b, e)
+        return self.__class__.format_value(axis_a, axis_b, excentricity)
 
     def str_detector(self):
         return self.__class__.format_value(*self.value)
 
     @staticmethod
-    def format_value(a, b, e):
-        return f'{a:.1f}, {b:.1f}, {e:.2f}'
+    def format_value(axis_a, axis_b, excentricity):
+        """ Stringify ellipse values """
+        return f'{axis_a:.1f}, {axis_b:.1f}, {excentricity:.2f}'
 
 
 class AnswerDistance(AnswerSky):
@@ -293,7 +304,7 @@ class AnswerAngle(AnswerSky):
 
     def __init__(self, text, xy, error=None):
         super().__init__(text, xy, error=error)
-        self.unit = u'\xb0'
+        self.unit = '\xb0'
 
     def str_detector(self):
         im_angle = np.arccos(self.value[1]) * 57.295779
@@ -321,6 +332,7 @@ def get_pixel_scale():
     from abism.util import get_root
     try:  # Sinfoni
         pxll = get_root().header.sinf_pixel_scale
+    # pylint: disable=broad-except
     except BaseException:
         pxll = get_root().header.pixel_scale
     return pxll
@@ -328,7 +340,7 @@ def get_pixel_scale():
 
 def decimal2hms(RADeg, delimiter):
     # pylint: disable = W, R, C
-    """Converts decimal degrees to string in Hours:Minutes:Seconds format with
+    """ Converts decimal degrees to string in Hours:Minutes:Seconds format with
     user specified delimiter.
 
     @type RADeg: float
@@ -388,7 +400,7 @@ def decimal2hms(RADeg, delimiter):
 
 def decimal2dms(decDeg, delimiter):
     # pylint: disable = W, R, C
-    """Converts decimal degrees to string in Degrees:Minutes:Seconds format
+    """ Converts decimal degrees to string in Degrees:Minutes:Seconds format
     with user specified delimiter.
 
     @type decDeg: float
@@ -493,7 +505,7 @@ def decimal2dms(decDeg, delimiter):
 
 
 def hms2decimal(RAString, delimiter):
-    """Converts a delimited string of Hours:Minutes:Seconds format into decimal
+    """ Converts a delimited string of Hours:Minutes:Seconds format into decimal
     degrees.
 
     @type RAString: string
@@ -502,8 +514,9 @@ def hms2decimal(RAString, delimiter):
     @param delimiter: delimiter character in RAString
     @rtype: float
     @return: coordinate in decimal degrees
-
     """
+    # pylint: disable = W, R, C
+
     # is it in HH:MM:SS format?
     if delimiter == "":
         RABits = str(RAString).split()
@@ -523,7 +536,7 @@ def hms2decimal(RAString, delimiter):
 
 
 def dms2decimal(decString, delimiter):
-    """Converts a delimited string of Degrees:Minutes:Seconds format into
+    """ Converts a delimited string of Degrees:Minutes:Seconds format into
     decimal degrees.
 
     @type decString: string
@@ -532,8 +545,9 @@ def dms2decimal(decString, delimiter):
     @param delimiter: delimiter character in decString
     @rtype: float
     @return: coordinate in decimal degrees
-
     """
+    # pylint: disable = W, R, C
+
     # is it in DD:MM:SS format?
     if delimiter == "":
         decBits = str(decString).split()
@@ -558,12 +572,14 @@ def dms2decimal(decString, delimiter):
 
 
 def format_sky(ra, dec):
+    """ Internal Helper: Stringify RA / Dec coordinates """
+    # pylint: disable=invalid-name
     if (ra == 99) or isinstance(ra, str):
-        x = "N/A"
+        x_pix = "N/A"
     else:
-        x = decimal2hms(ra, ":")
+        x_pix = decimal2hms(ra, ":")
     if (dec == 99) or isinstance(dec, str):
-        y = "N/A"
+        y_pix = "N/A"
     else:
-        y = decimal2dms(dec, ":")
-    return x, y
+        y_pix = decimal2dms(dec, ":")
+    return x_pix, y_pix
