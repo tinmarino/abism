@@ -1,6 +1,10 @@
+#!/usr/bin/env python3
+
 """
-    Abism main GUI
+Abism main GUI
 """
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
 
 # Standard
 from os.path import isfile
@@ -68,6 +72,7 @@ class WindowRoot(tk.Tk):
         self.set_image(parse_argument().image)
 
     def set_image(self, filepath):
+        """ Set image logo to the window """
         if not filepath:
             return
 

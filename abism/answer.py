@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
-
 """
 List of AnswerSky
 """
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
 
 from abc import ABC, abstractmethod
 

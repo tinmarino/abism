@@ -29,7 +29,7 @@ class Pick(ABC):
         log(3, 'Pick: creating a', self.__class__.__name__, 'instance')
         self.canvas = get_root().frame_image.get_canvas()
         self.figure = get_root().frame_image.get_figure()
-        self.ax = self.figure.axes[0]
+        self.axe = self.figure.axes[0]
         self.rectangle = None
         # Boolean: is work over
         self.done = False  # Value('done', False)
@@ -41,7 +41,7 @@ class Pick(ABC):
         # Canvas may have changed
         self.canvas = get_root().frame_image.get_canvas()
         self.figure = get_root().frame_image.get_figure()
-        self.ax = self.figure.axes[0]
+        self.axe = self.figure.axes[0]
 
     @abstractmethod
     def disconnect(self):
@@ -155,7 +155,7 @@ class PickOne(Pick):
             "    1/Draw a rectangle around your star with left button\n"
             "    2/Click on star 'center' with right button")
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
-            self.ax,
+            self.axe,
             self.on_rectangle, drawtype='box',
             rectprops=dict(facecolor='green', edgecolor='black',
                            alpha=0.5, fill=True),
@@ -294,7 +294,7 @@ class PickStat(Pick):
             "will give you some statistical information "
             "computed in the region-------------------")
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
-            self.ax, self.on_rectangle, drawtype='box', rectprops=dict(
+            self.axe, self.on_rectangle, drawtype='box', rectprops=dict(
                 facecolor='red', edgecolor='black', alpha=0.5, fill=True))
 
     def work(self, obj): pass
@@ -330,7 +330,7 @@ class PickProfile(Pick):
     def disconnect(self):
         if not self.artist_profile:
             return
-        self.artist_profile.Disconnect()
+        self.artist_profile.disconnect()
         self.artist_profile.RemoveArtist()
         self.artist_profile = None
 
@@ -362,7 +362,7 @@ class PickEllipse(Pick):
 
         self.artist_ellipse = artist.Ellipse(
             self.figure,
-            self.ax,
+            self.axe,
             array=get_state().image.im0,
             callback=lambda: self.launch_worker(None)
         )
@@ -375,7 +375,7 @@ class PickEllipse(Pick):
     def disconnect(self):
         if not self.artist_ellipse:
             return
-        self.artist_ellipse.Disconnect()
+        self.artist_ellipse.disconnect()
         self.artist_ellipse.RemoveArtist()
         self.artist_ellipse = None
 

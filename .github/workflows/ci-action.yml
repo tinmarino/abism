@@ -24,14 +24,17 @@ jobs:
 
 
   Pylint:
+    # Copied from: https://github.com/pylint-dev/pylint/pull/2758
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - run: pip install pylint
-      - run: pylint abism.py setup.py abism
+      - run: pip3 install pylint
+      # Disable:
+      # -- E0611: No name '__version__' in module 'abism'
+      - run: pylint -d E0611 setup.py abism.py abism/ scripts/
 
 
   Yamllint:

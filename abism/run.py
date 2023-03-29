@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
-
 """
 Run abism code: synchronous or asynchronous
 
 functions: run_sync, run_async
 """
+
+# pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
+
 from abism.util import parse_argument
 
 

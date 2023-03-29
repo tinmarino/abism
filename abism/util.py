@@ -668,6 +668,7 @@ class AsyncWorker:
         self.is_finished = False
 
     def run(self):
+        """ Launch worker """
         # Run task
         thread = Thread(target=self.wrap_task)
         thread.start()

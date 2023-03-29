@@ -1,8 +1,14 @@
+#!/usr/bin/env python3
+
+"""
+ABISM module instalation script
+"""
+
 import setuptools
 from abism import __version__
 
 
-with open("README.md", "r") as fh:
+with open('README.md', mode='r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -12,12 +18,12 @@ setuptools.setup(
     author='Julien Girard, Martin Tourneboeuf',
     author_email='tinmarino@gmail.com',
     description=(
-        "Adaptative Background Interferometric Strehl Meter\n"
-        "Graphical user interface (GUI) "
-        "to mesure Astrophysics image quality (Strehl ratio)"),
+        'Adaptative Background Interferometric Strehl Meter\n'
+        'Graphical user interface (GUI) '
+        'to mesure Astrophysics image quality (Strehl ratio)'),
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/tinmarino/abism",
+    long_description_content_type='text/markdown',
+    url='https://github.com/tinmarino/abism',
     packages=[
         'abism',
         'abism.front',
@@ -32,8 +38,8 @@ setuptools.setup(
     ],
     include_package_data=True,
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
     ],
 )
