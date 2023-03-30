@@ -59,7 +59,7 @@ def show_profile(point1, point2):
     tlen = np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
     class StatPrinter(AnswerPrinter):
-        """Stat values printer: with answer type"""
+        """ Stat values printer: with answer type """
 
         def get_list(self):
             return [

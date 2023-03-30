@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 """
-    Statistic rectangle widget callback
+Statistic rectangle widget callback
 """
+
 import numpy as np
 
 from abism.back import image_function as IF
@@ -12,18 +15,20 @@ from abism.answer import AnswerDistance, AnswerLuminosity, AnswerNum
 
 
 def show_statistic(rectangle):
-    """Get and Print statistics from a rectangle selection"""
+    """ Get and Print statistics from a rectangle selection """
     # Get stat <- subarray
     rectangle = IF.order4(rectangle, intify=True)
     log(3, 'Stat on rectangle:', rectangle)
+
     sub_array = get_state().image.im0[
         rectangle[0]:rectangle[1], rectangle[2]:rectangle[3]]
     log(3, sub_array.shape)
+
     stat = get_array_stat(sub_array)
     i_sq_nb = np.sqrt(stat.number_count)
 
     class StatPrinter(AnswerPrinter):
-        """Stat values printer: with answer type"""
+        """ Stat values printer: with answer type """
 
         def get_list(self):
             return [

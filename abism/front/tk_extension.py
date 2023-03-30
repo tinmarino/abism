@@ -6,7 +6,7 @@ Extend and MonkeyPatch some tk class and method for:
 2. Aliases functionality like inseting an abism answer in a text widget
 Should be imported soon enough
 
-This is faster as moving all to tkk, but if you want to, have a look at:
+This is faster as moving all to MyTkinter, but if you prefer the latter, you can have a look at:
 link: https://github.com/fgirault/tkcode <- tkcode a ttk text editor (pretty)
 """
 
@@ -161,7 +161,7 @@ class Button(tk.Button):
 
 
 class Frame(tk.Frame):
-    """Some frame (frame_plot) contain a figure (_fig)
+    """ Some frame (frame_plot) contain a figure (_fig)
     that must be updated as matplotlib (hide set_figure_skin here)
     """
 
@@ -178,7 +178,7 @@ class Frame(tk.Frame):
         self.set_figure_skin()
 
     def set_figure_skin(self):
-        """Update skin, caller must redraw"""
+        """ Update skin, caller must redraw """
         if '_fig' not in vars(self):
             return
         fg = SCHEME.fg
@@ -258,7 +258,7 @@ tk.Label = from_dic(tk.Label, lambda: {
 
 
 def children_do(widget, callback):
-    """Recurse and call callback for all tk descendant
+    """ Recurse and call callback for all tk descendant
     callback: function(widget)
     """
     for item in widget.winfo_children():
@@ -310,7 +310,7 @@ class HoverInfo:
         self.on_work = False
 
     def show(self, text, index=None):
-        """Get param in and launch display timer"""
+        """ Get param in and launch display timer """
         # Check in: do not work twice
         if self.on_work:
             return

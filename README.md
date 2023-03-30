@@ -38,7 +38,7 @@ Notice the warning that we are reaching the non-linearity detector limit.
 
 ### Internal links
 
-* [Developper corner](abism/doc/dev.md)
+* [Developer corner](abism/doc/dev.md)
 * [Interface documentation](abism/doc/interface.md)
 * [Advanced manual](abism/doc/advanced_manual.pdf)
 
