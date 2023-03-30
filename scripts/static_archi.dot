@@ -1,0 +1,139 @@
+digraph G {
+    concentrate = true;
+	splines = ortho;
+  	compound = true;
+
+    node [style=filled,fillcolor="#ffffff",
+		  fontcolor="#000000",fontname=Helvetica,fontsize=10,
+          rank="min",
+	];
+	edge [ overlap=true, color="#000000",  ]
+
+
+subgraph cluster_front {
+	label = "FrontEnd";
+	color=blue;
+    penwidth=5;
+
+    abism_front_window_root [label="front\.\nwindow_root",fillcolor="#913030",fontcolor="#ffffff"];
+    abism_front_frame_plot [label="front\.\nframe_plot",fillcolor="#913030",fontcolor="#ffffff"];
+
+    abism_front_frame_text [label="front\.\nframe_text",fillcolor="#b03a3a",fontcolor="#ffffff"];
+    abism_front_artist [label="front.artist",fillcolor="#b83d3d",fontcolor="#ffffff"];
+
+    abism_front_menu_bar [label="front.menu_bar",fillcolor="#8a2e2e",fontcolor="#ffffff"];
+    abism_front_AnswerReturn [label="front\.\nAnswerReturn",fillcolor="#9b2626",fontcolor="#ffffff"];
+
+    abism_front_pick [label="front.pick",fillcolor="#a32828",fontcolor="#ffffff"];
+
+    abism_front_matplotlib_extension [label="front\.\nmatplotlib_extension",fillcolor="#c43131",fontcolor="#ffffff"];
+}
+
+
+subgraph cluster_back {
+	label = "BackEnd";
+	color=red;
+    penwidth=5;
+	rank="min";
+
+    abism_back_leastsqbound [label="back\.\nleastsqbound",fillcolor="#b83d3d",fontcolor="#ffffff"];
+
+    abism_back_fit_helper [label="back\.\nfit_helper",fillcolor="#b03a3a",fontcolor="#ffffff"];
+    abism_back_image_info [label="back\.\nimage_info",fillcolor="#c82323",fontcolor="#ffffff"];
+
+    abism_back_StrehlImage [label="back\.\nStrehlImage",fillcolor="#993333",fontcolor="#ffffff"];
+
+    abism_back_Strehl [label="back.Strehl",fillcolor="#b42d2d",fontcolor="#ffffff"];
+    abism_back_read_header [label="back\.\nread_header",fillcolor="#b83d3d",fontcolor="#ffffff"];
+
+    abism_back_fit_template_function [label="back\.\nfit_template_function",fillcolor="#ce3b3b",fontcolor="#ffffff"];
+}
+
+
+subgraph cluster_plugin {
+	label = "Puglin";
+	color=green;
+    penwidth=5;
+	rank="min";
+	
+
+    abism_plugin_debug_console [label="plugin\.\ndebug_console",fillcolor="#b03a3a",fontcolor="#ffffff"];
+    abism_plugin_window_header [label="plugin\.\nwindow_header",fillcolor="#b83d3d",fontcolor="#ffffff"];
+
+    abism_plugin_histogram [label="plugin\.\nhistogram",fillcolor="#b03a3a",fontcolor="#ffffff"];
+    abism_plugin_xterm_console [label="plugin\.\nxterm_console",fillcolor="#b83d3d",fontcolor="#ffffff"];
+}
+
+
+    abism_answer [label="answer",fillcolor="#b83d3d",fontcolor="#ffffff"];
+
+
+    abism___main__ [label="__main__",fillcolor="#ac4949",fontcolor="#ffffff"];
+
+
+    abism_run [label="run",fillcolor="#a83838",fontcolor="#ffffff"];
+
+
+
+    abism_front_AnswerReturn -> abism_back_Strehl [weight="5",minlen="2",fillcolor="#9b2626"];
+    abism_front_pick -> abism_back_Strehl [weight="5",minlen="2",fillcolor="#a32828"];
+    abism_back_Strehl -> abism_back_StrehlImage [weight="5",fillcolor="#b42d2d"];
+    abism_back_StrehlImage -> abism_back_fit_helper [weight="5",fillcolor="#993333"];
+    abism_back_StrehlImage -> abism_back_fit_template_function [weight="5",fillcolor="#993333"];
+    abism_front_AnswerReturn -> abism_back_fit_template_function [weight="5",minlen="2",fillcolor="#9b2626"];
+    abism_back_StrehlImage -> abism_back_image_info [weight="5",fillcolor="#993333"];
+    abism_front_AnswerReturn -> abism_back_image_info [weight="5",minlen="2",fillcolor="#9b2626"];
+    abism_front_window_root -> abism_back_image_info [weight="5",minlen="2",fillcolor="#913030"];
+    abism_back_fit_helper -> abism_back_leastsqbound [weight="5",fillcolor="#b03a3a"];
+    abism_back_image_info -> abism_back_read_header [weight="5",fillcolor="#c82323"];
+
+
+
+
+    abism_front_frame_plot -> abism_front_AnswerReturn [weight="5",fillcolor="#913030"];
+    abism_front_pick -> abism_front_AnswerReturn [weight="5",fillcolor="#a32828"];
+    abism_front_pick -> abism_front_artist [weight="5",fillcolor="#a32828"];
+    abism_front_window_root -> abism_front_frame_plot [weight="5",fillcolor="#913030"];
+    abism_front_window_root -> abism_front_frame_text [weight="5",fillcolor="#913030"];
+    abism_front_frame_plot -> abism_front_matplotlib_extension [weight="5",fillcolor="#913030"];
+    abism_front_pick -> abism_front_matplotlib_extension [weight="5",fillcolor="#a32828"];
+    abism_front_window_root -> abism_front_menu_bar [weight="5",fillcolor="#913030"];
+    abism_front_frame_plot -> abism_front_pick [weight="5",fillcolor="#913030"];
+    abism_front_menu_bar -> abism_front_pick [weight="5",fillcolor="#8a2e2e"];
+
+
+
+
+
+
+
+
+
+    abism_run -> abism_front_window_root [weight="5",minlen="2",fillcolor="#a83838"];
+    abism_front_menu_bar -> abism_plugin_debug_console [weight="5",minlen="2",fillcolor="#8a2e2e"];
+    abism_front_menu_bar -> abism_plugin_histogram [weight="5",minlen="2",fillcolor="#8a2e2e"];
+    abism_front_menu_bar -> abism_plugin_window_header [weight="5",minlen="2",fillcolor="#8a2e2e"];
+    abism_front_menu_bar -> abism_plugin_xterm_console [weight="5",minlen="2",fillcolor="#8a2e2e"];
+    abism___main__ -> abism_run [weight="5",fillcolor="#ac4949"];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
