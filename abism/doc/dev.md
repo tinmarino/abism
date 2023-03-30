@@ -12,6 +12,11 @@
 
 # Static
 
+TODO At high level,
+run.py > front/window_root.py > back/strehl.py
+
+TODO add hyperlinks to dot
+
 ![static architecture](static_archi.svg)
 
 # Notes
@@ -30,6 +35,9 @@ Put this interpreter as an eval function of a Tkinter text entry widget.
 
 __Solution2__:
 Fork a kernel interpreter from the tkinter loop and connect to it from anywhere
+
+__Solution3__:
+Launch Abism asynchronously, so that you still have ipython available in the launching terminal
 
 __Idea:__
 Refine data types, keep them in scope, formalize their name so that its are easy to retrieve.
@@ -71,14 +79,15 @@ __Problem__:
 The code is verbose due to error propagation at each step, creating, calculating and returning each time another variable.
 
 __Solution__:
-Create an "Measure" object including a "value" and an "error" an overload each operator so the you can do arithmetic on those object and the error is automatically propagated to the result.
+Create an "Measure" object including a "value" and an "error".
+Then overload each operator to enable performing arithmetic on those object with the error automatically propagated to the result.
 
 __Code__:
 [answer.py](/abism/answer.py)
 
 ---
 
-### The Plugin kick away
+### The plugin kick away
 
 __Brief__:
 New features are coded out of the core
@@ -112,7 +121,7 @@ Tkinter could be overloaded by MyTkinter and MyTkinter imported by each Abism mo
 The decided solution was to monkey patch Tkinter, so the GUI modules do not even car about the style and can be coded and tested separately from Abism.
 
 __Code__:
-[plugin/stat_rectangle.py](/abism/plugin/stat_rectangle.py)
+[front/tk_extension.py](/abism/front/tk_extension.py)
 
 ---
 
@@ -120,8 +129,66 @@ __Code__:
 
 Actually everywhere, I like to nest the method as static in the same class and not like MyClassFactory like in Java.
 
+__Brief__:
+
+__Problem__:
+
+__Explanation__:
+
+__Solution__:
+
+__Code__:
+
 ---
 
 ### TODO Answer frame and factory style
 
+__Brief__:
+
+__Problem__:
+
+__Explanation__:
+
+__Solution__:
+
+__Code__:
+
 from list and callback, underline the callback API
+
+---
+
+### TODO The fit core
+
+__Brief__:
+
+__Problem__:
+
+__Explanation__:
+
+__Solution__:
+
+__Code__:
+[back/fit_template_function.py](/abism/back/fit_template_function.py) and
+[back/leastsqbound.py](/abism/back/leastsqbound.py)
+
+---
+
+### TODO The test driven development
+
+Missing test a lot
+
+See https://github.com/tinmarino/abism/actions/workflows/ci-action.yml
+
+__Brief__:
+
+__Problem__:
+
+__Explanation__:
+
+__Solution__:
+
+__Idea__:
+
+__Code__:
+
+---

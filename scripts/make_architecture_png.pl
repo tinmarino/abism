@@ -11,7 +11,6 @@
 =cut
 
 
-
 use v5.26;
 use File::Basename qw/dirname/;
 use Getopt::Long qw(GetOptions);
@@ -77,15 +76,13 @@ sub transform{
     write_file $fp2, $out;
 }
 
+
 # Convert to png
 sub convert{
     system <<EOF,
 dot -Tsvg $fp2  > $fp3 && xdg-open $fp3
 EOF
 }
-
-
-
 
 
 sub nodes{
