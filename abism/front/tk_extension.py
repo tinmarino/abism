@@ -12,6 +12,7 @@ link: https://github.com/fgirault/tkcode <- tkcode a ttk text editor (pretty)
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=broad-except  # To get GUI working
+# pylint: disable=too-many-ancestors  # tkinter supercharge
 
 from enum import Enum
 
@@ -98,18 +99,18 @@ SCHEME = ColorScheme(Scheme.LIGHT_SOLARIZED)
 
 def get_button_dic():
     """ Return tkinter style dict from hardcoded scheme above """
-    return dict(
+    return {
         # Custom
-        highlightcolor=SCHEME.bu_hi,
-        bg=SCHEME.button,
-        fg=SCHEME.fg,
+        'highlightcolor':SCHEME.bu_hi,
+        'bg':SCHEME.button,
+        'fg':SCHEME.fg,
 
         # Always
-        bd=3,
-        padx=0,
-        pady=0,
-        highlightthickness=0,
-    )
+        'bd':3,
+        'padx':0,
+        'pady':0,
+        'highlightthickness':0,
+    }
 
 
 def from_dic(victim, dic_getter):
@@ -124,6 +125,7 @@ def from_dic(victim, dic_getter):
     def init_proxy(obj, *args, **kw):
         dic = dic_getter()
         dic.update(kw)
+        # pylint: disable=unnecessary-dunder-call
         victim.__init__(obj, *args, **dic)
 
     def update_skin(obj):

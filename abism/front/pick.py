@@ -170,8 +170,11 @@ class PickOne(Pick):
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
             self.axe,
             self.on_rectangle, drawtype='box',
-            rectprops=dict(facecolor='green', edgecolor='black',
-                           alpha=0.5, fill=True),
+            rectprops={
+                'facecolor':'green',
+                'edgecolor':'black',
+                'alpha':0.5,
+                'fill':True},
             button=[1],  # 1/left, 2/center , 3/right
         )
         self.canvas.mpl_connect(
@@ -308,8 +311,8 @@ class PickStat(Pick):
             "computed in the region-------------------")
         # pylint: disable=unexpected-keyword-arg
         self.rectangle_selector = matplotlib.widgets.RectangleSelector(
-            self.axe, self.on_rectangle, drawtype='box', rectprops=dict(
-                facecolor='red', edgecolor='black', alpha=0.5, fill=True))
+            self.axe, self.on_rectangle, drawtype='box',
+            rectprops={'facecolor':'red', 'edgecolor':'black', 'alpha':0.5, 'fill':True})
 
     def work(self, obj):
         """ I will work with on_done """

@@ -80,7 +80,6 @@ class WCSDefault:
 
     def all_pix2world(self, _x, _y):
         """ Base method, return dummy coordinates """
-        # pylint: disable=no-self-use
         return np.array([[float('nan'), float('nan')]])
 
 

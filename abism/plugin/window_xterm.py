@@ -168,7 +168,7 @@ def launch_kernel():
         log(0, "Error: cannot import background_zmq_ipython,\n"
             "Tip: install: background_zmq_ipython and xterm\n"
             "and try again", exc)
-        return False
+        return
     sio = StringIO()
     logger = logging.Logger("ABISM kernel", level=logging.DEBUG)
     logger.addHandler(logging.StreamHandler(sio))

@@ -15,7 +15,8 @@ Should remove abism sutff and git to it as params
 """
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=broad-except  # To get GUI working
+# pylint: disable=bad-option-value  # For next duplicate
+# pylint: disable=broad-except,W0719  # To get GUI working
 
 import pylab as plt
 import numpy as np

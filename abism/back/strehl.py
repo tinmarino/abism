@@ -57,7 +57,7 @@ def strehl_one(rectangle):
             get_state().d_fit_param["center_x"]), int(
             get_state().d_fit_param["center_y"])
         mean = np.mean(get_state().image.im0[x0 - 1:x0 + 2, y0 - 1:y0 + 2])
-        intensity_error = (get_state().d_fit_param["intensity"] - mean)
+        intensity_error = get_state().d_fit_param["intensity"] - mean
         intensity_error /= 2
     set_aa(EA.INTENSITY, intensity, error=intensity_error)
 

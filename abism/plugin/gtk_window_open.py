@@ -8,8 +8,10 @@ But the tk ask open file is so ugly, and FileOpen may come too
 """
 
 from os.path import abspath
+# pylint: disable=import-error
 from gi.repository import Gtk, GLib
 
+# pylint: disable=import-error
 from gi import require_version
 require_version('Gtk', '3.0')
 

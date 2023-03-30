@@ -165,7 +165,7 @@ class AnswerSky(ABC):
 
     def sqrt(self):
         """ Helper method for making `**0.5` more readable"""
-        return self.__pow__(0.5)
+        return self ** 0.5
 
     __radd__ = __add__
     __iadd__ = __add__

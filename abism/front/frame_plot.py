@@ -473,16 +473,16 @@ class ImageFrame(PlotFrame):
                 # we invert to get the text at the end of the arrwo
                 xy=arrow_center, xycoords=coord_type,
                 xytext=north_point, textcoords=coord_type, color="purple",
-                arrowprops=dict(
-                    arrowstyle="<-", facecolor="purple", edgecolor="purple"),
+                arrowprops={
+                    'arrowstyle':"<-", 'facecolor':"purple", 'edgecolor':"purple"},
                 # connectionstyle="arc3"),
             )
             G.east = axe.annotate(
                 "",
                 xy=arrow_center, xycoords=coord_type,
                 xytext=east_point, textcoords=coord_type, color="red",
-                arrowprops=dict(
-                    arrowstyle="<-", facecolor='red', edgecolor='red'),
+                arrowprops={
+                    'arrowstyle':"<-", 'facecolor':'red', 'edgecolor':'red'},
                 # connectionstyle="arc3"),
             )
             G.north_text = axe.annotate(

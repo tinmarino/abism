@@ -530,9 +530,9 @@ def get_elliptical_aperture(grid, center=None, uv=None, theta=None):
     cos = np.cos(theta)
     sin = np.sin(theta)
 
-    a = ((cos / ru)**2 + (sin / rv)**2)
-    b = ((sin / ru)**2 + (cos / rv)**2)
-    c = (np.sin(2 * theta) * (1. / rv**2 - 1. / ru**2))
+    a = (cos / ru)**2 + (sin / rv)**2
+    b = (sin / ru)**2 + (cos / rv)**2
+    c = np.sin(2 * theta) * (1. / rv**2 - 1. / ru**2)
 
     x = np.arange(-x0, len(grid) - x0)  # invert IDK why
     y = np.arange(-y0, len(grid[0]) - y0)
