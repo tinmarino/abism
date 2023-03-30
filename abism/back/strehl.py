@@ -215,7 +215,7 @@ def save_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
 
 def event_ellipse_strehl(ellipse):
     """ Input event callback: on user ellipse click
-    arg: ellipse: artist with ru, rv, position
+    arg: ellipse: artist with radius_u, radius_v, position
     """
     if get_state().e_phot_type == EPhot.FIT:
         log(0, "Warning: Ellipse Measurement ignoring fit photometric type")
@@ -243,13 +243,13 @@ def get_ellipse_background(ellipse):
     """ Return: background from ellipse <stat ellipse> """
 
     # Inner annulus
-    rui, rvi = ellipse.ru, ellipse.rv
+    rui, rvi = ellipse.radius_u, ellipse.radius_v
     ell_i = IF.get_elliptical_aperture(
         get_state().image.im0, center=(ellipse.x0, ellipse.y0),
         uv=(rui, rvi), theta=ellipse.theta)
 
     # Outer annulus
-    ruo, rvo = 2 * ellipse.ru, 2 * ellipse.rv  # outer annulus
+    ruo, rvo = 2 * ellipse.radius_u, 2 * ellipse.radius_v  # outer annulus
     ell_o = IF.get_elliptical_aperture(
         get_state().image.im0, center=(ellipse.x0, ellipse.y0),
         uv=(ruo, rvo), theta=ellipse.theta)
@@ -268,7 +268,7 @@ def get_ellipse_photometry(ellipse):
     """
     bol = IF.get_elliptical_aperture(
         get_state().image.im0, center=(ellipse.x0, ellipse.y0),
-        uv=(ellipse.ru, ellipse.rv), theta=ellipse.theta)
+        uv=(ellipse.radius_u, ellipse.radius_v), theta=ellipse.theta)
 
     stat = get_array_stat(get_state().image.im0[bol])
 
@@ -281,7 +281,7 @@ def set_answer_ellipse_peak(ellipse):
     With bad pixel filter
     Side Returns: local maximum, cetner <- answers
     """
-    rad = max(ellipse.ru, ellipse.rv)
+    rad = max(ellipse.radius_u, ellipse.radius_v)
     radius = (ellipse.x0 - rad, ellipse.x0 + rad + 1,
          ellipse.y0 - rad, ellipse.y0 + rad + 1)
     local_max = IF.local_max(get_state().image.im0, r=radius)

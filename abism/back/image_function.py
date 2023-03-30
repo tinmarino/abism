@@ -66,6 +66,7 @@ def local_max(grid, center=None, size=10, r=None, type="interpolation"):
     # pylint: disable=unused-argument,redefined-builtin
     # Copy grid in => we will modify it for recursive call
     grid = grid.copy()
+    rect = r
 
     # INIT R
     if rect is None:
