@@ -1,14 +1,11 @@
+<img align="left" width="100" height="100" src="./abism/res/bato_grande.png">
 
-<img align="left" width="100" height="100" src="./abism/res/bato_chico.gif">
-
-# ABISM: Adaptive Background Interferometric Strehl Meter
+# ABISM: Adaptive Background Interferometric Strehl Meter.
 
 [![github-actions](https://github.com/tinmarino/abism/workflows/CI%20ABISM/badge.svg)](https://github.com/tinmarino/abism/actions)
+> A graphical user interface (GUI) to measure the [Strehl ratio](https://en.wikipedia.org/wiki/Strehl_ratio) of astronomical images
 
-A graphical user interface (GUI) to measure the Strehl ratio of astronomical images,
-i.e. the quality of adaptive optics system on optical telescopes.
-
-===
+---
 
 * [Quickstart](#quickstart)
 * [Details](#details)
