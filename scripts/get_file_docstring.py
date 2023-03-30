@@ -5,13 +5,14 @@ Get a list of all abysm file docstring
 """
 
 import sys
-from os.path import dirname
+from os.path import dirname, realpath
 
 import pathlib
 import importlib.util
 
+
 def get_file_doc(fil):
-    """ Get docstring from file
+    """ Get docstring and tooltip from file
     From: https://stackoverflow.com/questions/67631
     -- how-can-i-import-a-module-dynamically-given-the-full-path
     """
@@ -23,17 +24,30 @@ def get_file_doc(fil):
             '__main__.py',
             '__init__.py'
             ):
-        return ""
+        return "", ""
     if '.ropeproject' in f'{fil}':
-        return ""
+        return "", ""
 
     spec = importlib.util.spec_from_file_location("module.name", fil)
     module = importlib.util.module_from_spec(spec)
     sys.modules["module.name"] = module
     spec.loader.exec_module(module)
-    res = module.__doc__.strip("\n").split("\n\n")[0]
-    res = "\\n".join(res.split("\n"))
-    return res
+
+    docstring = module.__doc__.strip("\n").split("\n\n")
+    doc = docstring[0]
+    tip = docstring[1:]
+
+    doc = "\\n".join(doc.split("\n"))
+    tip = "\\n".join("\n\n".join(tip).split("\n"))
+    def clean(stg):
+        stg = stg.replace("'", "\\'")
+        stg = stg.replace('"', '\\"')
+        return stg
+
+    doc = clean(doc)
+    tip = clean(tip)
+
+    return doc, tip
 
 
 def get_file_docstring():
@@ -48,9 +62,23 @@ def get_file_docstring():
     print('my %file_doc = (')
 
     for fil in a_files:
-        doc = get_file_doc(fil)
+        # Get doc
+        doc, tip = get_file_doc(fil)
+
+        # Get file name
         name = fil.name.split(".")[0]
-        print(name, " => '", doc, "',", sep="")
+
+        # Get URL
+        prefix = "https://github.com/tinmarino/abism/tree/master/"
+        url = prefix + f'{fil.relative_to(realpath(".."))}'
+
+
+        print("'", name, "' => {",
+            "doc => '", doc, "',",
+            "tip => '", tip, "',",
+            "url => '", url, "',",
+            "},",
+            sep="")
 
     # Post
     print(');')
