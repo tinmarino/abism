@@ -3,7 +3,7 @@
 # ABISM: Adaptive Background Interferometric Strehl Meter.
 
 [![github-actions](https://github.com/tinmarino/abism/workflows/CI%20ABISM/badge.svg)](https://github.com/tinmarino/abism/actions)
-> A graphical user interface (GUI) to measure the [Strehl ratio](https://en.wikipedia.org/wiki/Strehl_ratio) of astronomical images
+> A [GUI](https://en.wikipedia.org/wiki/Graphical_user_interface) to measure the [Strehl ratio](https://en.wikipedia.org/wiki/Strehl_ratio)
 
 ---
 
@@ -30,13 +30,19 @@ abism crowded.fits
 
 On the following image, we have a Strehl ratio 50%.
 Notice the warning that we are reaching the non-linearity detector limit.
-We did not take time to measure the systematic error if intensity is reaching a non linear level, it is very detector dependant.
-
 
 <img align="center" width=80% src="./abism/doc/abism_v0.900.png">
 
 
 # Links
+
+### Internal links
+
+* [Developper corner](abism/doc/dev.md)
+* [Interface documentation](abism/doc/interface.md)
+* [Advanced manual](abism/doc/advanced_manual.pdf)
+
+### External links
 
 * [Paper 2016](https://www.eso.org/sci/libraries/SPIE2016/9909-303.pdf)
 * [Slide 2012](https://tinmarino.github.io/?show=abism_slide)
