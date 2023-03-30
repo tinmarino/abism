@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Create Menu bar <- MenuBarMaker
+Create Menu bar
+
+Using MenuBarMaker Factory function
 """
 
 # pylint:disable=too-many-ancestors  # tkinter

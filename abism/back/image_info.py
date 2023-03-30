@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-The class you always dreamt of ... is in your dreams
+Some array statistical utilities
 
-These one have some image / array utilities
+The class you always dreamt of ... is in your dreams
 """
 
 # pylint: disable=too-many-instance-attributes  # fits + array

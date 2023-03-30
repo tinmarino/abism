@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 """
-The Tkinter Frame using matplotlib
-The right part of the gui with plots
+The Tkinter Frame for drawings
+At the right side.
+With Matplotlib
 """
 
 # pylint: disable=too-many-ancestors  # Inherit from matplotlib

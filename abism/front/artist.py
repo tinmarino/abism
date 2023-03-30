@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 """
-ABISM artist collectino for drawing figures in matplotlib
+Collection of matplotlib artists.
+For drawing on the plots.
+With ellipse, annulus, square.
+
+ABISM artist collection for drawing figures in matplotlib
 Classes ar Cicle Annulus, Square, etc and they inherit from my custom Artist
 
 Note that all x,y are given for an array, in the image display, x and y must be switched

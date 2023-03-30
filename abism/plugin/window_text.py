@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Helper to open a tk window with some text
+Helper to open a
+markdown text tk window
+
 used by manual and header
 """
 

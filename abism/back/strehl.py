@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Strehl meter
-TODO prettify, the function division is not judicious:
-    Error goes along with measure (always)
+Strehl meter main orchestrator
+
+Note: Error goes along with measure (always)
+
+TODO: prettify, the function division is not judicious:
 """
 
 import numpy as np

@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 """
-image_function works on array to separe matematics and graphics
+Array utilities
+With PixelMax, get_radial_line
+
+works on array to separe matematics and graphics
 """
 # pylint: disable=too-many-locals
 # pylint: disable=invalid-name  # Lazy fixing

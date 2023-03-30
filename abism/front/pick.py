@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-Pick star and call back
+Pick star action and its callback to science
+
 Used by menu_bar.py
 """
 

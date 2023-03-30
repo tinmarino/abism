@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 """
+Leastsquare fit interface
+
 Helpers to make a 2D function (i.e Gaussian) fit an array
 
 IDEA: fit Y = F(X,A) where A is a dictionary describing the

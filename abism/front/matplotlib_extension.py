@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 """
+Add matplotlib user friendly features
+With zoom, pane, drag
+
 Draggable
 this module is imported from this web site :
 http://www.ster.kuleuven.be/~pieterd/python/html/plotting/interactive_colorbar.html

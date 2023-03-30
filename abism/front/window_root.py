@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Abism main GUI
+Abism GUI main 
 """
 
 # pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
@@ -26,7 +26,7 @@ from abism.util import log, parse_argument, get_state
 
 
 class WindowRoot(tk.Tk):
-    """Main window app object
+    """ Main window app object
     May one day destroy util_front ...
     Call me like Tk:
         root_window = WindowRoot()

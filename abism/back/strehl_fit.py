@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Fit classes oriented for Strehl retrieval (i.e photometry and intensity)
+Advanced classes for leastsq fit.
+Oriented for Strehl retrieval
+With TightBinaryPsf
 
 Build fitted parameters from user variables
 """

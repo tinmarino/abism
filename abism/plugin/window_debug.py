@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Helper console to run python code in the loop
+Embedded console to evaluate
+python code in Abism context
+
 For developers now (maybe one day embed jupyter kernel in main window)
 """
 

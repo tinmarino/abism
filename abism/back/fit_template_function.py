@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-Create template function to fit
+Basic fit target functions.
+With Gaussian2D
 """
 
 # pylint: disable=invalid-name  # Tight arithmetic

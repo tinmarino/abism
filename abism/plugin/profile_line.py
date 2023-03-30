@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 """
+Intensity profile drawer
+along a user defined line
+
 Profile line user shower, callback of a tool
 """
 

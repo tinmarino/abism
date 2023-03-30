@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Fits Header parser
+Header parser for fits image
 
 Necessary:
     diameter        (real in m)     The primary diameter

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 """
+Spawn a xterm python client
+in Abism context
+
 Create:
     1. Jupyter kernel <- in current state
     2. Xterm console <- in new tk window

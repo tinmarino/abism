@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
 """
+Monkeypath tkinter
+With skin and widget alias
+
 Extend and MonkeyPatch some tk class and method for:
 1. Skin
-2. Aliases functionality like inseting an abism answer in a text widget
+2. Aliases functionality like inserting an abism answer in a text widget
 Should be imported soon enough
 
 This is faster as moving all to MyTkinter, but if you prefer the latter, you can have a look at:

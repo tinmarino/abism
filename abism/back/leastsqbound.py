@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Constrained multivariate least-squares optimization
+Scipy fit interface.
+For constrained multivariate
+least-squares optimization
 """
 
 # pylint: disable=invalid-name,consider-using-f-string

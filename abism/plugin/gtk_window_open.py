@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 
 """
-Open File dialog for my Ubuntu 19.10 / Gnome 3
+File dialog opener
+When press Ctrl-o
+
+for my Ubuntu 19.10 / Gnome 3
 
 Requires GTK, so will usually fail
 But the tk ask open file is so ugly, and FileOpen may come too
 """
 
 from os.path import abspath
-# pylint: disable=import-error
-from gi.repository import Gtk, GLib
 
 # pylint: disable=import-error
+from gi.repository import Gtk, GLib
+# pylint: disable=import-error
 from gi import require_version
-require_version('Gtk', '3.0')
+
+try:
+    require_version('Gtk', '3.0')
+except ValueError:
+    pass
 
 
 class GtkDialog(Gtk.FileChooserDialog):

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 """
-The Tkinter Frame For text / butto ninterface (left)
+The Tkinter Frame for text
+At the left side.
+With TextEntry, Label, Buttons
 
 Label
 Option

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 """
+Intensity histogram drawer
+
 This is drawing the histogram of pixel values. It may be usefull.
 Programmers, We can implement a selection of the scale cut of the image
 with a dragging the vertical lines., with a binning of the image,
@@ -11,7 +13,7 @@ from abism.util import get_state
 
 
 def histopopo(figure, image_sorted):
-    """Single (useless) method for a single (useless) functionality
+    """ Single (useless) method for a single (useless) functionality
     figure: matplotlib figure
     image_sorted: 1D sorted array of pixel value
     """
