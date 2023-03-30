@@ -23,7 +23,7 @@ Python code can be run within the application context
 
 __Problem__:
 For real time troubleshooting, it is nice to have a python console in the Abism context.
-So variable can be inspected, functions called, GUI monitored or controled, etc.
+So variable can be inspected, functions called, GUI monitored or controlled, etc.
 
 __Solution__:
 Put this interpreter as an eval function of a Tkinter text entry widget.
@@ -40,6 +40,8 @@ __Code__:
 [plugin/window_debug.py](/abism/plugin/window_debug.py) and
 [plugin/window_xterm.py](/abism/plugin/window_xterm.py)
 
+---
+
 ### The static state
 
 __Brief__:
@@ -53,10 +55,12 @@ __Solution__:
 A state object serves to represent the current user input
 
 __Idea__:
-It would be nice to futher formalize the interfaces, operations, and data types. i.e. draw a software architecture.
+It would be nice to further formalize the interfaces, operations, and data types. i.e. draw a software architecture.
 
 __Code__:
 [util.py](/abism/util.py) (search "def get_state")
+
+---
 
 ### The result and error object
 
@@ -72,6 +76,8 @@ Create an "Measure" object including a "value" and an "error" an overload each o
 __Code__:
 [answer.py](/abism/answer.py)
 
+---
+
 ### The Plugin kick away
 
 __Brief__:
@@ -86,30 +92,35 @@ We implemented those features as "plugins", they are loaded on demand (late "imp
 __Code__:
 [plugin/stat_rectangle.py](plugin/stat_rectangle.py)
 
+---
+
 ### The interface monkey patch
 
 __Brief__:
 import tkinter is not importing tkinter.
 
 __Problem__:
-Tkinter cannot change the apperance of all widgets automatically (like font size, color, etc).
+Tkinter cannot change the appearance of all widgets automatically (like font size, color, etc).
 But changing style on demand is usefull to debug the GUI aspect.
 
 __Explanation__:
-This is because each Tkinter widget have a slighlty different keyword for its style, like "font_color" vs "color".
+This is because each Tkinter widget have a slightly different keyword for its style, like "font_color" vs "color".
 
 __Solution__:
-Tkinter could be overloaded by MyTkinter and MyTkinter imported by each Abism module but this lead to much code change and independant plugins would not be independant anymore.
+Tkinter could be overloaded by MyTkinter and MyTkinter imported by each Abism module but this lead to much code change and independent plugins would not be independent anymore.
 
 The decided solution was to monkey patch Tkinter, so the GUI modules do not even car about the style and can be coded and tested separately from Abism.
 
 __Code__:
 [plugin/stat_rectangle.py](/abism/plugin/stat_rectangle.py)
 
+---
 
 ### TODO factory pattern
 
 Actually everywhere, I like to nest the method as static in the same class and not like MyClassFactory like in Java.
+
+---
 
 ### TODO Answer frame and factory style
 
