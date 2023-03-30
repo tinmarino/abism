@@ -4,6 +4,13 @@
 Scipy fit interface.
 For constrained multivariate
 least-squares optimization
+
+Bounded minimization of the sum of squares of a set of equations.
+See function leastsqbound, the only one exported.
+
+References
+----------
+* F. James and M. Winkler. MINUIT User's Guide, July 16, 2004.
 """
 
 # pylint: disable=invalid-name,consider-using-f-string
@@ -249,7 +256,7 @@ def leastsqbound(
     The `qtf` vector in the infodic dictionary reflects internal parameter
     list, it should be correct to reflect the external parameter list.
 
-    References
+References
     ----------
     * F. James and M. Winkler. MINUIT User's Guide, July 16, 2004.
 

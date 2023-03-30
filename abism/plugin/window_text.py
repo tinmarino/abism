@@ -4,7 +4,8 @@
 Helper to open a
 markdown text tk window
 
-used by manual and header
+Used by manual and header.
+Press C-? to see the magic.
 """
 
 # pylint: disable=consider-using-f-string  # Old code ...

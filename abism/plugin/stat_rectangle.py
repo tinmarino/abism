@@ -2,6 +2,9 @@
 
 """
 Statistic rectangle widget callback
+
+Get statistics from a user defined rectangle.
+Show them in the standard AnswerFrame
 """
 
 import numpy as np

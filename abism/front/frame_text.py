@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 """
-The Tkinter Frame for text
-At the left side.
+The Tkinter left frame for text
 With TextEntry, Label, Buttons
 
-Label
-Option
-Answer
+LeftFrame is the expoorted class
+There are some other internal classes separated with a sash
+So that we get openable, slidy panes
 """
 
 # pylint: disable=too-many-lines  # TODO this should be refactored
@@ -141,7 +140,7 @@ class TextFrame(tk.Frame):
         log(3, 'New sash pos: height=', i_height)
 
     def init_will_toggle(self, visible=True, add_title=True):
-        """Best way to showme: Place last and togfle later
+        """ Best way to showme: Place last and togfle later
         Usually called to set visible when some widget added
         This trick is due to the fact widget will be updated at next tk loop
         """
@@ -153,7 +152,7 @@ class TextFrame(tk.Frame):
         self.after_idle(will_refresh)
 
     def will_update_sash(self):
-        """The Reformat when added or deleted"""
+        """ The Reformat when added or deleted """
         def will_refresh():
             self.update_last_widget()
             self.update()
@@ -161,7 +160,7 @@ class TextFrame(tk.Frame):
         self.after_idle(will_refresh)
 
     def clear(self):
-        """Destroy all children, take care !"""
+        """ Destroy all children, take care ! """
         log(3, 'Clearing ' + self._label_text)
         # Destroy children
         children = self.grid_slaves()
@@ -173,13 +172,13 @@ class TextFrame(tk.Frame):
 
 
 class LabelFrame(TextFrame):
-    """Some conf"""
+    """ Some conf """
 
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
 
     def update_label(self):
-        """Called later, display what I retrieved from header
+        """ Called later, display what I retrieved from header
         warning: expand not working well
         ESO /  not ESO
         NAco/vlt
@@ -863,7 +862,7 @@ class AnswerFrame(TextFrame):
 
 
 class ButtonFrame(tk.Frame):
-    """Frame 1 with quit, restart"""
+    """ Frame 1 with quit, restart """
 
     def __init__(self, parent, **args):
         super().__init__(parent, **args)
@@ -954,7 +953,7 @@ class ButtonFrame(tk.Frame):
 
         # callback
         def scroll_cube(i_click):
-            """Callback for cube button + -
+            """ Callback for cube button + -
             Note: cube_num is "0 based" and int_var is "1 based"
             """
             # Get in

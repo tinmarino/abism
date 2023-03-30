@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
 """
-The Tkinter Frame for drawings
-At the right side.
+The Tkinter right Frame for plotting
 With Matplotlib
+
+RightFrame is the exported class
+It is vertically divided:
+  * Top: PlotFrame
+  * BottomLeft: 1D view
+  * BottomRight: 2D view
 """
 
 # pylint: disable=too-many-ancestors  # Inherit from matplotlib

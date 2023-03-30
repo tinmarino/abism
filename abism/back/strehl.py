@@ -3,6 +3,13 @@
 """
 Strehl meter main orchestrator
 
+On user demand, perform arithmetic operations:
+1. Read user input
+2. Find first guess parameters
+3. Make a fit
+4. Do some arithmetic
+5. Report the result to user
+
 Note: Error goes along with measure (always)
 
 TODO: prettify, the function division is not judicious:
@@ -30,7 +37,7 @@ def strehl_one(rectangle):
     """
     # pylint: disable = too-many-locals
 
-    # Find center && fwhm
+    # 1. Find center && fwhm
     # TODO bad pixels in center
     rectangle = IF.order4(rectangle, grid=get_state().image.im0, intify=True)
     star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)

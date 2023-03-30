@@ -3,6 +3,8 @@
 """
 Basic fit target functions.
 With Gaussian2D
+
+Also includes a fit_function factory taking an enum as input
 """
 
 # pylint: disable=invalid-name  # Tight arithmetic

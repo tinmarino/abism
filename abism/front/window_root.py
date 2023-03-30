@@ -2,6 +2,12 @@
 
 """
 Abism GUI main 
+
+* Create the main tkinter window
+  1. Top menu
+  2. Left text
+  3: Right plot
+* Set the fits image if from command line
 """
 
 # pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
@@ -21,7 +27,7 @@ from abism.front.util_front import icon_path
 # Variables
 from abism.back.image_info import ImageInfo
 
-
+# Util
 from abism.util import log, parse_argument, get_state
 
 
@@ -111,21 +117,23 @@ class WindowRoot(tk.Tk):
             refresh_pick(EPick.ONE)
 
     def set_title(self):
-        """Set OS window title"""
+        """ Set OS window title """
         self.title('ABISM (' +
                    "/".join(str(get_state().image.name).split("/")[-3:]) + ')')
 
     def set_icon(self):
-        """Set OS window icon from resources"""
+        """ Set OS window icon from resources """
         if isfile(icon_path()):
             bitmap = tk.PhotoImage(file=icon_path(), master=self)
             self.tk.call('wm', 'iconphoto', self._w, bitmap)
-        else:
-            log(3, "->you have no beautiful icon "
-                "because you didn't set the PATH in Abism.py")
+            return
+
+        # Warn if fail
+        log(3, "->you have no beautiful icon "
+            "because you didn't set the PATH in Abism.py")
 
     def bind_root(self, text, cmd):
-        """Bind text to cmd for me and my children"""
+        """ Bind text to cmd for me and my children """
         for widget in (self, *self.saved_children):
             widget.bind_all(text, cmd)
         self.l_bind.append([text, cmd])

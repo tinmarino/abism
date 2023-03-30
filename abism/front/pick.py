@@ -3,7 +3,8 @@
 """
 Pick star action and its callback to science
 
-Used by menu_bar.py
+Some class hierarchy, representing the pick type,
+selected by the user in the menu
 """
 
 # pylint: disable=broad-except

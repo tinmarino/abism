@@ -3,7 +3,10 @@
 """
 Create Menu bar
 
-Using MenuBarMaker Factory function
+Using MenuBarMaker Factory function to get things as declarative as possible
+Just a binding between buttons and callback.
+Some internal callbacks are changing the button content.
+Each button should have an associated keymap showed in tooltip (like Ctrl-o)
 """
 
 # pylint:disable=too-many-ancestors  # tkinter
