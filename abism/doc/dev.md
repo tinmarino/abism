@@ -1,3 +1,4 @@
+
 * [Dynamic](#dynamic)
 * [Static](#static)
 * [Notes](#notes)
@@ -12,14 +13,25 @@
 
 # Static
 
-TODO At high level,
-run.py > front/window_root.py > back/strehl.py
-
-TODO add hyperlinks to dot
+At highest level:
+1. [run.py](/abism/run.py) is launching the application
+2. [front/window_root.py][/abism/front/window_root.py] is creating the GUI
+3. [back/strehl.py](/abism/back/strehl.py) is performing the measure based on user input. Is is called from the GUI via
+  1. [front/menu_bar.py](/abism/front/menu_bar.py) setting the callback
+  2. [front/pick.py](/abism/front/pick.py) making the actual call to strehl.py and presenting the result
 
 ![static architecture](static_archi.svg)
 
 # Notes
+
+* [The debugger console](#the-debugger-console)
+* [The static state](#the-static-state)
+* [The result and error object](#the-result-and-error-object)
+* [The plugin kick away](#the-plugin-kick-away)
+* [The interface monkey patch](#the-interface-monkey-patch)
+* [The result frame and factory pattern](#the-result-frame-and-factory-pattern)
+* [The fit core](#the-fit-core)
+* [The test driven development](#the-test-driven-development)
 
 ### The debugger console
 
@@ -42,6 +54,7 @@ Launch Abism asynchronously, so that you still have ipython available in the lau
 __Idea:__
 Refine data types, keep them in scope, formalize their name so that its are easy to retrieve.
 
+__Idea2:__
 Fill the interpreter with helper functions (like pretty_print_object)
 
 __Code__:
@@ -125,47 +138,36 @@ __Code__:
 
 ---
 
-### TODO factory pattern
+### The result frame and factory pattern
 
+
+__Brief__:
+Build modular, extensible code with the factory and inheritance pattern
+
+__Problem__:
+Code duplication, magic numbers and strings
+
+__Solution__:
+Create switches with classes and buttons with factories
+
+__Explanation__:
 Actually everywhere, I like to nest the method as static in the same class and not like MyClassFactory like in Java.
 
-__Brief__:
-
-__Problem__:
-
-__Explanation__:
-
-__Solution__:
-
 __Code__:
+Factories in [front/menu_bar.py](/abism/front/menu_bar.py) and [back/image_info.py](/abism/back/image_info.py), inheritance in [front/pick.py](/abism/front/pick.py)
 
 ---
 
-### TODO Answer frame and factory style
+### The fit core
 
 __Brief__:
+A more friendly interface to least square fit, generously offered by an ESO staff
 
 __Problem__:
-
-__Explanation__:
-
-__Solution__:
-
-__Code__:
-
-from list and callback, underline the callback API
-
----
-
-### TODO The fit core
-
-__Brief__:
-
-__Problem__:
-
-__Explanation__:
+The Python scipy module has a complicated interface
 
 __Solution__:
+Jerome who is "fitting everything" offered us his wrapper to the library including some examples to copy, paste, test and modify.
 
 __Code__:
 [back/fit_template_function.py](/abism/back/fit_template_function.py) and
@@ -173,22 +175,20 @@ __Code__:
 
 ---
 
-### TODO The test driven development
-
-Missing test a lot
-
-See https://github.com/tinmarino/abism/actions/workflows/ci-action.yml
+### The test driven development
 
 __Brief__:
+Comparaisons, tests and documentation helps going in the good direction (i.e. improving).
 
 __Problem__:
-
-__Explanation__:
+Changing the algorithm usually leads to better performance in some cases but worse in others.
 
 __Solution__:
+Testing the algorithm in continuous integration model avoid regressions.
 
 __Idea__:
+This has not been implemented already.
+We would need to create a command line interface to automatically test on some artificial images.
 
 __Code__:
-
----
+https://github.com/tinmarino/abism/actions/workflows/ci-action.yml
