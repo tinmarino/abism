@@ -2,6 +2,6 @@
 disable=no-name-in-module,fixme
 
 [BASIC]
-argument-rgx=x0|y0|z0|x|y|z|X|Y|Z|bg|fg|id|_?_?[a-z][A-Za-z0-9_]{2,30}$
-variable-rgx=x0|y0|z0|x|y|z|X|Y|Z|bg|fg|id|_?_?[a-z][A-Za-z0-9_]{2,30}$
-attr-rgx    =x0|y0|z0|x|y|z|X|Y|Z|bg|fg|id|_?_?[a-z][A-Za-z0-9_]{2,30}$
+argument-rgx=_?_?([xyzXYZ]\d?|bg|fg|id|[_a-z][A-Za-z0-9_]{2,30})$
+variable-rgx=_?_?([xyzXYZ]\d?|bg|fg|id|[_a-z][A-Za-z0-9_]{2,30})$
+attr-rgx    =_?_?([xyzXYZ]\d?|bg|fg|id|[_a-z][A-Za-z0-9_]{2,30})$

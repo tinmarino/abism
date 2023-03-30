@@ -2,7 +2,11 @@
 
 """
 The class you always dreamt of ... is in your dreams
+
+These one have some image / array utilities
 """
+
+# pylint: disable=too-many-instance-attributes  # fits + array
 
 import re
 import numpy as np
@@ -15,7 +19,7 @@ from abism.util import log, get_state, DotDic
 
 
 class ImageStat(DotDic):
-    """Container mean, median, rms, min, max, number_count, sum"""
+    """ Container mean, median, rms, min, max, number_count, sum """
 
     def __init__(self, image):
         # pylint: disable = super-init-not-called
@@ -50,7 +54,7 @@ class ImageStat(DotDic):
 
 
 class ImageInfo():
-    """Image and its info
+    """ Image and its info
     Instance it at root.image. Is is unique as user can open only 1 image.
         - Maybe I should put it in AbismState but ...
         - that does not change anything anyway
@@ -80,7 +84,7 @@ class ImageInfo():
         self.release = (0., 0.)  # You guess ?
 
     def set_array(self, array):
-        """Array info called from init and cube change"""
+        """ Array info called from init and cube change """
         self.im0 = array.copy()  # np.array the image !!
 
         # Sorted image for cut and histograms
@@ -109,10 +113,12 @@ class ImageInfo():
         except FileNotFoundError:
             return None
 
+        # pylint: disable=no-member  # Yes I can pack
         if len(hdulist[0].data.shape) >= 3:
             image = ImageInfo.from_cube(hdulist)
-        else:  # including image not a cube, we try to destroy cube frame
-            image = ImageInfo.from_2D(hdulist)
+        else:
+            # including image not a cube, we try to destroy cube frame
+            image = ImageInfo.from_2d(hdulist)
 
         # Get <- Io
         image.name = filename
@@ -129,7 +135,7 @@ class ImageInfo():
         return image
 
     @staticmethod
-    def from_2D(hdulist):
+    def from_2d(hdulist):
         """ Factory: From 2D image """
         image = ImageInfo(hdulist[0].data)
         image.is_cube = False
@@ -172,6 +178,7 @@ class ImageInfo():
         bg_hdulist = fits.open(fp_sky)
 
         # Check shape
+        # pylint: disable=no-member  # Yes I can pack
         bg0 = bg_hdulist[0].data
         if not bg0.shape == self.im0.shape:
             log(0, 'ERROR : Science image and Background image should have the same shape')
@@ -191,7 +198,7 @@ class ImageInfo():
         self.bpm[bol1] = True
 
     def get_cut_minmax(self):
-        """Returns: (min, max) cut in ADU for the viewable image"""
+        """ Returns: (min, max) cut in ADU for the viewable image"""
         # Get in <- GUI state
         cut_type = get_state().s_image_cut
         if cut_type not in ('None', 'Manual'):
@@ -240,7 +247,7 @@ class ImageInfo():
         return min_cut, max_cut
 
     def sky(self, dic=None):
-        """Recursive sigmaclipping to estimate the sky bg
+        """ Recursive sigmaclipping to estimate the sky bg
             @param grid: the image np.array
             @param dic contains mean,rms, sigma(clipping),
             median, it is the input and output
@@ -279,19 +286,19 @@ class ImageInfo():
         # Finished
         return dic
 
-    def RectanglePhot(self, r):
-        """
-        :param r: (rx1,rx2,ry1,ry2), it should be ordered
+    def rectangle_photometry(self, rect):
+        """ Get Photometry inside a rectangle
+        :param rect: (rx1,rx2,ry1,ry2), it should be ordered
             kand defining a rectangle
         # exact is for the taking the percentage of the cut pixel or not
         # median is a median filter of 3 pixel square and 2 sigma clipping
-        # in_border is examining if r is in the grid, otherwise, cannot calculate.
+        # in_border is examining if rect is in the grid, otherwise, cannot calculate.
 
         None: Considering pixels, no division of a pixel
         """
-        log(5, 'Rectangle phot on:', r)
+        log(5, 'Rectangle phot on:', rect)
 
-        rx1, rx2, ry1, ry2 = list(map(int, r))
+        rx1, rx2, ry1, ry2 = list(map(int, rect))
 
         # Cut image
         cut = self.im0[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
@@ -308,7 +315,7 @@ class ImageInfo():
 
 
 def get_array_stat(grid):
-    """Helper for readability
+    """ Helper for readability
     Get statistic dictionary from a grid
     """
     return ImageInfo(grid).get_stat()

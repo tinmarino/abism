@@ -27,7 +27,7 @@ import abism.front.util_front as G
 from abism.front.util_front import is_toolbar_active
 
 # Back
-from abism.back.ImageFunction import PixelMax
+from abism.back.image_function import PixelMax
 
 from abism.util import log, get_root, get_state
 

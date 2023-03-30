@@ -17,7 +17,7 @@ import numpy as np
 import matplotlib
 
 # Back
-from abism.back import ImageFunction as IF
+from abism.back import image_function as IF
 import abism.back.fit_template_function as BF
 
 # Plugin
@@ -328,9 +328,9 @@ def plot1d_binary():
     dx1 = (x1 - x0) / line_len * 5 * fwhm1
     dy1 = (y1 - y0) / line_len * 5 * fwhm1
 
-    extremity1 = IF.DoNotPassBorder(
+    extremity1 = IF.do_not_pass_border(
         get_state().image.im0, (int(x0 + dx0), int(y0 + dy0)))
-    extremity2 = IF.DoNotPassBorder(
+    extremity2 = IF.do_not_pass_border(
         get_state().image.im0, (int(x1 + dx1), int(y1 + dy1)))
 
     absci, ordin, _points = IF.get_radial_line(
@@ -561,8 +561,8 @@ def plot2d_binary():
     """ Plot the 2D of the binary pick """
     x0, y0 = get_state().d_fit_param["x0"], get_state().d_fit_param["y0"]
     x1, y1 = get_state().d_fit_param["x1"], get_state().d_fit_param["y1"]
-    xr, yr = 3 * abs(x0 - x1), 3 * abs(y0 - y1)  # ditances
-    side = max(xr, yr)  # side of the displayed square
+    x_radius, y_radius = 3 * abs(x0 - x1), 3 * abs(y0 - y1)  # ditances
+    side = max(x_radius, y_radius)  # side of the displayed square
     rx1, rx2 = int(min(x0, x1) - side / 2), int(max(x0, x1) + side / 2)
     ry1, ry2 = int(min(y0, y1) - side / 2), int(max(y0, y1) + side / 2)
     rect = (rx1, rx2, ry1, ry2)

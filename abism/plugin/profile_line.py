@@ -6,7 +6,7 @@ Profile line user shower, callback of a tool
 
 import numpy as np
 
-from abism.back import ImageFunction as IF
+from abism.back import image_function as IF
 from abism.back.fit_template_function import get_fit_function
 from abism.back.image_info import get_array_stat
 

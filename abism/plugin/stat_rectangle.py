@@ -3,7 +3,7 @@
 """
 import numpy as np
 
-from abism.back import ImageFunction as IF
+from abism.back import image_function as IF
 from abism.back.image_info import get_array_stat
 from abism.front.answer_return import AnswerPrinter
 
@@ -14,7 +14,7 @@ from abism.answer import AnswerDistance, AnswerLuminosity, AnswerNum
 def show_statistic(rectangle):
     """Get and Print statistics from a rectangle selection"""
     # Get stat <- subarray
-    rectangle = IF.Order4(rectangle, intify=True)
+    rectangle = IF.order4(rectangle, intify=True)
     log(3, 'Stat on rectangle:', rectangle)
     sub_array = get_state().image.im0[
         rectangle[0]:rectangle[1], rectangle[2]:rectangle[3]]

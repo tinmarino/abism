@@ -1,14 +1,18 @@
+#!/usr/bin/env python3
+
 """
-    Fit classes oriented for Strehl retrieval (i.e photometry and intensity)
+Fit classes oriented for Strehl retrieval (i.e photometry and intensity)
+
 Build fitted parameters from user variables
 """
+
 from abc import ABC, abstractmethod
 
 import time
 import numpy as np
 
-from abism.back import ImageFunction as IF
-from abism.back.fit_helper import leastsqFit
+from abism.back import image_function as IF
+from abism.back.fit_helper import least_sq_fit
 import abism.back.fit_template_function as BF
 
 
@@ -17,7 +21,7 @@ from abism.util import log, get_state, set_aa, \
 
 
 class Fit(ABC):
-    """Base class to perform a Fit"""
+    """ Base class to perform a Fit """
 
     def __init__(self, grid):
         self.grid = grid
@@ -34,13 +38,14 @@ class Fit(ABC):
         self.result = []
 
     def do_fit(self):
+        """ Work """
         start_time = time.time()
 
-        (x, y), IX, eIX = self.get_xy_IX_eIX()
+        (x, y), a_fit, eIX = self.get_xy_ix_eix()
 
         # Fit
-        self.result = leastsqFit(
-            self.get_function(), (x, y), self.get_supposed_parameters(), IX,
+        self.result = least_sq_fit(
+            self.get_function(), (x, y), self.get_supposed_parameters(), a_fit,
             err=eIX,
             doNotFit=self.get_not_fitted(),
             bounds=self.get_bounds(),
@@ -49,8 +54,9 @@ class Fit(ABC):
         set_aa(EA.CHI2, self.result[2])
 
         # Log
+        elapsed_time = time.time() - start_time
         log(0,
-            "Fit efectuated in %f seconds" % (time.time() - start_time),
+            f'Fit efectuated in {elapsed_time} seconds'
             "with function:\n",
             self.fit_fct,
             '(if lambda, look above fit log)',
@@ -60,14 +66,17 @@ class Fit(ABC):
         return self
 
     @abstractmethod
-    def get_xy_IX_eIX(self): pass
+    def get_xy_ix_eix(self):
+        """ Generic: Get arrays result from fit """
 
     def get_function(self):
+        """ Generic: get fit function """
         return self.fit_fct
 
     @abstractmethod
     def get_supposed_parameters(self):
-        """Warning, each parameter here will be fitted
+        """ Get first guess
+        Warning, each parameter here will be fitted
         Detect uselesss parameters <- error returned is -1
         """
         supposed_param = {
@@ -89,7 +98,7 @@ class Fit(ABC):
 
     @abstractmethod
     def get_not_fitted(self):
-        """Saturation and background
+        """ Saturation and background
         Children ! Do your job ! (i.e. check aniso and same psf)
         """
         doNotFit = []
@@ -101,7 +110,7 @@ class Fit(ABC):
 
     @abstractmethod
     def get_bounds(self):
-        """Universal bounds, if not used nevermind"""
+        """ Universal bounds, if not used nevermind """
         bounds = {
             # Theta not rotating (avoid useless time lost)
             'theta': (-0.1, 3.24),
@@ -126,11 +135,12 @@ class Fit(ABC):
         return bounds
 
     @abstractmethod
-    def get_result(self): pass
+    def get_result(self):
+        """ Generic: get result """
 
 
 class OnePsf(Fit):
-    """Fit Point Spread Function of a single source"""
+    """ Fit Point Spread Function of a single source """
 
     def __init__(self, grid, rectangle, center=(0, 0), my_max=1):
         super().__init__(grid)
@@ -146,6 +156,7 @@ class OnePsf(Fit):
             self.do_fit = self.no_fit
 
     def no_fit(self):
+        """ Return first guess """
         fit_dic = {
             'center_x': self.center[0], 'center_y': self.center[1],
             'intensity': self.my_max,
@@ -165,7 +176,8 @@ class OnePsf(Fit):
         self.result = (fit_dic, err_dic, 0, None, 0)
         return self
 
-    def get_xy_IX_eIX(self):
+    def get_xy_ix_eix(self):
+        """ Return array """
         # In center and bound
         rx1, rx2, ry1, ry2 = self.rectangle
         log(3, "OnePsf: ", rx1, rx2, ry1, ry2, 'center :', self.center)
@@ -174,14 +186,15 @@ class OnePsf(Fit):
         X, Y = np.arange(int(rx1), int(rx2)), np.arange(int(ry1), int(ry2))
         # We have to inverse because of matrix way
         y, x = np.meshgrid(Y, X)
-        IX = self.grid[rx1:rx2, ry1:ry2]  # the cut image
+        a_fit = self.grid[rx1:rx2, ry1:ry2]  # the cut image
 
         # Mask bad pixel
-        IX, _, eIX = IF.find_bad_pixel(IX)
+        a_fit, _, eIX = IF.find_bad_pixel(a_fit)
 
-        return (x, y), IX, eIX
+        return (x, y), a_fit, eIX
 
     def get_supposed_parameters(self):
+        """ Return first guess, some hardcode """
         supposed_param = super().get_supposed_parameters()
         supposed_param.update({
             'center_x': self.center[0],
@@ -217,6 +230,7 @@ class OnePsf(Fit):
         return supposed_param
 
     def get_not_fitted(self):
+        """ Return parameters not to fit """
         doNotFit = super().get_not_fitted()
         if not get_state().b_aniso:
             doNotFit.append("theta")
@@ -224,6 +238,7 @@ class OnePsf(Fit):
         return doNotFit
 
     def get_bounds(self):
+        """ Return boundaries """
 
         x0, y0 = self.center
         local_median = np.median(
@@ -240,6 +255,7 @@ class OnePsf(Fit):
         return bounds
 
     def get_result(self):
+        """ Return result of the fit """
         # Care if not aniso stuff to full x and y
         is_aniso = not get_state().b_aniso and self.fit_fct is not None
         if is_aniso:
@@ -248,7 +264,7 @@ class OnePsf(Fit):
                     self.result[0]["spread"], self.result[0]["spread"]
                 self.result[1]["spread_y"], self.result[1]["spread_x"] = \
                     self.result[1]["spread"], self.result[1]["spread"]
-            except BaseException:
+            except (IndexError, KeyError):
                 self.result[0]["spread_y"], self.result[0]["spread_x"] = \
                     self.result[0]["spread_x"], self.result[0]["spread_x"]
                 self.result[1]["spread_y"], self.result[1]["spread_x"] = \
@@ -269,7 +285,7 @@ class OnePsf(Fit):
 
 
 class BinaryPsf(Fit):
-    """Fit two star function together
+    """ Fit two star function together
     TODO log in base class
     """
 
@@ -294,7 +310,7 @@ class BinaryPsf(Fit):
             self.star_distance /
             2)
 
-    def get_xy_IX_eIX(self):
+    def get_xy_ix_eix(self):
         # pylint: disable = too-many-locals
         (x1, y1), (x2, y2) = self.star1, self.star2
         center = [(x1 + x2) / 2, (y1 + y2) / 2]
@@ -306,7 +322,7 @@ class BinaryPsf(Fit):
         ry1 = int(center[1] - fit_range / 2)
         ry2 = int(center[1] + fit_range / 2)
 
-        rx1, rx2, ry1, ry2 = IF.Order4(
+        rx1, rx2, ry1, ry2 = IF.order4(
             (rx1, rx2, ry1, ry2),
             grid=self.grid)
 
@@ -316,11 +332,11 @@ class BinaryPsf(Fit):
         X, Y = np.arange(int(rx1), int(rx2) +
                          1), np.arange(int(ry1), int(ry2) + 1)
         y, x = np.meshgrid(Y, X)
-        IX = self.grid[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
-        IX, _, eIX = IF.find_bad_pixel(IX)
+        a_fit = self.grid[int(rx1):int(rx2 + 1), int(ry1):int(ry2 + 1)]
+        a_fit, _, eIX = IF.find_bad_pixel(a_fit)
 
-        log(3, "Binary shapes :", X.shape, Y.shape, IX.shape, eIX.shape)
-        return (x, y), IX, eIX
+        log(3, "Binary shapes :", X.shape, Y.shape, a_fit.shape, eIX.shape)
+        return (x, y), a_fit, eIX
 
     def get_supposed_parameters(self):
         (x1, y1), (x2, y2) = self.star1, self.star2
@@ -401,7 +417,7 @@ class BinaryPsf(Fit):
 
 
 class TightBinaryPsf(BinaryPsf):
-    """Just better bounds"""
+    """ Just better bounds """
 
     def get_bounds(self):
         (x1, y1), (x2, y2) = self.star1, self.star2

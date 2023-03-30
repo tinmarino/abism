@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+
+"""
+Create template function to fit
+"""
+
+# pylint: disable=invalid-name  # Tight arithmetic
+
 import numpy as np
 from scipy.special import jn  # pylint: disable=no-name-in-module
 
@@ -5,7 +13,7 @@ from abism.util import get_state, log, EPick
 
 
 def get_fit_function():
-    """Remember last for profile"""
+    """ Remember last for profile """
     # Alias <- side
     e_pick_type = get_state().e_pick_type
 
@@ -31,7 +39,7 @@ get_fit_function.e_pick_type_cache = None
 
 
 def get_binary_fct():
-    """Enhance for binary fit"""
+    """ Enhance for binary fit """
     # Get side
     s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
@@ -48,8 +56,8 @@ def get_binary_fct():
     fct_base = globals()[s_fit_type.replace("2D", "") + "2pt"]
 
     # Set function named params (aniso and same_psf)
-    def fit_fct(points, params): return fct_base(
-        points, params, aniso=aniso, same_psf=same_psf)
+    def fit_fct(points, params):
+        return fct_base(points, params, aniso=aniso, same_psf=same_psf)
 
     # Log
     log(0, 'Fit function:', fct_base,
@@ -83,6 +91,7 @@ def get_one_fct():
 
 
 def Gaussian2pt(points, params, aniso=True, same_psf=True):
+    """ Gaussian PSF with 2 points (i.e. stars) """
     # pylint: disable = too-many-locals
     x, y = points
     x0, y0 = params['x0'], params['y0']
@@ -129,6 +138,7 @@ def Gaussian2pt(points, params, aniso=True, same_psf=True):
 
 
 def Moffat2pt(points, params, aniso=True, same_psf=True):
+    """ Moffat PSF with 2 points (i.e. stars) """
     # pylint: disable = too-many-locals
     x, y = points
     x0, y0 = params['x0'], params['y0']
@@ -137,6 +147,7 @@ def Moffat2pt(points, params, aniso=True, same_psf=True):
     saturation = params['saturation']
     try:
         bck = params['background']
+    # pylint: disable=broad-except
     except BaseException:
         bck = 0
 
@@ -186,7 +197,7 @@ def Moffat2pt(points, params, aniso=True, same_psf=True):
 ##########
 # GAUSSIAN
 def Gaussian(points, params):
-    """param contains   center, spread, amplitude, background"""
+    """ param contains   center, spread, amplitude, background """
     x, y = points
     x0 = params['center_x']
     y0 = params['center_y']
@@ -200,7 +211,7 @@ def Gaussian(points, params):
 
 
 def Gaussian2D(xy, params):
-    """params: center_x,center_y,theta,backgrounds,intensity,spread_x,spread_y """
+    """ params: center_x,center_y,theta,backgrounds,intensity,spread_x,spread_y """
     saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
@@ -218,6 +229,7 @@ def Gaussian2D(xy, params):
 ###########
 # MOFFAT
 def Moffat(points, params):
+    """ Moffat function """
     (x, y) = points
     x0 = params['center_x']
     y0 = params['center_y']
@@ -255,6 +267,7 @@ def Moffat2D(xy, params):
 ############
 # BESSEL
 def Bessel1(points, params):
+    """ Bessel1, Airy disk """
     # the max is I the integer of [J1(x)/x] **2 is   pi  (sure)
     (x, y) = points
     x0 = params['center_x']
@@ -272,6 +285,7 @@ def Bessel1(points, params):
 
 
 def Bessel12D(xy, params):
+    """ Bessel1, Airy disk asymmetric"""
     saturation = params['saturation']
     xt = xy[0]
     yt = xy[1]
@@ -289,7 +303,7 @@ def Bessel12D(xy, params):
 
 
 def DiffractionPattern(points, params):
-    """Perfection cannot saturate"""
+    """ Perfection cannot saturate """
     x0 = params['center_x']
     y0 = params['center_y']
     l = params['lambda'] * 10**(-6)  # wavelength

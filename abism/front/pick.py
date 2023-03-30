@@ -14,7 +14,7 @@ import matplotlib
 from abism.front import artist
 from abism.front import answer_return
 
-from abism.back import Strehl
+from abism.back import strehl
 
 from abism.plugin.stat_rectangle import show_statistic
 from abism.plugin.profile_line import show_profile
@@ -188,7 +188,7 @@ class PickOne(Pick):
 
     def work(self, obj):
         """obj is None"""
-        Strehl.strehl_one(self.rectangle)
+        strehl.strehl_one(self.rectangle)
 
     def on_done(self):
         answer_return.show_answer()
@@ -263,7 +263,7 @@ class PickBinary(Pick):
         self.connect()
 
     def work(self, obj):
-        Strehl.BinaryStrehl(self.star1, self.star2)
+        strehl.calculate_binary_strehl(self.star1, self.star2)
 
     def on_done(self):
         answer_return.show_answer()
@@ -285,7 +285,7 @@ class PickTightBinary(PickBinary):
         get_state().same_psf_var = True
 
     def work(self, obj):
-        Strehl.TightBinaryStrehl(self.star1, self.star2)
+        strehl.calculate_tight_binary_strehl(self.star1, self.star2)
 
 
 class PickStat(Pick):
@@ -396,7 +396,7 @@ class PickEllipse(Pick):
         self.artist_ellipse = None
 
     def work(self, _):
-        Strehl.EllipseEventStrehl(self.artist_ellipse)
+        strehl.event_ellipse_strehl(self.artist_ellipse)
 
     def on_done(self):
         answer_return.show_answer()

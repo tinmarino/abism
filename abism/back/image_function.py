@@ -1,20 +1,24 @@
+#!/usr/bin/env python3
+
 """
-    ImageFunction works on array to separe matematics and graphics
+image_function works on array to separe matematics and graphics
 """
-# pylint: disable = too-many-locals
+# pylint: disable=too-many-locals
+# pylint: disable=invalid-name  # Lazy fixing
 
 import numpy as np
 from scipy.ndimage import median_filter
-import scipy.interpolate  # for LocalMax
+import scipy.interpolate  # for local_max
 
 # from abism.back.image_info import get_array_stat
 from abism.back.fit_template_function import Moffat2D
 
+from abism.answer import AnswerLuminosity, AnswerDistance, AnswerNum
 from abism.util import log, get_state, DotDic
 
 
-def DoNotPassBorder(grid, point2d):
-    """Ensure point is in image
+def do_not_pass_border(grid, point2d):
+    """ Ensure point is in image
     Arg: grid <- image
          pinrt2d <- x,y
     Returns: new point
@@ -32,8 +36,8 @@ def DoNotPassBorder(grid, point2d):
     return x, y
 
 
-def Order4(r, grid=None, intify=False):
-    """Returns (rxmin, rxmax, rymin, rymax)
+def order4(r, grid=None, intify=False):
+    """ Returns (rxmin, rxmax, rymin, rymax)
     Arg: r      <- 4-tuple
          grid   <- to check bounds
          intify <- result items are integers
@@ -53,22 +57,23 @@ def Order4(r, grid=None, intify=False):
     return (rx1, rx2, ry1, ry2)
 
 
-def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
-    """Returns: maximum in a circle of `size` around `center` in `grid`
+def local_max(grid, center=None, size=10, r=None, type="interpolation"):
+    """ Returns: maximum in a circle of `size` around `center` in `grid`
     type = "gravity"       # gravity center of the 3*3 box
            "interpolation" # interpolation of the 5*5
     With bad pixel filter
     """
+    # pylint: disable=unused-argument,redefined-builtin
     # Copy grid in => we will modify it for recursive call
     grid = grid.copy()
 
     # INIT R
-    if r is None:
-        r = (center[0] - size, center[0] + size + 1,
+    if rect is None:
+        rect = (center[0] - size, center[0] + size + 1,
              center[1] - size, center[1] + size + 1)
 
     # CUT
-    bound_int = list(map(int, r))
+    bound_int = list(map(int, rect))
     cut1 = grid[bound_int[0]:bound_int[1], bound_int[2]:bound_int[3]]
 
     # FILT BAd PIXELS
@@ -78,8 +83,8 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
 
     # 1st MAX
     coord1 = np.unravel_index(cut1.argmax(), cut1.shape)
-    coord1 = (coord1[0] + r[0], coord1[1] + r[2])
-    log(3, "LocalMax coord", coord1, r)
+    coord1 = (coord1[0] + rect[0], coord1[1] + rect[2])
+    log(3, "local_max coord", coord1, rect)
 
     # INTERPOLATE
     if type == "interpolation":
@@ -90,7 +95,7 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
         x = np.arange(xmin, xmax)
         y = np.arange(ymin, ymax)
         cut2 = grid[xmin: xmax, ymin: ymax]
-        log(3, "LocalMax shapes:", x.shape, y.shape,
+        log(3, "local_max shapes:", x.shape, y.shape,
             cut2.shape, xmin, xmax, ymin, ymax)
         interp = scipy.interpolate.interp2d(x, y, cut2, kind="cubic")
 
@@ -116,31 +121,33 @@ def LocalMax(grid, center=None, size=10, r=None, type="interpolation"):
         norm = np.sum(cut2)
         coord2 = np.sum(X * cut1) / norm, np.sum(Y * cut1) / norm
         log(3, "coord1, cut ", coord2, cut2)
-        res = coord2[0] + r[0], coord2[1] + r[2], cut2[coord2[0], coord2[1]]
+        res = coord2[0] + rect[0], coord2[1] + rect[2], cut2[coord2[0], coord2[1]]
 
-    log(3, " LocalMax@ImageFunction.py : ", res)
+    log(3, " local_max@image_function.py : ", res)
     return res
 
 
-def FindMaxWithBin(grid, rectangle):
-    """arg =  grid and r : 3*3 median filter
+def FindMaxWithBin(grid, rect):
+    """arg =  grid and rect : 3*3 median filter
     """
-    r = rectangle
-    cut = grid[r[0]:r[1], r[2]:r[3]]
+    cut = grid[rect[0]:rect[1], rect[2]:rect[3]]
     # Median file 3 x 3 (fuzz)
     cut = median_filter(cut, size=(3, 3))
     # Get peak
     coord = np.unravel_index(cut.argmax(), cut.shape)
 
     # return x,y
-    return coord[0] + r[0], coord[1] + r[2]
+    return coord[0] + rect[0], coord[1] + rect[2]
 
 
 # Find one of the half Maximum without precision  in direction (x,-x,y,-y)
 def FWHM(grid, centermax, direction='average'):
+    """ Find the FWHM around the centermax """
     (x, y) = centermax  # center should be the max pixel.
     i, j = int(x), int(y)       # RETURN  float
     max2 = grid[i, j] / 2
+
+    # Clause: Just avaerage way
     if direction == 'average':
         res = FWHM(grid, centermax, direction='x')
         res += FWHM(grid, centermax, direction='-x')
@@ -148,22 +155,22 @@ def FWHM(grid, centermax, direction='average'):
         res += FWHM(grid, centermax, direction='-y')
         res /= 4
         return res + 0.5
-    else:
-        while (grid[i][j] > max2):
-            log(3, 'FWHM :i,j,I=', i, j, grid[i][j], direction)
-            if direction == 'x':
-                i += 1
-            if direction == '-x':
-                i -= 1
-            if direction == 'y':
-                j += 1
-            if direction == 'z':
-                j -= 1
-            if grid[i][j] > grid[int(x)][int(y)] / 2:
-                break
-        fwhm = np.sqrt((j - y)**2 + (i - x)**2) * 2
-        log(3, "FWHM2:", fwhm)
-        return fwhm
+
+    while grid[i][j] > max2:
+        log(3, 'FWHM :i,j,I=', i, j, grid[i][j], direction)
+        if direction == 'x':
+            i += 1
+        if direction == '-x':
+            i -= 1
+        if direction == 'y':
+            j += 1
+        if direction == 'z':
+            j -= 1
+        if grid[i][j] > grid[int(x)][int(y)] / 2:
+            break
+    fwhm = np.sqrt((j - y)**2 + (i - x)**2) * 2
+    log(3, "FWHM2:", fwhm)
+    return fwhm
 
 
 def PixelMax(grid, r=None):
@@ -173,16 +180,18 @@ def PixelMax(grid, r=None):
     if r is None:
         r = 0, len(grid), 0, len(grid[0])
     cut1 = grid[r[0]: r[1], r[2]: r[3]]
+    # pylint: disable=unbalanced-tuple-unpacking  # It seems to work
     x, y = np.unravel_index(cut1.argmax(), cut1.shape)
     return (r[0] + x, r[2] + y), cut1[x, y]
 
 
 def EnergyRadius(grid, dic={}):
-    """We first define r99u and v following the spread direction
+    """ We first define r99u and v following the spread direction
     x and y respectively, but these are arbitrary due to the fit
     we then transforms it to r99x and R99y
     Returns: (r99uv), (r99xy)
     """
+    # pylint: disable=too-many-branches,unused-argument,dangerous-default-value
     params = dic  # because no update
     s_fit_type = get_state().s_fit_type
     aniso = get_state().b_aniso
@@ -226,11 +235,11 @@ def EnergyRadius(grid, dic={}):
         # take cara r99 = R90
         r99u = 5.8 * params['spread_x']
         r99v = 5.8 * params['spread_x']
-    if (s_fit_type == 'Bessel12D'):
+    if s_fit_type == 'Bessel12D':
         # take cara r99 = R90
         r99u = 5.8 * params['spread_x']
         r99v = 5.8 * params['spread_y']
-    if (s_fit_type == 'None'):
+    if s_fit_type == 'None':
         r99u, r99v = params["r99x"], params["r99y"]
 
     ###########
@@ -243,7 +252,7 @@ def EnergyRadius(grid, dic={}):
     else:
         r99x, r99y = r99u, r99v
 
-    log(3, "------>EnergyRadius(ImageFunction.py)->", (r99x, r99y))
+    log(3, "------>EnergyRadius(image_function.py)->", (r99x, r99y))
     return (r99x, r99y), (r99u, r99v)
 
 
@@ -254,7 +263,6 @@ def FwhmFromFit(fit_dic, err_dic):
     Gauss: ∫e^(-x²/a²)  = πa²
     Moffat: ∫(1+x²)^-b  = πa² / (b-1)
     """
-    from abism.answer import AnswerLuminosity, AnswerDistance, AnswerNum
     s_fit_type = get_state().s_fit_type
 
     a_phot = AnswerLuminosity('Helper', 1, error=0)
@@ -276,7 +284,7 @@ def FwhmFromFit(fit_dic, err_dic):
 
     # Gaussian
     if 'Gaussian' in s_fit_type:
-        """2 * sqrt( log(2) ) = 1.6651092223153954"""
+        # """2 * sqrt( log(2) ) = 1.6651092223153954"""
         a_phot *= a_intensity * np.pi * a_spread_x * a_spread_y
         a_fwhm_x = 1.66510922 * a_spread_x
         a_fwhm_y = 1.66510922 * a_spread_y
@@ -320,17 +328,19 @@ def FwhmFromFit(fit_dic, err_dic):
 
 
 def EightRectangleNoise(
-    grid,
-    r,
-    return_rectangle=0,
-    dictionary={
-        'size': 4,
-        'distance': 1}):
+        grid,
+        r,
+        return_rectangle=0,
+        dictionary={
+            'size': 4,
+            'distance': 1}):
     """Derive the noise from eight rectangle (of R/2 ) around the 99% Energy
     size =4 means that we divide by  4 the size of the rectangle
     distance = 2 means we go father by a factor 2 for star center (r center)
     we suppose order in r
     """
+    # pylint: disable=dangerous-default-value
+
     rx1, rx2, ry1, ry2 = r
     distance, size = dictionary['distance'], dictionary['size']
     rx1, rx2 = rx1 - distance * (rx2 - rx1) / \
@@ -444,7 +454,7 @@ def get_radial_line(grid, point1_and_point2, return_point=0):
     length = np.sqrt(vect_r[1]**2 + vect_r[0]**2)
 
     # Get the extreme points of the line on grid
-    xmin, xmax, ymin, ymax = Order4((x1, x2, y1, y2), grid=grid)
+    xmin, xmax, ymin, ymax = order4((x1, x2, y1, y2), grid=grid)
     xmin, xmax, ymin, ymax = int(xmin), int(xmax), int(ymin), int(ymax)
 
     x, y = np.arange(xmin, xmax), np.arange(ymin, ymax)
@@ -492,7 +502,7 @@ def get_profile_x(grid, center):
     Note: only used once in answer_return
     """
     r = (0, len(grid) - 1, 0, len(grid[0]) - 1)
-    r = Order4(r)
+    r = order4(r)
     x = np.arange(int(r[0]), int(r[1]) + 1)
     y = grid[int(r[0]):int(r[1]) + 1, int(center[1])]
     return x, y

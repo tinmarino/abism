@@ -1,10 +1,18 @@
+#!/usr/bin/env python3
+
 """
-    Helper to make a 2D function (i.e Gaussian) fit an array
+Helpers to make a 2D function (i.e Gaussian) fit an array
+
 IDEA: fit Y = F(X,A) where A is a dictionary describing the
 parameters of the function.
 
-note that the items in the dictionary should all be scalar!
+Note that the items in the dictionary should all be scalar!
+
+Exported: least_sq_fit used in strehl_fit.py
 """
+
+# pylint: disable=all  # Old code, TODO maintain
+
 from functools import reduce
 
 import numpy as np
@@ -16,9 +24,8 @@ from abism.back.leastsqbound import leastsqbound
 from abism.util import log, get_state
 
 
-def polyN(x, params):
-    """
-    example of a function which parameters are defined by a
+def poly_n(x, params):
+    """ Example of a function which parameters are defined by a
     dictionary: a polynomial function.
 
     In this particular case, params={'A0':1.0, 'A2':2.0} returns
@@ -33,7 +40,8 @@ def polyN(x, params):
 
 
 def radial2dgrid(radius, sample, center=[0, 0]):
-    """Convert circle to grid"""
+    """ Convert circle to grid """
+    # pylint: disable=dangerous-default-value
     x = np.linspace(-radius, radius, sample) + center[1]
     y = np.linspace(-radius, radius, sample) + center[0]
     xi1 = np.tile(x, sample)
@@ -44,10 +52,9 @@ def radial2dgrid(radius, sample, center=[0, 0]):
     return xi1, yi1, radgrid
 
 
-def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
+def fit_func(pfit, pfitKeys, x, y, err=None, func=None,
             pfix=None, verbose=False):
-    """
-    interface to leastsq from scipy:
+    """ Interface to leastsq from scipy:
     - x,y,err are the data
     - pfit is a list of the parameters
     - pfitsKeys are the keys to build the dict
@@ -96,7 +103,7 @@ def fitFunc(pfit, pfitKeys, x, y, err=None, func=None,
     return res
 
 
-def leastsqFit(func, x, params, y, err=None, fitOnly=None,
+def least_sq_fit(func, x, params, y, err=None, fitOnly=None,
                verbose=False, doNotFit=[], epsfcn=1e-7,
                ftol=1e-4, fullOutput=True, bounds={}):
     """
@@ -140,7 +147,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
     if bounds == {}:
         # actual fit
         plsq, cov, info, mesg, ier = \
-            scipy.optimize.leastsq(fitFunc, pfit,
+            scipy.optimize.leastsq(fit_func, pfit,
                                    args=(fitOnly, x, y, err,
                                          func, pfix, verbose),
                                    full_output=True, epsfcn=epsfcn, ftol=ftol)
@@ -153,7 +160,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
                 bounds_to_fit[fitOnly.index(key)] = bounds[key]
 
         plsq, cov, info, mesg, ier = \
-            leastsqbound(fitFunc, pfit, bounds=bounds_to_fit,
+            leastsqbound(fit_func, pfit, bounds=bounds_to_fit,
                          args=(fitOnly, x, y, err, func, pfix, verbose),
                          full_output=True, epsfcn=epsfcn, ftol=ftol)
 
@@ -163,7 +170,7 @@ def leastsqFit(func, x, params, y, err=None, fitOnly=None,
 
     # reduced chi2
     model = func(x, pfix)
-    chi2 = (np.array(fitFunc(plsq, fitOnly, x, y, err, func, pfix))**2).sum()
+    chi2 = (np.array(fit_func(plsq, fitOnly, x, y, err, func, pfix))**2).sum()
     reducedChi2 = chi2 / float(reduce(lambda x, y: x + y,
                                       [1 if np.isscalar(i) else len(i) for i in y]) - len(pfit) + 1)
 
@@ -243,18 +250,12 @@ def gaussian2(xy, params):
 
 
 def example():
-    """
-    very simple example
-    """
+    """ very simple example """
     X = [0, 1, 2, 3]
     Y = [-0.1, 1.1, 4.1, 8.9]
     E = [0.1, 0.1, 0.1, 0.1]
-    # best, unc, chi2, model =\
-    #      leastsqFit(polyN, X,
-    #                 {'A0':0., 'A1':0.,'A2':0.1},
-    #                 Y, err=E, fitOnly=['A2', 'A0'])
     best, unc, chi2, model =\
-        leastsqFit(polyN, X,
+        least_sq_fit(poly_n, X,
                    {'A0': 0., 'A1': 0., 'A2': 0.1},
                    Y, err=E, doNotFit=['A1'])
     log(1, 'CHI2=', chi2)
@@ -276,7 +277,7 @@ def example2():
     params = {'C': 0.2, 'V': 0.3, 'phi': 0.5 * np.pi}
     y = sinusoid(x, params) + np.random.random(sample) * 0.1 - 0.5
     erry = np.ones(sample) * 0.05
-    best, unc, chi2, model = leastsqFit(
+    best, unc, chi2, model = least_sq_fit(
         sinusoid, x, {
             'C': 0.1, 'V': 0.2, 'phi': 0.1 * np.pi}, y, err=erry, verbose=True)
     plt.figure(1)
@@ -299,8 +300,8 @@ def example3():
     params = {'C': 0, 'A': 1, 'x0': 0, 'sigma': 0.27}
     y = bessel1(x, params) + 0.1 * np.random.random(sample)
     erry = np.ones(sample) * 0.05
-    # best, unc, chi2, model =leastsqFit(gaussian,x,{'C':0.2,'A':10.4,'x0':0.3,'sigma':0.7},y, err=erry,verbose=True)
-    best, unc, chi2, model = leastsqFit(
+    # best, unc, chi2, model =least_sq_fit(gaussian,x,{'C':0.2,'A':10.4,'x0':0.3,'sigma':0.7},y, err=erry,verbose=True)
+    best, unc, chi2, model = least_sq_fit(
         bessel1, x, {
             'C': 0, 'A': 0.6, 'x0': 0, 'sigma': 0.4}, y, err=erry, verbose=True)
     plt.figure(1)
@@ -343,7 +344,7 @@ def example4():
     ax1 = plt.subplot(121)
     ax1.imshow(ima.reshape(sample, sample))
     # now the fitting
-    best, unc, chi2, model = leastsqFit(
+    best, unc, chi2, model = least_sq_fit(
         gaussian2, xconc, paramsguess, ima, err=errima, verbose=True)
     print(best, unc, chi2, model)
     ax2 = plt.subplot(122)
@@ -352,13 +353,13 @@ def example4():
 
 
 def example5():
-    """ A*tanh(Bx)+C """
+    """ A*tanh(Bx) + C """
     sample = 100
     x = np.linspace(-2, 2, sample)
     params = {'A': 3, 'B': 10, 'C': 3}
     y = tanhip(x, params) + np.random.random(sample)
     erry = np.ones(sample)
-    best, unc, chi2, model = leastsqFit(
+    best, unc, chi2, model = least_sq_fit(
         tanhip, x, {'A': 3, 'B': 0.9, 'C': 3}, y, err=erry, verbose=True)
     plt.figure(1)
     ax1 = plt.subplot(111)
@@ -377,11 +378,10 @@ def plot2dgaussian():
     sample = 50
     params = {'C': 0.5, 'A': 5.5, 'theta': 0.13 * np.pi,
               'x0': 2.0, 'y0': -2.0, 'sigmax': 2.0, 'sigmay': 1.0}
-    x, y, grid = radial2dgrid(5.0, sample)
+    x, y, _grid = radial2dgrid(5.0, sample)
     xconc = np.concatenate((x, y))
     ima = gaussian2(xconc, params)
-    fig1 = plt.figure(1)
+    _fig1 = plt.figure(1)
     ax1 = plt.subplot(121)
 
     ax1.imshow(ima.reshape(sample, sample))
-# example4()

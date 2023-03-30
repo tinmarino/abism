@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods,too-many-instance-attributes
+#!/usr/bin/env python
 
 """
 Fits Header parser
@@ -42,6 +42,8 @@ Helper:
                                     Or just as a quiet warning.
 """
 
+# pylint: disable=too-few-public-methods,too-many-instance-attributes
+
 import numpy as np
 from astropy import wcs
 
@@ -78,13 +80,15 @@ class WCSDefault:
 
     def all_pix2world(self, _x, _y):
         """ Base method, return dummy coordinates """
+        # pylint: disable=no-self-use
         return np.array([[float('nan'), float('nan')]])
 
 
 class Header:
-    """Container"""
+    """ Container """
 
     def __init__(self, header):
+        # pylint: disable=too-many-branches,too-many-statements
         self.header = header
 
         # Strehl
@@ -281,30 +285,32 @@ class Header:
                 self.wcs.all_pix2world = lambda x, y: np.array(
                     [[float('nan'), float('nan')]])
 
+        # pylint: disable=broad-except
         except BaseException:  # includding no wcs module
+            # pylint: disable=import-outside-toplevel
             import traceback
             log(0, traceback.format_exc(),
                 "WARNING I dit not manage to get WCS from wcs\n\n")
 
         #
         # WCS
-        self.CD1_1, self.CD2_2 = 1, 1
-        self.CD2_1, self.CD1_2 = 0, 0
+        self.cd1_1, self.cd2_2 = 1, 1
+        self.cd2_1, self.cd1_2 = 0, 0
         if 'CD1_1' in self.header:
-            self.CD1_1 = float(self.header['CD1_1'])
+            self.cd1_1 = float(self.header['CD1_1'])
             if 'CD1_2' in self.header:
-                self.CD1_2 = float(self.header['CD1_2'])
+                self.cd1_2 = float(self.header['CD1_2'])
                 if 'CD2_1' in self.header:
-                    self.CD2_1 = float(self.header['CD2_1'])
+                    self.cd2_1 = float(self.header['CD2_1'])
                     if 'CD2_2' in self.header:
-                        self.CD2_2 = float(self.header['CD2_2'])
+                        self.cd2_2 = float(self.header['CD2_2'])
 
         #
         #  ZPT
 
 
 class NacoHeader(Header):
-    """NaOS + Conica la lleva pero se la llevaron !"""
+    """ NaOS + Conica la lleva pero se la llevaron ! """
 
     def __init__(self, header):
         Header.__init__(self, header)
@@ -326,7 +332,8 @@ class NacoHeader(Header):
         self.saturation()
 
     def saturation(self):
-        """Check if non-linear or even staturated"""
+        """ Check if non-linear or even staturated """
+        # pylint: disable=too-many-nested-blocks
         if 'HIERARCH ESO DET NCORRS NAME' in self.header:
             self.ncor = self.header['HIERARCH ESO DET NCORRS NAME']
             if 'HIERARCH ESO DET MODE NAME' in self.header:
@@ -351,7 +358,7 @@ class NacoHeader(Header):
 
 
 class SinfoniHeader(Header):
-    """Sinfoni Instrument"""
+    """ Sinfoni Instrument """
 
     def __init__(self, header):
         Header.__init__(self, header)

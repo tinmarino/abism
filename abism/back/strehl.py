@@ -1,11 +1,14 @@
+#!/usr/bin/env python3
+
 """
-    Strehl meter
-    TODO prettify, the function division is not judicious:
-        Error goes along with measure (always)
+Strehl meter
+TODO prettify, the function division is not judicious:
+    Error goes along with measure (always)
 """
+
 import numpy as np
 
-from abism.back import ImageFunction as IF
+from abism.back import image_function as IF
 from abism.back.strehl_fit import OnePsf, BinaryPsf, TightBinaryPsf
 from abism.back.image_info import ImageInfo, get_array_stat
 
@@ -20,16 +23,16 @@ from abism.util import log, get_root, get_state, set_aa, get_aa, \
 
 def strehl_one(rectangle):
     """ Note : this should just be a caller
-        this is the first written, strehlMeter for pick one,
-        I putted more for ellipse and binary
+    this is the first written, strehlMeter for pick one,
+    I putted more for ellipse and binary
     """
     # pylint: disable = too-many-locals
 
     # Find center && fwhm
     # TODO bad pixels in center
-    rectangle = IF.Order4(rectangle, grid=get_state().image.im0, intify=True)
+    rectangle = IF.order4(rectangle, grid=get_state().image.im0, intify=True)
     star_center = IF.FindMaxWithBin(get_state().image.im0, rectangle)
-    tmp = IF.LocalMax(get_state().image.im0, center=star_center, size=3)
+    tmp = IF.local_max(get_state().image.im0, center=star_center, size=3)
     star_max, star_center = tmp[2], (tmp[0], tmp[1])
     IF.FWHM(get_state().image.im0, star_center)
 
@@ -48,15 +51,15 @@ def strehl_one(rectangle):
     # Intensity
     intensity = psf_fit[0]['intensity']
     if get_state().e_phot_type and get_state().s_fit_type != "None":
-        dI = get_state().d_fit_error["intensity"]
+        intensity_error = get_state().d_fit_error["intensity"]
     else:
         x0, y0 = int(
             get_state().d_fit_param["center_x"]), int(
             get_state().d_fit_param["center_y"])
         mean = np.mean(get_state().image.im0[x0 - 1:x0 + 2, y0 - 1:y0 + 2])
-        dI = (get_state().d_fit_param["intensity"] - mean)
-        dI /= 2
-    set_aa(EA.INTENSITY, intensity, error=dI)
+        intensity_error = (get_state().d_fit_param["intensity"] - mean)
+        intensity_error /= 2
+    set_aa(EA.INTENSITY, intensity, error=intensity_error)
 
     # Get Background && Save
     background, rms = get_background(get_state().image.im0)
@@ -89,6 +92,7 @@ def strehl_one(rectangle):
 
 
 def craft_fwhm(a_fwhm_x, a_fwhm_y):
+    """ Craft and answer of FWHM """
     # (Long, Short axe, Eccentricity)
     # TODO error propagation, get cool for fwhm
     fwhm_a = max(a_fwhm_x.value, a_fwhm_y.value)
@@ -97,20 +101,22 @@ def craft_fwhm(a_fwhm_x, a_fwhm_y):
     return get_state().craft_answer(EA.FWHM_ABE, (fwhm_a, fwhm_b, fwhm_e))
 
 
-def BinaryStrehl(star1, star2):
+def calculate_binary_strehl(star1, star2):
+    """ Calculate strehl for 2 stars """
     binary_psf = BinaryPsf(get_state().image.im0, star1, star2)
     binary_psf.do_fit().get_result()
     append_binary_info()
 
 
-def TightBinaryStrehl(star1, star2):
+def calculate_tight_binary_strehl(star1, star2):
+    """ Calculate strehl for 2 stars with degeneracy """
     tight_psf = TightBinaryPsf(get_state().image.im0, star1, star2)
     tight_psf.do_fit().get_result()
     append_binary_info()
 
 
 def append_binary_info():
-    """Read fit_dic, err_dic
+    """ Read fit_dic, err_dic
     Write: Separatation
     """
     # pylint: disable = too-many-locals
@@ -151,6 +157,7 @@ def append_binary_info():
                     res[key.replace(s_num, "")] = dic[key]
             try:
                 res["exponent"] = dic["b" + s_num]
+            # pylint: disable=broad-except
             except BaseException:
                 pass
         return fit_res, err_res
@@ -206,7 +213,7 @@ def save_separation(point=((0, 0), (0, 0)), error=((0, 0), (0, 0))):
 ######################################################################
 
 
-def EllipseEventStrehl(ellipse):
+def event_ellipse_strehl(ellipse):
     """ Input event callback: on user ellipse click
     arg: ellipse: artist with ru, rv, position
     """
@@ -233,7 +240,7 @@ def EllipseEventStrehl(ellipse):
 
 
 def get_ellipse_background(ellipse):
-    """Return: background from ellipse <stat ellipse>"""
+    """ Return: background from ellipse <stat ellipse> """
 
     # Inner annulus
     rui, rvi = ellipse.ru, ellipse.rv
@@ -256,7 +263,7 @@ def get_ellipse_background(ellipse):
 
 
 def get_ellipse_photometry(ellipse):
-    """Elliptical phot
+    """ Elliptical phot
     Returns: photometry, total, number_count
     """
     bol = IF.get_elliptical_aperture(
@@ -275,9 +282,9 @@ def set_answer_ellipse_peak(ellipse):
     Side Returns: local maximum, cetner <- answers
     """
     rad = max(ellipse.ru, ellipse.rv)
-    r = (ellipse.x0 - rad, ellipse.x0 + rad + 1,
+    radius = (ellipse.x0 - rad, ellipse.x0 + rad + 1,
          ellipse.y0 - rad, ellipse.y0 + rad + 1)
-    local_max = IF.LocalMax(get_state().image.im0, r=r)
+    local_max = IF.local_max(get_state().image.im0, r=radius)
     x0, y0 = local_max[:2]
 
     # Save
@@ -347,7 +354,7 @@ def get_photometry(grid, background, rms, rectangle=None, a_phot=None):
     # Manual
     elif e_phot_type == EPhot.MANUAL:
         log(3, 'Photometry <- manual')
-        stat = get_state().image.RectanglePhot(rectangle)
+        stat = get_state().image.rectangle_photometry(rectangle)
         total = stat.sum
         number_count = stat.number_count
         phot = total - number_count * background
@@ -379,7 +386,7 @@ def get_background(grid):
         restmp = IF.EightRectangleNoise(
             grid, (xtmp - r99x, xtmp + r99x, ytmp - r99y, ytmp + r99y))
         background, rms = restmp["background"], restmp['rms']
-        log(3, "ImageFunction.py : Background, I am in 8 rects ")
+        log(3, "image_function.py : Background, I am in 8 rects ")
 
     # Manual
     elif background_type == ESky.MANUAL:
@@ -403,6 +410,7 @@ def get_background(grid):
         try:
             background = get_state().d_fit_param['background']
             rms = get_state().d_fit_error['background']
+        # pylint: disable=broad-except
         except BaseException:
             log(-1, 'Error: background not in fit parameters')
             rms = background = float('nan')
@@ -430,7 +438,7 @@ def get_background(grid):
         ay1 = int(get_state().d_fit_param["center_y"] - myrad)
         ay2 = int(get_state().d_fit_param["center_y"] + myrad)
         theta = get_state().d_fit_param['theta']
-        ax1, ax2, ay1, ay2 = IF.Order4((ax1, ax2, ay1, ay2), grid=grid)
+        ax1, ax2, ay1, ay2 = IF.order4((ax1, ax2, ay1, ay2), grid=grid)
         image_cut = get_state().image.im0[ax1: ax2, ay1: ay2]
 
         bol_i = IF.get_elliptical_aperture(
@@ -501,6 +509,8 @@ def get_bessel_integer():
     Out: float like 24.53
     Doc: See the integral of the bessel (and obstruted aperture) in advanced doc
     """
+    # pylint: disable=invalid-name,non-ascii-name
+
     # Lambda: wavelength in meter
     λ = get_root().header.wavelength / 10**6
     # Focal Plane Scale: pixel size in radian

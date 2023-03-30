@@ -6,6 +6,7 @@ Abism utility functions
 
 # pylint: disable=import-outside-toplevel  # Import depends on client (ipython vs bash)
 # pylint: disable=consider-using-f-string  # Old school way of formatting
+# pylint: disable=cyclic-import  # Importing answer_return in late calls to hide it
 
 # Standard
 import sys
